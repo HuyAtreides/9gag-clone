@@ -13,6 +13,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
@@ -47,7 +48,7 @@ public class AWSS3Util {
     public String uploadObject(MultipartFile multipartFile) throws IOException {
         String objectKey = generateObjectKey(multipartFile);
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
-                .key(objectKey).build();
+                .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
         RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());
         PutObjectResponse response = s3Client.putObject(putObjectRequest, requestBody);
 
