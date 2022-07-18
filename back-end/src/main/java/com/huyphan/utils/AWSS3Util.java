@@ -55,6 +55,9 @@ public class AWSS3Util {
         return buildObjectUrl(objectKey);
     }
 
+    /**
+     * Generate an object key used to uniquely identify an object
+     */
     private String generateObjectKey(MultipartFile multipartFile) {
         Instant instant = Instant.now();
         String fileName = multipartFile.getOriginalFilename().replace(" ", "_");
@@ -62,7 +65,7 @@ public class AWSS3Util {
     }
 
     /**
-     * Build S3 Transfer Manager instance.
+     * Build S3 Client instance.
      */
     private S3Client buildS3Client() {
         AwsCredentials awsCredentials = AwsBasicCredentials.create(
@@ -74,6 +77,11 @@ public class AWSS3Util {
         ).region(Region.AP_EAST_1).build();
     }
 
+    /**
+     * Build object url from object key.
+     *
+     * @param objectKey The key of the object (Uniquely identify an object).
+     */
     private String buildObjectUrl(String objectKey) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName,
                 awsRegion, objectKey);
