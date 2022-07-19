@@ -24,22 +24,35 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <groupId>org.springframework.boot</groupId>
         </dependency>
-        <!-- <dependency>
-             <artifactId>spring-boot-starter-security</artifactId>
-             <groupId>org.springframework.boot</groupId>
-         </dependency>-->
+        <dependency>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <groupId>org.springframework.boot</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>jjwt-api</artifactId>
+            <groupId>io.jsonwebtoken</groupId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <artifactId>jjwt-impl</artifactId>
+            <groupId>io.jsonwebtoken</groupId>
+            <scope>runtime</scope>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <artifactId>jjwt-jackson</artifactId>
+            <groupId>io.jsonwebtoken</groupId>
+            <scope>runtime</scope>
+            <version>0.11.5</version>
+        </dependency>
         <dependency>
             <artifactId>spring-boot-starter-web</artifactId>
             <groupId>org.springframework.boot</groupId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <artifactId>h2</artifactId>
             <groupId>com.h2database</groupId>
             <scope>runtime</scope>
-        </dependency>
-        <!--<dependency>
-            <artifactId>aws-sdk-java</artifactId>
-            <groupId>software.amazon.awssdk</groupId>
         </dependency>-->
         <dependency>
             <artifactId>s3</artifactId>

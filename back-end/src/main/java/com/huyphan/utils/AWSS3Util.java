@@ -15,7 +15,6 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 /**
  * Provide methods for working with AWS S3.
@@ -28,11 +27,11 @@ public class AWSS3Util {
     private final String accessKeyId;
     private final String secretAccessKey;
     private final String awsRegion;
-    @Value("${aws.s3.bucket_name}")
+    @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    public AWSS3Util(@Value("${aws.access_key_id}") String keyId,
-            @Value("${aws.secret_access_key}") String accessKey,
+    public AWSS3Util(@Value("${aws.access-key-id}") String keyId,
+            @Value("${aws.secret-access-key}") String accessKey,
             @Value("${aws.region}") String awsRegion) {
         this.accessKeyId = keyId;
         this.secretAccessKey = accessKey;
@@ -50,7 +49,7 @@ public class AWSS3Util {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
                 .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
         RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());
-        PutObjectResponse response = s3Client.putObject(putObjectRequest, requestBody);
+        s3Client.putObject(putObjectRequest, requestBody);
 
         return buildObjectUrl(objectKey);
     }
