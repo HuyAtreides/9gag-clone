@@ -49,11 +49,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <groupId>org.springframework.boot</groupId>
         </dependency>
-        <!--<dependency>
-            <artifactId>h2</artifactId>
-            <groupId>com.h2database</groupId>
-            <scope>runtime</scope>
-        </dependency>-->
+        <dependency>
+            <artifactId>modelmapper</artifactId>
+            <groupId>org.modelmapper</groupId>
+            <version>3.0.0</version>
+        </dependency>
         <dependency>
             <artifactId>s3</artifactId>
             <groupId>software.amazon.awssdk</groupId>
@@ -79,11 +79,6 @@
             <groupId>org.springframework.boot</groupId>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency>
-             <artifactId>spring-security-test</artifactId>
-             <groupId>org.springframework.security</groupId>
-             <scope>test</scope>
-         </dependency>-->
     </dependencies>
     <dependencyManagement>
         <dependencies>

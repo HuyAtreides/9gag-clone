@@ -1,5 +1,6 @@
 package com.huyphan.filters;
 
+import com.huyphan.models.exceptions.AuthException;
 import com.huyphan.services.UserService;
 import com.huyphan.utils.JwtUtil;
 import java.io.IOException;
@@ -38,9 +39,8 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             String credential = request.getHeader(HttpHeaders.AUTHORIZATION);
             String token = parseCredential(credential);
-
             if (!jwtUtil.validateToken(token)) {
-                throw new Exception("Invalid Token");
+                throw new AuthException("Invalid Token");
             }
 
             String subject = jwtUtil.getTokenSubject(token);
@@ -63,22 +63,22 @@ public class JwtFilter extends OncePerRequestFilter {
      *
      * @param credential Credential contains JWT token
      */
-    private String parseCredential(String credential) throws Exception {
+    private String parseCredential(String credential) throws AuthException {
         try {
             if (credential == null) {
-                throw new Exception("Credential Is Missing.");
+                throw new AuthException("Credential Is Missing.");
             }
 
             String authSchema = credential.split(" ")[0];
             String token = credential.split(" ")[1].strip();
 
             if (!authSchema.equals("Bearer")) {
-                throw new Exception("Invalid Authorization Scheme.");
+                throw new AuthException("Invalid Authorization Scheme.");
             }
 
             return token;
         } catch (ArrayIndexOutOfBoundsException exception) {
-            throw new Exception("Invalid Token");
+            throw new AuthException("Invalid Token");
         }
     }
 

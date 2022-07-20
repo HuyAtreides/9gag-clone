@@ -1,6 +1,7 @@
 package com.huyphan.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -46,7 +47,7 @@ public class Comment {
     @Column(name = "MediaUrl")
     private String mediaUrl;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "UserId")
     private User user;
 
@@ -56,6 +57,13 @@ public class Comment {
     @Column(name = "Downvotes", nullable = false)
     private Integer downvotes;
 
-    @OneToMany(mappedBy = "replyTo", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "replyTo")
     private Set<Comment> replies = new LinkedHashSet<>();
+
+    @Column(name = "MediaType", length = 70)
+    private String mediaType;
+
+    @Column(name = "CommentDate", nullable = false)
+    private Instant commentDate;
+
 }

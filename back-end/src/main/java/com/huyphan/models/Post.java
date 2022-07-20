@@ -51,14 +51,13 @@ public class Post {
     @JoinColumn(name = "UserId", nullable = false)
     private User user;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "SectionId", nullable = false)
     private Section section;
 
     @Column(name = "UploadTime", nullable = false)
     private Instant uploadTime;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post")
     private Set<Comment> comments = new LinkedHashSet<>();
 }

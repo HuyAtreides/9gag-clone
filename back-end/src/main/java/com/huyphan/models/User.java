@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +28,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @NoArgsConstructor
 @Table(name = "[User]")
+@NamedEntityGraph(name = "UserEntityGraph", attributeNodes = {
+        @NamedAttributeNode("favoriteSections"),
+})
 public class User implements UserDetails {
 
     @Id
@@ -53,23 +56,20 @@ public class User implements UserDetails {
     @Column(name = "Provider", length = 20)
     private String provider;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "SavedPost",
             joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> savedPosts = new LinkedHashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "VotedPost",
             joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> votedPosts = new LinkedHashSet<>();
 
     @ManyToMany(mappedBy = "users")
-    private Set<Section> sections = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "user")
-    private Set<Notification> notifications = new LinkedHashSet<>();
+    private Set<Section> favoriteSections = new LinkedHashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

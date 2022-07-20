@@ -1,6 +1,7 @@
 package com.huyphan;
 
 import com.huyphan.filters.JwtFilter;
+import com.huyphan.securityexceptionshandlers.AuthExceptionsHandler;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
+    @Autowired
+    private AuthExceptionsHandler authExceptionsHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
@@ -34,6 +38,7 @@ public class SecurityConfig {
         http.authorizeRequests()
                 .antMatchers("/auth/login", "/auth/refresh-token", "/auth/register")
                 .permitAll().anyRequest().authenticated();
+        http.exceptionHandling().authenticationEntryPoint(authExceptionsHandler);
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

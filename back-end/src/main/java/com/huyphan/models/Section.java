@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,6 +42,6 @@ public class Section {
     @JsonIgnore
     private Set<User> users = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "section", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "section")
     private Set<Post> posts = new LinkedHashSet<>();
 }
