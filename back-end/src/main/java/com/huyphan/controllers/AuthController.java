@@ -1,12 +1,17 @@
 package com.huyphan.controllers;
 
 import com.huyphan.dtos.LoginDataDto;
+import com.huyphan.dtos.RegisterDataDto;
 import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.mappers.LoginDataMapper;
+import com.huyphan.mappers.RegisterDataMapper;
 import com.huyphan.mappers.UserSecretMapper;
 import com.huyphan.models.LoginData;
+import com.huyphan.models.RegisterData;
 import com.huyphan.models.UserSecret;
+import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.AuthException;
+import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +33,9 @@ public class AuthController {
     private LoginDataMapper loginDataMapper;
 
     @Autowired
+    private RegisterDataMapper registerDataMapper;
+
+    @Autowired
     private UserSecretMapper userSecretMapper;
 
     @PostMapping("login")
@@ -37,14 +45,19 @@ public class AuthController {
         return userSecretMapper.toDto(userSecret);
     }
 
-   /* @PostMapping("register")
-    public UserSecret register(RegisterData registerData) {
+    @PostMapping("register")
+    public UserSecretDto register(@RequestBody RegisterDataDto registerDataDto)
+            throws UserAlreadyExistsException {
+        RegisterData registerData = registerDataMapper.fromDto(registerDataDto);
+        UserSecret userSecret = authService.register(registerData);
+        return userSecretMapper.toDto(userSecret);
+    }
 
-    }*/
-
-    @ExceptionHandler(AuthException.class)
+    @ExceptionHandler({AuthException.class, UserAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public AuthException handleAuthExceptions(AuthException exception) {
+    public AppException handleAuthExceptions(AppException exception) {
         return exception;
     }
+
+
 }

@@ -20,6 +20,7 @@ public class AuthExceptionsHandler implements AuthenticationEntryPoint {
             AuthenticationException authException) throws IOException {
         String responseBody = objectMapper.writeValueAsString(authException);
         response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write(responseBody);
     }
 }

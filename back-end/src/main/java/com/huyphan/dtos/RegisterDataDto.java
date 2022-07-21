@@ -1,7 +1,9 @@
 package com.huyphan.dtos;
 
+import com.huyphan.models.enums.Country;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 /**
  * Register Data DTO.
@@ -23,7 +25,8 @@ public class RegisterDataDto {
     /**
      * User country.
      */
-    private String country;
+    @Nullable
+    private Country country;
 
     /**
      * User password.

@@ -1,11 +1,14 @@
 package com.huyphan.models;
 
-import com.huyphan.enums.Role;
+import com.huyphan.models.converters.CountryConverter;
+import com.huyphan.models.enums.Country;
+import com.huyphan.models.enums.Role;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -41,14 +44,15 @@ public class User implements UserDetails {
     @Column(name = "Username", nullable = false, length = 20, unique = true)
     private String username;
 
-    @Column(name = "AvatarUrl", nullable = false)
+    @Column(name = "AvatarUrl")
     private String avatarUrl;
 
     @Column(name = "DisplayName", nullable = false, length = 30)
     private String displayName;
 
-    @Column(name = "Country", nullable = false, length = 70)
-    private String country;
+    @Column(name = "Country", length = 70)
+    @Convert(converter = CountryConverter.class)
+    private Country country;
 
     @Column(name = "Password")
     private String password;

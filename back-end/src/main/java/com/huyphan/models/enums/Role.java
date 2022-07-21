@@ -1,4 +1,4 @@
-package com.huyphan.enums;
+package com.huyphan.models.enums;
 
 import lombok.Getter;
 
