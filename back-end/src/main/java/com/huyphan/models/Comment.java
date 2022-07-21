@@ -1,6 +1,5 @@
 package com.huyphan.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -31,12 +30,10 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostId")
-    @JsonIgnore
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ReplyToId")
-    @JsonIgnore
     private Comment replyTo;
 
     @Lob

@@ -1,6 +1,5 @@
 package com.huyphan.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -28,7 +27,7 @@ public class Section {
     @Column(name = "Id", nullable = false)
     private Long id;
 
-    @Column(name = "Name", nullable = false, length = 50)
+    @Column(name = "Name", nullable = false, length = 50, unique = true)
     private String name;
 
     @Lob
@@ -39,7 +38,6 @@ public class Section {
     @JoinTable(name = "FavoriteSection",
             joinColumns = @JoinColumn(name = "SectionId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
-    @JsonIgnore
     private Set<User> users = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "section")

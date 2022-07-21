@@ -1,6 +1,5 @@
 package com.huyphan.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -46,7 +45,6 @@ public class Post {
     @Column(name = "Downvotes", nullable = false)
     private Integer downvotes;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "UserId", nullable = false)
     private User user;
