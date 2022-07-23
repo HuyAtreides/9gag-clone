@@ -16,11 +16,13 @@ import javax.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
+@DynamicInsert
 public class Post {
 
     @Id
@@ -56,6 +58,12 @@ public class Post {
     @Column(name = "UploadTime", nullable = false)
     private Instant uploadTime;
 
+    @Column(name = "Tags")
+    private String tags;
+
     @OneToMany(mappedBy = "post")
     private Set<Comment> comments = new LinkedHashSet<>();
+
+    @Column(name = "TotalComments", nullable = false)
+    private Long totalComments;
 }

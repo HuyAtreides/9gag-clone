@@ -2,21 +2,25 @@ package com.huyphan.mappers;
 
 import com.huyphan.dtos.LoginDataDto;
 import com.huyphan.models.LoginData;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
  * Map login data.
  */
 @Component
-public class LoginDataMapper implements FromDtoMapper<LoginDataDto, LoginData> {
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class LoginDataMapper extends BaseMapper implements FromDtoMapper<LoginDataDto, LoginData> {
 
-    @Autowired
-    private ModelMapper modelMapper;
+    @Override
+    public void createTypeMap() {
+        getModelMapper().typeMap(LoginDataDto.class, LoginData.class);
+    }
 
     @Override
     public LoginData fromDto(LoginDataDto data) {
-        return modelMapper.map(data, LoginData.class);
+        return getModelMapper().map(data, LoginData.class);
     }
+
 }

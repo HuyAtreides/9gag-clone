@@ -63,4 +63,6 @@ public class Comment {
     @Column(name = "CommentDate", nullable = false)
     private Instant commentDate;
 
+    @Column(name = "TotalReplies", nullable = false)
+    private Long totalReplies;
 }

@@ -1,41 +1,25 @@
 package com.huyphan.mappers;
 
-import com.huyphan.dtos.SectionDto;
 import com.huyphan.dtos.UserDto;
-import com.huyphan.models.Section;
 import com.huyphan.models.User;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.modelmapper.Converter;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
  * User mapper.
  */
 @Component
-public class UserMapper implements ToDtoMapper<UserDto, User> {
-
-    @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
-    private SectionMapper sectionMapper;
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class UserMapper extends BaseMapper implements ToDtoMapper<UserDto, User> {
 
     @Override
     public UserDto toDto(User data) {
-        Converter<Set<Section>, Set<SectionDto>> converter = (context) -> {
-            Set<Section> source = context.getSource();
-            return source.stream().map((section) -> sectionMapper.toDto(section))
-                    .collect(Collectors.toSet());
-        };
+        return getModelMapper().map(data, UserDto.class);
+    }
 
-        modelMapper.typeMap(User.class, UserDto.class).addMappings(
-                mapper -> mapper.using(converter)
-                        .map(User::getFavoriteSections, UserDto::setFavoriteSections)
-        );
-
-        return modelMapper.map(data, UserDto.class);
+    @Override
+    public void createTypeMap() {
+        getModelMapper().typeMap(User.class, UserDto.class);
     }
 }

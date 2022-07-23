@@ -2,21 +2,19 @@ package com.huyphan.mappers;
 
 import com.huyphan.dtos.SectionDto;
 import com.huyphan.models.Section;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
  * Section mapper
  */
 @Component
-public class SectionMapper implements ToDtoMapper<SectionDto, Section> {
-
-    @Autowired
-    private ModelMapper modelMapper;
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class SectionMapper extends BaseMapper {
 
     @Override
-    public SectionDto toDto(Section data) {
-        return modelMapper.map(data, SectionDto.class);
+    public void createTypeMap() {
+        getModelMapper().typeMap(Section.class, SectionDto.class);
     }
 }

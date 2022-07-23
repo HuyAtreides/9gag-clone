@@ -13,6 +13,7 @@ import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.AuthException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.services.AuthService;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,7 +40,7 @@ public class AuthController {
     private UserSecretMapper userSecretMapper;
 
     @PostMapping("login")
-    public UserSecretDto login(@RequestBody LoginDataDto loginDataDto) throws Exception {
+    public UserSecretDto login(@RequestBody LoginDataDto loginDataDto) throws AuthException {
         LoginData loginData = loginDataMapper.fromDto(loginDataDto);
         UserSecret userSecret = authService.login(loginData);
         return userSecretMapper.toDto(userSecret);
@@ -53,11 +54,23 @@ public class AuthController {
         return userSecretMapper.toDto(userSecret);
     }
 
+    @PostMapping("refresh-token")
+    public UserSecretDto refreshToken(@RequestBody UserSecretDto userSecretDto) {
+        UserSecret userSecret = userSecretMapper.fromDto(userSecretDto);
+        UserSecret newUserSecret = authService.refreshToken(userSecret);
+        return userSecretMapper.toDto(newUserSecret);
+    }
+
     @ExceptionHandler({AuthException.class, UserAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppException handleAuthExceptions(AppException exception) {
         return exception;
     }
 
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public AuthException handleJWTExceptions() {
+        return new AuthException("Token is invalid");
+    }
 
 }

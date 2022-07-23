@@ -7,6 +7,7 @@ import com.huyphan.models.UserSecret;
 import com.huyphan.models.exceptions.AuthException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -59,6 +60,18 @@ public class AuthService {
     public UserSecret register(RegisterData registerData) throws UserAlreadyExistsException {
         User newUser = userService.register(registerData);
         String token = jwtUtil.generateToken(newUser);
+        return new UserSecret(token);
+    }
+
+    /**
+     * Refresh an expired user secret.
+     *
+     * @param userSecret The expired user secret
+     */
+    public UserSecret refreshToken(UserSecret userSecret) {
+        Claims claims = jwtUtil.parseExpiredToken(userSecret.getToken());
+        String username = claims.getSubject();
+        String token = jwtUtil.generateToken(userService.loadUserByUsername(username));
         return new UserSecret(token);
     }
 }

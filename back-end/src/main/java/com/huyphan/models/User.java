@@ -22,6 +22,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -32,8 +33,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @Table(name = "[User]")
 @NamedEntityGraph(name = "UserEntityGraph", attributeNodes = {
-        @NamedAttributeNode("favoriteSections"),
+        @NamedAttributeNode(value = "favoriteSections", subgraph = "SectionEntityGraph"),
 })
+@DynamicInsert
 public class User implements UserDetails {
 
     @Id
