@@ -13,11 +13,11 @@ public class PageOptionMapper extends BaseMapper implements
 
     @Override
     public void createTypeMap() {
-        getModelMapper().typeMap(PageOptionsDto.class, PageOptions.class);
+        modelMapper.typeMap(PageOptionsDto.class, PageOptions.class);
     }
 
     @Override
     public PageOptions fromDto(PageOptionsDto data) {
-        return getModelMapper().map(data, PageOptions.class);
+        return modelMapper.map(data, PageOptions.class);
     }
 }

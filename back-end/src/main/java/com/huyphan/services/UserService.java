@@ -3,6 +3,7 @@ package com.huyphan.services;
 import com.huyphan.models.RegisterData;
 import com.huyphan.models.User;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
@@ -44,8 +45,18 @@ public class UserService implements UserDetailsService {
         return userRepo.save(newUser);
     }
 
+    /**
+     * Get current authenticated user.
+     */
     public User getUser() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return (User) securityContext.getAuthentication().getPrincipal();
+    }
+
+    /**
+     * Get a specific user using user's id.
+     */
+    public User getUserById(Long id) throws UserException {
+        return userRepo.findById(id).orElseThrow(() -> new UserException("User is not found"));
     }
 }

@@ -15,11 +15,11 @@ public class UserMapper extends BaseMapper implements ToDtoMapper<UserDto, User>
 
     @Override
     public UserDto toDto(User data) {
-        return getModelMapper().map(data, UserDto.class);
+        return modelMapper.map(data, UserDto.class);
     }
 
     @Override
     public void createTypeMap() {
-        getModelMapper().typeMap(User.class, UserDto.class);
+        modelMapper.typeMap(User.class, UserDto.class);
     }
 }

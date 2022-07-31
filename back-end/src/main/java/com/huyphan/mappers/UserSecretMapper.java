@@ -16,17 +16,17 @@ public class UserSecretMapper extends BaseMapper implements ToDtoMapper<UserSecr
 
     @Override
     public void createTypeMap() {
-        getModelMapper().typeMap(UserSecret.class, UserSecretDto.class);
-        getModelMapper().typeMap(UserSecretDto.class, UserSecret.class);
+        modelMapper.typeMap(UserSecret.class, UserSecretDto.class);
+        modelMapper.typeMap(UserSecretDto.class, UserSecret.class);
     }
 
     @Override
     public UserSecretDto toDto(UserSecret data) {
-        return getModelMapper().map(data, UserSecretDto.class);
+        return modelMapper.map(data, UserSecretDto.class);
     }
 
     @Override
     public UserSecret fromDto(UserSecretDto data) {
-        return getModelMapper().map(data, UserSecret.class);
+        return modelMapper.map(data, UserSecret.class);
     }
 }

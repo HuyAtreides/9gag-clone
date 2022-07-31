@@ -15,12 +15,12 @@ public class LoginDataMapper extends BaseMapper implements FromDtoMapper<LoginDa
 
     @Override
     public void createTypeMap() {
-        getModelMapper().typeMap(LoginDataDto.class, LoginData.class);
+        modelMapper.typeMap(LoginDataDto.class, LoginData.class);
     }
 
     @Override
     public LoginData fromDto(LoginDataDto data) {
-        return getModelMapper().map(data, LoginData.class);
+        return modelMapper.map(data, LoginData.class);
     }
 
 }

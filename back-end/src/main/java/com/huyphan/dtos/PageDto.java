@@ -5,10 +5,8 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class PageDto<T> {
+public class PageDto<T> extends SliceDto<T> {
 
-    private int size;
-    private int pageNumber;
     private int totalPages;
-    private T content;
+    private int totalElements;
 }

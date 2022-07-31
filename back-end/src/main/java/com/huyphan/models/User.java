@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Nationalized;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -33,7 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @Table(name = "[User]")
 @NamedEntityGraph(name = "UserEntityGraph", attributeNodes = {
-        @NamedAttributeNode(value = "favoriteSections", subgraph = "SectionEntityGraph"),
+        @NamedAttributeNode(value = "favoriteSections"),
 })
 @DynamicInsert
 public class User implements UserDetails {
@@ -50,6 +52,7 @@ public class User implements UserDetails {
     private String avatarUrl;
 
     @Column(name = "DisplayName", nullable = false, length = 30)
+    @Nationalized
     private String displayName;
 
     @Column(name = "Country", length = 70)
@@ -74,7 +77,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> votedPosts = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private Set<Section> favoriteSections = new LinkedHashSet<>();
 
     @Override

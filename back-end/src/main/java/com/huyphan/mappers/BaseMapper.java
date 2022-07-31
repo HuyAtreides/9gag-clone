@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class BaseMapper {
 
     @Autowired
-    private ModelMapper modelMapper;
+    protected ModelMapper modelMapper;
 
     /**
      * Create type map in model mapper so that it can be reused by other mappers.

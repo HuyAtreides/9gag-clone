@@ -1,28 +1,33 @@
 package com.huyphan.mappers;
 
 import com.huyphan.dtos.PageDto;
-import java.lang.reflect.Type;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-@Component
-public class PageMapper<TDto, TDomain> implements
-        ToDtoMapper<PageDto<TDto>, Page<TDomain>> {
+@Component("PageMapper")
+public class PageMapper<TDto, TDomain> {
 
     @Autowired
     private ModelMapper modelMapper;
 
-    @Override
-    public PageDto<TDto> toDto(Page<TDomain> data) {
-        Type sourceType = new TypeToken<Page<TDomain>>() {
-        }.getType();
-        Type desType = new TypeToken<PageDto<TDto>>() {
-        }.getType();
-        final String TYPE_MAP_NAME = "PageTypeMap";
-        modelMapper.createTypeMap(sourceType.getClass(), desType.getClass(), TYPE_MAP_NAME);
-        return modelMapper.map(data, desType, TYPE_MAP_NAME);
+    public PageDto<TDto> toDto(Page<TDomain> data, ToDtoMapper<TDto, TDomain> contentMapper) {
+
+        Class<PageDto<TDto>> destType = new TypeToken<PageDto<TDto>>() {
+        }.getRawType();
+        Converter<List<TDomain>, List<TDto>> converter = (context) -> {
+            List<TDomain> content = context.getSource();
+            return content.stream().map(contentMapper::toDto).collect(Collectors.toList());
+        };
+
+        modelMapper.typeMap(data.getClass(), destType).addMappings(mapper -> mapper.using(converter)
+                .map(Page<TDomain>::getContent, PageDto<TDto>::setContent));
+
+        return modelMapper.map(data, destType);
     }
 }
