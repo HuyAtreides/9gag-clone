@@ -2,9 +2,9 @@ package com.huyphan.models;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -12,17 +12,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
-import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@NamedEntityGraph(name = "SectionEntityGraph")
+@DynamicInsert
 public class Section {
 
     @Id
@@ -31,6 +32,7 @@ public class Section {
     private Long id;
 
     @Column(name = "Name", nullable = false, length = 50, unique = true)
+    @Nationalized
     private String name;
 
     @Lob
@@ -43,6 +45,6 @@ public class Section {
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> users = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "section", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "section", cascade = {CascadeType.REMOVE})
     private Set<Post> posts = new LinkedHashSet<>();
 }

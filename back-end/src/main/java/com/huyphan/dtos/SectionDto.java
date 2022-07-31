@@ -2,6 +2,7 @@ package com.huyphan.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 /**
  * Section DTO.
@@ -10,7 +11,8 @@ import lombok.Setter;
 @Setter
 public class SectionDto {
 
-    private long id;
+    @Nullable
+    private Long id;
 
     private String name;
 

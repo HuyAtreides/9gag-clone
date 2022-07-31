@@ -16,11 +16,11 @@ public class RegisterDataMapper extends BaseMapper implements
 
     @Override
     public void createTypeMap() {
-        getModelMapper().typeMap(RegisterDataDto.class, RegisterData.class);
+        modelMapper.typeMap(RegisterDataDto.class, RegisterData.class);
     }
 
     @Override
     public RegisterData fromDto(RegisterDataDto data) {
-        return getModelMapper().map(data, RegisterData.class);
+        return modelMapper.map(data, RegisterData.class);
     }
 }

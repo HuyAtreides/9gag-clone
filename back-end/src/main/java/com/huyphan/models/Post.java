@@ -3,6 +3,7 @@ package com.huyphan.models;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,16 +13,22 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
+@NamedEntityGraph(name = "PostEntityGraph", attributeNodes = {
+        @NamedAttributeNode("section")
+})
 @DynamicInsert
 public class Post {
 
@@ -30,8 +37,8 @@ public class Post {
     @Column(name = "Id", nullable = false)
     private Long id;
 
-    @Lob
     @Column(name = "Title")
+    @Nationalized
     private String title;
 
     @Lob
@@ -58,10 +65,12 @@ public class Post {
     @Column(name = "UploadTime", nullable = false)
     private Instant uploadTime;
 
+    @Lob
     @Column(name = "Tags")
+    @Nationalized
     private String tags;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @Column(name = "TotalComments", nullable = false)

@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public enum PostTag {
     FRESH("fresh"),
-    TOP("TOP");
+    TOP("top");
 
     private final String value;
 

@@ -1,31 +1,33 @@
 package com.huyphan.controllers;
 
-import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
 import com.huyphan.dtos.PostDto;
-import com.huyphan.mappers.PageMapper;
+import com.huyphan.dtos.SliceDto;
 import com.huyphan.mappers.PageOptionMapper;
 import com.huyphan.mappers.PostMapper;
+import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;
-import com.huyphan.repositories.PostRepository;
+import com.huyphan.models.exceptions.PostException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("posts")
+@RequestMapping("post")
 public class PostController {
 
     @Autowired
@@ -35,9 +37,7 @@ public class PostController {
     @Autowired
     private PageOptionMapper pageOptionMapper;
     @Autowired
-    private PageMapper<PostDto, Post> pageMapper;
-    @Autowired
-    private PostRepository postRepository;
+    private SliceMapper<PostDto, Post> sliceMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -46,19 +46,48 @@ public class PostController {
         postService.addNewPost(newPost);
     }
 
-    @GetMapping("tag/:postTag")
-    public PageDto<PostDto> getPosts(@PathVariable PostTag postTag,
-            @RequestParam PageOptionsDto pageOptionsDto) throws AppException {
+    @DeleteMapping("{id}")
+    public void deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+    }
+
+    @GetMapping("tag/{postTag}")
+    public SliceDto<PostDto> getPosts(@PathVariable PostTag postTag,
+            PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Page<Post> page = postService.getAllPost(pageOptions, postTag);
-        return pageMapper.toDto(page);
+        Slice<Post> page = postService.getAllPost(pageOptions, postTag);
+        return sliceMapper.toDto(page, postMapper);
     }
 
-    @GetMapping()
-    public Post getPost() {
-        postRepository.findByUserId(1L);
-        return null;
+    @GetMapping("{id}")
+    public PostDto getPost(@PathVariable Long id) throws PostException {
+        Post post = postService.getPost(id);
+        return postMapper.toDto(post);
     }
 
+    @PutMapping("upvotes/{id}")
+    public void upvotesPost(@PathVariable Long id) throws PostException {
+        postService.upvotesPost(id);
+    }
 
+    @PutMapping("downvotes/{id}")
+    public void downvotesPost(@PathVariable Long id) throws PostException {
+        postService.downvotesPost(id);
+    }
+
+    @PutMapping("unupvotes/{id}")
+    public void unUpvotesPost(@PathVariable Long id) throws PostException {
+        postService.unUpvotesPost(id);
+    }
+
+    @PutMapping("undownvotes/{id}")
+    public void unDownvotesPost(@PathVariable Long id) throws PostException {
+        postService.unDownvotesPost(id);
+    }
+
+    @ExceptionHandler(PostException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public AppException handleExceptions(PostException exception) {
+        return exception;
+    }
 }

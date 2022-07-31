@@ -25,12 +25,12 @@ public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>
             return Instant.parse(dateTime);
         };
 
-        getModelMapper().typeMap(Post.class, PostDto.class).addMappings(
+        modelMapper.typeMap(Post.class, PostDto.class).addMappings(
                 (mapper) -> mapper.using(instantToStringConverter)
                         .map(Post::getUploadTime, PostDto::setUploadTime)
         );
 
-        getModelMapper().typeMap(PostDto.class, Post.class).addMappings(
+        modelMapper.typeMap(PostDto.class, Post.class).addMappings(
                 (mapper) -> mapper.using(stringToInstantConverter)
                         .map(PostDto::getUploadTime, Post::setUploadTime)
         );
@@ -38,11 +38,11 @@ public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>
 
     @Override
     public PostDto toDto(Post data) {
-        return getModelMapper().map(data, PostDto.class);
+        return modelMapper.map(data, PostDto.class);
     }
 
     @Override
     public Post fromDto(PostDto data) {
-        return getModelMapper().map(data, Post.class);
+        return modelMapper.map(data, Post.class);
     }
 }

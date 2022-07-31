@@ -15,6 +15,6 @@ public class SectionMapper extends BaseMapper {
 
     @Override
     public void createTypeMap() {
-        getModelMapper().typeMap(Section.class, SectionDto.class);
+        modelMapper.typeMap(Section.class, SectionDto.class);
     }
 }
