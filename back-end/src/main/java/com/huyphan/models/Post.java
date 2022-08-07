@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
@@ -27,7 +27,7 @@ import org.hibernate.annotations.Nationalized;
 @Setter
 @Entity
 @NamedEntityGraph(name = "PostEntityGraph", attributeNodes = {
-        @NamedAttributeNode("section")
+        @NamedAttributeNode("section"),
 })
 @DynamicInsert
 public class Post {
@@ -54,7 +54,7 @@ public class Post {
     @Column(name = "Downvotes", nullable = false)
     private Integer downvotes;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "UserId", nullable = false)
     private User user;
 
@@ -73,6 +73,12 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
     private Set<Comment> comments = new LinkedHashSet<>();
 
-    @Column(name = "TotalComments", nullable = false)
+
+    @Formula("""
+            (SELECT COUNT(*)
+            FROM COMMENT as comment
+            WHERE comment.PostId = id)
+            """)
+    @Column(name = "TotalComment")
     private Long totalComments;
 }

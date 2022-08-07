@@ -16,11 +16,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedEntityGraphs;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
@@ -28,9 +30,13 @@ import org.hibernate.annotations.Nationalized;
 @Setter
 @Entity
 @NamedEntityGraphs({
-        @NamedEntityGraph(name = "CommentWithReplyTo", attributeNodes = {
-                @NamedAttributeNode(value = "replyTo"),
-                @NamedAttributeNode("user")
+        @NamedEntityGraph(name = "CommentEntityGraph", attributeNodes = {
+                @NamedAttributeNode("replyTo"),
+                @NamedAttributeNode(value = "user", subgraph = "UserEntityGraph")
+        }, subgraphs = {
+                @NamedSubgraph(name = "UserEntityGraph", attributeNodes = {
+                        @NamedAttributeNode("favoriteSections")
+                })
         }),
 })
 @DynamicInsert
@@ -83,4 +89,12 @@ public class Comment {
 
     @OneToMany(mappedBy = "parent", cascade = {CascadeType.REMOVE})
     private Set<Comment> children = new LinkedHashSet<>();
+
+    @Formula("""
+            (SELECT COUNT(*)
+            FROM COMMENT as comment
+            WHERE comment.ParentId = id)
+            """)
+    @Column(name = "TotalChildren")
+    private Long totalChildren;
 }

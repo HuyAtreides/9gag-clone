@@ -76,22 +76,28 @@ public class CommentController {
         commentService.unDownvotesPost(id);
     }
 
-    @GetMapping("{postId}")
+    @GetMapping("/post/{postId}")
     public PageDto<CommentDto> getPostComments(@PathVariable Long postId,
             PageOptionsDto optionsDto) {
         PageOptions pageOptions = pageOptionMapper.fromDto(optionsDto);
-        Page<Comment> comments = commentService.getPostComments(postId, pageOptions);
-
+        Page<Comment> comments = commentService.getPostComments(postId,
+                pageOptions);
         return pageMapper.toDto(comments, commentMapper);
     }
 
+    @GetMapping("{id}")
+    public CommentDto getComment(@PathVariable Long id) throws CommentException {
+        Comment comment = commentService.getComment(id);
+        return commentMapper.toDto(comment);
+    }
+
     @DeleteMapping("{id}")
-    public void deleteComment(@PathVariable Long id) {
+    public void deleteComment(@PathVariable Long id) throws CommentException {
         commentService.deleteComment(id);
     }
 
     @PutMapping
-    public void updateComment(@RequestBody CommentDto newCommentDto) {
+    public void updateComment(@RequestBody CommentDto newCommentDto) throws CommentException {
         Comment newComment = commentMapper.fromDto(newCommentDto);
         commentService.updateComment(newComment);
     }

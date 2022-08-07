@@ -20,10 +20,22 @@ public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto,
             return instant.toString();
         };
 
-        modelMapper.typeMap(Comment.class, CommentDto.class).addMappings(
-                mapper -> mapper.using(instantToStringConverter)
-                        .map(Comment::getDate, CommentDto::setDate)
-        );
+        Converter<Comment, CommentDto> replyToReplyDtoConverter = (context) -> {
+            Comment reply = context.getSource();
+            if (reply != null) {
+                reply.setReplyTo(null);
+                return modelMapper.map(reply, CommentDto.class);
+            }
+            return null;
+        };
+
+        modelMapper.typeMap(Comment.class, CommentDto.class)
+                .addMappings(
+                        mapper -> mapper.using(instantToStringConverter)
+                                .map(Comment::getDate, CommentDto::setDate))
+                .addMappings(
+                        mapper -> mapper.using(replyToReplyDtoConverter)
+                                .map(Comment::getReplyTo, CommentDto::setReplyTo));
 
         Converter<String, Instant> stringToInstantConverter = (context) -> {
             String dateTime = context.getSource();

@@ -11,8 +11,8 @@ public class FreshPostSortOptionsConstructor implements SortOptionsConstructor {
 
     @Override
     public Sort constructSortOptions() {
-        return Sort.by(Order.desc(PostSortField.UploadTime.getValue()),
-                Order.desc(PostSortField.Upvotes.getValue()));
+        return Sort.by(Order.desc(PostSortField.UPLOAD_TIME.getValue()),
+                Order.desc(PostSortField.UPVOTES.getValue()));
     }
 
     @Override

@@ -3,14 +3,13 @@ package com.huyphan.models.enums;
 import lombok.Getter;
 
 @Getter
-public enum PostSortField {
+public enum CommentSortField {
     UPVOTES("upvotes"),
-    TOTAL_COMMENTS("totalComments"),
-    UPLOAD_TIME("uploadTime");
+    DATE("date");
 
     private final String value;
 
-    PostSortField(String value) {
+    CommentSortField(String value) {
         this.value = value;
     }
 }

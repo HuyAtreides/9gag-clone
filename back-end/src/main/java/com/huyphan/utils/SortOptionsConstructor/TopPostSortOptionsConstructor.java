@@ -14,8 +14,8 @@ public class TopPostSortOptionsConstructor implements SortOptionsConstructor {
 
     @Override
     public Sort constructSortOptions() {
-        return Sort.by(Order.desc(PostSortField.Upvotes.getValue()),
-                Order.desc(PostSortField.TotalComments.getValue()));
+        return Sort.by(Order.desc(PostSortField.UPVOTES.getValue()),
+                Order.desc(PostSortField.TOTAL_COMMENTS.getValue()));
     }
 
     @Override

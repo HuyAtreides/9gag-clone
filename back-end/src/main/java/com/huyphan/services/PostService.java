@@ -2,6 +2,7 @@ package com.huyphan.services;
 
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
+import com.huyphan.models.User;
 import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -40,36 +40,48 @@ public class PostService {
         return postRepository.findAll(pageable);
     }
 
-    public void deletePost(Long id) {
+    public void deletePost(Long id) throws PostException {
+        User currentUser = userService.getUser();
+        Post post = getPost(id);
+
+        if (!post.getUser().getUsername().equals(currentUser.getUsername())) {
+            throw new PostException("Post not found");
+        }
+
         postRepository.deleteById(id);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     public void upvotesPost(Long id) throws PostException {
-        Post post = getPost(id);
+        Post post = getPostUsingLock(id);
         post.setUpvotes(post.getUpvotes() + 1);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     public void unUpvotesPost(Long id) throws PostException {
-        Post post = getPost(id);
+        Post post = getPostUsingLock(id);
         post.setUpvotes(post.getUpvotes() - 1);
     }
 
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     public void downvotesPost(Long id) throws PostException {
-        Post post = getPost(id);
+        Post post = getPostUsingLock(id);
         post.setDownvotes(post.getDownvotes() + 1);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     public void unDownvotesPost(Long id) throws PostException {
-        Post post = getPost(id);
+        Post post = getPostUsingLock(id);
         post.setDownvotes(post.getDownvotes() - 1);
     }
 
     public Post getPost(Long id) throws PostException {
         return postRepository.findById(id).orElseThrow(() -> new PostException("Post not found"));
+    }
+
+    public Post getPostUsingLock(Long id) throws PostException {
+        return postRepository.findWithLockById(id)
+                .orElseThrow(() -> new PostException("Post not found"));
     }
 }

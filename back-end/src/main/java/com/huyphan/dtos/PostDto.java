@@ -28,7 +28,7 @@ public class PostDto {
      */
     private String uploadTime;
 
-    private long totalComments;
-
     private String tags;
+    
+    private Long totalComments;
 }

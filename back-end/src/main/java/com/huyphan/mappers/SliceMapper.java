@@ -21,10 +21,10 @@ public class SliceMapper<TDto, TDomain> {
         }.getRawType();
         Converter<List<TDomain>, List<TDto>> converter = (context) -> {
             List<TDomain> domainList = context.getSource();
-
             return domainList.stream().map(toDtoMapper::toDto).collect(Collectors.toList());
         };
-        modelMapper.createTypeMap(data.getClass(), desType).addMappings(
+
+        modelMapper.typeMap(data.getClass(), desType).addMappings(
                 mapper -> mapper.using(converter)
                         .map(Slice<TDomain>::getContent, SliceDto<TDto>::setContent)
         );
