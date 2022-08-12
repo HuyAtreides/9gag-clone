@@ -1,11 +1,14 @@
 package com.huyphan.controllers;
 
+import com.huyphan.dtos.NewPostDto;
 import com.huyphan.dtos.PageOptionsDto;
 import com.huyphan.dtos.PostDto;
 import com.huyphan.dtos.SliceDto;
+import com.huyphan.mappers.NewPostMapper;
 import com.huyphan.mappers.PageOptionMapper;
 import com.huyphan.mappers.PostMapper;
 import com.huyphan.mappers.SliceMapper;
+import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.enums.PostTag;
@@ -37,16 +40,19 @@ public class PostController {
     @Autowired
     private PageOptionMapper pageOptionMapper;
     @Autowired
+    private NewPostMapper newPostMapper;
+    @Autowired
     private SliceMapper<PostDto, Post> sliceMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addNewPost(@RequestBody PostDto newPostDto) {
-        Post newPost = postMapper.fromDto(newPostDto);
+    public void addNewPost(@RequestBody NewPostDto newPostDto) {
+        NewPost newPost = newPostMapper.fromDto(newPostDto);
         postService.addNewPost(newPost);
     }
 
     @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePost(@PathVariable Long id) throws PostException {
         postService.deletePost(id);
     }
@@ -66,21 +72,25 @@ public class PostController {
     }
 
     @PutMapping("upvotes/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void upvotesPost(@PathVariable Long id) throws PostException {
         postService.upvotesPost(id);
     }
 
     @PutMapping("downvotes/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void downvotesPost(@PathVariable Long id) throws PostException {
         postService.downvotesPost(id);
     }
 
     @PutMapping("unupvotes/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unUpvotesPost(@PathVariable Long id) throws PostException {
         postService.unUpvotesPost(id);
     }
 
     @PutMapping("undownvotes/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unDownvotesPost(@PathVariable Long id) throws PostException {
         postService.unDownvotesPost(id);
     }

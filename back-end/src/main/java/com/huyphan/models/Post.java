@@ -48,10 +48,10 @@ public class Post {
     @Column(name = "MediaType", nullable = false, length = 70)
     private String mediaType;
 
-    @Column(name = "Upvotes", nullable = false)
+    @Column(name = "Upvotes")
     private Integer upvotes;
 
-    @Column(name = "Downvotes", nullable = false)
+    @Column(name = "Downvotes")
     private Integer downvotes;
 
     @ManyToOne(optional = false)

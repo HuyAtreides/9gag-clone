@@ -4,6 +4,7 @@ import com.huyphan.dtos.CommentDto;
 import com.huyphan.models.Comment;
 import java.time.Instant;
 import org.modelmapper.Converter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -13,13 +14,11 @@ import org.springframework.stereotype.Component;
 public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto, Comment>,
         FromDtoMapper<CommentDto, Comment> {
 
+    @Autowired
+    private Converter<Instant, String> instantToStringConverter;
+
     @Override
     public void createTypeMap() {
-        Converter<Instant, String> instantToStringConverter = (context) -> {
-            Instant instant = context.getSource();
-            return instant.toString();
-        };
-
         Converter<Comment, CommentDto> replyToReplyDtoConverter = (context) -> {
             Comment reply = context.getSource();
             if (reply != null) {

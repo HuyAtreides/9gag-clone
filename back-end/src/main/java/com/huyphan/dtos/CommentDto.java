@@ -10,7 +10,6 @@ import org.springframework.lang.Nullable;
 @Setter
 public class CommentDto {
 
-    @Nullable
     private Long id;
 
     @Nullable
@@ -23,6 +22,7 @@ public class CommentDto {
 
     private int downvotes;
 
+    @Nullable
     private String mediaType;
 
     @Nullable

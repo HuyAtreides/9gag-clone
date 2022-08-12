@@ -3,21 +3,15 @@ package com.huyphan.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
-public class PostDto {
-
-    private Long id;
+@Getter
+public class NewPostDto {
 
     private String title;
 
     private String mediaUrl;
 
     private String mediaType;
-
-    private int downvotes;
-
-    private int upvotes;
 
     private SectionDto section;
 
@@ -27,6 +21,4 @@ public class PostDto {
     private String uploadTime;
 
     private String tags;
-
-    private Long totalComments;
 }

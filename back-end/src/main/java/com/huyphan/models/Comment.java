@@ -68,10 +68,10 @@ public class Comment {
     @JoinColumn(name = "UserId")
     private User user;
 
-    @Column(name = "Upvotes", nullable = false)
+    @Column(name = "Upvotes")
     private Integer upvotes;
 
-    @Column(name = "Downvotes", nullable = false)
+    @Column(name = "Downvotes")
     private Integer downvotes;
 
     @OneToMany(mappedBy = "replyTo", cascade = {CascadeType.REMOVE})

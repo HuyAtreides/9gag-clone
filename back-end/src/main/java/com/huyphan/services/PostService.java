@@ -1,5 +1,6 @@
 package com.huyphan.services;
 
+import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
@@ -28,9 +29,16 @@ public class PostService {
     @Autowired
     private UserService userService;
 
-    public void addNewPost(Post newPost) {
-        newPost.setUser(userService.getUser());
-        postRepository.save(newPost);
+    public void addNewPost(NewPost newPost) {
+        Post post = new Post();
+        post.setUser(userService.getUser());
+        post.setSection(newPost.getSection());
+        post.setMediaUrl(newPost.getMediaUrl());
+        post.setMediaType(newPost.getMediaType());
+        post.setTitle(newPost.getTitle());
+        post.setTags(newPost.getTags());
+        post.setUploadTime(newPost.getUploadTime());
+        postRepository.save(post);
     }
 
     public Slice<Post> getAllPost(PageOptions options, PostTag postTag) throws AppException {

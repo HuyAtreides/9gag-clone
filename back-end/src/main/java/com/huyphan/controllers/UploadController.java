@@ -1,9 +1,11 @@
 package com.huyphan.controllers;
 
+import com.huyphan.dtos.MediaLocationDto;
+import com.huyphan.mappers.MediaLocationMapper;
+import com.huyphan.models.MediaLocation;
 import com.huyphan.utils.AWSS3Util;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,15 +19,14 @@ public class UploadController {
     @Autowired
     private AWSS3Util awss3Util;
 
-    @GetMapping
-    public String get() {
-        return "Hello";
-    }
+    @Autowired
+    private MediaLocationMapper mediaLocationMapper;
 
     @PostMapping
-    public void handleUpload(@RequestParam String title, @RequestParam MultipartFile memeMedia)
+    public MediaLocationDto handleUpload(@RequestParam MultipartFile memeMedia)
             throws IOException {
-        System.out.println(title);
-        awss3Util.uploadObject(memeMedia);
+        MediaLocation mediaLocation = awss3Util.uploadObject(memeMedia);
+
+        return mediaLocationMapper.toDto(mediaLocation);
     }
 }

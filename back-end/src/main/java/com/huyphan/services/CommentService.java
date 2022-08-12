@@ -1,6 +1,7 @@
 package com.huyphan.services;
 
 import com.huyphan.models.Comment;
+import com.huyphan.models.NewComment;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
@@ -30,10 +31,9 @@ public class CommentService {
     private PostService postService;
 
     @Transactional
-    public void addComment(Long postId, Comment comment) throws PostException {
-        comment.setUser(userService.getUser());
-        Post post = postService.getPost(postId);
-        comment.setPost(post);
+    public void addComment(Long postId, NewComment newComment)
+            throws PostException, CommentException {
+        Comment comment = createNewCommentEntity(postId, newComment);
         commentRepository.save(comment);
     }
 
@@ -83,15 +83,27 @@ public class CommentService {
     }
 
     @Transactional
-    public void addReply(Long postId, Comment reply, Long parentCommentId)
+    public void addReply(Long postId, NewComment newReply, Long parentCommentId)
             throws CommentException, PostException {
-        Comment parent = commentRepository.findWithLockById(parentCommentId)
-                .orElseThrow(() -> new CommentException("Parent comment isn't found"));
-        Post post = postService.getPostUsingLock(postId);
-        reply.setPost(post);
+        Comment parent = getComment(parentCommentId);
+        Comment reply = createNewCommentEntity(postId, newReply);
+        Comment replyToComment = getComment(newReply.getReplyToId());
+        reply.setReplyTo(replyToComment);
         reply.setParent(parent);
-        reply.setUser(userService.getUser());
         commentRepository.save(reply);
+    }
+
+    private Comment createNewCommentEntity(Long postId, NewComment newComment)
+            throws PostException, CommentException {
+        Comment comment = new Comment();
+        Post post = postService.getPost(postId);
+        comment.setUser(userService.getUser());
+        comment.setText(newComment.getText());
+        comment.setMediaUrl(newComment.getMediaUrl());
+        comment.setDate(newComment.getDate());
+        comment.setPost(post);
+        comment.setMediaType(newComment.getMediaType());
+        return comment;
     }
 
     public Page<Comment> getChildrenComment(Long parentId, PageOptions options) {

@@ -1,13 +1,15 @@
-package com.huyphan.dtos;
+package com.huyphan.models;
 
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Information required to add new post.
+ */
 @Getter
 @Setter
-public class PostDto {
-
-    private Long id;
+public class NewPost {
 
     private String title;
 
@@ -15,18 +17,12 @@ public class PostDto {
 
     private String mediaType;
 
-    private int downvotes;
-
-    private int upvotes;
-
-    private SectionDto section;
+    private Section section;
 
     /**
      * The upload time of this post in ISO format e.g.2022-07-23T00:42:50Z .
      */
-    private String uploadTime;
+    private Instant uploadTime;
 
     private String tags;
-
-    private Long totalComments;
 }

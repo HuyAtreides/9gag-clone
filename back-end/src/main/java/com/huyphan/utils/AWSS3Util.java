@@ -1,5 +1,6 @@
 package com.huyphan.utils;
 
+import com.huyphan.models.MediaLocation;
 import java.io.IOException;
 import java.time.Instant;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,16 +43,17 @@ public class AWSS3Util {
     /**
      * Upload an object to AWS S3.
      *
-     * @return An url to access the object.
+     * @return A location to access the object.
      */
-    public String uploadObject(MultipartFile multipartFile) throws IOException {
+    public MediaLocation uploadObject(MultipartFile multipartFile) throws IOException {
         String objectKey = generateObjectKey(multipartFile);
+        String type = multipartFile.getContentType();
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
                 .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
         RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());
         s3Client.putObject(putObjectRequest, requestBody);
-
-        return buildObjectUrl(objectKey);
+        String objectUrl = buildObjectUrl(objectKey);
+        return new MediaLocation(objectUrl, type);
     }
 
     /**

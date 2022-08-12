@@ -4,6 +4,7 @@ import com.huyphan.dtos.PostDto;
 import com.huyphan.models.Post;
 import java.time.Instant;
 import org.modelmapper.Converter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -13,18 +14,14 @@ import org.springframework.stereotype.Component;
 public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>,
         FromDtoMapper<PostDto, Post> {
 
+    @Autowired
+    private Converter<String, Instant> stringToInstantConverter;
+
+    @Autowired
+    private Converter<Instant, String> instantToStringConverter;
+
     @Override
     public void createTypeMap() {
-        Converter<Instant, String> instantToStringConverter = (context) -> {
-            Instant instant = context.getSource();
-            return instant.toString();
-        };
-
-        Converter<String, Instant> stringToInstantConverter = (context) -> {
-            String dateTime = context.getSource();
-            return Instant.parse(dateTime);
-        };
-
         modelMapper.typeMap(Post.class, PostDto.class).addMappings(
                 (mapper) -> mapper.using(instantToStringConverter)
                         .map(Post::getUploadTime, PostDto::setUploadTime)
