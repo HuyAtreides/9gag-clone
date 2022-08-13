@@ -10,7 +10,7 @@
 
 # production
 /build
-
+../back-end/src/main/resources/*.properties
 # misc
 .DS_Store
 .env.local
