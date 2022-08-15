@@ -5,4 +5,8 @@ export namespace UserSecretMapper {
   export function fromDto(data: UserSecretDto): UserSecret {
     return data;
   }
+
+  export function toDto(data: UserSecret): UserSecretDto {
+    return data;
+  }
 }

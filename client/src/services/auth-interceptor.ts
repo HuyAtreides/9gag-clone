@@ -2,6 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import { Constant } from '../models/enums/constant';
 import { LocalStorage } from './local-storage';
 
+/** Intercepts and adds authorization header to the request.*/
 export default function authInterceptor(request: AxiosRequestConfig): AxiosRequestConfig {
   if (!request.url || !request.baseURL) {
     throw new Error('URL is missing');

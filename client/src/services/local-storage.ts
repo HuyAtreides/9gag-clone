@@ -1,3 +1,4 @@
+/** Provides functions for working with local storage. */
 export namespace LocalStorage {
   export function save(key: string, item: Object): void {
     localStorage.setItem(key, JSON.stringify(item));

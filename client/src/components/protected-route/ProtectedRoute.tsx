@@ -6,8 +6,9 @@ interface Props {
   targetComponent: ReactNode;
 }
 
+/** Protects the targetComponent from unauthenticated user. */
 const ProtectedRoute: React.FC<Props> = ({ targetComponent }: Props) => {
-  const user = useAppSelector((state) => state.user.user);
+  const user = useAppSelector((state) => state.user.profile);
 
   if (!user) {
     return <Navigate to='/' />;

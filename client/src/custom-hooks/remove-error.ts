@@ -2,6 +2,7 @@ import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../Store';
 
+/** Custom hook which helps remove the error message when the component unmount. */
 const useRemoveErrorWhenUnmount = (
   errorMessageCreator: ActionCreatorWithPayload<string | null>,
 ) => {

@@ -3,6 +3,7 @@ import { message } from 'antd';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../Store';
 
+/** Custom hook which helps render the error message. */
 const useRenderErrorMessage = (
   errorMessage: string | null,
   errorMessageCreator: ActionCreatorWithPayload<string | null>,

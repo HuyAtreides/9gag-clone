@@ -1,3 +1,4 @@
+/** Convert value to the target enum. */
 export function toEnum<T>(value: unknown, targetEnum: T): T[keyof T] {
   const keys = Object.keys(targetEnum);
   for (const key of keys) {

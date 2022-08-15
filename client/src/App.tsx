@@ -9,18 +9,15 @@ function App() {
   const dispatch = useAppDispatch();
   const isGettingUser = useAppSelector((state) => state.user.isLoading);
 
+  /** Get user info when the app starts. */
   useEffect(() => {
     dispatch(getUser());
   }, [dispatch]);
 
-  if (isGettingUser) {
-    return <Spin size='large' />;
-  }
-
   return (
-    <>
+    <Spin size='large' spinning={isGettingUser}>
       <RootRoutes />
-    </>
+    </Spin>
   );
 }
 
