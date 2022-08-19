@@ -1,6 +1,10 @@
 package com.huyphan.models;
 
+import com.huyphan.models.converters.NotificationTypeConverter;
+import com.huyphan.models.enums.NotificationType;
+import java.time.Instant;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -27,7 +31,8 @@ public class Notification {
     private Long id;
 
     @Column(name = "Type", nullable = false, length = 50)
-    private String type;
+    @Convert(converter = NotificationTypeConverter.class)
+    private NotificationType type;
 
     @Lob
     @Column(name = "DestUrl", nullable = false)
@@ -40,4 +45,6 @@ public class Notification {
     @Column(name = "IsViewed")
     private Boolean isViewed;
 
+    @Column(name = "Created")
+    private Instant created;
 }

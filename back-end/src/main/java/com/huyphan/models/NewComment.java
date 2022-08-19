@@ -1,6 +1,5 @@
 package com.huyphan.models;
 
-import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
@@ -23,6 +22,4 @@ public class NewComment {
 
     @Nullable
     private Long replyToId;
-
-    private Instant date;
 }

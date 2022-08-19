@@ -19,6 +19,4 @@ public class NewCommentDto {
 
     @Nullable
     private Long replyToId;
-
-    private String date;
 }

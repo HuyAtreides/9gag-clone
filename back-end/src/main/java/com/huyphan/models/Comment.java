@@ -80,7 +80,7 @@ public class Comment {
     @Column(name = "MediaType", length = 70)
     private String mediaType;
 
-    @Column(name = "CommentDate", nullable = false)
+    @Column(name = "CommentDate")
     private Instant date;
 
     @ManyToOne(fetch = FetchType.LAZY)

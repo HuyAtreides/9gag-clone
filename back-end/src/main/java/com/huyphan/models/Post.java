@@ -62,7 +62,7 @@ public class Post {
     @JoinColumn(name = "SectionId", nullable = false)
     private Section section;
 
-    @Column(name = "UploadTime", nullable = false)
+    @Column(name = "UploadTime")
     private Instant uploadTime;
 
     @Lob
