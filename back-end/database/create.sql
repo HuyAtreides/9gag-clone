@@ -14,6 +14,7 @@ create table [User] (
     DisplayName nvarchar(30) not null,
     Password varchar(255),
     Provider varchar(20),
+    Created datetime2(3) default (sysutcdatetime()),
     Username varchar(20) not null,
     primary key (Id)
 );

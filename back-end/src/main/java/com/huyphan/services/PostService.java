@@ -29,6 +29,9 @@ public class PostService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public void addNewPost(NewPost newPost) {
         Post post = new Post();
         post.setUser(userService.getUser());
@@ -37,7 +40,6 @@ public class PostService {
         post.setMediaType(newPost.getMediaType());
         post.setTitle(newPost.getTitle());
         post.setTags(newPost.getTags());
-        post.setUploadTime(newPost.getUploadTime());
         postRepository.save(post);
     }
 
@@ -62,6 +64,7 @@ public class PostService {
     @Transactional
     public void upvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
+        notificationService.addVotePostNotification(post);
         post.setUpvotes(post.getUpvotes() + 1);
     }
 
@@ -75,6 +78,7 @@ public class PostService {
     @Transactional
     public void downvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
+        notificationService.addVotePostNotification(post);
         post.setDownvotes(post.getDownvotes() + 1);
     }
 

@@ -63,26 +63,26 @@ public class CommentController {
 
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void upvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.upvotesPost(id);
+    public void upvotesComment(@PathVariable Long id) throws PostException, CommentException {
+        commentService.upvotesComment(id);
     }
 
     @PutMapping("downvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.downvotesPost(id);
+    public void downvotesComment(@PathVariable Long id) throws PostException, CommentException {
+        commentService.downvotesComment(id);
     }
 
     @PutMapping("unupvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unUpvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.unUpvotesPost(id);
+    public void unUpvotesComment(@PathVariable Long id) throws PostException, CommentException {
+        commentService.unUpvotesComment(id);
     }
 
     @PutMapping("undownvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unDownvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.unDownvotesPost(id);
+    public void unDownvotesComment(@PathVariable Long id) throws PostException, CommentException {
+        commentService.unDownvotesComment(id);
     }
 
     @GetMapping("/post/{postId}")

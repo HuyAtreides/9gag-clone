@@ -30,10 +30,14 @@ public class CommentService {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Transactional
     public void addComment(Long postId, NewComment newComment)
             throws PostException, CommentException {
         Comment comment = createNewCommentEntity(postId, newComment);
+        notificationService.addAddCommentNotification(comment);
         commentRepository.save(comment);
     }
 
@@ -50,26 +54,28 @@ public class CommentService {
     }
 
     @Transactional
-    public void upvotesPost(Long id) throws CommentException {
+    public void upvotesComment(Long id) throws CommentException {
         Comment comment = getCommentUsingLock(id);
+        notificationService.addVoteCommentNotification(comment);
         comment.setUpvotes(comment.getUpvotes() + 1);
     }
 
     @Transactional
-    public void unUpvotesPost(Long id) throws CommentException {
+    public void unUpvotesComment(Long id) throws CommentException {
         Comment comment = getCommentUsingLock(id);
         comment.setUpvotes(comment.getUpvotes() - 1);
     }
 
 
     @Transactional
-    public void downvotesPost(Long id) throws CommentException {
+    public void downvotesComment(Long id) throws CommentException {
         Comment comment = getCommentUsingLock(id);
+        notificationService.addVoteCommentNotification(comment);
         comment.setDownvotes(comment.getDownvotes() + 1);
     }
 
     @Transactional
-    public void unDownvotesPost(Long id) throws CommentException {
+    public void unDownvotesComment(Long id) throws CommentException {
         Comment comment = getCommentUsingLock(id);
         comment.setDownvotes(comment.getDownvotes() - 1);
     }
@@ -90,6 +96,7 @@ public class CommentService {
         Comment replyToComment = getComment(newReply.getReplyToId());
         reply.setReplyTo(replyToComment);
         reply.setParent(parent);
+        notificationService.addAddReplyNotification(reply);
         commentRepository.save(reply);
     }
 
@@ -100,7 +107,6 @@ public class CommentService {
         comment.setUser(userService.getUser());
         comment.setText(newComment.getText());
         comment.setMediaUrl(newComment.getMediaUrl());
-        comment.setDate(newComment.getDate());
         comment.setPost(post);
         comment.setMediaType(newComment.getMediaType());
         return comment;

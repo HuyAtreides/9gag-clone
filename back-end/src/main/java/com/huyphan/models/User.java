@@ -3,6 +3,7 @@ package com.huyphan.models;
 import com.huyphan.models.converters.CountryConverter;
 import com.huyphan.models.enums.Country;
 import com.huyphan.models.enums.Role;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -79,6 +80,9 @@ public class User implements UserDetails {
 
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private Set<Section> favoriteSections = new LinkedHashSet<>();
+
+    @Column(name = "Created")
+    private Instant created;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
