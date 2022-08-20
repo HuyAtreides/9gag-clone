@@ -50,6 +50,16 @@ public class PostService {
         return postRepository.findAll(pageable);
     }
 
+    public Slice<Post> getAllPostsWithinSection(PageOptions options, PostTag postTag,
+            String sectionName)
+            throws AppException {
+        Sort sortOptions = sortOptionsConstructorFactory.getSortOptionConstructor(postTag)
+                .constructSortOptions();
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
+
+        return postRepository.findBySectionName(sectionName, pageable);
+    }
+
     public void deletePost(Long id) throws PostException {
         User currentUser = userService.getUser();
         Post post = getPost(id);

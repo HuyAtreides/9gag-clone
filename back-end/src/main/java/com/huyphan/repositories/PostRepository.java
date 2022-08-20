@@ -16,4 +16,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Post> findWithLockById(Long id);
+
+    @EntityGraph("PostEntityGraph")
+    Slice<Post> findBySectionName(String sectionName, Pageable pageable);
 }

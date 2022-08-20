@@ -65,6 +65,14 @@ public class PostController {
         return sliceMapper.toDto(page, postMapper);
     }
 
+    @GetMapping("tag/{postTage}/section/{sectionName}")
+    public SliceDto<PostDto> getPostsWithinSection(@PathVariable PostTag postTag, @PathVariable
+            String sectionName, PageOptionsDto pageOptionsDto) throws AppException {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> page = postService.getAllPostsWithinSection(pageOptions, postTag, sectionName);
+        return sliceMapper.toDto(page, postMapper);
+    }
+
     @GetMapping("{id}")
     public PostDto getPost(@PathVariable Long id) throws PostException {
         Post post = postService.getPost(id);

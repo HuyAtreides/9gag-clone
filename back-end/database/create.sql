@@ -1,7 +1,4 @@
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '_9GAG')
-BEGIN
-  create database _9GAG
-END
+create database _9GAG
 go
 
 use _9GAG
@@ -46,8 +43,12 @@ create table Notification (
     DestUrl varchar(MAX) not null,
     Type varchar(50) not null,
     UserId bigint,
+<<<<<<< Updated upstream
     Created datetime2(3) default (sysutcdatetime())
     IsViewed BIT DEFAULT 'FALSE'
+=======
+    IsViewed BIT DEFAULT 'FALSE',
+>>>>>>> Stashed changes
     primary key (Id)
 );
 
@@ -157,3 +158,11 @@ alter table VotedPost
    references [User];
 
 
+Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1656473044.0987_Y3UVY8_100x100.jpg', 'anime-manga')
+Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286907.1035_hE2uHE_100x100.jpg', 'movie-tv')
+Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216707.0007_ESESyM_100x100.jpg', 'meme')
+Insert into Section (ImgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286928.6604_uTYgug_100x100.jpg', 'gaming')
+Insert into Section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557217995.2799_bYQyJU_100x100.jpg', 'awsome')
+Insert into Section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557391851.3248_Za4UdA_100x100.jpg', 'animals')
+Insert into section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1481541784.8502_e8ARAR_100x100.jpg', 'random')
+Insert into section (ImgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286779.394_WYru9a_100x100.jpg', 'science-tech')
