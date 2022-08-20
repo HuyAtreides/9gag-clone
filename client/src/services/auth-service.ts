@@ -1,0 +1,47 @@
+import { Constant } from '../models/enums/constant';
+import RegisterData from '../models/register-data';
+import { User } from '../models/user';
+import { UserSecret } from '../models/user-secret';
+import { createAxiosInstance } from '../utils/create-axios-instance';
+import { UserDto } from './dtos/user-dto';
+import UserSecretDto from './dtos/user-secret-dto';
+import { LocalStorage } from './local-storage';
+import { RegisterDataMapper } from './mappers/register-data-mapper';
+import { UserMapper } from './mappers/user-mapper';
+import { UserSecretMapper } from './mappers/user-secret-mapper';
+
+const REGISTER_END_POINT = `${Constant.AuthEndpoint}/register`;
+const REFRESH_TOKEN_END_POINT = `${Constant.AuthEndpoint}/refresh-token`;
+
+export async function registerUser(registerData: RegisterData): Promise<UserSecret> {
+  const registerDataDto = RegisterDataMapper.toDto(registerData);
+  const axios = createAxiosInstance();
+  const response = await axios.post<UserSecretDto>(REGISTER_END_POINT, registerDataDto);
+
+  return UserSecretMapper.fromDto(response.data);
+}
+
+export async function getUserInfo(): Promise<User> {
+  const axios = createAxiosInstance();
+  const response = await axios.get<UserDto>(Constant.UserEndpoint);
+
+  return UserMapper.fromDto(response.data);
+}
+
+/**  Refresh invalid token. */
+export async function refreshToken(): Promise<void> {
+  const axios = createAxiosInstance();
+  const token = LocalStorage.get(Constant.TokenKey);
+
+  if (token === null) {
+    throw new Error('Cannot refresh token because token is missing');
+  }
+  const userSecretDto = UserSecretMapper.toDto({ token: token as string });
+  const response = await axios.post<UserSecretDto>(
+    REFRESH_TOKEN_END_POINT,
+    userSecretDto,
+  );
+
+  const newUserSecret = UserSecretMapper.fromDto(response.data);
+  LocalStorage.save(Constant.TokenKey, newUserSecret.token);
+}

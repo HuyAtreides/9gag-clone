@@ -12,11 +12,13 @@ import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
+@DynamicInsert
 public class Notification {
 
     @Id
@@ -34,4 +36,8 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId")
     private User user;
+
+    @Column(name = "IsViewed")
+    private Boolean isViewed;
+
 }
