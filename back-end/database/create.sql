@@ -1,7 +1,7 @@
-create database _9GAG
+create database test2
 go
 
-use _9GAG
+use test2
 GO
 
 create table [User] (
@@ -11,14 +11,14 @@ create table [User] (
     DisplayName nvarchar(30) not null,
     Password varchar(255),
     Provider varchar(20),
-    Created datetime2(3) default (sysutcdatetime()),
+    Created datetimeoffset default (sysutcdatetime()),
     Username varchar(20) not null,
     primary key (Id)
 );
 
 create table Comment (
     Id bigint identity not null,
-    CommentDate datetime2(3) default (sysutcdatetime()),
+    CommentDate datetimeoffset default (sysutcdatetime()),
     Downvotes int default 0 check (Downvotes >= 0),
     MediaType varchar(70),
     MediaUrl varchar(MAX),
@@ -43,12 +43,8 @@ create table Notification (
     DestUrl varchar(MAX) not null,
     Type varchar(50) not null,
     UserId bigint,
-<<<<<<< Updated upstream
-    Created datetime2(3) default (sysutcdatetime())
-    IsViewed BIT DEFAULT 'FALSE'
-=======
+    Created datetimeoffset default (sysutcdatetime()),
     IsViewed BIT DEFAULT 'FALSE',
->>>>>>> Stashed changes
     primary key (Id)
 );
 
@@ -59,7 +55,7 @@ create table Post (
     MediaUrl varchar(MAX) not null,
     Tags nvarchar(MAX),
     Title nvarchar(255),
-    UploadTime datetime2(3) default (sysutcdatetime()),
+    UploadTime datetimeoffset default (sysutcdatetime()),
     Upvotes int default 0 check (Upvotes >= 0),
     TotalComments bigint default 0,
     SectionId bigint not null,
