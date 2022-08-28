@@ -1,20 +1,20 @@
 import { Button, Form, Input, Typography } from "antd";
 import React from "react";
-import RegisterData from "../../../../models/register-data";
+import LoginData from "../../../../models/login-data";
 import { useAppDispatch, useAppSelector } from "../../../../Store";
-import { register } from "../../../../Store/auth/auth-dispatchers";
+import { login } from "../../../../Store/auth/auth-dispatchers";
 import styles from "../../AuthContainer.module.scss";
 
-interface IRegister {
+interface ILogin {
     onNavigate: (state: string) => void;
 }
 
-const Register: React.FC<IRegister> = ({ onNavigate }) => {
+const Login: React.FC<ILogin> = ({ onNavigate }) => {
     const dispatch = useAppDispatch();
     const isLoading = useAppSelector((state) => state.auth.isLoading);
 
-    const onFinish = (registerData: RegisterData) => {
-        dispatch(register(registerData));
+    const onFinish = (loginData: LoginData) => {
+        dispatch(login(loginData));
     };
 
     return (
@@ -23,43 +23,20 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
             className={styles.formContainer}
             onFinish={onFinish}
         >
-            <Typography.Title className={styles.title}>
-                Register
-            </Typography.Title>
+            <Typography.Title className={styles.title}>Login</Typography.Title>
             <Form.Item
                 name="username"
                 rules={[
                     { required: true, message: "Please input your username!" },
-                    {
-                        pattern: /^[a-zA-Z_0-9-]{1,20}$/,
-                        message:
-                            "Username should contain only numbers, alphabet letters, _, - and has at most 20 characters",
-                    },
                 ]}
             >
                 <Input size="large" placeholder="Enter your username" />
             </Form.Item>
 
             <Form.Item
-                name="displayName"
-                rules={[
-                    {
-                        required: true,
-                        message: "Please input your display name!",
-                    },
-                ]}
-            >
-                <Input size="large" placeholder="Enter your display name" />
-            </Form.Item>
-
-            <Form.Item
                 name="password"
                 rules={[
                     { required: true, message: "Please input your password!" },
-                    {
-                        pattern: /.{8}/,
-                        message: "Password must be at least 8 characters long",
-                    },
                 ]}
             >
                 <Input.Password
@@ -78,14 +55,14 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
                     Submit
                 </Button>
                 <Typography.Text
-                    onClick={() => onNavigate("login")}
+                    onClick={() => onNavigate("register")}
                     className={styles.navigateText}
                 >
-                    Already a member? Log in
+                    Haven't a member? Register
                 </Typography.Text>
             </Form.Item>
         </Form>
     );
 };
 
-export default Register;
+export default Login;
