@@ -1,0 +1,40 @@
+@import '../../Style/color.scss';
+
+.navbarContainer{
+    height: 50px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .itemContainer{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .iconCollapse{
+            color: $textColorDarkTheme;
+            background-color: transparent;
+            border: none;
+            margin-right: 20px;
+            &:hover {
+                background-color: $iconHoverColorDarkTheme;
+            }
+        }
+        .logo{
+            color: $textColorDarkTheme;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+        .text{
+            color: $textColorDarkTheme;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btnPost{
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    }
+}

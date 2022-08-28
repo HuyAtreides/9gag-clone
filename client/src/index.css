@@ -17,3 +17,16 @@ code {
 .center-text {
   text-align: center;
 }
+
+.dark{
+  background-color: #141414;
+  color: #fff;
+  min-height: 100vh;
+  padding-top: 50px;
+}
+
+.light{
+  background-color: #fff;
+  color: #000000;
+  min-height: 100vh;
+}
