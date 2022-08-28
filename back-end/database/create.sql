@@ -45,7 +45,7 @@ create table Notification (
     DestUrl varchar(MAX) not null,
     Type varchar(50) not null,
     UserId bigint,
-    IsViewed BIT DEFAULT 'FALSE'
+    IsViewed BIT DEFAULT 'FALSE',
     primary key (Id)
 );
 

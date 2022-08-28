@@ -1,4 +1,5 @@
 import { Country } from './enums/country';
+import Section from './section';
 
 export interface User {
   readonly id: number;
@@ -10,4 +11,9 @@ export interface User {
   readonly displayName: string;
 
   readonly country: Country | null;
+
+  readonly favoriteSections: Section[];
+
+  readonly created: Date;
 }
+

@@ -1,3 +1,5 @@
+import SectionDto from "./section-dto";
+
 export interface UserDto {
   readonly id: number;
 
@@ -8,4 +10,8 @@ export interface UserDto {
   readonly displayName: string;
 
   readonly country: string;
+
+  readonly favoriteSections: readonly SectionDto[];
+
+  readonly created: string;
 }

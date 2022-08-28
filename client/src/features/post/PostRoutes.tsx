@@ -1,12 +1,16 @@
-import { Route, Routes } from 'react-router-dom';
-import Posts from './pages/posts/Posts';
+import { Layout } from "antd";
+import Posts from "./pages/posts/Posts";
+
+const { Content } = Layout;
 
 const PostRoutes: React.FC = () => {
-  return (
-    <Routes>
-      <Route path='/' element={<Posts />} />
-    </Routes>
-  );
+    return (
+        <Layout>
+            <Content>
+                <Posts />
+            </Content>
+        </Layout>
+    );
 };
 
 export default PostRoutes;
