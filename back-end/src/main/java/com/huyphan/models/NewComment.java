@@ -19,7 +19,4 @@ public class NewComment {
 
     @Nullable
     private String mediaType;
-
-    @Nullable
-    private Long replyToId;
 }

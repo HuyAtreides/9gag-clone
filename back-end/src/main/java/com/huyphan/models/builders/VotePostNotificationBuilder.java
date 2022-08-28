@@ -4,25 +4,25 @@ import com.huyphan.models.Notification;
 import com.huyphan.models.Post;
 import com.huyphan.models.enums.NotificationType;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @AllArgsConstructor
-public class VotePostNotificationBuilder implements NotificationBuilder {
-
-    final private Post post;
+@Component
+public class VotePostNotificationBuilder implements NotificationBuilder<Post> {
 
     @Override
-    public Notification build() {
+    public Notification build(Post post) {
         Notification notification = new Notification();
-        notification.setDestUrl(buildDestUrl());
+        notification.setDestUrl(buildDestUrl(post));
         notification.setType(NotificationType.VOTE_POST);
-        notification.setUser(post.getUser());
         return notification;
     }
 
     @Override
-    public String buildDestUrl() {
-        destUrlBuilder.queryParam("postId", post.getId());
-
-        return destUrlBuilder.toUriString();
+    public String buildDestUrl(Post post) {
+        UriComponentsBuilder destUrlBuilder = UriComponentsBuilder.fromPath("/post");
+        destUrlBuilder.path("/{postId}");
+        return destUrlBuilder.build(post.getId()).toString();
     }
 }

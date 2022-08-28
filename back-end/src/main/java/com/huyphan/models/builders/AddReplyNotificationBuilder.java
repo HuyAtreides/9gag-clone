@@ -1,16 +1,18 @@
 package com.huyphan.models.builders;
 
 import com.huyphan.models.Comment;
+import com.huyphan.models.Notification;
 import com.huyphan.models.enums.NotificationType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AddReplyNotificationBuilder extends CommentNotificationBuilder {
 
-    public AddReplyNotificationBuilder(Comment comment) {
-        super(comment);
-    }
-
     @Override
-    NotificationType getType() {
-        return NotificationType.ADD_REPLY;
+    public Notification build(Comment comment) {
+        Notification notification = new Notification();
+        notification.setType(NotificationType.ADD_REPLY);
+        notification.setDestUrl(buildDestUrl(comment));
+        return notification;
     }
 }

@@ -1,13 +1,15 @@
 package com.huyphan.models.builders;
 
 import com.huyphan.models.Notification;
-import org.springframework.web.util.UriComponentsBuilder;
 
-public interface NotificationBuilder {
+/**
+ * Build a notification bases on the subject type.
+ *
+ * @param <SubjectType> Type of the subject that causes the notification.
+ */
+public interface NotificationBuilder<SubjectType> {
 
-    UriComponentsBuilder destUrlBuilder = UriComponentsBuilder.fromPath("/notification");
+    Notification build(SubjectType subject);
 
-    Notification build();
-
-    String buildDestUrl();
+    String buildDestUrl(SubjectType subject);
 }

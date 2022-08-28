@@ -106,14 +106,15 @@ public class CommentController {
         commentService.deleteComment(id);
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateComment(@RequestBody CommentDto newCommentDto) throws CommentException {
-        Comment newComment = commentMapper.fromDto(newCommentDto);
-        commentService.updateComment(newComment);
+    public void updateComment(@PathVariable Long id,
+            @RequestBody NewCommentDto updatedCommentFieldsDto) throws CommentException {
+        NewComment updatedCommentFields = newCommentMapper.fromDto(updatedCommentFieldsDto);
+        commentService.updateComment(id, updatedCommentFields);
     }
 
-    @PostMapping("{postId}")
+    @PostMapping("/post/{postId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void addComment(@PathVariable Long postId, @RequestBody NewCommentDto newCommentDto)
             throws PostException, CommentException {
@@ -121,13 +122,13 @@ public class CommentController {
         commentService.addComment(postId, newComment);
     }
 
-    @PostMapping("{postId}/{parentCommentId}")
+    @PostMapping("replyTo/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addReply(@PathVariable Long postId, @PathVariable Long parentCommentId,
+    public void addReply(@PathVariable Long id,
             @RequestBody NewCommentDto newReplyDto)
             throws CommentException, PostException {
         NewComment newReply = newCommentMapper.fromDto(newReplyDto);
-        commentService.addReply(postId, newReply, parentCommentId);
+        commentService.addReply(newReply, id);
     }
 
     @ExceptionHandler({PostException.class, CommentException.class})

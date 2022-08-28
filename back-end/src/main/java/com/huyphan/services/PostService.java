@@ -1,14 +1,17 @@
 package com.huyphan.services;
 
 import com.huyphan.models.NewPost;
+import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
+import com.huyphan.models.builders.VotePostNotificationBuilder;
 import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.PostRepository;
-import com.huyphan.utils.SortOptionsConstructor.SortOptionsConstructorFactory;
+import com.huyphan.utils.sortoptionsconstructor.SortOptionsConstructorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +33,10 @@ public class PostService {
     private UserService userService;
 
     @Autowired
-    private NotificationService notificationService;
+    private NotificationSender notificationSender;
+
+    @Autowired
+    private VotePostNotificationBuilder votePostNotificationBuilder;
 
     public void addNewPost(NewPost newPost) {
         Post post = new Post();
@@ -69,18 +75,27 @@ public class PostService {
         }
 
         postRepository.deleteById(id);
+        userService.removeSavedPost(post);
+        userService.removeVotedPost(post);
     }
 
     @Transactional
-    public void upvotesPost(Long id) throws PostException {
+    public void upvotesPost(Long id) throws PostException, UserException {
         Post post = getPostUsingLock(id);
-        notificationService.addVotePostNotification(post);
+        userService.addVotedPost(post);
         post.setUpvotes(post.getUpvotes() + 1);
+        sendVotePostNotification(post);
+    }
+
+    private void sendVotePostNotification(Post post) {
+        Notification notification = votePostNotificationBuilder.build(post);
+        notificationSender.send(notification, post.getUser());
     }
 
     @Transactional
     public void unUpvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
+        userService.removeVotedPost(post);
         post.setUpvotes(post.getUpvotes() - 1);
     }
 
@@ -88,8 +103,8 @@ public class PostService {
     @Transactional
     public void downvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
-        notificationService.addVotePostNotification(post);
         post.setDownvotes(post.getDownvotes() + 1);
+        sendVotePostNotification(post);
     }
 
     @Transactional
@@ -105,5 +120,13 @@ public class PostService {
     public Post getPostUsingLock(Long id) throws PostException {
         return postRepository.findWithLockById(id)
                 .orElseThrow(() -> new PostException("Post not found"));
+    }
+
+    public void savePost(Post post) {
+        userService.savePost(post);
+    }
+
+    public void removeSavedPost(Post post) {
+        userService.removeSavedPost(post);
     }
 }

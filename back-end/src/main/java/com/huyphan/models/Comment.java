@@ -31,11 +31,14 @@ import org.hibernate.annotations.Nationalized;
 @Entity
 @NamedEntityGraphs({
         @NamedEntityGraph(name = "CommentEntityGraph", attributeNodes = {
-                @NamedAttributeNode("replyTo"),
+                @NamedAttributeNode(value = "replyTo", subgraph = "CommentEntityGraph"),
                 @NamedAttributeNode(value = "user", subgraph = "UserEntityGraph")
         }, subgraphs = {
                 @NamedSubgraph(name = "UserEntityGraph", attributeNodes = {
                         @NamedAttributeNode("favoriteSections")
+                }),
+                @NamedSubgraph(name = "CommentEntityGraph", attributeNodes = {
+                        @NamedAttributeNode(value = "user", subgraph = "UserEntityGraph")
                 })
         }),
 })

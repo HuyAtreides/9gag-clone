@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface NotificationRepository extends CrudRepository<Notification, Long> {
 
-    List<Notification> findByCreatedGreaterThan(Instant targetDate);
+    List<Notification> findByUserIdAndCreatedGreaterThan(Long userId, Instant targetDate);
 
     Slice<Notification> findByUserId(Long userId, Pageable pageable);
 

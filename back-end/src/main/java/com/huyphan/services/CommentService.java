@@ -2,9 +2,13 @@ package com.huyphan.services;
 
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewComment;
+import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
+import com.huyphan.models.builders.AddCommentNotificationBuilder;
+import com.huyphan.models.builders.AddReplyNotificationBuilder;
+import com.huyphan.models.builders.VoteCommentNotificationBuilder;
 import com.huyphan.models.enums.CommentSortField;
 import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.PostException;
@@ -31,14 +35,26 @@ public class CommentService {
     private PostService postService;
 
     @Autowired
-    private NotificationService notificationService;
+    private NotificationSender notificationSender;
+
+    @Autowired
+    private VoteCommentNotificationBuilder voteCommentNotificationBuilder;
+
+    @Autowired
+    private AddReplyNotificationBuilder addReplyNotificationBuilder;
+
+    @Autowired
+    private AddCommentNotificationBuilder addCommentNotificationBuilder;
+
 
     @Transactional
     public void addComment(Long postId, NewComment newComment)
-            throws PostException, CommentException {
-        Comment comment = createNewCommentEntity(postId, newComment);
-        notificationService.addAddCommentNotification(comment);
-        commentRepository.save(comment);
+            throws PostException {
+        Post post = postService.getPost(postId);
+        Comment comment = createNewCommentEntity(post, newComment);
+        Comment savedComment = commentRepository.save(comment);
+        Notification notification = addCommentNotificationBuilder.build(savedComment);
+        notificationSender.send(notification, post.getUser());
     }
 
     @Transactional
@@ -56,8 +72,8 @@ public class CommentService {
     @Transactional
     public void upvotesComment(Long id) throws CommentException {
         Comment comment = getCommentUsingLock(id);
-        notificationService.addVoteCommentNotification(comment);
         comment.setUpvotes(comment.getUpvotes() + 1);
+        sendVoteCommentNotification(comment);
     }
 
     @Transactional
@@ -66,12 +82,17 @@ public class CommentService {
         comment.setUpvotes(comment.getUpvotes() - 1);
     }
 
+    private void sendVoteCommentNotification(Comment comment) {
+        Notification notification = voteCommentNotificationBuilder.build(comment);
+        notificationSender.send(notification, comment.getUser());
+    }
+
 
     @Transactional
     public void downvotesComment(Long id) throws CommentException {
         Comment comment = getCommentUsingLock(id);
-        notificationService.addVoteCommentNotification(comment);
         comment.setDownvotes(comment.getDownvotes() + 1);
+        sendVoteCommentNotification(comment);
     }
 
     @Transactional
@@ -81,29 +102,34 @@ public class CommentService {
     }
 
     @Transactional
-    public void updateComment(Comment updatedComment) throws CommentException {
-        Comment comment = getComment(updatedComment.getId());
-        comment.setText(updatedComment.getText());
-        comment.setMediaType(updatedComment.getMediaType());
-        comment.setMediaUrl(updatedComment.getMediaUrl());
+    public void updateComment(Long id, NewComment updatedCommentFields) throws CommentException {
+        Comment comment = getComment(id);
+        User currentUser = userService.getUser();
+
+        if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
+            throw new CommentException("Comment not found");
+        }
+
+        comment.setText(updatedCommentFields.getText());
+        comment.setMediaType(updatedCommentFields.getMediaType());
+        comment.setMediaUrl(updatedCommentFields.getMediaUrl());
     }
 
     @Transactional
-    public void addReply(Long postId, NewComment newReply, Long parentCommentId)
-            throws CommentException, PostException {
-        Comment parent = getComment(parentCommentId);
-        Comment reply = createNewCommentEntity(postId, newReply);
-        Comment replyToComment = getComment(newReply.getReplyToId());
-        reply.setReplyTo(replyToComment);
+    public void addReply(NewComment newReply, Long replyToId)
+            throws CommentException {
+        Comment replyTo = getComment(replyToId);
+        Comment reply = createNewCommentEntity(replyTo.getPost(), newReply);
+        Comment parent = replyTo.getParent() == null ? replyTo : replyTo.getParent();
+        reply.setReplyTo(replyTo);
         reply.setParent(parent);
-        notificationService.addAddReplyNotification(reply);
-        commentRepository.save(reply);
+        Comment savedReply = commentRepository.save(reply);
+        Notification notification = addReplyNotificationBuilder.build(savedReply);
+        notificationSender.send(notification, replyTo.getUser());
     }
 
-    private Comment createNewCommentEntity(Long postId, NewComment newComment)
-            throws PostException, CommentException {
+    private Comment createNewCommentEntity(Post post, NewComment newComment) {
         Comment comment = new Comment();
-        Post post = postService.getPost(postId);
         comment.setUser(userService.getUser());
         comment.setText(newComment.getText());
         comment.setMediaUrl(newComment.getMediaUrl());

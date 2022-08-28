@@ -1,43 +1,29 @@
 package com.huyphan.models.builders;
 
 import com.huyphan.models.Comment;
-import com.huyphan.models.Notification;
-import com.huyphan.models.enums.NotificationType;
 import lombok.AllArgsConstructor;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @AllArgsConstructor
-public abstract class CommentNotificationBuilder implements NotificationBuilder {
-
-    final private Comment comment;
+public abstract class CommentNotificationBuilder implements NotificationBuilder<Comment> {
 
     @Override
-    public Notification build() {
-        Notification notification = new Notification();
-        notification.setType(getType());
-        notification.setUser(comment.getUser());
-        notification.setDestUrl(buildDestUrl());
-        return notification;
-    }
-
-    abstract NotificationType getType();
-
-    @Override
-    public String buildDestUrl() {
+    public String buildDestUrl(Comment comment) {
+        UriComponentsBuilder destUrlBuilder = UriComponentsBuilder.fromPath("/post");
         Long commentId = comment.getId();
-        Long parentId = comment.getParent().getId();
-        Long replyToId = comment.getReplyTo().getId();
+        Comment parent = comment.getParent();
+        Comment replyTo = comment.getReplyTo();
+        destUrlBuilder.path("/{postId}");
+        destUrlBuilder.queryParam("commentId", commentId);
 
-        destUrlBuilder.queryParam("postId", comment.getPost().getId())
-                .queryParam("commentId", commentId);
-
-        if (parentId != null) {
-            destUrlBuilder.queryParam("parentId", parentId);
+        if (parent != null) {
+            destUrlBuilder.queryParam("parentId", parent.getId());
         }
 
-        if (replyToId != null) {
-            destUrlBuilder.queryParam("replyToId", replyToId);
+        if (replyTo != null) {
+            destUrlBuilder.queryParam("replyToId", replyTo.getId());
         }
 
-        return destUrlBuilder.toUriString();
+        return destUrlBuilder.build(comment.getPost().getId()).toString();
     }
 }

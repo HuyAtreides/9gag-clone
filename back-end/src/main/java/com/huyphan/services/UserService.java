@@ -1,10 +1,13 @@
 package com.huyphan.services;
 
+import com.huyphan.models.Post;
 import com.huyphan.models.RegisterData;
 import com.huyphan.models.User;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.UserRepository;
+import java.util.Objects;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +30,52 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username is not found"));
+    }
+
+    public void addVotedPost(Post post) {
+        Long userId = getUser().getId();
+        try {
+            Set<Post> votedPosts = getUserById(userId).getVotedPosts();
+
+            if (votedPosts.contains(post)) {
+                removeSavedPost(post);
+                return;
+            }
+
+            votedPosts.add(post);
+        } catch (UserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeVotedPost(Post post) {
+        Long userId = getUser().getId();
+        try {
+            getUserById(userId).getVotedPosts()
+                    .removeIf((votedPost) -> Objects.equals(votedPost.getId(), post.getId()));
+        } catch (UserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeSavedPost(Post post) {
+        Long userId = getUser().getId();
+
+        try {
+            getUserById(userId).getSavedPosts()
+                    .removeIf((savedPost) -> Objects.equals(savedPost.getId(), post.getId()));
+        } catch (UserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void savePost(Post post) {
+        Long userId = getUser().getId();
+        try {
+            getUserById(userId).getSavedPosts().add(post);
+        } catch (UserException e) {
+            e.printStackTrace();
+        }
     }
 
     public User register(RegisterData registerData) throws UserAlreadyExistsException {

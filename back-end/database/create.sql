@@ -1,12 +1,12 @@
-create database test2
+create database _9GAG
 go
 
-use test2
+use _9GAG
 GO
 
 create table [User] (
     Id bigint identity not null,
-    AvatarUrl varchar(255) default 'https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp',
+    AvatarUrl varchar(255) default 'https://9gag-media-files.s3.ap-east-1.amazonaws.com/351898400-default_avatar.jpg',
     Country varchar(70),
     DisplayName nvarchar(30) not null,
     Password varchar(255),
@@ -153,12 +153,12 @@ alter table VotedPost
    foreign key (UserId)
    references [User];
 
-
+insert into Section (ImgUrl, Name) values('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557376304.186_U5U7u5_100x100.jpg', 'funny')
 Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1656473044.0987_Y3UVY8_100x100.jpg', 'anime-manga')
 Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286907.1035_hE2uHE_100x100.jpg', 'movie-tv')
 Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216707.0007_ESESyM_100x100.jpg', 'meme')
 Insert into Section (ImgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286928.6604_uTYgug_100x100.jpg', 'gaming')
-Insert into Section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557217995.2799_bYQyJU_100x100.jpg', 'awsome')
+Insert into Section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557217995.2799_bYQyJU_100x100.jpg', 'awesome')
 Insert into Section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557391851.3248_Za4UdA_100x100.jpg', 'animals')
 Insert into section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1481541784.8502_e8ARAR_100x100.jpg', 'random')
 Insert into section (ImgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286779.394_WYru9a_100x100.jpg', 'science-tech')

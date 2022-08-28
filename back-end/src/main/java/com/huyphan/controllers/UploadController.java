@@ -23,9 +23,9 @@ public class UploadController {
     private MediaLocationMapper mediaLocationMapper;
 
     @PostMapping
-    public MediaLocationDto handleUpload(@RequestParam MultipartFile memeMedia)
+    public MediaLocationDto handleUpload(@RequestParam MultipartFile file)
             throws IOException {
-        MediaLocation mediaLocation = awss3Util.uploadObject(memeMedia);
+        MediaLocation mediaLocation = awss3Util.uploadObject(file);
 
         return mediaLocationMapper.toDto(mediaLocation);
     }

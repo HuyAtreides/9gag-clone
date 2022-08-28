@@ -14,6 +14,7 @@ import com.huyphan.models.Post;
 import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
@@ -65,7 +66,7 @@ public class PostController {
         return sliceMapper.toDto(page, postMapper);
     }
 
-    @GetMapping("tag/{postTage}/section/{sectionName}")
+    @GetMapping("tag/{postTag}/{sectionName}")
     public SliceDto<PostDto> getPostsWithinSection(@PathVariable PostTag postTag, @PathVariable
             String sectionName, PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
@@ -81,7 +82,7 @@ public class PostController {
 
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void upvotesPost(@PathVariable Long id) throws PostException {
+    public void upvotesPost(@PathVariable Long id) throws PostException, UserException {
         postService.upvotesPost(id);
     }
 
@@ -101,6 +102,20 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unDownvotesPost(@PathVariable Long id) throws PostException {
         postService.unDownvotesPost(id);
+    }
+
+    @PostMapping("save")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void savePost(PostDto postDto) {
+        Post post = postMapper.fromDto(postDto);
+        postService.savePost(post);
+    }
+
+    @DeleteMapping("save")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeSavedPost(PostDto postDto) {
+        Post post = postMapper.fromDto(postDto);
+        postService.removeSavedPost(post);
     }
 
     @ExceptionHandler(PostException.class)

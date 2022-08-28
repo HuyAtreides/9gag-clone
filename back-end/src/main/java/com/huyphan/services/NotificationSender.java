@@ -1,11 +1,12 @@
 package com.huyphan.services;
 
+import com.huyphan.models.Notification;
+import com.huyphan.models.User;
+
 /**
  * Service for sending notifications.
- *
- * @param <SubjectType> Type of the subject that sends the notification.
  */
-public interface NotificationSenderService<SubjectType> {
+public interface NotificationSender {
 
-    void send(SubjectType subject);
+    void send(Notification notification, User receiver);
 }

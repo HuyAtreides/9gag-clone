@@ -16,7 +16,4 @@ public class NewCommentDto {
 
     @Nullable
     private String mediaType;
-
-    @Nullable
-    private Long replyToId;
 }

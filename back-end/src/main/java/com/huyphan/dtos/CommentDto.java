@@ -1,7 +1,5 @@
 package com.huyphan.dtos;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
@@ -26,8 +24,7 @@ public class CommentDto {
     private String mediaType;
 
     @Nullable
-    @JsonInclude(Include.NON_NULL)
-    private CommentDto replyTo;
+    private UserDto replyTo;
 
     private String date;
 

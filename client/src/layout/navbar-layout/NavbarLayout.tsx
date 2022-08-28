@@ -9,10 +9,10 @@ const NavbarLayout: React.FC = () => {
   return (
     <Layout>
       <AppHeader></AppHeader>
-      <Sider theme='light' />
-      {/* <Content>
+      {/* <Sider theme='light' /> */}
+      <Content>
         <Outlet />
-      </Content> */}
+      </Content>
     </Layout>
   );
 };
