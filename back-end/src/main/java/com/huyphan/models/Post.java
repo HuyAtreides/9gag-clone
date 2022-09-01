@@ -10,7 +10,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
@@ -81,4 +83,20 @@ public class Post {
             """)
     @Column(name = "TotalComment")
     private Long totalComments;
+
+    @Column(name = "TotalComments")
+    private Long totalComments1;
+
+    @ManyToMany
+    @JoinTable(name = "SavedPost",
+            joinColumns = @JoinColumn(name = "PostId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
+    private Set<User> saveUsers = new LinkedHashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "VotedPost",
+            joinColumns = @JoinColumn(name = "PostId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
+    private Set<User> voteUsers = new LinkedHashSet<>();
+
 }

@@ -11,7 +11,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class SectionMapper extends BaseMapper {
+public class SectionMapper extends BaseMapper implements ToDtoMapper<SectionDto, Section> {
+
+    @Override
+    public SectionDto toDto(Section data) {
+        return modelMapper.map(data, SectionDto.class);
+    }
 
     @Override
     public void createTypeMap() {

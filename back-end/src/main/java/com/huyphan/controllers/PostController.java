@@ -104,9 +104,23 @@ public class PostController {
         postService.unDownvotesPost(id);
     }
 
+    @GetMapping("save")
+    public SliceDto<PostDto> getSavedPosts() {
+        Slice<Post> savedPosts = postService.getSavedPosts();
+
+        return sliceMapper.toDto(savedPosts, postMapper);
+    }
+
+    @GetMapping("vote")
+    public SliceDto<PostDto> getVotedPosts() {
+        Slice<Post> votedPosts = postService.getVotedPosts();
+
+        return sliceMapper.toDto(votedPosts, postMapper);
+    }
+
     @PostMapping("save")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void savePost(PostDto postDto) {
+    public void savePost(@RequestBody PostDto postDto) {
         Post post = postMapper.fromDto(postDto);
         postService.savePost(post);
     }

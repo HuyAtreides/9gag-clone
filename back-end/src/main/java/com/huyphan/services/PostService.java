@@ -79,6 +79,18 @@ public class PostService {
         userService.removeVotedPost(post);
     }
 
+    public Slice<Post> getSavedPosts() {
+        User user = userService.getUser();
+
+        return postRepository.findSavedPost(user);
+    }
+
+    public Slice<Post> getVotedPosts() {
+        User user = userService.getUser();
+
+        return postRepository.findVotedPost(user);
+    }
+
     @Transactional
     public void upvotesPost(Long id) throws PostException, UserException {
         Post post = getPostUsingLock(id);

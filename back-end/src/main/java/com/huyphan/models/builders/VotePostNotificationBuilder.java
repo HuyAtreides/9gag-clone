@@ -16,6 +16,7 @@ public class VotePostNotificationBuilder implements NotificationBuilder<Post> {
         Notification notification = new Notification();
         notification.setDestUrl(buildDestUrl(post));
         notification.setType(NotificationType.VOTE_POST);
+        notification.setMessage("Someone votes your post");
         return notification;
     }
 

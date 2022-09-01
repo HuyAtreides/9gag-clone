@@ -45,6 +45,8 @@ public class SecurityConfig {
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/user/{id:[0-9]+}")
                 .permitAll()
+                .antMatchers(HttpMethod.GET, "/section")
+                .permitAll()
                 .anyRequest().authenticated();
 
         http.exceptionHandling().authenticationEntryPoint(authExceptionsHandler);

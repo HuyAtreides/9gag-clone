@@ -6,7 +6,7 @@ GO
 
 create table [User] (
     Id bigint identity not null,
-    AvatarUrl varchar(255) default 'https://9gag-media-files.s3.ap-east-1.amazonaws.com/351898400-default_avatar.jpg',
+    AvatarUrl varchar(255) default 'https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp',
     Country varchar(70),
     DisplayName nvarchar(30) not null,
     Password varchar(255),
@@ -45,6 +45,7 @@ create table Notification (
     UserId bigint,
     Created datetimeoffset default (sysutcdatetime()),
     IsViewed BIT DEFAULT 'FALSE',
+	  Message varchar(MAX) not null,
     primary key (Id)
 );
 

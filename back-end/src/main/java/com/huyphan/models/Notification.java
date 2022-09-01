@@ -47,4 +47,9 @@ public class Notification {
 
     @Column(name = "Created")
     private Instant created;
+
+    @Lob
+    @Column(name = "Message")
+    private String message;
+
 }

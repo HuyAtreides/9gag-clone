@@ -55,7 +55,7 @@ public class NotificationService implements NotificationSender {
         if (receiver.getId().equals(user.getId())) {
             return;
         }
-        
+
         notification.setUser(receiver);
         notificationRepository.save(notification);
     }

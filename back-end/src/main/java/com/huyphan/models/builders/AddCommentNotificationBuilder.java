@@ -13,6 +13,7 @@ public class AddCommentNotificationBuilder extends CommentNotificationBuilder {
         Notification notification = new Notification();
         notification.setType(NotificationType.ADD_COMMENT);
         notification.setDestUrl(buildDestUrl(comment));
+        notification.setMessage("Someone comments to your post");
         return notification;
     }
 }

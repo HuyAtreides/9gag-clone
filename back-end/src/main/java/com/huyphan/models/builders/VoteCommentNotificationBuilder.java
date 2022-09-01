@@ -13,6 +13,7 @@ public class VoteCommentNotificationBuilder extends CommentNotificationBuilder {
         Notification notification = new Notification();
         notification.setType(NotificationType.VOTE_COMMENT);
         notification.setDestUrl(buildDestUrl(comment));
+        notification.setMessage("Someone votes your comment");
         return notification;
     }
 }

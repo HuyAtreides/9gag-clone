@@ -13,6 +13,7 @@ public class AddReplyNotificationBuilder extends CommentNotificationBuilder {
         Notification notification = new Notification();
         notification.setType(NotificationType.ADD_REPLY);
         notification.setDestUrl(buildDestUrl(comment));
+        notification.setMessage("Someone replies to your comment");
         return notification;
     }
 }
