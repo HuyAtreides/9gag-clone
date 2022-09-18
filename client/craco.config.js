@@ -18,7 +18,7 @@ module.exports = {
                             "@menu-item-color": "#7E7D88",
                             "@menu-item-color": "#fff",
                             "@menu-item-active-bg": "#313131",
-                            "@menu-item-font-size": "14px",
+                            "@menu-item-font-size": "1.4rem",
                             "@menu-inline-toplevel-item-height": "35px",
                             "@menu-item-height": "35px",
                             "@menu-item-boundary-margin": 0,

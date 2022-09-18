@@ -1,7 +1,7 @@
-import { AppThunk } from "..";
-import { getUserInfo } from "../../services/auth-service";
-import { handleError } from "../../utils/error-handler";
-import { setIsLoading, setProfile, setUserErrorMessage } from "./user-slice";
+import { AppThunk } from '..';
+import { getUserInfo } from '../../services/auth-service';
+import { handleError } from '../../utils/error-handler';
+import { setIsLoading, setProfile, setUserErrorMessage } from './user-slice';
 
 export const getUser = (): AppThunk => async (dispatch, getState) => {
     try {

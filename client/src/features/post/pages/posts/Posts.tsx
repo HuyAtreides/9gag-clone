@@ -9,17 +9,17 @@ import {
     Row,
     Typography,
     Upload,
-} from "antd";
+} from 'antd';
 import {
     SearchOutlined,
     CaretDownOutlined,
     FileImageFilled,
-} from "@ant-design/icons";
-import { useAppDispatch, useAppSelector } from "../../../../Store";
-import { getAllSection } from "../../../../Store/section/section-dipatchers";
-import Section from "../../../../models/section";
-import styles from "./Post.module.scss";
-import { useEffect } from "react";
+} from '@ant-design/icons';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { getAllSection } from '../../../../Store/section/section-dipatchers';
+import Section from '../../../../models/section';
+import styles from './Post.module.scss';
+import { useEffect } from 'react';
 
 const renderItem = ({ id, name, imgUrl }: Section) => ({
     value: name.charAt(0).toUpperCase() + name.slice(1),
@@ -34,14 +34,14 @@ const renderItem = ({ id, name, imgUrl }: Section) => ({
 });
 
 const data = [
-    "1. No pornography",
-    "2. No violence or gory contents",
-    "3. No hate speech and bullying",
-    "4. No spamming and manipulation",
-    "5. No deceptive content",
-    "6. No illegal activities",
-    "7. No impersonation",
-    "8. No copyright infringement",
+    '1. No pornography',
+    '2. No violence or gory contents',
+    '3. No hate speech and bullying',
+    '4. No spamming and manipulation',
+    '5. No deceptive content',
+    '6. No illegal activities',
+    '7. No impersonation',
+    '8. No copyright infringement',
 ];
 
 const Posts: React.FC = () => {
@@ -90,10 +90,7 @@ const Posts: React.FC = () => {
                                 />
                             </Form.Item>
                             <div className={styles.mediaContainer}>
-                                <Form.Item
-                                    name="media"
-                                    noStyle
-                                >
+                                <Form.Item name="media" noStyle>
                                     <Upload
                                         action="/upload.do"
                                         className={styles.upload}

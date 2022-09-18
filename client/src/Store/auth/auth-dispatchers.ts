@@ -1,13 +1,13 @@
-import { AppDispatch, AppThunk } from "..";
-import { Constant } from "../../models/enums/constant";
-import RegisterData from "../../models/register-data";
-import LoginData from "../../models/login-data";
-import { UserSecret } from "../../models/user-secret";
-import { registerUser, loginUser } from "../../services/auth-service";
-import { LocalStorage } from "../../services/local-storage";
-import { handleError } from "../../utils/error-handler";
-import { getUser } from "../user/user-dipatchers";
-import { setAuthErrorMessage, setIsLoading } from "./auth-slice";
+import { AppDispatch, AppThunk } from '..';
+import { Constant } from '../../models/enums/constant';
+import RegisterData from '../../models/register-data';
+import LoginData from '../../models/login-data';
+import { UserSecret } from '../../models/user-secret';
+import { registerUser, loginUser } from '../../services/auth-service';
+import { LocalStorage } from '../../services/local-storage';
+import { handleError } from '../../utils/error-handler';
+import { getUser } from '../user/user-dipatchers';
+import { setAuthErrorMessage, setIsLoading } from './auth-slice';
 import { setProfile } from '../user/user-slice';
 
 export const register =
@@ -52,7 +52,7 @@ export const logout = (): AppThunk => async (dispatch, getState) => {
 
 const processUserSecret = async (
     userSecret: UserSecret,
-    dispatch: AppDispatch
+    dispatch: AppDispatch,
 ) => {
     LocalStorage.save(Constant.TokenKey, userSecret.token);
     await dispatch(getUser());

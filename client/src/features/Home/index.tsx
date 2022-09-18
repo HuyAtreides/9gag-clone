@@ -1,12 +1,12 @@
-import React from "react";
-import { Layout, Typography } from "antd";
-import AuthContainer from "../auth/AuthContainer"
-import Sidebar from "./Components/Sidebar";
-import styles from "./Home.module.scss";
+import React from 'react';
+import { Layout, Typography } from 'antd';
+import AuthContainer from '../auth/AuthContainer';
+import Sidebar from './Components/Sidebar';
+import styles from './Home.module.scss';
 
 const { Sider, Content } = Layout;
 
-interface IHomeProp{
+interface IHomeProp {
     sideBarCollapse: boolean;
 }
 

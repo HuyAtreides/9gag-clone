@@ -1,4 +1,4 @@
-@import "../../../../Style/color.scss";
+@import '../../../../Style/color.scss';
 
 .postContainer {
     width: 60%;
@@ -7,7 +7,7 @@
     .title {
         color: $textColorDarkTheme;
         font-weight: bold;
-        font-size: 24px;
+        font-size: 2.4rem;
     }
     .sectionInput {
         width: 50%;
@@ -53,7 +53,7 @@
                     align-items: center;
                     justify-content: center;
                     .icon {
-                        font-size: 30px;
+                        font-size: 3rem;
                         color: $textColorDarkTheme;
                     }
                 }
@@ -68,8 +68,8 @@
         padding: 10px 20px;
         border-radius: 8px;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        .title{
-            font-size: 20px;
+        .title {
+            font-size: 2rem;
         }
         .text {
             color: $textColorDarkTheme;

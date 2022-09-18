@@ -1,7 +1,12 @@
-import { AppThunk } from "..";
-import { getSections } from "../../services/section-service";
-import { handleError } from "../../utils/error-handler";
-import { setIsLoading, setSection, setSections, setUserErrorMessage } from "./section-slice";
+import { AppThunk } from '..';
+import { getSections } from '../../services/section-service';
+import { handleError } from '../../utils/error-handler';
+import {
+    setIsLoading,
+    setSection,
+    setSections,
+    setUserErrorMessage,
+} from './section-slice';
 
 export const getAllSection = (): AppThunk => async (dispatch, getState) => {
     try {

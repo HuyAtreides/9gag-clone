@@ -1,9 +1,9 @@
-import { Button, Form, Input, Typography } from "antd";
-import React from "react";
-import LoginData from "../../../../models/login-data";
-import { useAppDispatch, useAppSelector } from "../../../../Store";
-import { login } from "../../../../Store/auth/auth-dispatchers";
-import styles from "../../AuthContainer.module.scss";
+import { Button, Form, Input, Typography } from 'antd';
+import React from 'react';
+import LoginData from '../../../../models/login-data';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { login } from '../../../../Store/auth/auth-dispatchers';
+import styles from '../../AuthContainer.module.scss';
 
 interface ILogin {
     onNavigate: (state: string) => void;
@@ -27,7 +27,7 @@ const Login: React.FC<ILogin> = ({ onNavigate }) => {
             <Form.Item
                 name="username"
                 rules={[
-                    { required: true, message: "Please input your username!" },
+                    { required: true, message: 'Please input your username!' },
                 ]}
             >
                 <Input size="large" placeholder="Enter your username" />
@@ -36,7 +36,7 @@ const Login: React.FC<ILogin> = ({ onNavigate }) => {
             <Form.Item
                 name="password"
                 rules={[
-                    { required: true, message: "Please input your password!" },
+                    { required: true, message: 'Please input your password!' },
                 ]}
             >
                 <Input.Password
@@ -55,7 +55,7 @@ const Login: React.FC<ILogin> = ({ onNavigate }) => {
                     Submit
                 </Button>
                 <Typography.Text
-                    onClick={() => onNavigate("register")}
+                    onClick={() => onNavigate('register')}
                     className={styles.navigateText}
                 >
                     Haven't a member? Register

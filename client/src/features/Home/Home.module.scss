@@ -1,5 +1,5 @@
-.home{
-    .sidebar{
+.home {
+    .sidebar {
         overflow: auto;
         height: 100vh;
         position: fixed;
@@ -7,9 +7,7 @@
         left: 0;
         bottom: 0;
     }
-    .content{
-        position: relative;
-        z-index: 1;
+    .content {
         background-color: #fff;
         width: 40%;
         height: 1000px;

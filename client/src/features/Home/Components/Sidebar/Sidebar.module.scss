@@ -1,4 +1,4 @@
-@import "../../../../Style/color.scss";
+@import '../../../../Style/color.scss';
 
 ::-webkit-scrollbar {
     width: 0;
@@ -9,7 +9,7 @@
     height: 100%;
     .title {
         padding: 20px 20px 0;
-        font-size: 16px;
+        font-size: 1.6rem;
         font-weight: bold;
         color: $iconColorDarkTheme;
     }
@@ -27,7 +27,7 @@
             }
         }
         .icon {
-            font-size: 20px;
+            font-size: 2rem;
             color: $iconSectionColorDarkTheme;
             transition: all 0.3s ease-in;
         }

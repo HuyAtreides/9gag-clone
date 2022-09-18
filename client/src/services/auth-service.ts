@@ -1,30 +1,30 @@
-import { Constant } from "../models/enums/constant";
-import RegisterData from "../models/register-data";
-import LoginData from "../models/login-data";
-import { User } from "../models/user";
-import { UserSecret } from "../models/user-secret";
-import { createAxiosInstance } from "../utils/create-axios-instance";
-import { UserDto } from "./dtos/user-dto";
-import UserSecretDto from "./dtos/user-secret-dto";
-import { LocalStorage } from "./local-storage";
-import { RegisterDataMapper } from "./mappers/register-data-mapper";
-import { LoginDataMapper } from "./mappers/login-data-mapper";
-import { UserMapper } from "./mappers/user-mapper";
-import { UserSecretMapper } from "./mappers/user-secret-mapper";
+import { Constant } from '../models/enums/constant';
+import RegisterData from '../models/register-data';
+import LoginData from '../models/login-data';
+import { User } from '../models/user';
+import { UserSecret } from '../models/user-secret';
+import { createAxiosInstance } from '../utils/create-axios-instance';
+import { UserDto } from './dtos/user-dto';
+import UserSecretDto from './dtos/user-secret-dto';
+import { LocalStorage } from './local-storage';
+import { RegisterDataMapper } from './mappers/register-data-mapper';
+import { LoginDataMapper } from './mappers/login-data-mapper';
+import { UserMapper } from './mappers/user-mapper';
+import { UserSecretMapper } from './mappers/user-secret-mapper';
 
 const REGISTER_END_POINT = `${Constant.AuthEndpoint}/register`;
 const LOGIN_END_POINT = `${Constant.AuthEndpoint}/login`;
 const REFRESH_TOKEN_END_POINT = `${Constant.AuthEndpoint}/refresh-token`;
 
 export async function registerUser(
-    registerData: RegisterData
+    registerData: RegisterData,
 ): Promise<UserSecret> {
     const registerDataDto = RegisterDataMapper.toDto(registerData);
     const axios = createAxiosInstance();
     console.log(registerDataDto);
     const response = await axios.post<UserSecretDto>(
         REGISTER_END_POINT,
-        registerDataDto
+        registerDataDto,
     );
     console.log(response);
     return UserSecretMapper.fromDto(response.data);
@@ -35,7 +35,7 @@ export async function loginUser(loginData: LoginData): Promise<UserSecret> {
     const axios = createAxiosInstance();
     const response = await axios.post<UserSecretDto>(
         LOGIN_END_POINT,
-        loginDataDto
+        loginDataDto,
     );
     return UserSecretMapper.fromDto(response.data);
 }
@@ -53,12 +53,12 @@ export async function refreshToken(): Promise<void> {
     const token = LocalStorage.get(Constant.TokenKey);
 
     if (token === null) {
-        throw new Error("Cannot refresh token because token is missing");
+        throw new Error('Cannot refresh token because token is missing');
     }
     const userSecretDto = UserSecretMapper.toDto({ token: token as string });
     const response = await axios.post<UserSecretDto>(
         REFRESH_TOKEN_END_POINT,
-        userSecretDto
+        userSecretDto,
     );
 
     const newUserSecret = UserSecretMapper.fromDto(response.data);
