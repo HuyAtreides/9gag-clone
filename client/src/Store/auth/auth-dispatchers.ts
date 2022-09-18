@@ -8,6 +8,7 @@ import { LocalStorage } from "../../services/local-storage";
 import { handleError } from "../../utils/error-handler";
 import { getUser } from "../user/user-dipatchers";
 import { setAuthErrorMessage, setIsLoading } from "./auth-slice";
+import { setProfile } from '../user/user-slice';
 
 export const register =
     (registerData: RegisterData): AppThunk =>
@@ -36,6 +37,18 @@ export const login =
             dispatch(setIsLoading(false));
         }
     };
+
+export const logout = (): AppThunk => async (dispatch, getState) => {
+    try {
+        dispatch(setIsLoading(true));
+        LocalStorage.remove(Constant.TokenKey);
+        dispatch(setProfile(null));
+        dispatch(setIsLoading(false));
+    } catch (err: unknown) {
+        handleError(dispatch, err, setAuthErrorMessage);
+        dispatch(setIsLoading(false));
+    }
+};
 
 const processUserSecret = async (
     userSecret: UserSecret,

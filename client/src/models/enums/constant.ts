@@ -4,4 +4,5 @@ export enum Constant {
   AuthPrefix = 'Bearer',
   AuthEndpoint = 'auth',
   UserEndpoint = 'user',
+  SectionEndpoint = 'section',
 }

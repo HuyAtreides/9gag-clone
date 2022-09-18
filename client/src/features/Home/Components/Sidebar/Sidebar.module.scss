@@ -1,0 +1,35 @@
+@import "../../../../Style/color.scss";
+
+::-webkit-scrollbar {
+    width: 0;
+}
+
+.sidebar {
+    background-color: $backGroundColorDarkTheme;
+    height: 100%;
+    .title {
+        padding: 20px 20px 0;
+        font-size: 16px;
+        font-weight: bold;
+        color: $iconColorDarkTheme;
+    }
+    .text {
+        color: $textColorDarkTheme;
+    }
+    .section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 2s ease-in;
+        &:hover {
+            .icon {
+                color: $iconColorDarkTheme;
+            }
+        }
+        .icon {
+            font-size: 20px;
+            color: $iconSectionColorDarkTheme;
+            transition: all 0.3s ease-in;
+        }
+    }
+}

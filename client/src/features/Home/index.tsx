@@ -2,6 +2,7 @@ import React from "react";
 import { Layout, Typography } from "antd";
 import AuthContainer from "../auth/AuthContainer"
 import Sidebar from "./Components/Sidebar";
+import styles from "./Home.module.scss";
 
 const { Sider, Content } = Layout;
 
@@ -11,25 +12,20 @@ interface IHomeProp{
 
 const Home: React.FC<IHomeProp> = ({ sideBarCollapse }) => {
     return (
-        <Layout>
+        <Layout className={styles.home}>
             <Sider
                 breakpoint="lg"
                 collapsed={sideBarCollapse}
                 collapsedWidth={0}
-                style={{
-                    overflow: "auto",
-                    height: "100vh",
-                    position: "fixed",
-                    left: 0,
-                    top: 50,
-                    bottom: 0,
-                }}
+                className={styles.sidebar}
             >
                 <Sidebar />
             </Sider>
-            <Content style={{backgroundColor: 'transparent', marginLeft:'200px'}}>
-                <Typography.Title>Content</Typography.Title>
-                <AuthContainer />
+            <Content>
+                <div className={styles.content}>
+                    <Typography.Title>Content</Typography.Title>
+                    <AuthContainer />
+                </div>
             </Content>
         </Layout>
     );

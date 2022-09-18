@@ -13,7 +13,7 @@ const RootRoutes: React.FC = () => {
 
     return (
         <Layout>
-            <Header style={{ position: 'fixed', zIndex: 1, width: '100%', backgroundColor: 'transparent', padding: '0', top: 0}}>
+            <Header style={{ position: 'fixed', zIndex: 10, width: '100%', backgroundColor: 'transparent', padding: '0', top: 0}}>
                 <NavbarLayout collapse={collapse} setCollapse={setCollapse}/>
             </Header>
             <Content>

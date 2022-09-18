@@ -15,7 +15,7 @@
             color: $textColorDarkTheme;
             background-color: transparent;
             border: none;
-            margin-right: 20px;
+            margin-right: 10px;
             &:hover {
                 background-color: $iconHoverColorDarkTheme;
             }
@@ -27,6 +27,14 @@
             cursor: pointer;
             margin-bottom: 0;
         }
+        .avatar{
+            background-color: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            margin: 0 20px;
+        }
         .text{
             color: $textColorDarkTheme;
             font-size: 16px;
@@ -37,4 +45,56 @@
             font-weight: bold;
         }
     }
+}
+.navbarDropdown{
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 5px;
+    width: 220px;
+    background-color: $backGroundColorDarkTheme;
+    transition: all 2s ease-in;
+    .btnDropdown{
+        display: block;
+        width: 100%;
+        font-size: 14px;
+        text-align: left;
+        background-color: transparent;
+        color: $textColorDarkTheme;
+        border: none;
+        outline: none;
+        padding: 10px 25px;
+        cursor: pointer;
+        &:hover{
+            color: $textColorDarkTheme;
+            background-color: $iconHoverColorDarkTheme
+        }
+    }
+}
+.searchContainer{
+    padding: 10px;
+    background-color: $backGroundColorDarkTheme;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    .searchInput{
+        background-color: $iconHoverColorDarkTheme;
+        color: $iconColorDarkTheme;
+        width: 300px;
+        input{
+            margin-left: 10px;
+            color: $iconColorDarkTheme;
+        }
+        &:hover{
+            background-color: $iconHoverColorDarkTheme;
+            color: $iconColorDarkTheme;
+        }
+    }
+}
+
+.notifyContainer{
+    width: 300px;
+    height: 400px;
+    padding: 10px;
+    background-color: $backGroundColorDarkTheme;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
