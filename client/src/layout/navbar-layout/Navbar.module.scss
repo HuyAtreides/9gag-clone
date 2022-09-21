@@ -1,40 +1,108 @@
 @import '../../Style/color.scss';
 
-.navbarContainer{
-    height: 50px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .itemContainer{
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: transparent !important;
+    padding: 0 !important;
+    .navbarContainer {
+        height: 50px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        .iconCollapse{
-            color: $textColorDarkTheme;
-            background-color: transparent;
-            border: none;
-            margin-right: 20px;
-            &:hover {
-                background-color: $iconHoverColorDarkTheme;
+        align-items: center;
+        .itemContainer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            .iconCollapse {
+                color: $textColorDarkTheme;
+                background-color: transparent;
+                border: none;
+                margin-right: 10px;
+                &:hover {
+                    background-color: $iconHoverColorDarkTheme;
+                }
+            }
+            .logo {
+                color: $textColorDarkTheme;
+                font-size: 2.4rem;
+                font-weight: bold;
+                margin-bottom: 0;
+                cursor: pointer;
+            }
+            .avatar {
+                background-color: transparent;
+                border: none;
+                display: flex;
+                align-items: center;
+                min-width: 0;
+                margin: 0 20px;
+            }
+            .text {
+                color: $textColorDarkTheme;
+                font-size: 1.6rem;
+                cursor: pointer;
+            }
+            .btnPost {
+                border-radius: 20px;
+                font-weight: bold;
             }
         }
-        .logo{
+    }
+}
+
+.navbarDropdown {
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 5px;
+    width: 220px;
+    background-color: $backGroundColorDarkTheme;
+    transition: all 2s ease-in;
+    .btnDropdown {
+        display: block;
+        width: 100%;
+        font-size: 1.4rem;
+        text-align: left;
+        background-color: transparent;
+        color: $textColorDarkTheme;
+        border: none;
+        outline: none;
+        padding: 10px 25px;
+        cursor: pointer;
+        &:hover {
             color: $textColorDarkTheme;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 0;
-        }
-        .text{
-            color: $textColorDarkTheme;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .btnPost{
-            border-radius: 20px;
-            font-weight: bold;
+            background-color: $iconHoverColorDarkTheme;
         }
     }
+}
+.searchContainer {
+    padding: 10px;
+    background-color: $backGroundColorDarkTheme;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    .searchInput {
+        background-color: $iconHoverColorDarkTheme;
+        color: $iconColorDarkTheme;
+        width: 300px;
+        input {
+            margin-left: 10px;
+            color: $iconColorDarkTheme;
+        }
+        &:hover {
+            background-color: $iconHoverColorDarkTheme;
+            color: $iconColorDarkTheme;
+        }
+    }
+}
+
+.notifyContainer {
+    width: 300px;
+    height: 400px;
+    padding: 10px;
+    background-color: $backGroundColorDarkTheme;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }

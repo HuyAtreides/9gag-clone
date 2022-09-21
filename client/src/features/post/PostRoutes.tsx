@@ -1,5 +1,5 @@
-import { Layout } from "antd";
-import Posts from "./pages/posts/Posts";
+import { Layout } from 'antd';
+import Posts from './pages/posts/Posts';
 
 const { Content } = Layout;
 

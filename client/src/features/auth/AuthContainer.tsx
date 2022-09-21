@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Typography } from "antd";
-import useRemoveErrorWhenUnmount from "../../custom-hooks/remove-error";
-import useRenderErrorMessage from "../../custom-hooks/render-error-message";
-import { useAppDispatch, useAppSelector } from "../../Store";
+import React, { useEffect, useState } from 'react';
+import { Modal, Typography } from 'antd';
+import useRemoveErrorWhenUnmount from '../../custom-hooks/remove-error';
+import useRenderErrorMessage from '../../custom-hooks/render-error-message';
+import { useAppDispatch, useAppSelector } from '../../Store';
 import {
     setAuthErrorMessage,
     setIsProtectedActionInvoked,
-} from "../../Store/auth/auth-slice";
-import Login from "./pages/login/Login";
-import Register from "./pages/register/Register";
-import styles from "./AuthContainer.module.scss";
+} from '../../Store/auth/auth-slice';
+import Login from './pages/login/Login';
+import Register from './pages/register/Register';
+import styles from './AuthContainer.module.scss';
 
 /** Used by other features to display login or sign up form when an action
  * which requires authentication performed by unauthenticated user.
@@ -19,7 +19,7 @@ const AuthContainer: React.FC = () => {
     const authErrorMessage = useAppSelector((state) => state.auth.errorMessage);
     const dispatch = useAppDispatch();
     const isProtectedActionInvoked = useAppSelector(
-        (state) => state.auth.isProtectedActionInvoked
+        (state) => state.auth.isProtectedActionInvoked,
     );
 
     useRenderErrorMessage(authErrorMessage, setAuthErrorMessage);
@@ -36,7 +36,11 @@ const AuthContainer: React.FC = () => {
             onCancel={handleCancel}
             footer={null}
         >
-            {state == 'register' ? <Register onNavigate={setState}/> : <Login onNavigate={setState}/>}
+            {state == 'register' ? (
+                <Register onNavigate={setState} />
+            ) : (
+                <Login onNavigate={setState} />
+            )}
         </Modal>
     );
 };

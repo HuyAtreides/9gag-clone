@@ -7,22 +7,26 @@ import { AppDispatch } from '../Store';
  * @param error App error.
  */
 export function handleError(
-  dispatch: AppDispatch,
-  error: unknown,
-  errorActionCreator: ActionCreatorWithPayload<string | null>,
+    dispatch: AppDispatch,
+    error: unknown,
+    errorActionCreator: ActionCreatorWithPayload<string | null>,
 ): void {
-  if (axios.isAxiosError(error)) {
-    /** Use the error message sent from server if there is one. */
-    if (error.response && error.response.data) {
-      dispatch(errorActionCreator((error.response.data as any).message));
+    if (axios.isAxiosError(error)) {
+        /** Use the error message sent from server if there is one. */
+        if (error.response && error.response.data) {
+            dispatch(errorActionCreator((error.response.data as any).message));
+        } else {
+            dispatch(errorActionCreator(error.message));
+        }
+    } else if (error instanceof Error) {
+        dispatch(errorActionCreator(error.message));
+    } else if (typeof error === 'string') {
+        dispatch(errorActionCreator(error));
     } else {
-      dispatch(errorActionCreator(error.message));
+        dispatch(
+            errorActionCreator(
+                'Something wrong happens please try again later.',
+            ),
+        );
     }
-  } else if (error instanceof Error) {
-    dispatch(errorActionCreator(error.message));
-  } else if (typeof error === 'string') {
-    dispatch(errorActionCreator(error));
-  } else {
-    dispatch(errorActionCreator('Something wrong happens please try again later.'));
-  }
 }
