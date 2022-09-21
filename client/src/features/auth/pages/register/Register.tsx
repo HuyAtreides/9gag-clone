@@ -1,9 +1,9 @@
-import { Button, Form, Input, Typography } from "antd";
-import React from "react";
-import RegisterData from "../../../../models/register-data";
-import { useAppDispatch, useAppSelector } from "../../../../Store";
-import { register } from "../../../../Store/auth/auth-dispatchers";
-import styles from "../../AuthContainer.module.scss";
+import { Button, Form, Input, Typography } from 'antd';
+import React from 'react';
+import RegisterData from '../../../../models/register-data';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { register } from '../../../../Store/auth/auth-dispatchers';
+import styles from '../../AuthContainer.module.scss';
 
 interface IRegister {
     onNavigate: (state: string) => void;
@@ -29,11 +29,11 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
             <Form.Item
                 name="username"
                 rules={[
-                    { required: true, message: "Please input your username!" },
+                    { required: true, message: 'Please input your username!' },
                     {
                         pattern: /^[a-zA-Z_0-9-]{1,20}$/,
                         message:
-                            "Username should contain only numbers, alphabet letters, _, - and has at most 20 characters",
+                            'Username should contain only numbers, alphabet letters, _, - and has at most 20 characters',
                     },
                 ]}
             >
@@ -45,7 +45,7 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
                 rules={[
                     {
                         required: true,
-                        message: "Please input your display name!",
+                        message: 'Please input your display name!',
                     },
                 ]}
             >
@@ -55,10 +55,10 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
             <Form.Item
                 name="password"
                 rules={[
-                    { required: true, message: "Please input your password!" },
+                    { required: true, message: 'Please input your password!' },
                     {
                         pattern: /.{8}/,
-                        message: "Password must be at least 8 characters long",
+                        message: 'Password must be at least 8 characters long',
                     },
                 ]}
             >
@@ -78,7 +78,7 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
                     Submit
                 </Button>
                 <Typography.Text
-                    onClick={() => onNavigate("login")}
+                    onClick={() => onNavigate('login')}
                     className={styles.navigateText}
                 >
                     Already a member? Log in

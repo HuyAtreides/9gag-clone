@@ -1,3 +1,3 @@
 export interface UserSecret {
-  readonly token: string;
+    readonly token: string;
 }

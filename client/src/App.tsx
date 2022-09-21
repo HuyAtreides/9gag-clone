@@ -1,9 +1,9 @@
-import { Spin } from "antd";
-import { useEffect } from "react";
-import RootRoutes from "./routes/RootRouter";
-import { useAppDispatch, useAppSelector } from "./Store";
-import { getUser } from "./Store/user/user-dipatchers";
-import "./App.less";
+import { Spin } from 'antd';
+import { useEffect } from 'react';
+import RootRoutes from './routes/RootRouter';
+import { useAppDispatch, useAppSelector } from './Store';
+import { getUser } from './Store/user/user-dipatchers';
+import './App.less';
 
 function App() {
     const dispatch = useAppDispatch();
