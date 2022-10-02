@@ -47,4 +47,10 @@ public class Section {
 
     @OneToMany(mappedBy = "section", cascade = {CascadeType.REMOVE})
     private Set<Post> posts = new LinkedHashSet<>();
+
+    @Nationalized
+    @Lob
+    @Column(name = "displayname")
+    private String displayName;
+
 }

@@ -74,6 +74,7 @@ create table Section (
     Id bigint identity not null,
     ImgUrl varchar(MAX) not null,
     Name nvarchar(50) not null,
+    DisplayName nvarchar(max),
     primary key (Id)
 );
 
@@ -154,12 +155,12 @@ alter table VotedPost
    foreign key (UserId)
    references [User];
 
-insert into Section (ImgUrl, Name) values('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557376304.186_U5U7u5_100x100.jpg', 'funny')
-Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1656473044.0987_Y3UVY8_100x100.jpg', 'anime-manga')
-Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286907.1035_hE2uHE_100x100.jpg', 'movie-tv')
-Insert into Section (ImgUrl, Name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216707.0007_ESESyM_100x100.jpg', 'meme')
-Insert into Section (ImgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286928.6604_uTYgug_100x100.jpg', 'gaming')
-Insert into Section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557217995.2799_bYQyJU_100x100.jpg', 'awesome')
-Insert into Section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557391851.3248_Za4UdA_100x100.jpg', 'animals')
-Insert into section (imgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1481541784.8502_e8ARAR_100x100.jpg', 'random')
-Insert into section (ImgUrl, name) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286779.394_WYru9a_100x100.jpg', 'science-tech')
+insert into Section (ImgUrl, Name, DisplayName) values('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557376304.186_U5U7u5_100x100.jpg', 'funny', 'Funny')
+Insert into Section (ImgUrl, Name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1656473044.0987_Y3UVY8_100x100.jpg', 'anime-manga', 'Anime and Manga')
+Insert into Section (ImgUrl, Name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286907.1035_hE2uHE_100x100.jpg', 'movie-tv', 'Movie and TV')
+Insert into Section (ImgUrl, Name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216707.0007_ESESyM_100x100.jpg', 'meme', 'Meme')
+Insert into Section (ImgUrl, name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286928.6604_uTYgug_100x100.jpg', 'gaming', 'Gaming')
+Insert into Section (imgUrl, name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557217995.2799_bYQyJU_100x100.jpg', 'awesome', 'Awsome')
+Insert into Section (imgUrl, name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557391851.3248_Za4UdA_100x100.jpg', 'animals', 'Animals')
+Insert into section (imgUrl, name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1481541784.8502_e8ARAR_100x100.jpg', 'random', 'Random')
+Insert into section (ImgUrl, name, DisplayName) values ('https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557286779.394_WYru9a_100x100.jpg', 'science-tech', 'Science and Tech')

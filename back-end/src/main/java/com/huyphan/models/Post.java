@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
@@ -75,17 +74,8 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
     private Set<Comment> comments = new LinkedHashSet<>();
 
-
-    @Formula("""
-            (SELECT COUNT(*)
-            FROM COMMENT as comment
-            WHERE comment.PostId = id)
-            """)
-    @Column(name = "TotalComment")
-    private Long totalComments;
-
     @Column(name = "TotalComments")
-    private Long totalComments1;
+    private Long totalComments;
 
     @ManyToMany
     @JoinTable(name = "SavedPost",
@@ -98,5 +88,4 @@ public class Post {
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> voteUsers = new LinkedHashSet<>();
-
 }

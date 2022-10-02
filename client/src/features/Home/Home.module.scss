@@ -1,16 +1,22 @@
 .home {
-    .sidebar {
-        overflow: auto;
-        height: 100vh;
-        position: fixed;
-        top: 50px;
-        left: 0;
-        bottom: 0;
-    }
-    .content {
-        background-color: #fff;
-        width: 40%;
-        height: 1000px;
-        margin: 10px auto;
-    }
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  $sideBarWidth: 230px;
+
+  .sidebar {
+    overflow: auto;
+    height: 100vh;
+    position: fixed;
+    width: $sideBarWidth;
+    z-index: 1;
+    top: 50px;
+    left: 0;
+    bottom: 0;
+  }
+  .content {
+    margin: 20px auto;
+    margin-left: $sideBarWidth;
+    padding-left: 30px;
+  }
 }
