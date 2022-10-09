@@ -2,6 +2,7 @@ package com.huyphan.models;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -92,7 +93,6 @@ public class Comment {
 
     @OneToMany(mappedBy = "parent", cascade = {CascadeType.REMOVE})
     private Set<Comment> children = new LinkedHashSet<>();
-
     @Formula("""
             (SELECT COUNT(*)
             FROM COMMENT as comment
@@ -100,4 +100,21 @@ public class Comment {
             """)
     @Column(name = "TotalChildren")
     private Long totalChildren;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Comment comment = (Comment) o;
+        return id.equals(comment.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

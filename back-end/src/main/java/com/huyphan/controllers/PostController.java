@@ -15,6 +15,7 @@ import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.UserException;
+import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
@@ -54,7 +55,7 @@ public class PostController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePost(@PathVariable Long id) throws PostException {
+    public void deletePost(@PathVariable Long id) throws PostException, VoteableObjectException {
         postService.deletePost(id);
     }
 
@@ -82,25 +83,27 @@ public class PostController {
 
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void upvotesPost(@PathVariable Long id) throws PostException, UserException {
+    public void upvotesPost(@PathVariable Long id)
+            throws PostException, UserException, VoteableObjectException {
         postService.upvotesPost(id);
     }
 
     @PutMapping("downvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downvotesPost(@PathVariable Long id) throws PostException {
+    public void downvotesPost(@PathVariable Long id) throws PostException, VoteableObjectException {
         postService.downvotesPost(id);
     }
 
     @PutMapping("unupvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unUpvotesPost(@PathVariable Long id) throws PostException {
+    public void unUpvotesPost(@PathVariable Long id) throws PostException, VoteableObjectException {
         postService.unUpvotesPost(id);
     }
 
     @PutMapping("undownvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unDownvotesPost(@PathVariable Long id) throws PostException {
+    public void unDownvotesPost(@PathVariable Long id)
+            throws PostException, VoteableObjectException {
         postService.unDownvotesPost(id);
     }
 

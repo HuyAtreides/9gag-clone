@@ -2,6 +2,7 @@ package com.huyphan.models;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -37,55 +38,63 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id", nullable = false)
     private Long id;
-
     @Column(name = "Title")
     @Nationalized
     private String title;
-
     @Lob
     @Column(name = "MediaUrl", nullable = false)
     private String mediaUrl;
-
     @Column(name = "MediaType", nullable = false, length = 70)
     private String mediaType;
-
     @Column(name = "Upvotes")
     private Integer upvotes;
-
     @Column(name = "Downvotes")
     private Integer downvotes;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "UserId", nullable = false)
     private User user;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "SectionId", nullable = false)
     private Section section;
-
     @Column(name = "UploadTime")
     private Instant uploadTime;
-
     @Lob
     @Column(name = "Tags")
     @Nationalized
     private String tags;
-
     @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
     private Set<Comment> comments = new LinkedHashSet<>();
-
     @Column(name = "TotalComments")
     private Long totalComments;
-
     @ManyToMany
     @JoinTable(name = "SavedPost",
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> saveUsers = new LinkedHashSet<>();
+    @Column(name = "isUpvoted")
+    private Boolean isUpvoted;
+    @Column(name = "isDownvoted")
+    private Boolean isDownvoted;
+    @ManyToMany(mappedBy = "upvotedPosts")
+    private Set<User> upvoteUsers = new LinkedHashSet<>();
+    @ManyToMany(mappedBy = "downvotedPosts")
+    private Set<User> downvoteUsers = new LinkedHashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "VotedPost",
-            joinColumns = @JoinColumn(name = "PostId"),
-            inverseJoinColumns = @JoinColumn(name = "UserId"))
-    private Set<User> voteUsers = new LinkedHashSet<>();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Post post = (Post) o;
+        return Objects.equals(id, post.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

@@ -14,6 +14,7 @@ import com.huyphan.models.PageOptions;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.repositories.CommentRepository;
 import com.huyphan.services.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,25 +64,29 @@ public class CommentController {
 
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void upvotesComment(@PathVariable Long id) throws PostException, CommentException {
+    public void upvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
         commentService.upvotesComment(id);
     }
 
     @PutMapping("downvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downvotesComment(@PathVariable Long id) throws PostException, CommentException {
+    public void downvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
         commentService.downvotesComment(id);
     }
 
     @PutMapping("unupvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unUpvotesComment(@PathVariable Long id) throws PostException, CommentException {
+    public void unUpvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
         commentService.unUpvotesComment(id);
     }
 
     @PutMapping("undownvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unDownvotesComment(@PathVariable Long id) throws PostException, CommentException {
+    public void unDownvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
         commentService.unDownvotesComment(id);
     }
 

@@ -12,6 +12,7 @@ import com.huyphan.models.builders.VoteCommentNotificationBuilder;
 import com.huyphan.models.enums.CommentSortField;
 import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.repositories.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,9 @@ public class CommentService {
 
     @Autowired
     private NotificationSender notificationSender;
+
+    @Autowired
+    private VoteableObjectManager<Comment> voteableCommentManager;
 
     @Autowired
     private VoteCommentNotificationBuilder voteCommentNotificationBuilder;
@@ -69,16 +73,18 @@ public class CommentService {
         commentRepository.deleteById(id);
     }
 
-    @Transactional
-    public void upvotesComment(Long id) throws CommentException {
+    @Transactional(rollbackFor = {VoteableObjectException.class})
+    public void upvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
+        voteableCommentManager.addUpvotedObject(comment);
         comment.setUpvotes(comment.getUpvotes() + 1);
         sendVoteCommentNotification(comment);
     }
 
-    @Transactional
-    public void unUpvotesComment(Long id) throws CommentException {
+    @Transactional(rollbackFor = {VoteableObjectException.class})
+    public void unUpvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
+        voteableCommentManager.removeUpvotedObject(comment);
         comment.setUpvotes(comment.getUpvotes() - 1);
     }
 
@@ -88,16 +94,18 @@ public class CommentService {
     }
 
 
-    @Transactional
-    public void downvotesComment(Long id) throws CommentException {
+    @Transactional(rollbackFor = {VoteableObjectException.class})
+    public void downvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
+        voteableCommentManager.addDownVotedObject(comment);
         comment.setDownvotes(comment.getDownvotes() + 1);
         sendVoteCommentNotification(comment);
     }
 
-    @Transactional
-    public void unDownvotesComment(Long id) throws CommentException {
+    @Transactional(rollbackFor = {VoteableObjectException.class})
+    public void unDownvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
+        voteableCommentManager.removeDownvotedObject(comment);
         comment.setDownvotes(comment.getDownvotes() - 1);
     }
 
