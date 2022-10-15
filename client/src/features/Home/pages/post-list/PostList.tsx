@@ -1,4 +1,4 @@
-import { List, Typography } from 'antd';
+import { List } from 'antd';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Constant } from '../../../../models/enums/constant';
@@ -22,6 +22,7 @@ const PostList: React.FC = () => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector((state) => state.post.isLoading);
   const posts = useAppSelector((state) => state.post.posts);
+  const user = useAppSelector((state) => state.user.profile);
   const page = useAppSelector((state) => state.post.pagination?.page);
   const isLast = useAppSelector((state) => state.post.pagination?.isLast);
   const errorMessage = useAppSelector((state) => state.post.errorMessage);
@@ -54,11 +55,11 @@ const PostList: React.FC = () => {
 
     return () => {
       dispatch(setIsGettingPage(false));
-      dispatch(setIsLoading(false));
+      dispatch(setIsLoading(true));
       dispatch(setPagination(null));
       dispatch(setPosts(null));
     };
-  }, [dispatch, tag, section]);
+  }, [dispatch, tag, section, user]);
 
   if (isLoading) {
     return (

@@ -22,5 +22,9 @@ export default interface PostDto {
 
   readonly tags: string;
 
+  readonly isUpvoted: boolean;
+
+  readonly isDownvoted: boolean;
+
   readonly totalComments: number;
 }

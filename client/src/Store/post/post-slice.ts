@@ -1,12 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Pagination } from '../../models/page';
 import Post from '../../models/post';
-import Slice from '../../models/slice';
 
 interface PostState {
   readonly isLoading: boolean;
   readonly isGettingPage: boolean;
-  readonly post: Post | null;
   readonly posts: Post[] | null;
   readonly pagination: Pagination | null;
   readonly errorMessage: string | null;
@@ -15,7 +13,6 @@ interface PostState {
 const initialState: PostState = {
   isGettingPage: false,
   isLoading: true,
-  post: null,
   posts: null,
   pagination: null,
   errorMessage: null,
@@ -48,6 +45,20 @@ const postSlice = createSlice({
     appendNewPosts(state, action: PayloadAction<readonly Post[]>) {
       state.posts?.push(...action.payload);
     },
+
+    setPostUpvotes(state, action: PayloadAction<[number, 1 | -1]>) {
+      const index = action.payload[0];
+      const amount = action.payload[1];
+
+      state.posts![index].upvotes += amount;
+    },
+
+    setPostDownvotes(state, action: PayloadAction<[number, 1 | -1]>) {
+      const index = action.payload[0];
+      const amount = action.payload[1];
+
+      state.posts![index].downvotes += amount;
+    },
   },
 });
 
@@ -58,5 +69,7 @@ export const {
   setPosts,
   setPagination,
   appendNewPosts,
+  setPostDownvotes,
+  setPostUpvotes,
 } = postSlice.actions;
 export const postReducer = postSlice.reducer;

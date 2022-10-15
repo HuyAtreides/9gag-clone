@@ -4,7 +4,9 @@ import com.huyphan.models.Comment;
 import com.huyphan.models.exceptions.UserException;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class VoteableCommentManager extends VoteableObjectManager<Comment> {
 
     @Autowired

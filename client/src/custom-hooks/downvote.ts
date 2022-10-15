@@ -1,14 +1,20 @@
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useState } from 'react';
 import { useAppDispatch } from '../Store';
+import { ActionCreator } from '../utils/types/action-creator';
 
-const useDownvote = () => {
+type HandleDownvoteFunc = (
+  unDownvoteActionCreator: ActionCreator<number>,
+  downvoteActionCreator: ActionCreator<number>,
+  index?: number,
+) => void;
+
+const useDownvote = (initialDownvotedState: boolean): [boolean, HandleDownvoteFunc] => {
   const dispatch = useAppDispatch();
-  const [downvoted, setDownvoted] = useState(false);
+  const [downvoted, setDownvoted] = useState(initialDownvotedState);
 
-  const handleUpvote = (
-    unDownvoteActionCreator: ActionCreatorWithPayload<number | undefined>,
-    downvoteActionCreator: ActionCreatorWithPayload<number | undefined>,
+  const handleDownvote = (
+    unDownvoteActionCreator: ActionCreator<number>,
+    downvoteActionCreator: ActionCreator<number>,
     index?: number,
   ) => {
     if (downvoted) {
@@ -20,7 +26,7 @@ const useDownvote = () => {
     setDownvoted(!downvoted);
   };
 
-  return [downvoted, handleUpvote];
+  return [downvoted, handleDownvote];
 };
 
 export default useDownvote;

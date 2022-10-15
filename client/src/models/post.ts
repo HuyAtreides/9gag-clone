@@ -22,5 +22,9 @@ export default interface Post {
 
   readonly tags: String;
 
+  readonly isUpvoted: boolean;
+
+  readonly isDownvoted: boolean;
+
   readonly totalComments: number;
 }
