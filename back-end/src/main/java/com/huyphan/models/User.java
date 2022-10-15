@@ -3,6 +3,7 @@ package com.huyphan.models;
 import com.huyphan.models.converters.CountryConverter;
 import com.huyphan.models.enums.Country;
 import com.huyphan.models.enums.Role;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -71,14 +72,36 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> savedPosts = new LinkedHashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "VotedPost",
-            joinColumns = @JoinColumn(name = "UserId"),
-            inverseJoinColumns = @JoinColumn(name = "PostId"))
-    private Set<Post> votedPosts = new LinkedHashSet<>();
-
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private Set<Section> favoriteSections = new LinkedHashSet<>();
+
+    @Column(name = "Created")
+    private Instant created;
+
+    @ManyToMany
+    @JoinTable(name = "UpvotedComment",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "CommentId"))
+    private Set<Comment> upvotedComments = new LinkedHashSet<>();
+
+
+    @ManyToMany
+    @JoinTable(name = "DownvotedComment",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "CommentId"))
+    private Set<Comment> downvotedComments = new LinkedHashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "UpvotedPost",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "PostId"))
+    private Set<Post> upvotedPosts = new LinkedHashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "DownvotedPost",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "PostId"))
+    private Set<Post> downvotedPosts = new LinkedHashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

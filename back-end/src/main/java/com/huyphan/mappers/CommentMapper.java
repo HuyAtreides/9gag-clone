@@ -1,6 +1,7 @@
 package com.huyphan.mappers;
 
 import com.huyphan.dtos.CommentDto;
+import com.huyphan.dtos.UserDto;
 import com.huyphan.models.Comment;
 import java.time.Instant;
 import org.modelmapper.Converter;
@@ -17,15 +18,15 @@ public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto,
     @Autowired
     private Converter<Instant, String> instantToStringConverter;
 
+    @Autowired
+    private Converter<String, Instant> stringToInstantConverter;
+
     @Override
     public void createTypeMap() {
-        Converter<Comment, CommentDto> replyToReplyDtoConverter = (context) -> {
+        Converter<Comment, UserDto> replyToReplyDtoConverter = (context) -> {
             Comment reply = context.getSource();
-            if (reply != null) {
-                reply.setReplyTo(null);
-                return modelMapper.map(reply, CommentDto.class);
-            }
-            return null;
+
+            return reply == null ? null : modelMapper.map(reply.getUser(), UserDto.class);
         };
 
         modelMapper.typeMap(Comment.class, CommentDto.class)
@@ -35,11 +36,6 @@ public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto,
                 .addMappings(
                         mapper -> mapper.using(replyToReplyDtoConverter)
                                 .map(Comment::getReplyTo, CommentDto::setReplyTo));
-
-        Converter<String, Instant> stringToInstantConverter = (context) -> {
-            String dateTime = context.getSource();
-            return Instant.parse(dateTime);
-        };
 
         modelMapper.typeMap(CommentDto.class, Comment.class).addMappings(
                 mapper -> mapper.using(stringToInstantConverter)

@@ -24,4 +24,5 @@ public class UserDto {
 
     private Set<SectionDto> favoriteSections;
 
+    private String created;
 }

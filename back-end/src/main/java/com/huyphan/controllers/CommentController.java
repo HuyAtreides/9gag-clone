@@ -14,6 +14,7 @@ import com.huyphan.models.PageOptions;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.repositories.CommentRepository;
 import com.huyphan.services.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,26 +64,30 @@ public class CommentController {
 
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void upvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.upvotesPost(id);
+    public void upvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
+        commentService.upvotesComment(id);
     }
 
     @PutMapping("downvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.downvotesPost(id);
+    public void downvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
+        commentService.downvotesComment(id);
     }
 
     @PutMapping("unupvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unUpvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.unUpvotesPost(id);
+    public void unUpvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
+        commentService.unUpvotesComment(id);
     }
 
     @PutMapping("undownvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unDownvotesPost(@PathVariable Long id) throws PostException, CommentException {
-        commentService.unDownvotesPost(id);
+    public void unDownvotesComment(@PathVariable Long id)
+            throws PostException, CommentException, VoteableObjectException {
+        commentService.unDownvotesComment(id);
     }
 
     @GetMapping("/post/{postId}")
@@ -106,14 +111,15 @@ public class CommentController {
         commentService.deleteComment(id);
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateComment(@RequestBody CommentDto newCommentDto) throws CommentException {
-        Comment newComment = commentMapper.fromDto(newCommentDto);
-        commentService.updateComment(newComment);
+    public void updateComment(@PathVariable Long id,
+            @RequestBody NewCommentDto updatedCommentFieldsDto) throws CommentException {
+        NewComment updatedCommentFields = newCommentMapper.fromDto(updatedCommentFieldsDto);
+        commentService.updateComment(id, updatedCommentFields);
     }
 
-    @PostMapping("{postId}")
+    @PostMapping("/post/{postId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void addComment(@PathVariable Long postId, @RequestBody NewCommentDto newCommentDto)
             throws PostException, CommentException {
@@ -121,13 +127,13 @@ public class CommentController {
         commentService.addComment(postId, newComment);
     }
 
-    @PostMapping("{postId}/{parentCommentId}")
+    @PostMapping("replyTo/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addReply(@PathVariable Long postId, @PathVariable Long parentCommentId,
+    public void addReply(@PathVariable Long id,
             @RequestBody NewCommentDto newReplyDto)
             throws CommentException, PostException {
         NewComment newReply = newCommentMapper.fromDto(newReplyDto);
-        commentService.addReply(postId, newReply, parentCommentId);
+        commentService.addReply(newReply, id);
     }
 
     @ExceptionHandler({PostException.class, CommentException.class})

@@ -1,10 +1,12 @@
 package com.huyphan.services;
 
+import com.huyphan.models.Post;
 import com.huyphan.models.RegisterData;
 import com.huyphan.models.User;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.UserRepository;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -27,6 +30,29 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username is not found"));
+    }
+
+
+    @Transactional
+    public void removeSavedPost(Post post) {
+        Long userId = getUser().getId();
+
+        try {
+            getUserById(userId).getSavedPosts()
+                    .removeIf((savedPost) -> Objects.equals(savedPost.getId(), post.getId()));
+        } catch (UserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Transactional
+    public void savePost(Post post) {
+        Long userId = getUser().getId();
+        try {
+            getUserById(userId).getSavedPosts().add(post);
+        } catch (UserException e) {
+            e.printStackTrace();
+        }
     }
 
     public User register(RegisterData registerData) throws UserAlreadyExistsException {

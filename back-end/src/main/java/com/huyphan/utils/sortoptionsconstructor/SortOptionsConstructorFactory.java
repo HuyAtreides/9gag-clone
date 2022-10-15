@@ -1,4 +1,4 @@
-package com.huyphan.utils.SortOptionsConstructor;
+package com.huyphan.utils.sortoptionsconstructor;
 
 import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;

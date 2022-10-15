@@ -29,4 +29,8 @@ public class PostDto {
     private String tags;
 
     private Long totalComments;
+
+    private Boolean isUpvoted;
+
+    private Boolean isDownvoted;
 }

@@ -16,51 +16,41 @@ const REGISTER_END_POINT = `${Constant.AuthEndpoint}/register`;
 const LOGIN_END_POINT = `${Constant.AuthEndpoint}/login`;
 const REFRESH_TOKEN_END_POINT = `${Constant.AuthEndpoint}/refresh-token`;
 
-export async function registerUser(
-    registerData: RegisterData,
-): Promise<UserSecret> {
-    const registerDataDto = RegisterDataMapper.toDto(registerData);
-    const axios = createAxiosInstance();
-    console.log(registerDataDto);
-    const response = await axios.post<UserSecretDto>(
-        REGISTER_END_POINT,
-        registerDataDto,
-    );
-    console.log(response);
-    return UserSecretMapper.fromDto(response.data);
+export async function registerUser(registerData: RegisterData): Promise<UserSecret> {
+  const registerDataDto = RegisterDataMapper.toDto(registerData);
+  const axios = createAxiosInstance();
+  const response = await axios.post<UserSecretDto>(REGISTER_END_POINT, registerDataDto);
+  return UserSecretMapper.fromDto(response.data);
 }
 
 export async function loginUser(loginData: LoginData): Promise<UserSecret> {
-    const loginDataDto = LoginDataMapper.toDto(loginData);
-    const axios = createAxiosInstance();
-    const response = await axios.post<UserSecretDto>(
-        LOGIN_END_POINT,
-        loginDataDto,
-    );
-    return UserSecretMapper.fromDto(response.data);
+  const loginDataDto = LoginDataMapper.toDto(loginData);
+  const axios = createAxiosInstance();
+  const response = await axios.post<UserSecretDto>(LOGIN_END_POINT, loginDataDto);
+  return UserSecretMapper.fromDto(response.data);
 }
 
 export async function getUserInfo(): Promise<User> {
-    const axios = createAxiosInstance();
-    const response = await axios.get<UserDto>(Constant.UserEndpoint);
+  const axios = createAxiosInstance();
+  const response = await axios.get<UserDto>(Constant.UserEndpoint);
 
-    return UserMapper.fromDto(response.data);
+  return UserMapper.fromDto(response.data);
 }
 
 /**  Refresh invalid token. */
 export async function refreshToken(): Promise<void> {
-    const axios = createAxiosInstance();
-    const token = LocalStorage.get(Constant.TokenKey);
+  const axios = createAxiosInstance();
+  const token = LocalStorage.get(Constant.TokenKey);
 
-    if (token === null) {
-        throw new Error('Cannot refresh token because token is missing');
-    }
-    const userSecretDto = UserSecretMapper.toDto({ token: token as string });
-    const response = await axios.post<UserSecretDto>(
-        REFRESH_TOKEN_END_POINT,
-        userSecretDto,
-    );
+  if (token === null) {
+    throw new Error('Cannot refresh token because token is missing');
+  }
+  const userSecretDto = UserSecretMapper.toDto({ token: token as string });
+  const response = await axios.post<UserSecretDto>(
+    REFRESH_TOKEN_END_POINT,
+    userSecretDto,
+  );
 
-    const newUserSecret = UserSecretMapper.fromDto(response.data);
-    LocalStorage.save(Constant.TokenKey, newUserSecret.token);
+  const newUserSecret = UserSecretMapper.fromDto(response.data);
+  LocalStorage.save(Constant.TokenKey, newUserSecret.token);
 }

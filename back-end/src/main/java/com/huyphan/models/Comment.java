@@ -2,6 +2,7 @@ package com.huyphan.models;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,11 +32,14 @@ import org.hibernate.annotations.Nationalized;
 @Entity
 @NamedEntityGraphs({
         @NamedEntityGraph(name = "CommentEntityGraph", attributeNodes = {
-                @NamedAttributeNode("replyTo"),
+                @NamedAttributeNode(value = "replyTo", subgraph = "CommentEntityGraph"),
                 @NamedAttributeNode(value = "user", subgraph = "UserEntityGraph")
         }, subgraphs = {
                 @NamedSubgraph(name = "UserEntityGraph", attributeNodes = {
                         @NamedAttributeNode("favoriteSections")
+                }),
+                @NamedSubgraph(name = "CommentEntityGraph", attributeNodes = {
+                        @NamedAttributeNode(value = "user", subgraph = "UserEntityGraph")
                 })
         }),
 })
@@ -80,7 +84,7 @@ public class Comment {
     @Column(name = "MediaType", length = 70)
     private String mediaType;
 
-    @Column(name = "CommentDate", nullable = false)
+    @Column(name = "CommentDate")
     private Instant date;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -89,7 +93,6 @@ public class Comment {
 
     @OneToMany(mappedBy = "parent", cascade = {CascadeType.REMOVE})
     private Set<Comment> children = new LinkedHashSet<>();
-
     @Formula("""
             (SELECT COUNT(*)
             FROM COMMENT as comment
@@ -97,4 +100,21 @@ public class Comment {
             """)
     @Column(name = "TotalChildren")
     private Long totalChildren;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Comment comment = (Comment) o;
+        return id.equals(comment.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

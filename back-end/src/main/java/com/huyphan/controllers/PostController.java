@@ -14,6 +14,8 @@ import com.huyphan.models.Post;
 import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UserException;
+import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
@@ -53,7 +55,7 @@ public class PostController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePost(@PathVariable Long id) throws PostException {
+    public void deletePost(@PathVariable Long id) throws PostException, VoteableObjectException {
         postService.deletePost(id);
     }
 
@@ -65,6 +67,14 @@ public class PostController {
         return sliceMapper.toDto(page, postMapper);
     }
 
+    @GetMapping("tag/{postTag}/{sectionName}")
+    public SliceDto<PostDto> getPostsWithinSection(@PathVariable PostTag postTag, @PathVariable
+            String sectionName, PageOptionsDto pageOptionsDto) throws AppException {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> page = postService.getAllPostsWithinSection(pageOptions, postTag, sectionName);
+        return sliceMapper.toDto(page, postMapper);
+    }
+
     @GetMapping("{id}")
     public PostDto getPost(@PathVariable Long id) throws PostException {
         Post post = postService.getPost(id);
@@ -73,26 +83,56 @@ public class PostController {
 
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void upvotesPost(@PathVariable Long id) throws PostException {
+    public void upvotesPost(@PathVariable Long id)
+            throws PostException, UserException, VoteableObjectException {
         postService.upvotesPost(id);
     }
 
     @PutMapping("downvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downvotesPost(@PathVariable Long id) throws PostException {
+    public void downvotesPost(@PathVariable Long id) throws PostException, VoteableObjectException {
         postService.downvotesPost(id);
     }
 
     @PutMapping("unupvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unUpvotesPost(@PathVariable Long id) throws PostException {
+    public void unUpvotesPost(@PathVariable Long id) throws PostException, VoteableObjectException {
         postService.unUpvotesPost(id);
     }
 
     @PutMapping("undownvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unDownvotesPost(@PathVariable Long id) throws PostException {
+    public void unDownvotesPost(@PathVariable Long id)
+            throws PostException, VoteableObjectException {
         postService.unDownvotesPost(id);
+    }
+
+    @GetMapping("save")
+    public SliceDto<PostDto> getSavedPosts() {
+        Slice<Post> savedPosts = postService.getSavedPosts();
+
+        return sliceMapper.toDto(savedPosts, postMapper);
+    }
+
+    @GetMapping("vote")
+    public SliceDto<PostDto> getVotedPosts() {
+        Slice<Post> votedPosts = postService.getVotedPosts();
+
+        return sliceMapper.toDto(votedPosts, postMapper);
+    }
+
+    @PostMapping("save")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void savePost(@RequestBody PostDto postDto) {
+        Post post = postMapper.fromDto(postDto);
+        postService.savePost(post);
+    }
+
+    @DeleteMapping("save")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeSavedPost(PostDto postDto) {
+        Post post = postMapper.fromDto(postDto);
+        postService.removeSavedPost(post);
     }
 
     @ExceptionHandler(PostException.class)

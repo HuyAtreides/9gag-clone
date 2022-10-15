@@ -17,4 +17,6 @@ public class SectionDto {
     private String name;
 
     private String imgUrl;
+
+    private String displayName;
 }

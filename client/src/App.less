@@ -1,18 +1,23 @@
-@import "~antd/dist/antd.less";
-@import "./Style/customAntdComponent.less";
+@import '~antd/dist/antd.less';
+@import './Style/customAntdComponent.less';
+@import '~antd/dist/antd.dark.less';
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 :root {
-    --body-background: @body-background;
-    --border-radius-base: @border-radius-base;
-    --overlay-background-color: rgba(0, 0, 0, 0.5);
+  --body-background: @body-background;
+  --border-radius-base: @border-radius-base;
+  --overlay-background-color: rgba(0, 0, 0, 0.5);
 }
 
-html{
-    font-size: 10px;
+html {
+  font-size: 10px;
+}
+
+.entry-spinner {
+  height: 100vh !important;
 }
