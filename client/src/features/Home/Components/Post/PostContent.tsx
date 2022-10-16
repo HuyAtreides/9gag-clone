@@ -33,7 +33,6 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
   };
 
   const handleDownvotePost = () => {
-    console.log(upvoted);
     if (upvoted) {
       handleUpvote(unUpvotePost, upvotePost, index);
     }

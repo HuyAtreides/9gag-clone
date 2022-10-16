@@ -1,16 +1,16 @@
-import { Menu, MenuProps, Typography } from 'antd';
 import {
+  BarChartOutlined,
+  ClockCircleOutlined,
   HomeFilled,
   RiseOutlined,
-  ClockCircleOutlined,
-  BarChartOutlined,
   StarFilled,
 } from '@ant-design/icons';
+import { Menu, MenuProps, Typography } from 'antd';
+import { useEffect, useMemo } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { getAllSection } from '../../../../Store/section/section-dipatchers';
 import styles from './Sidebar.module.scss';
-import { Link, useLocation, useMatch, useParams } from 'react-router-dom';
-import { useEffect, useMemo } from 'react';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -70,26 +70,23 @@ const Sidebar = () => {
         <BarChartOutlined />,
       ),
     ];
-  }, [sections]);
+  }, []);
 
   const items2 = useMemo<MenuItem[]>(() => {
     return sections.map((section, index) =>
       getItem(
-        <Link
-          to={`${location.pathname}/${section.name.toLowerCase()}`}
-          className={styles.section}
-        >
+        <Link to={`/tag/${tagKey}/${section.name}`} className={styles.section}>
           <Typography.Text className={styles.text}>{section.displayName}</Typography.Text>
           <StarFilled className={styles.icon} />
         </Link>,
         section.name.toLowerCase(),
       ),
     );
-  }, [sections]);
+  }, [sections, tagKey]);
 
   useEffect(() => {
     dispatch(getAllSection());
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className={styles.sidebar}>

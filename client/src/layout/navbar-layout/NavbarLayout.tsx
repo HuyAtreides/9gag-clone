@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from '../../Store';
 import { logout } from '../../Store/auth/auth-dispatchers';
 import DropdownMenu from './components/DropdownMenu';
 import styles from './Navbar.module.scss';
+import { setSearchTerm } from '../../Store/post/post-slice';
 
 const { Header } = Layout;
 
@@ -57,8 +58,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                   bordered={false}
                   size='large'
                   placeholder='Search...'
-                  //TODO: Implement search feature when the api is ready
-                  onPressEnter={(e) => console.log(e.currentTarget.value)}
+                  onPressEnter={(e) => dispatch(setSearchTerm(e.currentTarget.value))}
                   prefix={<SearchOutlined />}
                 />
               </div>

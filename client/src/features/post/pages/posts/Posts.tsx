@@ -1,3 +1,4 @@
+import { CaretDownOutlined, FileImageFilled, SearchOutlined } from '@ant-design/icons';
 import {
   AutoComplete,
   Avatar,
@@ -10,21 +11,16 @@ import {
   Typography,
   Upload,
 } from 'antd';
-import { SearchOutlined, CaretDownOutlined, FileImageFilled } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from '../../../../Store';
-import { getAllSection } from '../../../../Store/section/section-dipatchers';
 import Section from '../../../../models/section';
+import { useAppSelector } from '../../../../Store';
 import styles from './Post.module.scss';
-import { useEffect } from 'react';
 
-const renderItem = ({ id, name, imgUrl }: Section) => ({
-  value: name.charAt(0).toUpperCase() + name.slice(1),
+const renderItem = ({ id, name, imgUrl, displayName }: Section) => ({
+  value: name,
   label: (
-    <div className={styles.sectionItem}>
+    <div className={styles.sectionItem} key={id}>
       <Avatar shape='square' src={imgUrl} />
-      <Typography.Text className={styles.sectionName}>
-        {name.charAt(0).toUpperCase() + name.slice(1)}
-      </Typography.Text>
+      <Typography.Text className={styles.sectionName}>{displayName}</Typography.Text>
     </div>
   ),
 });
@@ -41,18 +37,12 @@ const data = [
 ];
 
 const Posts: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.profile);
-  const sections = useAppSelector((state) => state.section.sections);
+  const sections = useAppSelector((state) => state.section.sections!);
   const options = sections.map((section) => renderItem(section));
 
   const onFinish = (value: any) => {
     console.log(value);
   };
-
-  useEffect(() => {
-    dispatch(getAllSection());
-  }, []);
 
   return (
     <div className={styles.postContainer}>

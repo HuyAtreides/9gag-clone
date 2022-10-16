@@ -8,6 +8,7 @@ interface PostState {
   readonly posts: Post[] | null;
   readonly pagination: Pagination | null;
   readonly errorMessage: string | null;
+  readonly searchTerm?: string;
 }
 
 const initialState: PostState = {
@@ -59,6 +60,14 @@ const postSlice = createSlice({
 
       state.posts![index].downvotes += amount;
     },
+
+    setSearchTerm(state, action: PayloadAction<string>) {
+      state.searchTerm = action.payload.length ? action.payload : undefined;
+    },
+
+    resetState(state) {
+      state = initialState;
+    },
   },
 });
 
@@ -71,5 +80,7 @@ export const {
   appendNewPosts,
   setPostDownvotes,
   setPostUpvotes,
+  setSearchTerm,
+  resetState,
 } = postSlice.actions;
 export const postReducer = postSlice.reducer;
