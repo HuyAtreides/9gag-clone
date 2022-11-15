@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAppDispatch } from '../Store';
 import { ActionCreator } from '../utils/types/action-creator';
 
@@ -8,25 +7,22 @@ type HandleUpvoteFunc = (
   index?: number,
 ) => void;
 
-const useUpvote = (initialUpvotedState: boolean): [boolean, HandleUpvoteFunc] => {
+const useUpvote = (isUpvoted: boolean): HandleUpvoteFunc => {
   const dispatch = useAppDispatch();
-  const [upvoted, setUpvoted] = useState(initialUpvotedState);
 
   const handleUpvote = (
     unUpvoteActionCreator: ActionCreator<number>,
     upvoteActionCreator: ActionCreator<number>,
     index: number = 0,
   ) => {
-    if (upvoted) {
+    if (isUpvoted) {
       dispatch(unUpvoteActionCreator(index));
     } else {
       dispatch(upvoteActionCreator(index));
     }
-
-    setUpvoted(!upvoted);
   };
 
-  return [upvoted, handleUpvote];
+  return handleUpvote;
 };
 
 export default useUpvote;

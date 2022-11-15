@@ -50,15 +50,17 @@ const postSlice = createSlice({
     setPostUpvotes(state, action: PayloadAction<[number, 1 | -1]>) {
       const index = action.payload[0];
       const amount = action.payload[1];
-
-      state.posts![index].upvotes += amount;
+      const post = state.posts![index];
+      post.isUpvoted = !post.isUpvoted;
+      post.upvotes += amount;
     },
 
     setPostDownvotes(state, action: PayloadAction<[number, 1 | -1]>) {
       const index = action.payload[0];
       const amount = action.payload[1];
-
-      state.posts![index].downvotes += amount;
+      const post = state.posts![index];
+      post.isDownvoted = !post.isDownvoted;
+      post.downvotes += amount;
     },
 
     setSearchTerm(state, action: PayloadAction<string>) {

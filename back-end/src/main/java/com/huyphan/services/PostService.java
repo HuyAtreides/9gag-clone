@@ -118,6 +118,11 @@ public class PostService {
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
     public void upvotesPost(Long id) throws PostException, VoteableObjectException {
         Post post = getPostUsingLock(id);
+
+        if (voteablePostManager.getDownvotedObjects().contains(post)) {
+            unDownvotesPost(id);
+        }
+
         voteablePostManager.addUpvotedObject(post);
         post.setUpvotes(post.getUpvotes() + 1);
         sendVotePostNotification(post);
@@ -131,24 +136,35 @@ public class PostService {
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
     public void unUpvotesPost(Long id) throws PostException, VoteableObjectException {
         Post post = getPostUsingLock(id);
-        voteablePostManager.removeUpvotedObject(post);
-        post.setUpvotes(post.getUpvotes() - 1);
+        boolean isRemoved = voteablePostManager.removeUpvotedObject(post);
+
+        if (isRemoved) {
+            post.setUpvotes(post.getUpvotes() - 1);
+        }
     }
 
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
     public void downvotesPost(Long id) throws PostException, VoteableObjectException {
         Post post = getPostUsingLock(id);
-        post.setDownvotes(post.getDownvotes() + 1);
+
+        if (voteablePostManager.getUpvotedObjects().contains(post)) {
+            unUpvotesPost(id);
+        }
+
         voteablePostManager.addDownVotedObject(post);
+        post.setDownvotes(post.getDownvotes() + 1);
         sendVotePostNotification(post);
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
     public void unDownvotesPost(Long id) throws PostException, VoteableObjectException {
         Post post = getPostUsingLock(id);
-        voteablePostManager.removeDownvotedObject(post);
-        post.setDownvotes(post.getDownvotes() - 1);
+        boolean isRemoved = voteablePostManager.removeDownvotedObject(post);
+
+        if (isRemoved) {
+            post.setDownvotes(post.getDownvotes() - 1);
+        }
     }
 
     public Post getPost(Long id) throws PostException {

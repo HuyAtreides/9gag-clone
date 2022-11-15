@@ -20,8 +20,9 @@ interface Props {
 }
 
 const PostContent: React.FC<Props> = ({ post, index }: Props) => {
-  const [upvoted, handleUpvote] = useUpvote(post.isUpvoted);
-  const [downvoted, handleDownvote] = useDownvote(post.isDownvoted);
+  const [upvoted, downvoted] = [post.isUpvoted, post.isDownvoted];
+  const handleUpvote = useUpvote(upvoted);
+  const handleDownvote = useDownvote(downvoted);
   const protectAction = useProtectedAction();
 
   const handleUpvotePost = () => {

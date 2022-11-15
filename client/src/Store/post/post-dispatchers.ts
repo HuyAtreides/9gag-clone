@@ -1,13 +1,17 @@
+import { message } from 'antd';
 import { AppThunk } from '..';
 import { Pagination } from '../../models/page';
 import PageOptions from '../../models/page-options';
+import { UploadPostFormData } from '../../models/upload-post-form-data';
 import {
+  addNewPost,
   downvote,
   getPostList,
   unDownvote,
   unUpvote,
   upvote,
 } from '../../services/post-service';
+import { upload } from '../../services/upload-service';
 import { handleError } from '../../utils/error-handler';
 import {
   setIsGettingPage,
@@ -125,5 +129,26 @@ export const unDownvotePost =
         'Failed to undownvote post. Please try again',
         setPostErrorMessage,
       );
+    }
+  };
+
+export const uploadNewPost =
+  (newPostFormData: UploadPostFormData): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsLoading(true));
+      const mediaLocation = await upload(newPostFormData.media);
+      await addNewPost({
+        title: newPostFormData.title,
+        section: newPostFormData.section,
+        mediaType: mediaLocation.type,
+        mediaUrl: mediaLocation.url,
+        tags: newPostFormData.tags,
+      });
+      dispatch(setIsLoading(false));
+      message.success('Add new post successfully');
+    } catch (error: unknown) {
+      dispatch(setIsLoading(false));
+      handleError(dispatch, error, setPostErrorMessage);
     }
   };

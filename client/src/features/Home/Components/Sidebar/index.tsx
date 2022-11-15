@@ -6,10 +6,9 @@ import {
   StarFilled,
 } from '@ant-design/icons';
 import { Menu, MenuProps, Typography } from 'antd';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../../../Store';
-import { getAllSection } from '../../../../Store/section/section-dipatchers';
+import { useAppSelector } from '../../../../Store';
 import styles from './Sidebar.module.scss';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -32,7 +31,6 @@ function getItem(
 
 const Sidebar = () => {
   const location = useLocation();
-  const dispatch = useAppDispatch();
   const sections = useAppSelector((state) => state.section.sections);
 
   let keys = location.pathname.split('/');
@@ -84,15 +82,10 @@ const Sidebar = () => {
     );
   }, [sections, tagKey]);
 
-  useEffect(() => {
-    dispatch(getAllSection());
-  }, [dispatch]);
-
   return (
     <div className={styles.sidebar}>
       <Typography.Title className={styles.title}>9GAG</Typography.Title>
       <Menu mode='inline' selectedKeys={[tagKey]} items={items} />
-      <Typography.Title className={styles.title}>Popular</Typography.Title>
       <Typography.Title className={styles.title}>All Sections</Typography.Title>
       <Menu mode='inline' selectedKeys={[sectionKey]} items={items2} />
     </div>

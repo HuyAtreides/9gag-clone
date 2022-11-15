@@ -12,27 +12,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends CrudRepository<Post, Long> {
 
-    /*String SELECT_POST = """
-            select
-                post as post,
-                
-                (select count(*)
-                 from Comment comment
-                 where comment.post.id = post.id
-                ) as totalComments,
-                 
-                (select Cast(count(*) as boolean)
-                 from Post post1 join post1.upvoteUsers upvoteUsers
-                 where post1.id = post.id and :currentUserId in upvoteUsers.id
-                 ) as isUpvoted,
-                 
-                (select cast(count(*) as boolean)
-                 from Post post1 join post1.downvoteUsers downvoteUsers
-                 where post1.id = post.id and :currentUserId in downvoteUsers.id
-                 ) as isDownvoted
-                
-            """;*/
-
     String SELECT_POST = """
             select
                 post.id,
@@ -49,7 +28,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                  from Comment comment
                  where comment.postId = post.id
                 ) as totalComments,
-                 
+                
                 (select convert(bit, count(*))
                  from UpvotedPost upvotedPost
                  where upvotedPost.postId = post.id and upvotedPost.userId = :currentUserId
@@ -59,7 +38,6 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                  from DownvotedPost downvotedPost
                  where downvotedPost.postId = post.id and downvotedPost.userId = :currentUserId
                  ) as isDownvoted
-                
             """;
 
 

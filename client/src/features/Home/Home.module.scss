@@ -2,12 +2,13 @@
   display: flex;
   justify-content: space-between;
   position: relative;
-  $sideBarWidth: 230px;
+  $sideBarWidth: 245px;
 
   .sidebar {
     overflow: auto;
     height: 100vh;
     position: fixed;
+    padding-bottom: 50px;
     width: $sideBarWidth;
     z-index: 1;
     top: 50px;

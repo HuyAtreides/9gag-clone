@@ -10,7 +10,7 @@ public abstract class VoteableObjectManager<T> {
         Set<T> upVotedObjects = getUpvotedObjects();
         Set<T> downVotedObjects = getDownvotedObjects();
 
-        if (upVotedObjects.contains(object) || downVotedObjects.contains(object)) {
+        if (upVotedObjects.contains(object)) {
             throw new VoteableObjectException("Object was voted");
         }
 
@@ -21,7 +21,7 @@ public abstract class VoteableObjectManager<T> {
         Set<T> upVotedObjects = getUpvotedObjects();
         Set<T> downVotedObjects = getDownvotedObjects();
 
-        if (upVotedObjects.contains(object) || downVotedObjects.contains(object)) {
+        if (downVotedObjects.contains(object)) {
             throw new VoteableObjectException("Object was voted");
         }
 
@@ -29,24 +29,18 @@ public abstract class VoteableObjectManager<T> {
     }
 
 
-    public void removeUpvotedObject(T object) throws VoteableObjectException {
-        boolean ifRemoved = getUpvotedObjects()
+    public boolean removeUpvotedObject(T object) throws VoteableObjectException {
+        return getUpvotedObjects()
                 .removeIf((votedPost) -> Objects.equals(votedPost, object));
 
-        if (!ifRemoved) {
-            throw new VoteableObjectException("Object wasn't voted");
-        }
 
     }
 
 
-    public void removeDownvotedObject(T object) throws VoteableObjectException {
-        boolean ifRemoved = getDownvotedObjects()
-                .removeIf((votedPost) -> Objects.equals(votedPost, object));
+    public boolean removeDownvotedObject(T object) throws VoteableObjectException {
 
-        if (!ifRemoved) {
-            throw new VoteableObjectException("Object wasn't voted");
-        }
+        return getDownvotedObjects()
+                .removeIf((votedPost) -> Objects.equals(votedPost, object));
     }
 
     abstract Set<T> getUpvotedObjects();
