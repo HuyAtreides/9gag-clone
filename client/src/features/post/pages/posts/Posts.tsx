@@ -11,11 +11,8 @@ import {
   Typography,
   Upload,
 } from 'antd';
-import { useForm } from 'antd/es/form/Form';
-import useFormInstance from 'antd/lib/form/hooks/useFormInstance';
 import { useState } from 'react';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import MediaLocation from '../../../../models/media-location';
 import Section from '../../../../models/section';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { uploadNewPost } from '../../../../Store/post/post-dispatchers';

@@ -1,10 +1,4 @@
-import {
-  BarChartOutlined,
-  ClockCircleOutlined,
-  HomeFilled,
-  RiseOutlined,
-  StarFilled,
-} from '@ant-design/icons';
+import { BarChartOutlined, ClockCircleOutlined, StarFilled } from '@ant-design/icons';
 import { Menu, MenuProps, Typography } from 'antd';
 import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -39,20 +33,6 @@ const Sidebar = () => {
 
   const items = useMemo<MenuItem[]>(() => {
     return [
-      getItem(
-        <Link to='/tag/hot' className={styles.section}>
-          Hot
-        </Link>,
-        'hot',
-        <HomeFilled />,
-      ),
-      getItem(
-        <Link to='/tag/trending' className={styles.section}>
-          Trending
-        </Link>,
-        'trending',
-        <RiseOutlined />,
-      ),
       getItem(
         <Link to='/tag/fresh' className={styles.section}>
           Fresh
