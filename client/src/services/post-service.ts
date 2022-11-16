@@ -1,9 +1,11 @@
 import { AxiosRequestConfig } from 'axios';
 import { Constant } from '../models/enums/constant';
+import NewPost from '../models/new-post';
 import PageOptions from '../models/page-options';
 import { createAxiosInstance } from '../utils/create-axios-instance';
 import PostDto from './dtos/post-dto';
 import SliceDto from './dtos/slice-dto';
+import { NewPostMapper } from './mappers/new-post-mapper';
 import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { PostMapper } from './mappers/post-mapper';
 import { SliceMapper } from './mappers/slice-mapper';
@@ -55,4 +57,9 @@ export async function unDownvote(id: number) {
   const axios = createAxiosInstance();
   const url = `${UNDOWNVOTE_POST_END_POINT}/${id}`;
   await axios.put<void>(url);
+}
+
+export async function addNewPost(newPost: NewPost) {
+  const axios = createAxiosInstance();
+  await axios.post<void>(Constant.PostEndPoint, NewPostMapper.toDto(newPost));
 }

@@ -1,13 +1,17 @@
+import { message } from 'antd';
 import { AppThunk } from '..';
 import { Pagination } from '../../models/page';
 import PageOptions from '../../models/page-options';
+import { UploadPostFormData } from '../../models/upload-post-form-data';
 import {
+  addNewPost,
   downvote,
   getPostList,
   unDownvote,
   unUpvote,
   upvote,
 } from '../../services/post-service';
+import { upload } from '../../services/upload-service';
 import { handleError } from '../../utils/error-handler';
 import {
   setIsGettingPage,
@@ -66,10 +70,10 @@ export const addNewPosts =
 
 export const upvotePost =
   (index: number = 0): AppThunk =>
-  (dispatch, getState) => {
+  async (dispatch, getState) => {
     try {
       dispatch(setPostUpvotes([index, 1]));
-      upvote(getState().post.posts![index].id);
+      await upvote(getState().post.posts![index].id);
     } catch (error: unknown) {
       dispatch(setPostUpvotes([index, -1]));
       handleError(
@@ -82,10 +86,10 @@ export const upvotePost =
 
 export const unUpvotePost =
   (index: number = 0): AppThunk =>
-  (dispatch, getState) => {
+  async (dispatch, getState) => {
     try {
       dispatch(setPostUpvotes([index, -1]));
-      unUpvote(getState().post.posts![index].id);
+      await unUpvote(getState().post.posts![index].id);
     } catch (error: unknown) {
       dispatch(setPostUpvotes([index, 1]));
       handleError(
@@ -98,10 +102,10 @@ export const unUpvotePost =
 
 export const downvotePost =
   (index: number = 0): AppThunk =>
-  (dispatch, getState) => {
+  async (dispatch, getState) => {
     try {
       dispatch(setPostDownvotes([index, 1]));
-      downvote(getState().post.posts![index].id);
+      await downvote(getState().post.posts![index].id);
     } catch (error: unknown) {
       dispatch(setPostDownvotes([index, -1]));
       handleError(
@@ -114,10 +118,10 @@ export const downvotePost =
 
 export const unDownvotePost =
   (index: number = 0): AppThunk =>
-  (dispatch, getState) => {
+  async (dispatch, getState) => {
     try {
       dispatch(setPostDownvotes([index, -1]));
-      unDownvote(getState().post.posts![index].id);
+      await unDownvote(getState().post.posts![index].id);
     } catch (error: unknown) {
       dispatch(setPostDownvotes([index, 1]));
       handleError(
@@ -125,5 +129,26 @@ export const unDownvotePost =
         'Failed to undownvote post. Please try again',
         setPostErrorMessage,
       );
+    }
+  };
+
+export const uploadNewPost =
+  (newPostFormData: UploadPostFormData): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsLoading(true));
+      const mediaLocation = await upload(newPostFormData.media);
+      await addNewPost({
+        title: newPostFormData.title,
+        section: newPostFormData.section,
+        mediaType: mediaLocation.type,
+        mediaUrl: mediaLocation.url,
+        tags: newPostFormData.tags,
+      });
+      dispatch(setIsLoading(false));
+      message.success('Add new post successfully');
+    } catch (error: unknown) {
+      dispatch(setIsLoading(false));
+      handleError(dispatch, error, setPostErrorMessage);
     }
   };

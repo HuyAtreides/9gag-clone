@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAppDispatch } from '../Store';
 import { ActionCreator } from '../utils/types/action-creator';
 
@@ -8,25 +7,22 @@ type HandleDownvoteFunc = (
   index?: number,
 ) => void;
 
-const useDownvote = (initialDownvotedState: boolean): [boolean, HandleDownvoteFunc] => {
+const useDownvote = (isDownvoted: boolean): HandleDownvoteFunc => {
   const dispatch = useAppDispatch();
-  const [downvoted, setDownvoted] = useState(initialDownvotedState);
 
   const handleDownvote = (
     unDownvoteActionCreator: ActionCreator<number>,
     downvoteActionCreator: ActionCreator<number>,
     index?: number,
   ) => {
-    if (downvoted) {
+    if (isDownvoted) {
       dispatch(unDownvoteActionCreator(index));
     } else {
       dispatch(downvoteActionCreator(index));
     }
-
-    setDownvoted(!downvoted);
   };
 
-  return [downvoted, handleDownvote];
+  return handleDownvote;
 };
 
 export default useDownvote;

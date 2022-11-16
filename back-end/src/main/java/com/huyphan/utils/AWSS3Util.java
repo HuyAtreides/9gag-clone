@@ -1,8 +1,11 @@
 package com.huyphan.utils;
 
 import com.huyphan.models.MediaLocation;
+import com.huyphan.models.enums.SupportedMIMEType;
+import com.huyphan.models.exceptions.UploadException;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -45,9 +48,16 @@ public class AWSS3Util {
      *
      * @return A location to access the object.
      */
-    public MediaLocation uploadObject(MultipartFile multipartFile) throws IOException {
+    public MediaLocation uploadObject(MultipartFile multipartFile)
+            throws IOException, UploadException {
         String objectKey = generateObjectKey(multipartFile);
         String type = multipartFile.getContentType();
+
+        if (Arrays.stream(SupportedMIMEType.values())
+                .noneMatch(supportedMIMEType -> supportedMIMEType.getValue().equals(type))) {
+            throw new UploadException("Unsupported file type");
+        }
+
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
                 .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
         RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());

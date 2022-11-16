@@ -1,3 +1,4 @@
+import { CaretDownOutlined, FileImageFilled, SearchOutlined } from '@ant-design/icons';
 import {
   AutoComplete,
   Avatar,
@@ -10,23 +11,25 @@ import {
   Typography,
   Upload,
 } from 'antd';
-import { SearchOutlined, CaretDownOutlined, FileImageFilled } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from '../../../../Store';
-import { getAllSection } from '../../../../Store/section/section-dipatchers';
+import { useState } from 'react';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import Section from '../../../../models/section';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { uploadNewPost } from '../../../../Store/post/post-dispatchers';
+import { setPostErrorMessage } from '../../../../Store/post/post-slice';
 import styles from './Post.module.scss';
-import { useEffect } from 'react';
 
-const renderItem = ({ id, name, imgUrl }: Section) => ({
-  value: name.charAt(0).toUpperCase() + name.slice(1),
+const renderItem = (section: Section) => ({
+  value: section.displayName,
   label: (
-    <div className={styles.sectionItem}>
-      <Avatar shape='square' src={imgUrl} />
+    <div className={styles.sectionItem} key={section.id}>
+      <Avatar shape='square' src={section.imgUrl} />
       <Typography.Text className={styles.sectionName}>
-        {name.charAt(0).toUpperCase() + name.slice(1)}
+        {section.displayName}
       </Typography.Text>
     </div>
   ),
+  id: section.id,
 });
 
 const data = [
@@ -41,18 +44,33 @@ const data = [
 ];
 
 const Posts: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.profile);
-  const sections = useAppSelector((state) => state.section.sections);
+  const sections = useAppSelector((state) => state.section.sections!);
   const options = sections.map((section) => renderItem(section));
+  const [selectedSection, setSelectedSection] = useState<Section | undefined>(undefined);
+  const errorMessage = useAppSelector((state) => state.post.errorMessage);
+  const isLoading = useAppSelector((state) => state.post.isLoading);
+  const dispatch = useAppDispatch();
+
+  useRenderErrorMessage(errorMessage, setPostErrorMessage);
 
   const onFinish = (value: any) => {
-    console.log(value);
+    if (selectedSection === undefined) {
+      return;
+    }
+
+    dispatch(
+      uploadNewPost({
+        media: value.media.file,
+        section: selectedSection,
+        tags: value.tags,
+        title: value.title,
+      }),
+    );
   };
 
-  useEffect(() => {
-    dispatch(getAllSection());
-  }, []);
+  const handleSectionSelect = (_: string, option: any) => {
+    setSelectedSection(sections.find((section) => section.id === option.id));
+  };
 
   return (
     <div className={styles.postContainer}>
@@ -61,7 +79,14 @@ const Posts: React.FC = () => {
           <Form name='postForm' layout='vertical' onFinish={onFinish}>
             <Typography.Title className={styles.title}>Upload a post</Typography.Title>
             <Form.Item name='section' noStyle>
-              <AutoComplete className={styles.sectionInput} options={options}>
+              <AutoComplete
+                className={styles.sectionInput}
+                options={options}
+                filterOption={(value, option) =>
+                  option?.value.match(new RegExp(`.*${value}.*`, 'i')) != null
+                }
+                onSelect={handleSectionSelect}
+              >
                 <Input
                   className={styles.searchInput}
                   size='large'
@@ -72,7 +97,15 @@ const Posts: React.FC = () => {
               </AutoComplete>
             </Form.Item>
             <div className={styles.formContainer}>
-              <Form.Item name='title' noStyle>
+              <Form.Item
+                name='title'
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter post title',
+                  },
+                ]}
+              >
                 <Input
                   className={styles.searchInput}
                   size='large'
@@ -81,8 +114,20 @@ const Posts: React.FC = () => {
                 />
               </Form.Item>
               <div className={styles.mediaContainer}>
-                <Form.Item name='media' noStyle>
-                  <Upload action='/upload.do' className={styles.upload}>
+                <Form.Item
+                  name='media'
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please provide post media',
+                    },
+                  ]}
+                >
+                  <Upload
+                    beforeUpload={() => false}
+                    className={styles.upload}
+                    maxCount={1}
+                  >
                     <div className={styles.uploadWrapper}>
                       <FileImageFilled className={styles.icon} />
                       <Button type='primary' className={styles.btnSubmit}>
@@ -92,14 +137,19 @@ const Posts: React.FC = () => {
                   </Upload>
                 </Form.Item>
               </div>
-              <Form.Item name='tag' noStyle>
+              <Form.Item name='tags'>
                 <Input
                   className={styles.searchInput}
                   size='large'
                   placeholder='+ Add tags to help people find your post'
                 />
               </Form.Item>
-              <Button type='primary' htmlType='submit' className={styles.btnSubmit}>
+              <Button
+                type='primary'
+                htmlType='submit'
+                className={styles.btnSubmit}
+                loading={isLoading}
+              >
                 Submit post
               </Button>
             </div>

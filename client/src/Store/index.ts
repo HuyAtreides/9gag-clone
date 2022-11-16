@@ -1,10 +1,23 @@
-import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
+import { Action, configureStore, isPlain, ThunkAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import type { TypedUseSelectorHook } from 'react-redux';
 import rootReducer from './root-reducer';
 
 const store = configureStore({
-    reducer: rootReducer,
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        isSerializable: (value: any) => {
+          try {
+            /** Value is considered serializable if it can be stringified. */
+            return Boolean(JSON.stringify(value)) || isPlain(value);
+          } catch (err) {
+            return false;
+          }
+        },
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
