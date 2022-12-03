@@ -1,0 +1,9 @@
+.loadingIcon {
+  // Override ant design font-size for loading icon
+  font-size: 5rem !important;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+}

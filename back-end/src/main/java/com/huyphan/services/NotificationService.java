@@ -3,8 +3,8 @@ package com.huyphan.services;
 import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.User;
+import com.huyphan.models.exceptions.AppException;
 import com.huyphan.repositories.NotificationRepository;
-import java.time.Instant;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -24,10 +24,9 @@ public class NotificationService implements NotificationSender {
     private UserService userService;
 
     public Slice<Notification> getNotifications(PageOptions options) {
-        Sort sort = Sort.by(Order.desc("created"));
+        Sort sort = Sort.by(Order.desc("id"));
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sort);
         User user = userService.getUser();
-
         return notificationRepository.findByUserId(user.getId(), pageable);
     }
 
@@ -38,14 +37,31 @@ public class NotificationService implements NotificationSender {
     }
 
     @Transactional
+    public void markNotificationAsViewed(Long id) throws AppException {
+        User user = userService.getUser();
+        Notification notification = notificationRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() ->
+                        new AppException("No Notification Found")
+                );
+        notification.setIsViewed(true);
+    }
+
+    public int countNotViewedNotification() {
+        User user = userService.getUser();
+
+        return notificationRepository.countByIsViewedFalseAndUserId(user.getId());
+    }
+
+    @Transactional
     public void deleteAllNotifications() {
         User user = userService.getUser();
         notificationRepository.deleteAllByUserId(user.getId());
     }
 
-    public List<Notification> getLatestNotifications(Instant targetDate) {
+    public List<Notification> getLatestNotifications(Long currentLatestId) {
         User user = userService.getUser();
-        return notificationRepository.findByUserIdAndCreatedGreaterThan(user.getId(), targetDate);
+        return notificationRepository.findByUserIdAndIdGreaterThanOrderByIdDesc(user.getId(),
+                currentLatestId);
     }
 
     @Override

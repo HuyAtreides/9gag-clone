@@ -7,6 +7,7 @@ export enum Constant {
   SectionEndpoint = 'section',
   PostEndPoint = 'post',
   UploadEndPoint = 'upload',
+  NotificationEndPoint = 'notification',
   PageSize = 15,
 }
 

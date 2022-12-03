@@ -11,6 +11,7 @@
     height: 50px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     padding: 10px 20px;
+    padding-top: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -97,13 +98,4 @@
       color: $iconColorDarkTheme;
     }
   }
-}
-
-.notifyContainer {
-  width: 300px;
-  height: 400px;
-  padding: 10px;
-  background-color: $backGroundColorDarkTheme;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }

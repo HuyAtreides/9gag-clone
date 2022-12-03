@@ -1,0 +1,62 @@
+@import '../../../Style/color.scss';
+
+.notifyContainer {
+  min-width: 320px;
+  padding: 10px;
+  background-color: $backGroundColorDarkTheme;
+  border-radius: 8px;
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  .notification {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: none;
+    padding-left: 10px;
+    border-radius: var(--border-radius-base);
+
+    .notificationDescriptionContainer {
+      display: flex;
+      align-items: center;
+
+      .notificationDescription {
+        font-size: 1.5rem;
+        margin-bottom: 0px;
+        margin-left: 5px;
+      }
+    }
+
+    .notificationDate {
+      font-size: 1.2rem;
+      margin-bottom: 0;
+    }
+  }
+
+  .notificationHeader {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.loadingIcon {
+  // Override ant design font-size for loading icon
+  font-size: 5rem !important;
+}
+
+.clearButton {
+  color: var(--primary-color) !important;
+  display: block !important;
+  text-align: left !important;
+  width: 100%;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.notViewedNotification {
+  background-color: var(--border-color-base);
+  font-weight: bold;
+  margin-top: 10px;
+}

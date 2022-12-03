@@ -1,18 +1,23 @@
-import { Avatar, Button, Input, Layout, Popover, Typography } from 'antd';
 import {
+  BellFilled,
+  EditFilled,
   MenuOutlined,
   SearchOutlined,
   UserOutlined,
-  EditFilled,
-  BellFilled,
 } from '@ant-design/icons';
+import { Avatar, Badge, Button, Input, Layout, Popover, Typography } from 'antd';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
 import useProtectedAction from '../../custom-hooks/protected-action';
 import { useAppDispatch, useAppSelector } from '../../Store';
 import { logout } from '../../Store/auth/auth-dispatchers';
-import DropdownMenu from './components/DropdownMenu';
-import styles from './Navbar.module.scss';
+import { countNotViewed } from '../../Store/notification/notification-dispatchers';
+import { clearNotViewedCount } from '../../Store/notification/notification-slice';
 import { setSearchTerm } from '../../Store/post/post-slice';
+import DropdownMenu from './components/DropdownMenu';
+import Notifications from './components/Notifications';
+import styles from './Navbar.module.scss';
 
 const { Header } = Layout;
 
@@ -27,11 +32,20 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
   const navigate = useNavigate();
   const user = useAppSelector((state) => state.user.profile);
   const protectAction = useProtectedAction();
+  const notViewedCount = useAppSelector((state) => state.notification.notViewedCount);
 
   const handlerLogout = () => {
     dispatch(logout());
     navigate('/', { replace: true });
   };
+
+  const clearNotViewedNotificationsCount = () => {
+    dispatch(clearNotViewedCount());
+  };
+
+  useEffect(() => {
+    dispatch(countNotViewed());
+  }, [dispatch, user]);
 
   return (
     <Header className={styles.header}>
@@ -70,17 +84,20 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
               className={styles.iconCollapse}
             />
           </Popover>
-          <Popover
-            placement='bottom'
-            trigger='click'
-            content={<div className={styles.notifyContainer}></div>}
-          >
-            <Button
-              shape='circle'
-              icon={<BellFilled />}
-              className={styles.iconCollapse}
-            />
-          </Popover>
+          <AuthenticatedGuard
+            component={
+              <Popover placement='bottom' trigger='click' content={<Notifications />}>
+                <Badge count={notViewedCount}>
+                  <Button
+                    shape='circle'
+                    icon={<BellFilled />}
+                    className={styles.iconCollapse}
+                    onClick={clearNotViewedNotificationsCount}
+                  />
+                </Badge>
+              </Popover>
+            }
+          />
           <Typography.Text className={styles.text} onClick={protectAction(() => {})}>
             {user ? user.displayName : 'Sign up/Log in'}
           </Typography.Text>

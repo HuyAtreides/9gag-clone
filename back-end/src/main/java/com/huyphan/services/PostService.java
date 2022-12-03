@@ -104,7 +104,7 @@ public class PostService {
         postRepository.deleteById(id);
         userService.removeSavedPost(post);
         voteablePostManager.removeDownvotedObject(post);
-        voteablePostManager.removeDownvotedObject(post);
+        voteablePostManager.removeUpvotedObject(post);
     }
 
     public Slice<Post> getSavedPosts() {

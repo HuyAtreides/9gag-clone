@@ -1,8 +1,8 @@
 package com.huyphan.repositories;
 
 import com.huyphan.models.Notification;
-import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,7 +12,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface NotificationRepository extends CrudRepository<Notification, Long> {
 
-    List<Notification> findByUserIdAndCreatedGreaterThan(Long userId, Instant targetDate);
+    List<Notification> findByUserIdAndIdGreaterThanOrderByIdDesc(Long userId,
+            Long id);
 
     Slice<Notification> findByUserId(Long userId, Pageable pageable);
 
@@ -23,4 +24,8 @@ public interface NotificationRepository extends CrudRepository<Notification, Lon
     @Modifying(clearAutomatically = true)
     @Query("delete from Notification notification where notification.user.id = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
+
+    Optional<Notification> findByIdAndUserId(Long id, Long userId);
+
+    int countByIsViewedFalseAndUserId(Long userId);
 }

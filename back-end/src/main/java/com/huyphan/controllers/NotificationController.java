@@ -8,16 +8,15 @@ import com.huyphan.mappers.PageOptionMapper;
 import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
+import com.huyphan.models.exceptions.AppException;
 import com.huyphan.services.NotificationService;
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,6 +51,16 @@ public class NotificationController {
         notificationService.markAllNotificationsAsViewed();
     }
 
+    @PutMapping("{id}")
+    public void markNotificationAsViewed(@PathVariable Long id) throws AppException {
+        notificationService.markNotificationAsViewed(id);
+    }
+
+    @GetMapping("count-not-viewed")
+    public int countNotViewed() {
+        return notificationService.countNotViewedNotification();
+    }
+
     @DeleteMapping
     public void deleteAllNotifications() {
         notificationService.deleteAllNotifications();
@@ -59,9 +68,9 @@ public class NotificationController {
 
     @GetMapping("/latest")
     public List<NotificationDto> getLatestNotifications(
-            @RequestParam @DateTimeFormat(iso = ISO.DATE_TIME) Instant targetDate) {
+            @RequestParam Long currentLatestId) {
         List<Notification> notificationDtos = notificationService.getLatestNotifications(
-                targetDate);
+                currentLatestId);
 
         return notificationDtos.stream().map(notificationMapper::toDto)
                 .collect(Collectors.toList());
