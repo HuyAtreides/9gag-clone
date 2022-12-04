@@ -1,6 +1,6 @@
 import { CommentOutlined, LikeOutlined, MoreOutlined } from '@ant-design/icons';
 import { Button, List, Popover, Typography } from 'antd';
-import React, { ReactElement, useCallback, useEffect } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
 import Loading from '../../../components/loading/Loading';
@@ -13,7 +13,6 @@ import PageOptions from '../../../models/page-options';
 import { useAppDispatch, useAppSelector } from '../../../Store';
 import {
   addNotifications,
-  initialize,
   markAllAsViewed,
   markAsViewed,
   removeNotifications,
@@ -22,6 +21,7 @@ import {
   resetNotificationState,
   setNotificationErrorMessage,
 } from '../../../Store/notification/notification-slice';
+import { IntervalIdContext } from '../NavbarLayout';
 import styles from './Notifications.module.scss';
 
 const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
@@ -39,25 +39,18 @@ const Notifications: React.FC = () => {
   const isLoading = useAppSelector((state) => state.notification.isLoading);
   const errorMessage = useAppSelector((state) => state.notification.errorMessage);
   const isGettingPage = useAppSelector((state) => state.notification.isGettingPage);
+  const context = useContext(IntervalIdContext);
   useRemoveErrorWhenUnmount(setNotificationErrorMessage);
   useRenderErrorMessage(errorMessage, setNotificationErrorMessage);
 
-  const initializeNotification = useCallback(async () => {
-    const intervalId = await dispatch(initialize());
-
-    return intervalId as unknown as NodeJS.Timer;
-  }, [dispatch]);
-
   useEffect(() => {
-    const intervalId = initializeNotification();
-
     return () => {
       dispatch(resetNotificationState());
       (async function () {
-        clearInterval(await intervalId);
+        clearInterval(await context);
       })();
     };
-  }, [dispatch, initializeNotification]);
+  }, [context, dispatch]);
 
   const getNextPage = () => {
     if (isGettingPage) {

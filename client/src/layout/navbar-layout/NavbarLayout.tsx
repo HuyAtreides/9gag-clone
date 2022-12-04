@@ -6,13 +6,16 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Avatar, Badge, Button, Input, Layout, Popover, Typography } from 'antd';
-import { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
 import useProtectedAction from '../../custom-hooks/protected-action';
 import { useAppDispatch, useAppSelector } from '../../Store';
 import { logout } from '../../Store/auth/auth-dispatchers';
-import { countNotViewed } from '../../Store/notification/notification-dispatchers';
+import {
+  countNotViewed,
+  initialize,
+} from '../../Store/notification/notification-dispatchers';
 import { clearNotViewedCount } from '../../Store/notification/notification-slice';
 import { setSearchTerm } from '../../Store/post/post-slice';
 import DropdownMenu from './components/DropdownMenu';
@@ -20,6 +23,10 @@ import Notifications from './components/Notifications';
 import styles from './Navbar.module.scss';
 
 const { Header } = Layout;
+const promiseWithUndefinedValue = Promise.resolve(undefined);
+export const IntervalIdContext = React.createContext<Promise<undefined | NodeJS.Timer>>(
+  promiseWithUndefinedValue,
+);
 
 interface INavbarLayout {
   collapse: boolean;
@@ -33,6 +40,9 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
   const user = useAppSelector((state) => state.user.profile);
   const protectAction = useProtectedAction();
   const notViewedCount = useAppSelector((state) => state.notification.notViewedCount);
+  const intervalRef = useRef<Promise<undefined | NodeJS.Timer>>(
+    promiseWithUndefinedValue,
+  );
 
   const handlerLogout = () => {
     dispatch(logout());
@@ -45,6 +55,13 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
 
   useEffect(() => {
     dispatch(countNotViewed());
+
+    if (user) {
+      intervalRef.current = (async () => {
+        const intervalId = await dispatch(initialize());
+        return intervalId as unknown as undefined | NodeJS.Timer;
+      })();
+    }
   }, [dispatch, user]);
 
   return (
@@ -86,7 +103,15 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
           </Popover>
           <AuthenticatedGuard
             component={
-              <Popover placement='bottom' trigger='click' content={<Notifications />}>
+              <Popover
+                placement='bottom'
+                trigger='click'
+                content={
+                  <IntervalIdContext.Provider value={intervalRef.current}>
+                    <Notifications />
+                  </IntervalIdContext.Provider>
+                }
+              >
                 <Badge count={notViewedCount}>
                   <Button
                     shape='circle'
