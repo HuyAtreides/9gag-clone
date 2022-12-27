@@ -1,25 +1,21 @@
-import { useAppDispatch } from '../Store';
-import { ActionCreator } from '../utils/types/action-creator';
+import Post from '../models/post';
+import VoteActionExecutor from './vote-action-executor/vote-action-executor';
 
-type HandleUpvoteFunc = (
-  unUpvoteActionCreator: ActionCreator<number>,
-  upvoteActionCreator: ActionCreator<number>,
-  index?: number,
-) => void;
-
-const useUpvote = (isUpvoted: boolean): HandleUpvoteFunc => {
-  const dispatch = useAppDispatch();
-
-  const handleUpvote = (
-    unUpvoteActionCreator: ActionCreator<number>,
-    upvoteActionCreator: ActionCreator<number>,
-    index: number = 0,
-  ) => {
+const useUpvote = (
+  { isUpvoted, isDownvoted }: Post,
+  voteActionExecutor: VoteActionExecutor,
+) => {
+  const handleUpvote = () => {
     if (isUpvoted) {
-      dispatch(unUpvoteActionCreator(index));
-    } else {
-      dispatch(upvoteActionCreator(index));
+      voteActionExecutor.executeUnupvoteAction();
+      return;
     }
+
+    if (isDownvoted) {
+      voteActionExecutor.executeUndownvoteAction();
+    }
+
+    voteActionExecutor.executeUpvoteAction();
   };
 
   return handleUpvote;

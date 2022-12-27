@@ -8,7 +8,6 @@ public abstract class VoteableObjectManager<T> {
 
     public void addUpvotedObject(T object) throws VoteableObjectException {
         Set<T> upVotedObjects = getUpvotedObjects();
-        Set<T> downVotedObjects = getDownvotedObjects();
 
         if (upVotedObjects.contains(object)) {
             throw new VoteableObjectException("Object was voted");
@@ -18,7 +17,6 @@ public abstract class VoteableObjectManager<T> {
     }
 
     public void addDownVotedObject(T object) throws VoteableObjectException {
-        Set<T> upVotedObjects = getUpvotedObjects();
         Set<T> downVotedObjects = getDownvotedObjects();
 
         if (downVotedObjects.contains(object)) {
@@ -29,7 +27,7 @@ public abstract class VoteableObjectManager<T> {
     }
 
 
-    public boolean removeUpvotedObject(T object) throws VoteableObjectException {
+    public boolean removeUpvotedObject(T object) {
         return getUpvotedObjects()
                 .removeIf((votedPost) -> Objects.equals(votedPost, object));
 
@@ -37,8 +35,7 @@ public abstract class VoteableObjectManager<T> {
     }
 
 
-    public boolean removeDownvotedObject(T object) throws VoteableObjectException {
-
+    public boolean removeDownvotedObject(T object) {
         return getDownvotedObjects()
                 .removeIf((votedPost) -> Objects.equals(votedPost, object));
     }

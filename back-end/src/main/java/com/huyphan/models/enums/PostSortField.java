@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum PostSortField {
     UPVOTES("upvotes"),
     TOTAL_COMMENTS("totalComments"),
-    UPLOAD_TIME("uploadTime");
+    ID("id");
 
     private final String value;
 

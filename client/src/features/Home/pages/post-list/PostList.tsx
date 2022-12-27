@@ -49,11 +49,13 @@ const PostList: React.FC = () => {
     };
 
     dispatch(getPosts(pageOptions, tag!, section));
-
-    return () => {
-      dispatch(resetState);
-    };
   }, [dispatch, tag, section, user, searchTerm]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetState());
+    };
+  }, [dispatch]);
 
   if (isLoading) {
     return (

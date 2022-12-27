@@ -71,11 +71,18 @@ public class CommentService {
         }
 
         commentRepository.deleteById(id);
+        voteableCommentManager.removeDownvotedObject(comment);
+        voteableCommentManager.removeUpvotedObject(comment);
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class})
     public void upvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
+
+        if (voteableCommentManager.getDownvotedObjects().contains(comment)) {
+            unDownvotesComment(id);
+        }
+
         voteableCommentManager.addUpvotedObject(comment);
         comment.setUpvotes(comment.getUpvotes() + 1);
         sendVoteCommentNotification(comment);
@@ -97,6 +104,11 @@ public class CommentService {
     @Transactional(rollbackFor = {VoteableObjectException.class})
     public void downvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
+
+        if (voteableCommentManager.getUpvotedObjects().contains(comment)) {
+            unUpvotesComment(id);
+        }
+
         voteableCommentManager.addDownVotedObject(comment);
         comment.setDownvotes(comment.getDownvotes() + 1);
         sendVoteCommentNotification(comment);
