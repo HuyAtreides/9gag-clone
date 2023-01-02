@@ -12,7 +12,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
@@ -23,8 +25,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @NoArgsConstructor
 @Getter
@@ -35,11 +39,8 @@ import org.hibernate.annotations.Nationalized;
                 @NamedAttributeNode(value = "replyTo", subgraph = "CommentEntityGraph"),
                 @NamedAttributeNode(value = "user", subgraph = "UserEntityGraph")
         }, subgraphs = {
-                @NamedSubgraph(name = "UserEntityGraph", attributeNodes = {
-                        @NamedAttributeNode("favoriteSections")
-                }),
                 @NamedSubgraph(name = "CommentEntityGraph", attributeNodes = {
-                        @NamedAttributeNode(value = "user", subgraph = "UserEntityGraph")
+                        @NamedAttributeNode(value = "user")
                 })
         }),
 })
@@ -50,56 +51,51 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id", nullable = false)
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostId")
     private Post post;
-
     @ManyToOne
     @JoinColumn(name = "ReplyToId")
     private Comment replyTo;
-
     @Lob
     @Column(name = "Text")
     @Nationalized
     private String text;
-
     @Lob
     @Column(name = "MediaUrl")
     private String mediaUrl;
-
     @ManyToOne
     @JoinColumn(name = "UserId")
     private User user;
-
     @Column(name = "Upvotes")
     private Integer upvotes;
-
     @Column(name = "Downvotes")
     private Integer downvotes;
-
     @OneToMany(mappedBy = "replyTo", cascade = {CascadeType.REMOVE})
     private Set<Comment> replies = new LinkedHashSet<>();
-
     @Column(name = "MediaType", length = 70)
     private String mediaType;
-
     @Column(name = "CommentDate")
     private Instant date;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ParentId")
     private Comment parent;
-
     @OneToMany(mappedBy = "parent", cascade = {CascadeType.REMOVE})
     private Set<Comment> children = new LinkedHashSet<>();
-    @Formula("""
-            (SELECT COUNT(*)
-            FROM COMMENT as comment
-            WHERE comment.ParentId = id)
-            """)
-    @Column(name = "TotalChildren")
-    private Long totalChildren;
+
+    @ManyToMany
+    @JoinTable(name = "UpvotedComment",
+            joinColumns = @JoinColumn(name = "CommentId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<User> usersUpvote = new LinkedHashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "DownvotedComment",
+            joinColumns = @JoinColumn(name = "CommentId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<User> usersDownvote = new LinkedHashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -116,5 +112,21 @@ public class Comment {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public boolean getIsDownvoted() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return usersDownvote.contains(user);
+    }
+
+    public boolean getIsUpvoted() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return usersUpvote.contains(user);
+    }
+
+    public int getTotalChildren() {
+        return children.size();
     }
 }

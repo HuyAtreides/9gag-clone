@@ -32,4 +32,8 @@ public class CommentDto {
     private UserDto user;
 
     private Long totalChildren;
+
+    private boolean isUpvoted;
+
+    private boolean isDownvoted;
 }

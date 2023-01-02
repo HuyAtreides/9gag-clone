@@ -1,9 +1,9 @@
 package com.huyphan.services;
 
 import com.huyphan.models.Comment;
+import com.huyphan.models.CommentPageOptions;
 import com.huyphan.models.NewComment;
 import com.huyphan.models.Notification;
-import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
 import com.huyphan.models.builders.AddCommentNotificationBuilder;
@@ -158,20 +158,22 @@ public class CommentService {
         return comment;
     }
 
-    public Page<Comment> getChildrenComment(Long parentId, PageOptions options) {
+    public Page<Comment> getChildrenComment(Long parentId, CommentPageOptions options) {
         Sort sortOptions = Sort.by(Order.desc(CommentSortField.UPVOTES.getValue()),
                 Order.desc(CommentSortField.DATE.getValue()));
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findByParentId(parentId, pageable);
+        return commentRepository.findByParentIdAndIdNotIn(parentId, options.getExcludeIds(),
+                pageable);
     }
 
-    public Page<Comment> getPostComments(Long postId, PageOptions options) {
+    public Page<Comment> getPostComments(Long postId, CommentPageOptions options) {
         Sort sortOptions = Sort.by(Order.desc(CommentSortField.UPVOTES.getValue()),
                 Order.desc(CommentSortField.DATE.getValue()));
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findByPostIdAndParentIsNull(postId, pageable);
+        return commentRepository.findByPostIdAndIdNotInAndParentIsNull(postId,
+                options.getExcludeIds(), pageable);
     }
 
     public Comment getComment(Long id) throws CommentException {

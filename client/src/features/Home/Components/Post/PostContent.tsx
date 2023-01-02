@@ -7,6 +7,7 @@ import useDownvote from '../../../../custom-hooks/downvote';
 import useProtectedAction from '../../../../custom-hooks/protected-action';
 import useUpvote from '../../../../custom-hooks/upvote';
 import VotePostActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-post-action-executor';
+import { Constant } from '../../../../models/enums/constant';
 import Post from '../../../../models/post';
 import { useAppDispatch } from '../../../../Store';
 import { formatNumber } from '../../../../utils/format-number';
@@ -59,7 +60,11 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
         }
       />
       <Typography.Title level={4}>{post.title}</Typography.Title>
-      <Media type={post.mediaType} url={post.mediaUrl} />
+      <Media
+        type={post.mediaType}
+        url={post.mediaUrl}
+        scrollAreaId={Constant.PostScrollAreaId as string}
+      />
     </List.Item>
   );
 };
