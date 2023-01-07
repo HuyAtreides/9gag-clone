@@ -1,5 +1,6 @@
 package com.huyphan.models;
 
+import com.huyphan.services.UserService;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -28,7 +29,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Nationalized;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @NoArgsConstructor
 @Getter
@@ -54,7 +54,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostId")
     private Post post;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ReplyToId")
     private Comment replyTo;
     @Lob
@@ -64,7 +64,7 @@ public class Comment {
     @Lob
     @Column(name = "MediaUrl")
     private String mediaUrl;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId")
     private User user;
     @Column(name = "Upvotes")
@@ -115,13 +115,13 @@ public class Comment {
     }
 
     public boolean getIsDownvoted() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = UserService.getUser();
 
         return usersDownvote.contains(user);
     }
 
     public boolean getIsUpvoted() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = UserService.getUser();
 
         return usersUpvote.contains(user);
     }

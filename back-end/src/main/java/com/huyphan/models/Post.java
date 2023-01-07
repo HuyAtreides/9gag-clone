@@ -1,5 +1,6 @@
 package com.huyphan.models;
 
+import com.huyphan.services.UserService;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -7,6 +8,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,6 +24,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
@@ -50,7 +54,7 @@ public class Post {
     private Integer upvotes;
     @Column(name = "Downvotes")
     private Integer downvotes;
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId", nullable = false)
     private User user;
     @ManyToOne(optional = false)
@@ -63,21 +67,20 @@ public class Post {
     @Nationalized
     private String tags;
     @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
+    @Fetch(FetchMode.SUBSELECT)
     private Set<Comment> comments = new LinkedHashSet<>();
-    @Column(name = "TotalComments")
-    private Long totalComments;
+
     @ManyToMany
     @JoinTable(name = "SavedPost",
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> saveUsers = new LinkedHashSet<>();
-    @Column(name = "isUpvoted")
-    private Boolean isUpvoted;
-    @Column(name = "isDownvoted")
-    private Boolean isDownvoted;
+
     @ManyToMany(mappedBy = "upvotedPosts")
+    @Fetch(FetchMode.SUBSELECT)
     private Set<User> upvoteUsers = new LinkedHashSet<>();
     @ManyToMany(mappedBy = "downvotedPosts")
+    @Fetch(FetchMode.SUBSELECT)
     private Set<User> downvoteUsers = new LinkedHashSet<>();
 
     @Override
@@ -95,6 +98,22 @@ public class Post {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public int getTotalComments() {
+        return comments.size();
+    }
+
+    public boolean getIsUpvoted() {
+        User user = UserService.getUser();
+
+        return upvoteUsers.contains(user);
+    }
+
+    public boolean getIsDownvoted() {
+        User user = UserService.getUser();
+
+        return downvoteUsers.contains(user);
     }
 
 }

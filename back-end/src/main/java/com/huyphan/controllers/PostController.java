@@ -14,7 +14,6 @@ import com.huyphan.models.Post;
 import com.huyphan.models.enums.PostTag;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
-import com.huyphan.models.exceptions.UserException;
 import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class PostController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePost(@PathVariable Long id) throws PostException, VoteableObjectException {
+    public void deletePost(@PathVariable Long id) throws PostException {
         postService.deletePost(id);
     }
 
@@ -84,7 +83,7 @@ public class PostController {
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void upvotesPost(@PathVariable Long id)
-            throws PostException, UserException, VoteableObjectException {
+            throws PostException, VoteableObjectException {
         postService.upvotesPost(id);
     }
 
@@ -96,27 +95,29 @@ public class PostController {
 
     @PutMapping("unupvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unUpvotesPost(@PathVariable Long id) throws PostException, VoteableObjectException {
+    public void unUpvotesPost(@PathVariable Long id) throws PostException {
         postService.unUpvotesPost(id);
     }
 
     @PutMapping("undownvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unDownvotesPost(@PathVariable Long id)
-            throws PostException, VoteableObjectException {
+            throws PostException {
         postService.unDownvotesPost(id);
     }
 
     @GetMapping("save")
-    public SliceDto<PostDto> getSavedPosts() {
-        Slice<Post> savedPosts = postService.getSavedPosts();
+    public SliceDto<PostDto> getSavedPosts(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> savedPosts = postService.getSavedPosts(pageOptions);
 
         return sliceMapper.toDto(savedPosts, postMapper);
     }
 
     @GetMapping("vote")
-    public SliceDto<PostDto> getVotedPosts() {
-        Slice<Post> votedPosts = postService.getVotedPosts();
+    public SliceDto<PostDto> getVotedPosts(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> votedPosts = postService.getVotedPosts(pageOptions);
 
         return sliceMapper.toDto(votedPosts, postMapper);
     }

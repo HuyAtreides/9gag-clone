@@ -12,10 +12,13 @@ import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.repositories.PostRepository;
 import com.huyphan.utils.sortoptionsconstructor.SortOptionsConstructorFactory;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +46,7 @@ public class PostService {
 
     public void addNewPost(NewPost newPost) {
         Post post = new Post();
-        post.setUser(userService.getUser());
+        post.setUser(UserService.getUser());
         post.setSection(newPost.getSection());
         post.setMediaUrl(newPost.getMediaUrl());
         post.setMediaType(newPost.getMediaType());
@@ -53,22 +56,96 @@ public class PostService {
     }
 
     public Slice<Post> getAllPost(PageOptions options, PostTag postTag) throws AppException {
+        if (UserService.getUser().getFavoriteSections().isEmpty()) {
+            return getAllPostWithoutUserFavSection(options, postTag);
+        }
+
+        Page<Post> pageOfPostsInUserFavSection = getAllPostsInUserFavSection(options, postTag);
+        List<Post> postsInUserFavSection = pageOfPostsInUserFavSection.getContent();
+
+        if (!postsInUserFavSection.isEmpty() && !pageOfPostsInUserFavSection.isLast()) {
+            return pageOfPostsInUserFavSection;
+        }
+
+        Pageable pageableReturnedToClient = getPageableReturnedToClient(options,
+                pageOfPostsInUserFavSection);
+        PageOptions optionsToGetPostsNotInUserFavSection = getPostsNotInUserFavSectionPageOptions(
+                options,
+                pageOfPostsInUserFavSection
+        );
+
+        Slice<Post> postsNotInUserFavSections = getAllPostsNotInUserFavSection(
+                optionsToGetPostsNotInUserFavSection,
+                postTag);
+
+        if (options.getPage() < pageOfPostsInUserFavSection.getTotalPages()) {
+            return new SliceImpl<>(postsInUserFavSection, pageableReturnedToClient,
+                    postsNotInUserFavSections.hasNext());
+        }
+
+        return new SliceImpl<>(postsNotInUserFavSections.getContent(), pageableReturnedToClient,
+                postsNotInUserFavSections.hasNext());
+    }
+
+    private Pageable getPageableReturnedToClient(PageOptions options,
+            Page<Post> pageOfPostsInUserFavSection) {
+        int pageNumberReturnedToClient = getPageNumberReturnedToClient(options,
+                pageOfPostsInUserFavSection);
+        return PageRequest.of(pageNumberReturnedToClient,
+                options.getSize());
+    }
+
+    private PageOptions getPostsNotInUserFavSectionPageOptions(PageOptions options,
+            Page<Post> pageOfPostsInUserFavSection) {
+        int pageNumberReturnedToClient = getPageNumberReturnedToClient(options,
+                pageOfPostsInUserFavSection);
+
+        return new PageOptions(
+                pageNumberReturnedToClient - pageOfPostsInUserFavSection.getTotalPages(),
+                options.getSize(),
+                options.getSearch()
+        );
+    }
+
+    private int getPageNumberReturnedToClient(PageOptions options,
+            Page<Post> pageOfPostsInUserFavSection) {
+        int totalPageOfPostsInUserFavSection = pageOfPostsInUserFavSection.getTotalPages();
+        return Math.max(options.getPage(),
+                totalPageOfPostsInUserFavSection);
+    }
+
+    public Page<Post> getAllPostsInUserFavSection(PageOptions options, PostTag postTag)
+            throws AppException {
+        User user = UserService.getUser();
         Sort sortOptions = sortOptionsConstructorFactory.getSortOptionConstructor(postTag)
                 .constructSortOptions();
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
-        Long userId = getCurrentUserId();
 
-        return postRepository.findAll(userId, getSearchTerm(options.getSearch()), pageable);
+        return postRepository.findAllPostInUserFavSection(
+                user.getFavoriteSections(),
+                getSearchTerm(options.getSearch()),
+                pageable
+        );
     }
 
-    private Long getCurrentUserId() {
-        try {
-            User user = userService.getUser();
+    public Slice<Post> getAllPostWithoutUserFavSection(PageOptions options, PostTag postTag)
+            throws AppException {
+        Sort sortOptions = sortOptionsConstructorFactory.getSortOptionConstructor(postTag)
+                .constructSortOptions();
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-            return user.getId();
-        } catch (Exception exception) {
-            return -1L;
-        }
+        return postRepository.findAll(getSearchTerm(options.getSearch()), pageable);
+    }
+
+    public Slice<Post> getAllPostsNotInUserFavSection(PageOptions options, PostTag postTag)
+            throws AppException {
+        User user = UserService.getUser();
+        Sort sortOptions = sortOptionsConstructorFactory.getSortOptionConstructor(postTag)
+                .constructSortOptions();
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
+
+        return postRepository.findAllPostNotInUserFavSection(
+                user.getFavoriteSections(), getSearchTerm(options.getSearch()), pageable);
     }
 
     public Slice<Post> getAllPostsWithinSection(PageOptions options, PostTag postTag,
@@ -78,7 +155,7 @@ public class PostService {
                 .constructSortOptions();
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return postRepository.findBySectionName(getCurrentUserId(),
+        return postRepository.findBySectionName(
                 sectionName,
                 getSearchTerm(options.getSearch()),
                 pageable);
@@ -93,8 +170,8 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void deletePost(Long id) throws PostException, VoteableObjectException {
-        User currentUser = userService.getUser();
+    public void deletePost(Long id) throws PostException {
+        User currentUser = UserService.getUser();
         Post post = getPost(id);
 
         if (!post.getUser().getUsername().equals(currentUser.getUsername())) {
@@ -107,12 +184,16 @@ public class PostService {
         voteablePostManager.removeUpvotedObject(post);
     }
 
-    public Slice<Post> getSavedPosts() {
-        return postRepository.findSavedPost(getCurrentUserId());
+    public Slice<Post> getSavedPosts(PageOptions options) {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+
+        return postRepository.findSavedPost(UserService.getUser(), pageable);
     }
 
-    public Slice<Post> getVotedPosts() {
-        return postRepository.findVotedPost(getCurrentUserId());
+    public Slice<Post> getVotedPosts(PageOptions options) {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+
+        return postRepository.findVotedPost(UserService.getUser(), pageable);
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
@@ -134,7 +215,7 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void unUpvotesPost(Long id) throws PostException, VoteableObjectException {
+    public void unUpvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
         boolean isRemoved = voteablePostManager.removeUpvotedObject(post);
 
@@ -158,7 +239,7 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void unDownvotesPost(Long id) throws PostException, VoteableObjectException {
+    public void unDownvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
         boolean isRemoved = voteablePostManager.removeDownvotedObject(post);
 
@@ -168,7 +249,7 @@ public class PostService {
     }
 
     public Post getPost(Long id) throws PostException {
-        return postRepository.findById(getCurrentUserId(), id)
+        return postRepository.findById(id)
                 .orElseThrow(() -> new PostException("Post not found"));
     }
 

@@ -26,12 +26,25 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Get current authenticated user.
+     */
+    static public User getUser() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Object principal = securityContext.getAuthentication().getPrincipal();
+
+        if (!(principal instanceof UserDetails)) {
+            return new User();
+        }
+
+        return (User) principal;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username is not found"));
     }
-
 
     @Transactional
     public void removeSavedPost(Post post) {
@@ -69,14 +82,6 @@ public class UserService implements UserDetailsService {
         }
 
         return userRepo.save(newUser);
-    }
-
-    /**
-     * Get current authenticated user.
-     */
-    public User getUser() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return (User) securityContext.getAuthentication().getPrincipal();
     }
 
     /**
