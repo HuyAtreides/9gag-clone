@@ -1,6 +1,6 @@
 import { CaretDownOutlined, CaretUpOutlined, CommentOutlined } from '@ant-design/icons';
 import { Avatar, Button, List, Typography } from 'antd';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Media from '../../../../components/media/Media';
 import useDownvote from '../../../../custom-hooks/downvote';
@@ -69,4 +69,14 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
   );
 };
 
-export default PostContent;
+export default React.memo(PostContent, (prevProps, nextProps) => {
+  const prevPost = prevProps.post;
+  const nextPost = nextProps.post;
+  const prevIndex = prevProps.index;
+  const nextIndex = nextProps.index;
+  const isSameUpvoteState = prevPost.isUpvoted === nextPost.isUpvoted;
+  const isSameDownvoteState = prevPost.isDownvoted === nextPost.isDownvoted;
+  const isSameIndex = prevIndex === nextIndex;
+
+  return isSameDownvoteState && isSameUpvoteState && isSameIndex;
+});
