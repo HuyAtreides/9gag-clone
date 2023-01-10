@@ -1,6 +1,5 @@
 package com.huyphan.models;
 
-import com.huyphan.services.UserService;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -20,12 +19,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
@@ -67,7 +65,6 @@ public class Post {
     @Nationalized
     private String tags;
     @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
-    @Fetch(FetchMode.SUBSELECT)
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @ManyToMany
@@ -77,11 +74,37 @@ public class Post {
     private Set<User> saveUsers = new LinkedHashSet<>();
 
     @ManyToMany(mappedBy = "upvotedPosts")
-    @Fetch(FetchMode.SUBSELECT)
     private Set<User> upvoteUsers = new LinkedHashSet<>();
     @ManyToMany(mappedBy = "downvotedPosts")
-    @Fetch(FetchMode.SUBSELECT)
     private Set<User> downvoteUsers = new LinkedHashSet<>();
+
+    @Transient
+    private int totalComments;
+
+    @Transient
+    private boolean isUpvoted;
+
+    @Transient
+    private boolean isDownvoted;
+
+    @Transient
+    private boolean isInUserFavSections;
+
+    public boolean getIsDownvoted() {
+        return isDownvoted;
+    }
+
+    public void setIsDownvoted(boolean isDownvoted) {
+        this.isDownvoted = isDownvoted;
+    }
+
+    public boolean getIsUpvoted() {
+        return isUpvoted;
+    }
+
+    public void setIsUpvoted(boolean isUpvoted) {
+        this.isUpvoted = isUpvoted;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -99,21 +122,4 @@ public class Post {
     public int hashCode() {
         return Objects.hash(id);
     }
-
-    public int getTotalComments() {
-        return comments.size();
-    }
-
-    public boolean getIsUpvoted() {
-        User user = UserService.getUser();
-
-        return upvoteUsers.contains(user);
-    }
-
-    public boolean getIsDownvoted() {
-        User user = UserService.getUser();
-
-        return downvoteUsers.contains(user);
-    }
-
 }

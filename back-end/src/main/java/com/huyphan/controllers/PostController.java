@@ -11,7 +11,7 @@ import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
-import com.huyphan.models.enums.PostTag;
+import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
@@ -59,7 +59,7 @@ public class PostController {
     }
 
     @GetMapping("tag/{postTag}")
-    public SliceDto<PostDto> getPosts(@PathVariable PostTag postTag,
+    public SliceDto<PostDto> getPosts(@PathVariable SortType postTag,
             PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
         Slice<Post> page = postService.getAllPost(pageOptions, postTag);
@@ -67,7 +67,7 @@ public class PostController {
     }
 
     @GetMapping("tag/{postTag}/{sectionName}")
-    public SliceDto<PostDto> getPostsWithinSection(@PathVariable PostTag postTag, @PathVariable
+    public SliceDto<PostDto> getPostsWithinSection(@PathVariable SortType postTag, @PathVariable
             String sectionName, PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
         Slice<Post> page = postService.getAllPostsWithinSection(pageOptions, postTag, sectionName);

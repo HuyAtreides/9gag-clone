@@ -34,7 +34,7 @@ public class UserService implements UserDetailsService {
         Object principal = securityContext.getAuthentication().getPrincipal();
 
         if (!(principal instanceof UserDetails)) {
-            return new User();
+            return null;
         }
 
         return (User) principal;

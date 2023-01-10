@@ -21,6 +21,11 @@
     </build>
     <dependencies>
         <dependency>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <groupId>org.hibernate</groupId>
+            <version>5.3.7.Final</version>
+        </dependency>
+        <dependency>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <groupId>org.springframework.boot</groupId>
         </dependency>

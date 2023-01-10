@@ -73,7 +73,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> savedPosts = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
     private Set<Section> favoriteSections = new LinkedHashSet<>();
 
     @Column(name = "Created")

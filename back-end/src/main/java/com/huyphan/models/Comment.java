@@ -1,6 +1,5 @@
 package com.huyphan.models;
 
-import com.huyphan.services.UserService;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -22,6 +21,7 @@ import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedEntityGraphs;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -81,6 +81,7 @@ public class Comment {
     @JoinColumn(name = "ParentId")
     private Comment parent;
     @OneToMany(mappedBy = "parent", cascade = {CascadeType.REMOVE})
+    @Fetch(FetchMode.SUBSELECT)
     private Set<Comment> children = new LinkedHashSet<>();
 
     @ManyToMany
@@ -96,6 +97,15 @@ public class Comment {
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     @Fetch(FetchMode.SUBSELECT)
     private Set<User> usersDownvote = new LinkedHashSet<>();
+
+    @Transient
+    private boolean isUpvoted;
+
+    @Transient
+    private boolean isDownvoted;
+
+    @Transient
+    private int totalChildren;
 
     @Override
     public boolean equals(Object o) {
@@ -115,18 +125,10 @@ public class Comment {
     }
 
     public boolean getIsDownvoted() {
-        User user = UserService.getUser();
-
-        return usersDownvote.contains(user);
+        return isDownvoted;
     }
 
     public boolean getIsUpvoted() {
-        User user = UserService.getUser();
-
-        return usersUpvote.contains(user);
-    }
-
-    public int getTotalChildren() {
-        return children.size();
+        return isUpvoted;
     }
 }

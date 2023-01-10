@@ -1,17 +1,16 @@
 package com.huyphan.controllers;
 
 import com.huyphan.dtos.CommentDto;
-import com.huyphan.dtos.CommentPageOptionsDto;
 import com.huyphan.dtos.NewCommentDto;
 import com.huyphan.dtos.PageDto;
+import com.huyphan.dtos.PageOptionsDto;
 import com.huyphan.mappers.CommentMapper;
-import com.huyphan.mappers.CommentPageOptionsMapper;
 import com.huyphan.mappers.NewCommentMapper;
 import com.huyphan.mappers.PageMapper;
 import com.huyphan.mappers.PageOptionMapper;
 import com.huyphan.models.Comment;
-import com.huyphan.models.CommentPageOptions;
 import com.huyphan.models.NewComment;
+import com.huyphan.models.PageOptions;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.PostException;
@@ -46,9 +45,6 @@ public class CommentController {
     private PageOptionMapper pageOptionMapper;
 
     @Autowired
-    private CommentPageOptionsMapper commentPageOptionsMapper;
-
-    @Autowired
     private PageMapper<CommentDto, Comment> pageMapper;
 
     @Autowired
@@ -59,8 +55,8 @@ public class CommentController {
 
     @GetMapping("{parentId}/children")
     public PageDto<CommentDto> getChildrenComment(@PathVariable Long parentId,
-            CommentPageOptionsDto optionsDto) {
-        CommentPageOptions pageOptions = commentPageOptionsMapper.fromDto(optionsDto);
+            PageOptionsDto optionsDto) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(optionsDto);
         Page<Comment> comments = commentService.getChildrenComment(parentId, pageOptions);
 
         return pageMapper.toDto(comments, commentMapper);
@@ -96,8 +92,8 @@ public class CommentController {
 
     @GetMapping("/post/{postId}")
     public PageDto<CommentDto> getPostComments(@PathVariable Long postId,
-            CommentPageOptionsDto optionsDto) {
-        CommentPageOptions pageOptions = commentPageOptionsMapper.fromDto(optionsDto);
+            PageOptionsDto optionsDto) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(optionsDto);
         Page<Comment> comments = commentService.getPostComments(postId,
                 pageOptions);
         return pageMapper.toDto(comments, commentMapper);
