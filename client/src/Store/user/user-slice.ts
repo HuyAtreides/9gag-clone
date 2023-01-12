@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import Section from '../../models/section';
 import { User } from '../../models/user';
 
 export interface UserState {
@@ -27,8 +28,24 @@ const userSlice = createSlice({
     setUserErrorMessage(state, action: PayloadAction<string | null>) {
       state.errorMessage = action.payload;
     },
+    addSectionToFavorite(state, action: PayloadAction<Section>) {
+      state.profile?.favoriteSections.push(action.payload);
+    },
+    removeSectionFromFavorite(state, action: PayloadAction<Section>) {
+      const currentFavoriteSections = state.profile?.favoriteSections;
+      const removedSection = action.payload;
+      state.profile!.favoriteSections = currentFavoriteSections!.filter(
+        (section) => section.id !== removedSection.id,
+      );
+    },
   },
 });
 
 export const userReducer = userSlice.reducer;
-export const { setIsLoading, setProfile, setUserErrorMessage } = userSlice.actions;
+export const {
+  setIsLoading,
+  setProfile,
+  setUserErrorMessage,
+  addSectionToFavorite,
+  removeSectionFromFavorite,
+} = userSlice.actions;

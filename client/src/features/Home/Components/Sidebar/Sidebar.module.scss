@@ -1,13 +1,18 @@
 @import '../../../../Style/color.scss';
 
-::-webkit-scrollbar {
-  width: 0;
-}
-
 .sidebar {
   background-color: $backGroundColorDarkTheme;
+  width: 100%;
   height: 100%;
   overflow: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   .title {
     padding: 20px 20px 0;
     font-size: 1.6rem;
@@ -16,21 +21,33 @@
   }
   .text {
     color: $textColorDarkTheme;
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
+
   .section {
     display: flex;
     align-items: center;
     justify-content: space-between;
     transition: all 2s ease-in;
-    &:hover {
-      .icon {
-        color: $iconColorDarkTheme;
-      }
-    }
+    z-index: 3;
+
+    // Override antd
     .icon {
       font-size: 2rem;
       color: $iconSectionColorDarkTheme;
       transition: all 0.3s ease-in;
+      z-index: 2;
+
+      &:hover {
+        color: $iconColorDarkTheme;
+      }
+    }
+
+    .highlightedIcon {
+      @extend .icon;
+      color: $iconHighlightColor;
     }
   }
 }

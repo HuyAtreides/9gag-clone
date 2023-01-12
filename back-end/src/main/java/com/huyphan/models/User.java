@@ -12,7 +12,6 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -73,7 +72,10 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> savedPosts = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+    @ManyToMany
+    @JoinTable(name = "FavoriteSection",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "SectionId"))
     private Set<Section> favoriteSections = new LinkedHashSet<>();
 
     @Column(name = "Created")
