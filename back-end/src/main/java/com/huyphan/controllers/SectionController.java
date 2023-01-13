@@ -4,6 +4,7 @@ import com.huyphan.dtos.SectionDto;
 import com.huyphan.mappers.SectionMapper;
 import com.huyphan.models.Section;
 import com.huyphan.models.exceptions.AppException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.SectionService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +32,13 @@ public class SectionController {
     @GetMapping
     public List<SectionDto> getSections() {
         List<Section> sections = sectionService.getAllSections();
+
+        return sections.stream().map(sectionMapper::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("favorite")
+    public List<SectionDto> getFavoriteSections() throws UserException {
+        List<Section> sections = sectionService.getFavoriteSection();
 
         return sections.stream().map(sectionMapper::toDto).collect(Collectors.toList());
     }

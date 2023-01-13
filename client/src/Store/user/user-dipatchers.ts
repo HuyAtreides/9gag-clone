@@ -3,12 +3,14 @@ import Section from '../../models/section';
 import { getUserInfo } from '../../services/auth-service';
 import {
   addSectionToUserFavoriteSections,
+  getUserFavoriteSections,
   removeSectionFromUserFavoriteSections,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
 import {
   addSectionToFavorite,
   removeSectionFromFavorite,
+  setFavoriteSections,
   setIsLoading,
   setProfile,
   setUserErrorMessage,
@@ -57,3 +59,16 @@ export const removeSectionFromUserFavorite =
       dispatch(addSectionToFavorite(section));
     }
   };
+
+export const getFavoriteSections = (): AppThunk => async (dispatch, _) => {
+  try {
+    const favoriteSections = await getUserFavoriteSections();
+    dispatch(setFavoriteSections(favoriteSections));
+  } catch (err: unknown) {
+    handleError(
+      dispatch,
+      'Failed to get favorite sections. Please try again later.',
+      setUserErrorMessage,
+    );
+  }
+};

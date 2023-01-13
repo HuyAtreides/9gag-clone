@@ -3,11 +3,12 @@ package com.huyphan.services;
 import com.huyphan.models.Section;
 import com.huyphan.models.User;
 import com.huyphan.models.exceptions.AppException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.SectionRepository;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +45,10 @@ public class SectionService {
         return optionalSection.orElseThrow(() -> new AppException("No section with provided id"));
     }
 
-    public Set<Section> getFavoriteSection() {
-        return Objects.requireNonNull(UserService.getUser()).getFavoriteSections();
+    public List<Section> getFavoriteSection() throws UserException {
+        User user = userService.getUserById(Objects.requireNonNull(UserService.getUser()).getId());
+
+        return user.getFavoriteSections().stream().collect(Collectors.toList());
     }
 
 

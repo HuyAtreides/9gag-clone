@@ -34,7 +34,7 @@ const Sidebar = () => {
   const sections = useAppSelector((state) => state.section.sections);
   const dispatch = useAppDispatch();
   const favoriteSections = useAppSelector(
-    (state) => state.user.profile?.favoriteSections,
+    (state) => state.user.favoriteSections
   );
 
   let keys = location.pathname.split('/');

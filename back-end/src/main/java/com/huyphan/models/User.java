@@ -18,8 +18,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,9 +33,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @NoArgsConstructor
 @Table(name = "[User]")
-@NamedEntityGraph(name = "UserEntityGraph", attributeNodes = {
-        @NamedAttributeNode(value = "favoriteSections"),
-})
 @DynamicInsert
 public class User implements UserDetails {
 
