@@ -76,9 +76,9 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
             from Post post
-            where post.section.name = :sectionName and :searchTerm = '""'
+            where post.section.name = :sectionName and (:searchTerm = '""'
                 or freetext(post.title, :searchTerm) = true
-                or freetext(post.tags, :searchTerm) = true
+                or freetext(post.tags, :searchTerm) = true)
             """)
     Slice<PostWithDerivedFields> findBySectionName(
             @Param("user") User user,
