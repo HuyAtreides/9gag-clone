@@ -1,10 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import Section from '../../models/section';
 import { User } from '../../models/user';
 
 export interface UserState {
   readonly isLoading: boolean;
   readonly profile: User | null;
   readonly errorMessage: string | null;
+  readonly favoriteSections: readonly Section[];
 }
 
 const initialState: UserState = {
@@ -12,6 +14,7 @@ const initialState: UserState = {
   isLoading: true,
   profile: null,
   errorMessage: null,
+  favoriteSections: [],
 };
 
 const userSlice = createSlice({
@@ -27,8 +30,28 @@ const userSlice = createSlice({
     setUserErrorMessage(state, action: PayloadAction<string | null>) {
       state.errorMessage = action.payload;
     },
+    addSectionToFavorite(state, action: PayloadAction<Section>) {
+      state.favoriteSections.push(action.payload);
+    },
+    removeSectionFromFavorite(state, action: PayloadAction<Section>) {
+      const currentFavoriteSections = state.favoriteSections;
+      const removedSection = action.payload;
+      state.favoriteSections = currentFavoriteSections!.filter(
+        (section) => section.id !== removedSection.id,
+      );
+    },
+    setFavoriteSections(state, action: PayloadAction<Section[]>) {
+      state.favoriteSections = action.payload;
+    },
   },
 });
 
 export const userReducer = userSlice.reducer;
-export const { setIsLoading, setProfile, setUserErrorMessage } = userSlice.actions;
+export const {
+  setIsLoading,
+  setProfile,
+  setUserErrorMessage,
+  addSectionToFavorite,
+  removeSectionFromFavorite,
+  setFavoriteSections,
+} = userSlice.actions;

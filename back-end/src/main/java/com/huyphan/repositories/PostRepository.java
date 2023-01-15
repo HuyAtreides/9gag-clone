@@ -1,10 +1,13 @@
 package com.huyphan.repositories;
 
 import com.huyphan.models.Post;
+import com.huyphan.models.User;
+import com.huyphan.models.projections.PostWithDerivedFields;
 import java.util.Optional;
 import javax.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -12,69 +15,87 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends CrudRepository<Post, Long> {
 
-    String SELECT_POST = """
-            select
-                post.id,
-                post.sectionId,
-                post.userId,
-                post.upvotes,
-                post.downvotes,
-                post.mediaType,
-                post.mediaUrl,
-                post.tags,
-                post.title,
-                post.uploadTime,
-                (select count(*)
-                 from Comment comment
-                 where comment.postId = post.id
-                ) as totalComments,
-                
-                (select convert(bit, count(*))
-                 from UpvotedPost upvotedPost
-                 where upvotedPost.postId = post.id and upvotedPost.userId = :currentUserId
-                 ) as isUpvoted,
-                 
-                (select convert(bit, count(*))
-                 from DownvotedPost downvotedPost
-                 where downvotedPost.postId = post.id and downvotedPost.userId = :currentUserId
-                 ) as isDownvoted
+    String SELECT_STATEMENT = """
+                select
+                    post as post,
+                    
+                    (
+                        select case when (count(*) > 0) then true else false end
+                        from Post upvotedPost
+                        where upvotedPost.id = post.id and :user in elements(upvotedPost.upvoteUsers)
+                    ) as isUpvoted,
+                    
+                    (
+                        select case when (count(*) > 0) then true else false end
+                        from Post downvotedPost
+                        where downvotedPost.id = post.id and :user in elements(downvotedPost.downvoteUsers)
+                    ) as isDownvoted,
+                    
+                    (
+                        select count(*)
+                        from Comment comment
+                        where comment.post = post
+                    ) as totalComments
             """;
 
+    String SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD =
+            SELECT_STATEMENT + "," + """
+                    (
+                        select case when (count(*) > 0) then true else false end
+                        from Post postInUserFavSections
+                        where postInUserFavSections.id = post.id and postInUserFavSections.section in (
+                            select elements(user.favoriteSections) from User user where user = :user
+                        )
+                    ) as isInUserFavSections
+                    """;
 
-    @Query(value = SELECT_POST + """
-            from Post post inner join SavedPost savedPost on post.id = savedPost.postId
-            where savedPost.userId = :currentUserId
-            """, nativeQuery = true)
-    Slice<Post> findSavedPost(@Param("currentUserId") Long currentUserId);
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT + """
+            from Post post
+            where :user in elements(post.saveUsers)
+            """)
+    Slice<PostWithDerivedFields> findSavedPost(@Param("user") User user, Pageable pageable);
 
-    @Query(value = SELECT_POST + """
-            from Post post inner join UpvotedPost upvotedPost on post.id = upvotedPost.postId
-            where upvotedPost.userId = :currentUserId
-            """, nativeQuery = true)
-    Slice<Post> findVotedPost(@Param("currentUserId") Long currentUserId);
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT + """
+            from Post post
+            where :user in elements(post.upvoteUsers)
+            """)
+    Slice<PostWithDerivedFields> findVotedPost(@Param("user") User user, Pageable pageable);
 
-    @Query(value = SELECT_POST + """
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT + """
             from Post post
             where post.id = :id
-            """, nativeQuery = true)
-    Optional<Post> findById(@Param("currentUserId") Long currentUserId, Long id);
+            """)
+    Optional<PostWithDerivedFields> findByPostId(@Param("user") User user, Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Post> findWithLockById(Long id);
 
-    @Query(value = SELECT_POST + """
-            from Post post inner join Section section on post.sectionId = section.id
-            where section.name = :sectionName and (:searchTerm = '""' or freetext(title, :searchTerm) or freetext(tags, :searchTerm))
-            """, nativeQuery = true)
-    Slice<Post> findBySectionName(@Param("currentUserId") Long currentUserId,
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
+            from Post post
+            where post.section.name = :sectionName and (:searchTerm = '""'
+                or freetext(post.title, :searchTerm) = true
+                or freetext(post.tags, :searchTerm) = true)
+            """)
+    Slice<PostWithDerivedFields> findBySectionName(
+            @Param("user") User user,
             @Param("sectionName") String sectionName,
             @Param("searchTerm") String search,
             Pageable pageable);
 
-    @Query(value = SELECT_POST + """
-                from Post post inner join Section section on post.sectionId = section.id
-                where :searchTerm = '""' or freetext(title, :searchTerm) or freetext(tags, :searchTerm)
-            """, nativeQuery = true)
-    Slice<Post> findAll(@Param("currentUserId") Long currentUserId,
-            @Param("searchTerm") String search, Pageable pageable);
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
+            from Post post
+            where :searchTerm = '""' or freetext(post.title, :searchTerm) = true 
+            or freetext(post.tags, :searchTerm) = true
+            """
+    )
+    Slice<PostWithDerivedFields> findAll(
+            @Param("user") User user,
+            @Param("searchTerm") String search,
+            Pageable pageable
+    );
 }

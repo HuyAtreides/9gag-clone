@@ -7,9 +7,10 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum PostTag {
+public enum SortType {
     FRESH("fresh"),
-    TOP("top");
+    TOP("top"),
+    USER_FAV_SECTIONS("userFavSections");
 
     private final String value;
 
@@ -18,8 +19,8 @@ public enum PostTag {
      *
      * @throws ValueToEnumException If the country doesn't exist.
      */
-    static public PostTag toPostTag(String value) throws ValueToEnumException {
-        return Arrays.stream(PostTag.values()).filter(c -> c.getValue().equals(value)).findFirst()
+    static public SortType toSortType(String value) throws ValueToEnumException {
+        return Arrays.stream(SortType.values()).filter(c -> c.getValue().equals(value)).findFirst()
                 .orElseThrow(() -> new ValueToEnumException("Post tag doesn't exist."));
     }
 }

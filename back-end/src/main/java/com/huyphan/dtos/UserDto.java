@@ -1,7 +1,6 @@
 package com.huyphan.dtos;
 
 import com.huyphan.models.enums.Country;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,8 +20,6 @@ public class UserDto {
     private String displayName;
 
     private Country country;
-
-    private Set<SectionDto> favoriteSections;
 
     private String created;
 }

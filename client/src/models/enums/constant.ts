@@ -8,10 +8,16 @@ export enum Constant {
   PostEndPoint = 'post',
   UploadEndPoint = 'upload',
   NotificationEndPoint = 'notification',
+  PostScrollAreaId = '#post-scroll-area-id',
   PageSize = 15,
 }
 
 export enum MediaType {
   Video = 'video',
   Image = 'image',
+}
+
+export enum ComputedConstants {
+  // eslint-disable-next-line no-restricted-globals
+  ScreenHeight = screen.height,
 }

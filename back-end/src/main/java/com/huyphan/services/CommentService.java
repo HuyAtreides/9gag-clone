@@ -13,6 +13,7 @@ import com.huyphan.models.enums.CommentSortField;
 import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
+import com.huyphan.models.projections.CommentWithDerivedFields;
 import com.huyphan.repositories.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,7 +64,7 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(Long id) throws CommentException {
-        User currentUser = userService.getUser();
+        User currentUser = UserService.getUser();
         Comment comment = getComment(id);
 
         if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
@@ -163,7 +164,11 @@ public class CommentService {
                 Order.desc(CommentSortField.DATE.getValue()));
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findByParentId(parentId, pageable);
+        return commentRepository.findByParentIdAndIdNotIn(
+                UserService.getUser(),
+                parentId,
+                pageable
+        ).map(CommentWithDerivedFields::toComment);
     }
 
     public Page<Comment> getPostComments(Long postId, PageOptions options) {
@@ -171,7 +176,11 @@ public class CommentService {
                 Order.desc(CommentSortField.DATE.getValue()));
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findByPostIdAndParentIsNull(postId, pageable);
+        return commentRepository.findByPostIdAndIdNotInAndParentIsNull(
+                UserService.getUser(),
+                postId,
+                pageable
+        ).map(CommentWithDerivedFields::toComment);
     }
 
     public Comment getComment(Long id) throws CommentException {

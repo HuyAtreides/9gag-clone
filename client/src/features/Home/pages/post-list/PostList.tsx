@@ -75,6 +75,7 @@ const PostList: React.FC = () => {
       loader={<PostSkeleton />}
     >
       <List
+        id={Constant.PostScrollAreaId as string}
         dataSource={posts!}
         renderItem={(post, index) => (
           <PostContent post={post} key={post.id} index={index} />

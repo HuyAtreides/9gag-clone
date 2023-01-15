@@ -7,19 +7,17 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,9 +33,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @NoArgsConstructor
 @Table(name = "[User]")
-@NamedEntityGraph(name = "UserEntityGraph", attributeNodes = {
-        @NamedAttributeNode(value = "favoriteSections"),
-})
 @DynamicInsert
 public class User implements UserDetails {
 
@@ -72,7 +67,10 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> savedPosts = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @ManyToMany
+    @JoinTable(name = "FavoriteSection",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "SectionId"))
     private Set<Section> favoriteSections = new LinkedHashSet<>();
 
     @Column(name = "Created")
@@ -117,6 +115,25 @@ public class User implements UserDetails {
     @Override
     public boolean isAccountNonLocked() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        User user = (User) o;
+
+        return Objects.equals(user.getId(), id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override

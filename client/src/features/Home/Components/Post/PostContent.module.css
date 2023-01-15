@@ -5,3 +5,8 @@
 .post-content {
   width: 80%;
 }
+
+.virtual-post {
+  width: 80%;
+  height: 100vh;
+}

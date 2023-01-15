@@ -6,12 +6,13 @@ import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
 import com.huyphan.models.builders.VotePostNotificationBuilder;
-import com.huyphan.models.enums.PostTag;
+import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
+import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
-import com.huyphan.utils.sortoptionsconstructor.SortOptionsConstructorFactory;
+import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ public class PostService {
     private PostRepository postRepository;
 
     @Autowired
-    private SortOptionsConstructorFactory sortOptionsConstructorFactory;
+    private SortTypeToSortOptionBuilder sortTypeToSortOptionBuilder;
 
     @Autowired
     private VoteableObjectManager<Post> voteablePostManager;
@@ -43,7 +44,7 @@ public class PostService {
 
     public void addNewPost(NewPost newPost) {
         Post post = new Post();
-        post.setUser(userService.getUser());
+        post.setUser(UserService.getUser());
         post.setSection(newPost.getSection());
         post.setMediaUrl(newPost.getMediaUrl());
         post.setMediaType(newPost.getMediaType());
@@ -52,36 +53,27 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public Slice<Post> getAllPost(PageOptions options, PostTag postTag) throws AppException {
-        Sort sortOptions = sortOptionsConstructorFactory.getSortOptionConstructor(postTag)
-                .constructSortOptions();
+    public Slice<Post> getAllPost(PageOptions options, SortType sortType) throws AppException {
+        Sort sortOptions = sortTypeToSortOptionBuilder.toSortOption(SortType.USER_FAV_SECTIONS,
+                sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
-        Long userId = getCurrentUserId();
-
-        return postRepository.findAll(userId, getSearchTerm(options.getSearch()), pageable);
+        User user = UserService.getUser();
+        Slice<PostWithDerivedFields> page = postRepository.findAll(
+                user, getSearchTerm(options.getSearch()), pageable);
+        return page.map(PostWithDerivedFields::toPost);
     }
 
-    private Long getCurrentUserId() {
-        try {
-            User user = userService.getUser();
+    public Slice<Post> getAllPostsWithinSection(PageOptions options, SortType sortType,
+            String sectionName) throws AppException {
+        Sort sortOptions = sortTypeToSortOptionBuilder.toSortOption(sortType);
 
-            return user.getId();
-        } catch (Exception exception) {
-            return -1L;
-        }
-    }
-
-    public Slice<Post> getAllPostsWithinSection(PageOptions options, PostTag postTag,
-            String sectionName)
-            throws AppException {
-        Sort sortOptions = sortOptionsConstructorFactory.getSortOptionConstructor(postTag)
-                .constructSortOptions();
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return postRepository.findBySectionName(getCurrentUserId(),
+        return postRepository.findBySectionName(
+                UserService.getUser(),
                 sectionName,
                 getSearchTerm(options.getSearch()),
-                pageable);
+                pageable).map(PostWithDerivedFields::toPost);
     }
 
     private String getSearchTerm(String search) {
@@ -93,8 +85,8 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void deletePost(Long id) throws PostException, VoteableObjectException {
-        User currentUser = userService.getUser();
+    public void deletePost(Long id) throws PostException {
+        User currentUser = UserService.getUser();
         Post post = getPost(id);
 
         if (!post.getUser().getUsername().equals(currentUser.getUsername())) {
@@ -107,12 +99,18 @@ public class PostService {
         voteablePostManager.removeUpvotedObject(post);
     }
 
-    public Slice<Post> getSavedPosts() {
-        return postRepository.findSavedPost(getCurrentUserId());
+    public Slice<Post> getSavedPosts(PageOptions options) {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+
+        return postRepository.findSavedPost(UserService.getUser(), pageable)
+                .map(PostWithDerivedFields::toPost);
     }
 
-    public Slice<Post> getVotedPosts() {
-        return postRepository.findVotedPost(getCurrentUserId());
+    public Slice<Post> getVotedPosts(PageOptions options) {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+
+        return postRepository.findVotedPost(UserService.getUser(), pageable)
+                .map(PostWithDerivedFields::toPost);
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
@@ -134,7 +132,7 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void unUpvotesPost(Long id) throws PostException, VoteableObjectException {
+    public void unUpvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
         boolean isRemoved = voteablePostManager.removeUpvotedObject(post);
 
@@ -142,7 +140,6 @@ public class PostService {
             post.setUpvotes(post.getUpvotes() - 1);
         }
     }
-
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
     public void downvotesPost(Long id) throws PostException, VoteableObjectException {
@@ -158,7 +155,7 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void unDownvotesPost(Long id) throws PostException, VoteableObjectException {
+    public void unDownvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
         boolean isRemoved = voteablePostManager.removeDownvotedObject(post);
 
@@ -168,8 +165,8 @@ public class PostService {
     }
 
     public Post getPost(Long id) throws PostException {
-        return postRepository.findById(getCurrentUserId(), id)
-                .orElseThrow(() -> new PostException("Post not found"));
+        return postRepository.findByPostId(UserService.getUser(), id)
+                .orElseThrow(() -> new PostException("Post not found")).toPost();
     }
 
     public Post getPostUsingLock(Long id) throws PostException {
