@@ -44,6 +44,7 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
     }
 
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       observerRef.current.disconnect();
     };
   }, []);
@@ -62,6 +63,7 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
   return (
     <video
       ref={videoRef}
+      className={styles['media']}
       src={url}
       width={width}
       height={height ? height : DEFAULT_HEIGHT}

@@ -16,3 +16,8 @@ export enum MediaType {
   Video = 'video',
   Image = 'image',
 }
+
+export enum ComputedConstants {
+  // eslint-disable-next-line no-restricted-globals
+  ScreenHeight = screen.height,
+}
