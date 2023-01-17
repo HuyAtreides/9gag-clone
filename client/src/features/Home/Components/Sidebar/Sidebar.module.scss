@@ -31,14 +31,13 @@
     align-items: center;
     justify-content: space-between;
     transition: all 2s ease-in;
-    z-index: 3;
 
     // Override antd
     .icon {
       font-size: 2rem;
       color: $iconSectionColorDarkTheme;
       transition: all 0.3s ease-in;
-      z-index: 2;
+      z-index: 1;
 
       &:hover {
         color: $iconColorDarkTheme;

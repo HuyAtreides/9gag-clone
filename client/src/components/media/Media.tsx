@@ -1,6 +1,6 @@
 import { Image } from 'antd';
 import { useEffect, useRef } from 'react';
-import { MediaType } from '../../models/enums/constant';
+import { ComputedConstants, MediaType } from '../../models/enums/constant';
 import { toEnum } from '../../utils/value-to-enum';
 import styles from './Media.module.css';
 
@@ -11,10 +11,6 @@ interface Props {
   readonly width?: string;
   readonly height?: string;
 }
-
-const SEVENTY_PERCENT = 70 / 100;
-// eslint-disable-next-line no-restricted-globals
-const DEFAULT_HEIGHT = screen.height * SEVENTY_PERCENT;
 
 const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Props) => {
   const mediaType = toEnum(type.split('/')[0], MediaType);
@@ -50,14 +46,7 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
   }, []);
 
   if (mediaType === MediaType.Image) {
-    return (
-      <Image
-        src={url}
-        width={width}
-        height={height ? height : DEFAULT_HEIGHT}
-        className={styles['media']}
-      />
-    );
+    return <Image src={url} width={width} height={height} className={styles['media']} />;
   }
 
   return (
@@ -66,7 +55,7 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
       className={styles['media']}
       src={url}
       width={width}
-      height={height ? height : DEFAULT_HEIGHT}
+      height={height}
       controls
       preload='auto'
     />

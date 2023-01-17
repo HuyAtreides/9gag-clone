@@ -1,83 +1,83 @@
 @import '../../../../Style/color.scss';
 
 .postContainer {
-    width: 60%;
-    margin: auto;
-    padding: 40px 0;
+  width: 80%;
+  margin: auto;
+  padding: 40px 0;
+  .title {
+    color: $textColorDarkTheme;
+    font-weight: bold;
+    font-size: 2.4rem;
+  }
+  .sectionInput {
+    width: 50%;
+    margin-top: 20px;
+  }
+  .searchInput {
+    outline: none;
+    background-color: transparent;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: $iconColorDarkTheme;
+    input {
+      margin-left: 10px;
+      background-color: transparent;
+      color: $textColorDarkTheme;
+    }
+    &:hover {
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: $textColorDarkTheme;
+    }
+  }
+  .formContainer {
+    margin-top: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    .mediaContainer {
+      background-color: #000;
+      height: 200px;
+      margin: 20px 0;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      .upload {
+        text-align: center;
+        .uploadWrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          .icon {
+            font-size: 3rem;
+            color: $textColorDarkTheme;
+          }
+        }
+      }
+    }
+    .btnSubmit {
+      border-radius: 20px;
+      margin-top: 20px;
+    }
+  }
+  .rulesContainer {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     .title {
-        color: $textColorDarkTheme;
-        font-weight: bold;
-        font-size: 2.4rem;
+      font-size: 2rem;
     }
-    .sectionInput {
-        width: 50%;
-        margin-top: 20px;
+    .text {
+      color: $textColorDarkTheme;
     }
-    .searchInput {
-        outline: none;
-        background-color: transparent;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: $iconColorDarkTheme;
-        input {
-            margin-left: 10px;
-            background-color: transparent;
-            color: $textColorDarkTheme;
-        }
-        &:hover {
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: $textColorDarkTheme;
-        }
-    }
-    .formContainer {
-        margin-top: 20px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 30px;
-        .mediaContainer {
-            background-color: #000;
-            height: 200px;
-            margin: 20px 0;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: auto;
-            .upload {
-                text-align: center;
-                .uploadWrapper {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    .icon {
-                        font-size: 3rem;
-                        color: $textColorDarkTheme;
-                    }
-                }
-            }
-        }
-        .btnSubmit {
-            border-radius: 20px;
-            margin-top: 20px;
-        }
-    }
-    .rulesContainer {
-        padding: 10px 20px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        .title {
-            font-size: 2rem;
-        }
-        .text {
-            color: $textColorDarkTheme;
-        }
-    }
+  }
 }
 .sectionItem {
-    .sectionName {
-        margin-left: 10px;
-    }
+  .sectionName {
+    margin-left: 10px;
+  }
 }

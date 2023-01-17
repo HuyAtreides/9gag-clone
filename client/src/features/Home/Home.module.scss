@@ -1,16 +1,14 @@
 .home {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   position: relative;
-  $sideBarWidth: 300px;
 
   .sidebar {
     overflow: auto;
     height: 100vh;
     position: fixed;
+    z-index: 2;
     padding-bottom: 50px;
-    width: $sideBarWidth !important;
-    max-width: $sideBarWidth !important;
 
     top: 50px;
     left: 0;
@@ -18,7 +16,20 @@
   }
   .content {
     margin: 20px auto;
-    margin-left: $sideBarWidth;
-    padding-left: 30px;
+  }
+
+  .spacer {
+    width: 25%;
+  }
+
+  .collapsed-spacer {
+    width: 15%;
+  }
+
+  @media screen and (max-width: 500px) {
+    .collapsed-spacer,
+    .spacer {
+      display: none;
+    }
   }
 }

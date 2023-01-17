@@ -73,106 +73,100 @@ const Posts: React.FC = () => {
   };
 
   return (
-    <div className={styles.postContainer}>
-      <Row gutter={30}>
-        <Col span={16}>
-          <Form name='postForm' layout='vertical' onFinish={onFinish}>
-            <Typography.Title className={styles.title}>Upload a post</Typography.Title>
-            <Form.Item name='section' noStyle>
-              <AutoComplete
-                className={styles.sectionInput}
-                options={options}
-                filterOption={(value, option) =>
-                  option?.value.match(new RegExp(`.*${value}.*`, 'i')) != null
-                }
-                onSelect={handleSectionSelect}
-              >
-                <Input
-                  className={styles.searchInput}
-                  size='large'
-                  placeholder='Search...'
-                  prefix={<SearchOutlined />}
-                  suffix={<CaretDownOutlined />}
-                />
-              </AutoComplete>
+    <Row gutter={[0, 16]} className={styles.postContainer} justify='space-around'>
+      <Col lg={12} xs={24}>
+        <Form name='postForm' layout='vertical' onFinish={onFinish}>
+          <Typography.Title className={styles.title}>Upload a post</Typography.Title>
+          <Form.Item name='section' noStyle>
+            <AutoComplete
+              className={styles.sectionInput}
+              options={options}
+              filterOption={(value, option) =>
+                option?.value.match(new RegExp(`.*${value}.*`, 'i')) != null
+              }
+              onSelect={handleSectionSelect}
+            >
+              <Input
+                className={styles.searchInput}
+                size='large'
+                placeholder='Search...'
+                prefix={<SearchOutlined />}
+                suffix={<CaretDownOutlined />}
+              />
+            </AutoComplete>
+          </Form.Item>
+          <div className={styles.formContainer}>
+            <Form.Item
+              name='title'
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter post title',
+                },
+              ]}
+            >
+              <Input
+                className={styles.searchInput}
+                size='large'
+                placeholder='Title'
+                maxLength={280}
+              />
             </Form.Item>
-            <div className={styles.formContainer}>
+            <div className={styles.mediaContainer}>
               <Form.Item
-                name='title'
+                name='media'
                 rules={[
                   {
                     required: true,
-                    message: 'Please enter post title',
+                    message: 'Please provide post media',
                   },
                 ]}
               >
-                <Input
-                  className={styles.searchInput}
-                  size='large'
-                  placeholder='Title'
-                  maxLength={280}
-                />
+                <Upload beforeUpload={() => false} className={styles.upload} maxCount={1}>
+                  <div className={styles.uploadWrapper}>
+                    <FileImageFilled className={styles.icon} />
+                    <Button type='primary' className={styles.btnSubmit}>
+                      Choose file...
+                    </Button>
+                  </div>
+                </Upload>
               </Form.Item>
-              <div className={styles.mediaContainer}>
-                <Form.Item
-                  name='media'
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please provide post media',
-                    },
-                  ]}
-                >
-                  <Upload
-                    beforeUpload={() => false}
-                    className={styles.upload}
-                    maxCount={1}
-                  >
-                    <div className={styles.uploadWrapper}>
-                      <FileImageFilled className={styles.icon} />
-                      <Button type='primary' className={styles.btnSubmit}>
-                        Choose file...
-                      </Button>
-                    </div>
-                  </Upload>
-                </Form.Item>
-              </div>
-              <Form.Item name='tags'>
-                <Input
-                  className={styles.searchInput}
-                  size='large'
-                  placeholder='+ Add tags to help people find your post'
-                />
-              </Form.Item>
-              <Button
-                type='primary'
-                htmlType='submit'
-                className={styles.btnSubmit}
-                loading={isLoading}
-              >
-                Submit post
-              </Button>
             </div>
-          </Form>
-        </Col>
-        <Col span={8}>
-          <div className={styles.rulesContainer}>
-            <List
-              header={
-                <Typography.Title className={styles.title}>9GAP Rules</Typography.Title>
-              }
-              split={false}
-              dataSource={data}
-              renderItem={(item) => (
-                <List.Item>
-                  <Typography.Text className={styles.text}>{item}</Typography.Text>
-                </List.Item>
-              )}
-            />
+            <Form.Item name='tags'>
+              <Input
+                className={styles.searchInput}
+                size='large'
+                placeholder='+ Add tags to help people find your post'
+              />
+            </Form.Item>
+            <Button
+              type='primary'
+              htmlType='submit'
+              className={styles.btnSubmit}
+              loading={isLoading}
+            >
+              Submit post
+            </Button>
           </div>
-        </Col>
-      </Row>
-    </div>
+        </Form>
+      </Col>
+      <Col lg={8} xs={24}>
+        <div className={styles.rulesContainer}>
+          <List
+            header={
+              <Typography.Title className={styles.title}>9GAP Rules</Typography.Title>
+            }
+            split={false}
+            dataSource={data}
+            renderItem={(item) => (
+              <List.Item>
+                <Typography.Text className={styles.text}>{item}</Typography.Text>
+              </List.Item>
+            )}
+          />
+        </div>
+      </Col>
+    </Row>
   );
 };
 

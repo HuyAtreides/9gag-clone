@@ -1,4 +1,20 @@
 .media {
-  min-width: 350px;
+  min-width: 345px;
   max-width: 60vw;
+  height: 80vh !important;
+  background-color: var(--contrast-background-color);
+  border-radius: var(--border-radius-base);
+}
+
+@media screen and (max-width: 500px) {
+  .media {
+    max-width: 95vw;
+    height: 60vh !important;
+  }
+}
+
+@media screen and (min-height: 705px) {
+  .media {
+    height: 45vh !important;
+  }
 }

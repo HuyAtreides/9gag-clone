@@ -18,7 +18,6 @@ import {
 } from '../../Store/notification/notification-dispatchers';
 import { clearNotViewedCount } from '../../Store/notification/notification-slice';
 import { setSearchTerm } from '../../Store/post/post-slice';
-import DropdownMenu from './components/DropdownMenu';
 import Notifications from './components/Notifications';
 import styles from './Navbar.module.scss';
 
@@ -136,33 +135,29 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                     Log out
                   </button>
                 ) : (
-                  ''
+                  <button
+                    className={styles.btnDropdown}
+                    onClick={protectAction(() => {})}
+                  >
+                    Sign up/Log in
+                  </button>
                 )}
-                <a
+                <Link
                   className={styles.btnDropdown}
-                  href='https://about.9gag.com/app'
+                  to='/'
                   target='_blank'
                   rel='noreferrer'
                 >
-                  Download 9GAG app
-                </a>
-                <a
+                  Profile
+                </Link>
+                <Link
                   className={styles.btnDropdown}
-                  href='https://9gag.helpshift.com/hc/en/'
+                  to='/'
                   target='_blank'
                   rel='noreferrer'
                 >
-                  Help center
-                </a>
-                <a
-                  className={styles.btnDropdown}
-                  href='https://9gag.helpshift.com/hc/en/3-9gag/contact-us/'
-                  target='_blank'
-                  rel='noreferrer'
-                >
-                  Report problems
-                </a>
-                <DropdownMenu />
+                  Saved Posts
+                </Link>
               </div>
             }
           >

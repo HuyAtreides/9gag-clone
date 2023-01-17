@@ -3,7 +3,7 @@ import styles from './PostSkeleton.module.scss';
 
 const PostSkeleton: React.FC = () => {
   return (
-    <>
+    <div className={styles['skeleton-container']}>
       <br />
       <Skeleton avatar paragraph={{ rows: 0 }} active />
       <Skeleton.Image active className={styles['skeleton-image']} />
@@ -28,7 +28,7 @@ const PostSkeleton: React.FC = () => {
           className={styles['skeleton-button']}
         />
       </div>
-    </>
+    </div>
   );
 };
 
