@@ -22,6 +22,16 @@ const Home: React.FC<IHomeProp> = ({ sideBarCollapse }) => {
       >
         <Sidebar />
       </Sider>
+
+      {sideBarCollapse ? (
+        <div className={styles['collapsed-spacer']}></div>
+      ) : (
+        <>
+          <div className={styles.spacer}></div>
+          <div className='overlay-background'></div>
+        </>
+      )}
+
       <Content className={styles.content}>
         <Routes>
           <Route path='tag/:tag' element={<PostList />} />

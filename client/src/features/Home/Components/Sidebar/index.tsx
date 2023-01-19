@@ -33,9 +33,7 @@ const Sidebar = () => {
   const location = useLocation();
   const sections = useAppSelector((state) => state.section.sections);
   const dispatch = useAppDispatch();
-  const favoriteSections = useAppSelector(
-    (state) => state.user.favoriteSections
-  );
+  const favoriteSections = useAppSelector((state) => state.user.favoriteSections);
 
   let keys = location.pathname.split('/');
   const tagKey = keys[2];
@@ -78,6 +76,7 @@ const Sidebar = () => {
             to={`/tag/${tagKey}/${section.name}`}
             className={styles.text}
             onClick={preventNavigate}
+            title={section.displayName}
           >
             {section.displayName}
           </Link>
@@ -110,6 +109,7 @@ const Sidebar = () => {
               to={`/tag/${tagKey}/${section.name}`}
               className={styles.text}
               onClick={preventNavigate}
+              title={section.displayName}
             >
               {section.displayName}
             </Link>

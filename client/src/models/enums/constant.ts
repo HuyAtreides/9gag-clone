@@ -18,6 +18,5 @@ export enum MediaType {
 }
 
 export enum ComputedConstants {
-  // eslint-disable-next-line no-restricted-globals
-  ScreenHeight = screen.height,
+  ScreenHeight = window.innerHeight,
 }

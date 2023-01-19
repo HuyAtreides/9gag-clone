@@ -5,7 +5,7 @@
   top: 0;
   width: 100%;
   padding: 0 !important;
-  z-index: 1;
+  z-index: 2;
 
   .navbarContainer {
     height: 50px;
@@ -24,8 +24,15 @@
         background-color: transparent;
         border: none;
         margin-right: 10px;
+
         &:hover {
           background-color: $iconHoverColorDarkTheme;
+        }
+
+        @media screen and (max-width: 500px) {
+          & {
+            margin: 0 3px 0 3px;
+          }
         }
       }
       .logo {
@@ -42,15 +49,37 @@
         align-items: center;
         min-width: 0;
         margin: 0 20px;
+
+        @media screen and (max-width: 500px) {
+          & {
+            margin: 0 3px 0 3px;
+          }
+        }
       }
       .text {
         color: $textColorDarkTheme;
         font-size: 1.6rem;
         cursor: pointer;
+
+        @media screen and (max-width: 500px) {
+          & {
+            display: none;
+          }
+        }
       }
       .btnPost {
         border-radius: 20px;
         font-weight: bold;
+
+        @media screen and (max-width: 500px) {
+          & {
+            margin: 0 5px 0 5px;
+
+            span:last-child {
+              display: none;
+            }
+          }
+        }
       }
     }
   }

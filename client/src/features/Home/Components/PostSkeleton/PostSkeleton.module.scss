@@ -4,6 +4,10 @@
 
   // Override ant-design default height
   height: 420px !important;
+
+  @media screen and (max-width: 500px) {
+    width: 90% !important;
+  }
 }
 
 .skeleton-button-container {
@@ -16,4 +20,8 @@
   .skeleton-button {
     width: var(--skeleton-button-width) !important;
   }
+}
+
+.skeleton-container {
+  margin-left: 10px;
 }

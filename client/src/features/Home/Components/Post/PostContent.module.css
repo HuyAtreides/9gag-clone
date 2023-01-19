@@ -1,12 +1,19 @@
-.post-media {
-  width: 90%;
-}
-
 .post-content {
-  width: 80%;
+  margin-left: 10px;
 }
 
 .virtual-post {
-  width: 80%;
   height: 100vh;
+}
+
+@media screen and (max-width: 500px) {
+  .virtual-post {
+    height: 80vh;
+  }
+}
+
+@media screen and (min-height: 705px) {
+  .virtual-post {
+    height: 65vh;
+  }
 }
