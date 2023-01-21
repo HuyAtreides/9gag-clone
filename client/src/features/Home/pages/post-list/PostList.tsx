@@ -49,6 +49,7 @@ const PostList: React.FC = () => {
     };
 
     dispatch(getPosts(pageOptions, tag!, section));
+    window.scrollTo(0, 0);
   }, [dispatch, tag, section, user, searchTerm]);
 
   useEffect(() => {
