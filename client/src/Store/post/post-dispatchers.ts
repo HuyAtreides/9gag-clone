@@ -7,6 +7,7 @@ import {
   addNewPost,
   downvote,
   getPostList,
+  getSpecificPost,
   unDownvote,
   unUpvote,
   upvote,
@@ -42,6 +43,22 @@ export const getPosts =
       dispatch(setPagination(pagination));
       dispatch(setPosts(pageOfPosts.content));
     } catch (error: unknown) {
+      dispatch(setIsLoading(false));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const getPost =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsLoading(true));
+      const post = await getSpecificPost(id);
+      dispatch(setPosts([post]));
+      dispatch(setIsLoading(false));
+    } catch (error: unknown) {
+      dispatch(setIsLoading(false));
+      dispatch(setPosts([]));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };

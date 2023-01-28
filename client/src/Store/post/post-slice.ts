@@ -5,7 +5,7 @@ import Post from '../../models/post';
 interface PostState {
   readonly isLoading: boolean;
   readonly isGettingPage: boolean;
-  readonly posts: Post[] | null;
+  readonly posts: Post[];
   readonly pagination: Pagination | null;
   readonly errorMessage: string | null;
   readonly searchTerm?: string;
@@ -13,8 +13,8 @@ interface PostState {
 
 const initialState: PostState = {
   isGettingPage: false,
-  isLoading: true,
-  posts: null,
+  isLoading: false,
+  posts: [],
   pagination: null,
   errorMessage: null,
 };
@@ -39,7 +39,7 @@ const postSlice = createSlice({
       state.pagination = action.payload;
     },
 
-    setPosts(state, action: PayloadAction<readonly Post[] | null>) {
+    setPosts(state, action: PayloadAction<readonly Post[]>) {
       state.posts = action.payload ? action.payload.map((post) => post) : action.payload;
     },
 
@@ -64,6 +64,7 @@ const postSlice = createSlice({
     },
 
     setSearchTerm(state, action: PayloadAction<string>) {
+      console.log('set');
       state.searchTerm = action.payload.length ? action.payload : undefined;
     },
 

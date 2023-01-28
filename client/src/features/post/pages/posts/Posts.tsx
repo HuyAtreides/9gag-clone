@@ -1,4 +1,4 @@
-import { CaretDownOutlined, FileImageFilled, SearchOutlined } from '@ant-design/icons';
+import { CaretDownOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   AutoComplete,
   Avatar,
@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { useState } from 'react';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
+import useUploadFile from '../../../../custom-hooks/upload-file';
 import Section from '../../../../models/section';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { uploadNewPost } from '../../../../Store/post/post-dispatchers';
@@ -49,6 +50,7 @@ const Posts: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState<Section | undefined>(undefined);
   const errorMessage = useAppSelector((state) => state.post.errorMessage);
   const isLoading = useAppSelector((state) => state.post.isLoading);
+  const [uploadFile, handleFileChange] = useUploadFile();
   const dispatch = useAppDispatch();
 
   useRenderErrorMessage(errorMessage, setPostErrorMessage);
@@ -122,12 +124,17 @@ const Posts: React.FC = () => {
                   },
                 ]}
               >
-                <Upload beforeUpload={() => false} className={styles.upload} maxCount={1}>
-                  <div className={styles.uploadWrapper}>
-                    <FileImageFilled className={styles.icon} />
-                    <Button type='primary' className={styles.btnSubmit}>
-                      Choose file...
-                    </Button>
+                <Upload
+                  beforeUpload={() => false}
+                  className={styles.upload}
+                  maxCount={1}
+                  fileList={uploadFile}
+                  onChange={handleFileChange}
+                  listType='picture-card'
+                >
+                  <div>
+                    <PlusOutlined />
+                    <p>Upload</p>
                   </div>
                 </Upload>
               </Form.Item>

@@ -1,6 +1,6 @@
 import { Image } from 'antd';
 import { useEffect, useRef } from 'react';
-import { ComputedConstants, MediaType } from '../../models/enums/constant';
+import { MediaType } from '../../models/enums/constant';
 import { toEnum } from '../../utils/value-to-enum';
 import styles from './Media.module.css';
 

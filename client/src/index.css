@@ -30,3 +30,11 @@ code {
   color: #000000;
   min-height: 100vh;
 }
+
+.icon {
+  font-size: 1.3rem;
+}
+
+.postCommentAuthor {
+  font-size: 1.3rem;
+}

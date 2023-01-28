@@ -1,14 +1,16 @@
 import { BarChartOutlined, ClockCircleOutlined, StarFilled } from '@ant-design/icons';
 import { Menu, MenuProps, Typography } from 'antd';
 import { SyntheticEvent, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
+import { PostTag } from '../../../../models/enums/post-tag';
 import Section from '../../../../models/section';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   addSectionToUserFavorite,
   removeSectionFromUserFavorite,
 } from '../../../../Store/user/user-dipatchers';
+import isInEnum from '../../../../utils/is-in-enum';
 import styles from './Sidebar.module.scss';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -30,28 +32,27 @@ function getItem(
 }
 
 const Sidebar = () => {
-  const location = useLocation();
   const sections = useAppSelector((state) => state.section.sections);
   const dispatch = useAppDispatch();
   const favoriteSections = useAppSelector((state) => state.user.favoriteSections);
-
-  let keys = location.pathname.split('/');
-  const tagKey = keys[2];
-  const sectionKey = keys[3];
+  const { tag, section } = useParams();
+  const selectedTags = tag ? [tag] : undefined;
+  const selectedSections = section ? [section] : undefined;
+  const navTag = tag ? tag : PostTag.FRESH;
 
   const preventNavigate = (event: SyntheticEvent) => {};
 
   const items = useMemo<MenuItem[]>(() => {
     return [
       getItem(
-        <Link to='/tag/fresh' className={styles.section}>
+        <Link to={`/tag/${PostTag.FRESH}`} className={styles.section}>
           Fresh
         </Link>,
         'fresh',
         <ClockCircleOutlined />,
       ),
       getItem(
-        <Link to='/tag/top' className={styles.section}>
+        <Link to={`/tag/${PostTag.TOP}`} className={styles.section}>
           Top
         </Link>,
         'top',
@@ -73,7 +74,7 @@ const Sidebar = () => {
       getItem(
         <div className={styles.section}>
           <Link
-            to={`/tag/${tagKey}/${section.name}`}
+            to={`/tag/${navTag}/${section.name}`}
             className={styles.text}
             onClick={preventNavigate}
             title={section.displayName}
@@ -90,7 +91,7 @@ const Sidebar = () => {
         section.name.toLowerCase(),
       ),
     );
-  }, [dispatch, favoriteSections, tagKey]);
+  }, [dispatch, favoriteSections, navTag]);
 
   const items2 = useMemo<MenuItem[]>(() => {
     const addToFavorite = (section: Section) => {
@@ -106,7 +107,7 @@ const Sidebar = () => {
         getItem(
           <div className={styles.section}>
             <Link
-              to={`/tag/${tagKey}/${section.name}`}
+              to={`/tag/${navTag}/${section.name}`}
               className={styles.text}
               onClick={preventNavigate}
               title={section.displayName}
@@ -120,12 +121,20 @@ const Sidebar = () => {
           section.name.toLowerCase(),
         ),
       );
-  }, [sections, dispatch, favoriteSections, tagKey]);
+  }, [sections, dispatch, favoriteSections, navTag]);
+
+  if (tag && !isInEnum(tag, PostTag)) {
+    return <Navigate to='/' />;
+  }
+
+  if (section && !sections.map((s) => s.name).includes(section)) {
+    return <Navigate to='/' />;
+  }
 
   return (
     <div className={styles.sidebar}>
       <Typography.Title className={styles.title}>9GAG</Typography.Title>
-      <Menu mode='inline' selectedKeys={[tagKey]} items={items} />
+      <Menu mode='inline' selectedKeys={selectedTags} items={items} />
       <AuthenticatedGuard
         component={
           <>
@@ -134,14 +143,14 @@ const Sidebar = () => {
             </Typography.Title>
             <Menu
               mode='inline'
-              selectedKeys={[sectionKey]}
+              selectedKeys={selectedSections}
               items={favoriteSectionItems}
             />
           </>
         }
       />
       <Typography.Title className={styles.title}>All Sections</Typography.Title>
-      <Menu mode='inline' selectedKeys={[sectionKey]} items={items2} />
+      <Menu mode='inline' selectedKeys={selectedSections} items={items2} />
     </div>
   );
 };

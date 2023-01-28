@@ -1,6 +1,6 @@
 .media {
   min-width: 345px;
-  max-width: 60vw;
+  max-width: 70vw;
   height: 80vh !important;
   background-color: var(--contrast-background-color);
   border-radius: var(--border-radius-base);

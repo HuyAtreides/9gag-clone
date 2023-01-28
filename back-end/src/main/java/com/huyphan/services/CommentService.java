@@ -125,7 +125,7 @@ public class CommentService {
     @Transactional
     public void updateComment(Long id, NewComment updatedCommentFields) throws CommentException {
         Comment comment = getComment(id);
-        User currentUser = userService.getUser();
+        User currentUser = UserService.getUser();
 
         if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
             throw new CommentException("Comment not found");
@@ -151,7 +151,7 @@ public class CommentService {
 
     private Comment createNewCommentEntity(Post post, NewComment newComment) {
         Comment comment = new Comment();
-        comment.setUser(userService.getUser());
+        comment.setUser(UserService.getUser());
         comment.setText(newComment.getText());
         comment.setMediaUrl(newComment.getMediaUrl());
         comment.setPost(post);

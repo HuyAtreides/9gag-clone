@@ -6,7 +6,8 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Avatar, Badge, Button, Input, Layout, Popover, Typography } from 'antd';
-import React, { useEffect, useRef } from 'react';
+import debounce from 'lodash/debounce';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
 import useProtectedAction from '../../custom-hooks/protected-action';
@@ -31,6 +32,7 @@ interface INavbarLayout {
   collapse: boolean;
   setCollapse: (value: boolean) => void;
 }
+const DEBOUNCE_TIME_IN_MILI_SECONDS = 700;
 
 /** Common layout for other features. */
 const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
@@ -51,6 +53,14 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
   const clearNotViewedNotificationsCount = () => {
     dispatch(clearNotViewedCount());
   };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleSearch = useCallback(
+    debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(setSearchTerm(e.target.value));
+    }, DEBOUNCE_TIME_IN_MILI_SECONDS),
+    [],
+  );
 
   useEffect(() => {
     dispatch(countNotViewed());
@@ -88,7 +98,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                   bordered={false}
                   size='large'
                   placeholder='Search...'
-                  onPressEnter={(e) => dispatch(setSearchTerm(e.currentTarget.value))}
+                  onChange={handleSearch}
                   prefix={<SearchOutlined />}
                 />
               </div>
@@ -166,7 +176,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
             </Button>
           </Popover>
           <Button
-            onClick={protectAction(() => navigate('../post'))}
+            onClick={protectAction(() => navigate('../add-post'))}
             type='primary'
             icon={<EditFilled />}
             className={styles.btnPost}

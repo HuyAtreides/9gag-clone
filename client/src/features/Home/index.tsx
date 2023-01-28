@@ -1,6 +1,7 @@
 import { Layout } from 'antd';
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+import PostWithComment from './Components/post-with-comment/PostWithComment';
 import Sidebar from './Components/Sidebar';
 import styles from './Home.module.scss';
 import PostList from './pages/post-list/PostList';
@@ -34,9 +35,8 @@ const Home: React.FC<IHomeProp> = ({ sideBarCollapse }) => {
 
       <Content className={styles.content}>
         <Routes>
-          <Route path='tag/:tag' element={<PostList />} />
-          <Route path='tag/:tag/:section' element={<PostList />} />
-          <Route path='*' element={<Navigate to='tag/fresh' replace />} />
+          <Route path=':id' element={<PostWithComment />} />
+          <Route path='' element={<PostList />} />
         </Routes>
       </Content>
     </Layout>

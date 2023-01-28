@@ -16,6 +16,14 @@ const DOWNVOTE_POST_END_POINT = `${Constant.PostEndPoint}/downvotes`;
 const UNUPVOTE_POST_END_POINT = `${Constant.PostEndPoint}/unupvotes`;
 const UNDOWNVOTE_POST_END_POINT = `${Constant.PostEndPoint}/undownvotes`;
 
+export async function getSpecificPost(id: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/${id}`;
+  const response = await axios.get<PostDto>(url);
+
+  return PostMapper.fromDto(response.data);
+}
+
 export async function getPostList(
   pageOptions: PageOptions,
   tag: string,

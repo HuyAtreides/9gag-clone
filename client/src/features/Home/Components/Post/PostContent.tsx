@@ -1,4 +1,9 @@
-import { CaretDownOutlined, CaretUpOutlined, CommentOutlined } from '@ant-design/icons';
+import {
+  CaretDownOutlined,
+  CaretUpOutlined,
+  CommentOutlined,
+  MoreOutlined,
+} from '@ant-design/icons';
 import { Avatar, Button, List, Typography } from 'antd';
 import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -9,6 +14,7 @@ import useUpvote from '../../../../custom-hooks/upvote';
 import useVirtualElement from '../../../../custom-hooks/virtual-element';
 import VotePostActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-post-action-executor';
 import { Constant } from '../../../../models/enums/constant';
+import { PostTag } from '../../../../models/enums/post-tag';
 import Post from '../../../../models/post';
 import { useAppDispatch } from '../../../../Store';
 import { formatNumber } from '../../../../utils/format-number';
@@ -38,6 +44,7 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
   return (
     <div ref={virtualElementRef}>
       <List.Item
+        extra={[<Button icon={<MoreOutlined />} type='text' />]}
         actions={[
           <Button
             icon={<CaretUpOutlined />}
@@ -53,14 +60,19 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
           >
             {formatNumber(post.downvotes)}
           </Button>,
-          <Button icon={<CommentOutlined />}>{formatNumber(post.totalComments)}</Button>,
+          <Button
+            icon={<CommentOutlined />}
+            onClick={protectAction(() => window.open(`/post/${post.id}`, '_blank'))}
+          >
+            {formatNumber(post.totalComments)}
+          </Button>,
         ]}
         className={styles['post-content']}
       >
         <List.Item.Meta
           avatar={<Avatar src={post.section.imgUrl} />}
           title={
-            <Link to={`/tag/${tag}/${post.section.name}`}>
+            <Link to={`/tag/${tag ? tag : PostTag.FRESH}/${post.section.name}`}>
               <Typography.Link>{post.section.displayName}</Typography.Link>
             </Link>
           }

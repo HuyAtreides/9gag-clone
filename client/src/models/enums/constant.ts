@@ -9,6 +9,7 @@ export enum Constant {
   UploadEndPoint = 'upload',
   NotificationEndPoint = 'notification',
   PostScrollAreaId = '#post-scroll-area-id',
+  CommentEndPoint = 'comment',
   PageSize = 15,
 }
 
