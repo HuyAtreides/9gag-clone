@@ -5,10 +5,10 @@ import { UserDto } from '../dtos/user-dto';
 
 export namespace UserMapper {
   export function fromDto(user: UserDto): User {
-    return {
+    return new User({
       ...user,
       country: user.country ? toEnum(user.country, Country) : null,
       created: new Date(user.created),
-    };
+    });
   }
 }

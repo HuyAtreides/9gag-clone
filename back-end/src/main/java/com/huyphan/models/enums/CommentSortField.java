@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum CommentSortField {
     UPVOTES("upvotes"),
-    DATE("date");
+    DATE("date"),
+    TOTAL_CHILDREN("totalChildren");
 
     private final String value;
 

@@ -36,4 +36,12 @@ public class CommentDto {
     private boolean isUpvoted;
 
     private boolean isDownvoted;
+
+    public boolean getIsDownvoted() {
+        return isDownvoted;
+    }
+
+    public boolean getIsUpvoted() {
+        return isUpvoted;
+    }
 }

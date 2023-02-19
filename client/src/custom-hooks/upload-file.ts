@@ -24,11 +24,13 @@ const useUploadFile = (media?: MediaLocation): ReturnType => {
             name: '',
             thumbUrl: thumbUrl,
             url: media.url,
+            type: media.type,
           },
         ]);
       })();
     }
-  }, [media]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileChange: (info: UploadChangeParam<UploadFile<any>>) => void = async (
     info,
@@ -50,6 +52,7 @@ const useUploadFile = (media?: MediaLocation): ReturnType => {
           name: '',
           url: URL.createObjectURL(file.originFileObj!),
           thumbUrl: thumbnailUrls[index],
+          originFileObj: file.originFileObj,
         }),
       );
     }

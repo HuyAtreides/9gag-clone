@@ -1,8 +1,7 @@
-import Post from '../models/post';
 import VoteActionExecutor from './vote-action-executor/vote-action-executor';
 
 const useDownvote = (
-  { isDownvoted, isUpvoted }: Post,
+  { isDownvoted, isUpvoted }: { isUpvoted: boolean; isDownvoted: boolean },
   voteActionExecutor: VoteActionExecutor,
 ) => {
   const handleDownvote = () => {

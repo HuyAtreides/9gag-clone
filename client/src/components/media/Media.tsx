@@ -1,5 +1,5 @@
 import { Image } from 'antd';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MediaType } from '../../models/enums/constant';
 import { toEnum } from '../../utils/value-to-enum';
 import styles from './Media.module.css';
@@ -8,8 +8,8 @@ interface Props {
   readonly url: string;
   readonly type: string;
   readonly scrollAreaId: string;
-  readonly width?: string;
-  readonly height?: string;
+  readonly width?: string | number;
+  readonly height?: string | number;
 }
 
 const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Props) => {
@@ -46,13 +46,20 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
   }, []);
 
   if (mediaType === MediaType.Image) {
-    return <Image src={url} width={width} height={height} className={styles['media']} />;
+    return (
+      <Image
+        src={url}
+        width={width}
+        height={height}
+        className={width || height ? '' : styles['media']}
+      />
+    );
   }
 
   return (
     <video
       ref={videoRef}
-      className={styles['media']}
+      className={width || height ? '' : styles['media']}
       src={url}
       width={width}
       height={height}

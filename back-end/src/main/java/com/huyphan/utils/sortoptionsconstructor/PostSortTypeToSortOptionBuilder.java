@@ -8,16 +8,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConcreteSortTypeToSortOptionBuilder extends SortTypeToSortOptionBuilder {
+public class PostSortTypeToSortOptionBuilder extends SortTypeToSortOptionBuilder {
 
     @Autowired
-    private SortOptionsConstructorFactory sortOptionsConstructorFactory;
+    private SortOptionsConstructorFactoryI postSortOptionsConstructorFactory;
 
     @Override
     public Sort toSortOption(List<SortType> sortTypes) throws AppException {
         Sort sort = sortTypes.stream().reduce(Sort.unsorted(), (sortOption, sortType) -> {
                     try {
-                        SortOptionsConstructor sortOptionsConstructor = sortOptionsConstructorFactory.getSortOptionConstructor(
+                        SortOptionsConstructor sortOptionsConstructor = postSortOptionsConstructorFactory.getSortOptionConstructor(
                                 sortType);
 
                         return sortOption.and(sortOptionsConstructor.constructSortOptions());

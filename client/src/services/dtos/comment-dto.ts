@@ -5,15 +5,15 @@ export default interface CommentDto {
 
   readonly text: string;
 
-  readonly mediaUrl: string;
+  readonly mediaUrl: string | null;
 
   readonly upvotes: number;
 
   readonly downvotes: number;
 
-  readonly mediaType: string;
+  readonly mediaType: string | null;
 
-  readonly replyTo: UserDto;
+  readonly replyTo: UserDto | null;
 
   readonly date: string;
 

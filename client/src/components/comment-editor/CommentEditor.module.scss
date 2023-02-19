@@ -1,9 +1,8 @@
 .commentEditorForm {
   width: 90%;
-  min-width: 350px;
 
   .textArea {
-    resize: none;
+    max-height: 300px;
   }
 }
 

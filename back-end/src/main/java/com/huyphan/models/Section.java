@@ -1,6 +1,7 @@
 package com.huyphan.models;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -59,7 +60,7 @@ public class Section {
 
         Section section = (Section) o;
 
-        return id != null ? id.equals(section.id) : section.id == null;
+        return Objects.equals(id, section.id);
     }
 
     @Override

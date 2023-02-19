@@ -1,21 +1,22 @@
+import MediaLocation from './media-location';
 import { User } from './user';
 
 interface AppCommentConstructorArguments {
   readonly id: number;
 
-  readonly text: string;
+  readonly text: string | null;
 
-  readonly mediaUrl: string;
+  readonly mediaUrl: string | null;
 
   readonly upvotes: number;
 
   readonly downvotes: number;
 
-  readonly mediaType: string;
+  readonly mediaType: string | null;
 
-  readonly replyTo: User;
+  readonly replyTo: User | null;
 
-  readonly date: string;
+  readonly date: Date;
 
   readonly user: User;
 
@@ -29,19 +30,19 @@ interface AppCommentConstructorArguments {
 export default class AppComment {
   readonly id: number;
 
-  readonly text: string;
+  readonly text: string | null;
 
-  readonly mediaUrl: string;
+  readonly mediaUrl: string | null;
 
   readonly upvotes: number;
 
   readonly downvotes: number;
 
-  readonly mediaType: string;
+  readonly mediaType: string | null;
 
-  readonly replyTo: User;
+  readonly replyTo: User | null;
 
-  readonly date: string;
+  readonly date: Date;
 
   readonly user: User;
 
@@ -76,5 +77,15 @@ export default class AppComment {
     this.isUpvoted = comment.isUpvoted;
 
     this.isDownvoted = comment.isDownvoted;
+  }
+
+  public getMediaLocation(): MediaLocation | undefined {
+    return this.mediaType && this.mediaUrl
+      ? { url: this.mediaUrl, type: this.mediaType }
+      : undefined;
+  }
+
+  public get isParent(): boolean {
+    return this.replyTo === null;
   }
 }

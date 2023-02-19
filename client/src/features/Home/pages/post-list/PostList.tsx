@@ -5,10 +5,12 @@ import { useParams } from 'react-router-dom';
 import useRemoveErrorWhenUnmount from '../../../../custom-hooks/remove-error';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import { Constant } from '../../../../models/enums/constant';
+import { SortType } from '../../../../models/enums/sort-type';
 import PageOptions from '../../../../models/page-options';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { addNewPosts, getPosts } from '../../../../Store/post/post-dispatchers';
 import { resetState, setPostErrorMessage } from '../../../../Store/post/post-slice';
+import { toEnum } from '../../../../utils/value-to-enum';
 import PostContent from '../../Components/Post/PostContent';
 import PostSkeleton from '../../Components/PostSkeleton/PostSkeleton';
 
@@ -36,9 +38,10 @@ const PostList: React.FC = () => {
       page: page! + 1,
       size: Constant.PageSize as number,
       search: searchTerm,
+      sortType: toEnum(tag!, SortType),
     };
 
-    dispatch(addNewPosts(nextPageOptions, tag!, section));
+    dispatch(addNewPosts(nextPageOptions, section));
   };
 
   useEffect(() => {
@@ -46,9 +49,10 @@ const PostList: React.FC = () => {
       page: 0,
       size: Constant.PageSize as number,
       search: searchTerm,
+      sortType: toEnum(tag!, SortType),
     };
 
-    dispatch(getPosts(pageOptions, tag!, section));
+    dispatch(getPosts(pageOptions, section));
     window.scrollTo(0, 0);
   }, [dispatch, tag, section, user, searchTerm]);
 

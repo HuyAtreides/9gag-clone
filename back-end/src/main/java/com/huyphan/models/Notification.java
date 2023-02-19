@@ -3,6 +3,7 @@ package com.huyphan.models;
 import com.huyphan.models.converters.NotificationTypeConverter;
 import com.huyphan.models.enums.NotificationType;
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -52,4 +53,20 @@ public class Notification {
     @Column(name = "Message")
     private String message;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Notification that = (Notification) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

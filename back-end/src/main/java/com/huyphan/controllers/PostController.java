@@ -11,7 +11,6 @@ import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
-import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
@@ -58,19 +57,19 @@ public class PostController {
         postService.deletePost(id);
     }
 
-    @GetMapping("tag/{postTag}")
-    public SliceDto<PostDto> getPosts(@PathVariable SortType postTag,
+    @GetMapping
+    public SliceDto<PostDto> getPosts(
             PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Slice<Post> page = postService.getAllPost(pageOptions, postTag);
+        Slice<Post> page = postService.getAllPost(pageOptions);
         return sliceMapper.toDto(page, postMapper);
     }
 
-    @GetMapping("tag/{postTag}/{sectionName}")
-    public SliceDto<PostDto> getPostsWithinSection(@PathVariable SortType postTag, @PathVariable
+    @GetMapping("section/{sectionName}")
+    public SliceDto<PostDto> getPostsWithinSection(@PathVariable
             String sectionName, PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Slice<Post> page = postService.getAllPostsWithinSection(pageOptions, postTag, sectionName);
+        Slice<Post> page = postService.getAllPostsWithinSection(pageOptions, sectionName);
         return sliceMapper.toDto(page, postMapper);
     }
 
@@ -122,18 +121,16 @@ public class PostController {
         return sliceMapper.toDto(votedPosts, postMapper);
     }
 
-    @PostMapping("save")
+    @PutMapping("save/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void savePost(@RequestBody PostDto postDto) {
-        Post post = postMapper.fromDto(postDto);
-        postService.savePost(post);
+    public void savePost(@PathVariable Long id) throws PostException {
+        postService.savePost(id);
     }
 
-    @DeleteMapping("save")
+    @DeleteMapping("save/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeSavedPost(PostDto postDto) {
-        Post post = postMapper.fromDto(postDto);
-        postService.removeSavedPost(post);
+    public void removeSavedPost(@PathVariable Long id) throws PostException {
+        postService.removeSavedPost(id);
     }
 
     @ExceptionHandler(PostException.class)

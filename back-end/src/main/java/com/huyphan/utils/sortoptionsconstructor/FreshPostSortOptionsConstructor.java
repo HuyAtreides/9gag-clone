@@ -3,6 +3,7 @@ package com.huyphan.utils.sortoptionsconstructor;
 import com.huyphan.models.Post_;
 import com.huyphan.models.enums.PostSortField;
 import com.huyphan.models.enums.SortType;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Component;
 
 @Component
+@Qualifier("post-sort-options-constructor")
 public class FreshPostSortOptionsConstructor implements SortOptionsConstructor {
 
     @Override

@@ -17,6 +17,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
@@ -60,10 +61,22 @@ public class AWSS3Util {
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
                 .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
+
         RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());
         s3Client.putObject(putObjectRequest, requestBody);
         String objectUrl = buildObjectUrl(objectKey);
         return new MediaLocation(objectUrl, type);
+    }
+
+    public void deleteObject(String objectUrl) {
+        if (objectUrl == null) {
+            return;
+        }
+
+        String objectKey = getObjectKeyFromUrl(objectUrl);
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName)
+                .key(objectKey).build();
+        s3Client.deleteObject(deleteObjectRequest);
     }
 
     /**
@@ -73,6 +86,12 @@ public class AWSS3Util {
         Instant instant = Instant.now();
         String fileName = multipartFile.getOriginalFilename().replace(" ", "_");
         return instant.getNano() + "-" + fileName;
+    }
+
+    private String getObjectKeyFromUrl(String url) {
+        String[] urlSegments = url.split("/");
+
+        return urlSegments[urlSegments.length - 1];
     }
 
     /**

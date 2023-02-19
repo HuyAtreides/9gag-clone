@@ -11,7 +11,7 @@ const useVirtualElement = (
 
     if (entry.isIntersecting) {
       setIsVisibleInViewPort(true);
-    } else {
+    } else if (!document.fullscreenElement) {
       setIsVisibleInViewPort(false);
     }
   };

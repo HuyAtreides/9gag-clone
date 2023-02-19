@@ -7,14 +7,16 @@ export const generateVideoThumbnail = (file: File | MediaLocation) => {
     return Promise.resolve(getObjectUrl(file));
   }
 
-  return new Promise<string>((resolve) => {
+  return new Promise<string>(async (resolve) => {
     const canvas = document.createElement('canvas');
     const video = document.createElement('video');
 
     // this is important
     video.autoplay = true;
     video.muted = true;
+    video.crossOrigin = 'Anonymous';
     video.src = getObjectUrl(file);
+    video.playsInline = true;
 
     video.onloadeddata = () => {
       let ctx = canvas.getContext('2d');
@@ -38,9 +40,5 @@ function getObjectUrl(object: File | MediaLocation) {
 }
 
 function getMediaType(media: File | MediaLocation) {
-  if (media instanceof File) {
-    return media.type.split('/')[0];
-  }
-
-  return media.type;
+  return media.type.split('/')[0];
 }

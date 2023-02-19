@@ -3,44 +3,57 @@ import { Button, Col, Comment, Form, Row, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import Avatar from 'antd/lib/avatar/avatar';
 import TextArea from 'antd/lib/input/TextArea';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import useUploadFile from '../../custom-hooks/upload-file';
+import { CommentContext } from '../../features/commment/context/comment-context';
 import AppComment from '../../models/comment';
+import { CommentUploadFormData } from '../../models/upload-comment-form-data';
 
-import { User } from '../../models/user';
 import styles from './CommentEditor.module.scss';
 
 interface Props {
-  readonly user: User;
-  readonly children?: ReactNode[];
+  readonly children?: ReactNode;
   readonly comment?: AppComment;
-  readonly handleSubmit?: (values: CommentEditorFormValue) => void;
+  readonly handleSubmit: (values: CommentUploadFormData) => void;
   readonly handleCancel?: () => void;
 }
 
-type CommentEditorFormValue = {
-  readonly text: string;
-  readonly file: File;
-};
-
 const CommentEditor: React.FC<Props> = ({
-  user,
   children,
   comment,
   handleCancel,
   handleSubmit,
 }: Props) => {
   const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(
-    comment ? { url: comment.mediaUrl, type: comment.mediaType } : undefined,
+    comment?.getMediaLocation(),
   );
-  const [form] = useForm<CommentEditorFormValue>();
+  const [form] = useForm<CommentUploadFormData>();
+  const { user } = useContext(CommentContext)!;
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    form.setFieldValue('file', uploadFile ? uploadFile[0] : undefined);
+  }, [form, uploadFile]);
 
   const defaultHandleCancel = () => {
-    form.resetFields();
-    setUploadFile(undefined);
+    if (handleCancel) {
+      handleCancel();
+    } else {
+      setUploadFile(undefined);
+      form.resetFields();
+    }
   };
 
-  const defaultHandleSubmit = () => {};
+  const defaultHandleSubmit = async (values: CommentUploadFormData) => {
+    setIsUploading(true);
+    const result = await Promise.allSettled([handleSubmit(values)]);
+    setIsUploading(false);
+    const status = result[0].status;
+
+    if (status === 'fulfilled') {
+      defaultHandleCancel();
+    }
+  };
 
   return (
     <Comment
@@ -48,31 +61,22 @@ const CommentEditor: React.FC<Props> = ({
       content={
         <Form
           className={styles.commentEditorForm}
-          onFinish={handleSubmit ? handleSubmit : defaultHandleSubmit}
+          onFinish={defaultHandleSubmit}
           form={form}
+          initialValues={{
+            text: comment?.text,
+          }}
         >
-          <Form.Item
-            name='text'
-            rules={[
-              {
-                validator: (_, value) => {
-                  if (!value.text && !value.file) {
-                    throw new Error('Please provide either text or file');
-                  }
-                },
-                message: 'Please provide either text or file',
-              },
-            ]}
-          >
+          <Form.Item name='text'>
             <TextArea
+              disabled={isUploading}
               className={styles.textArea}
               placeholder='Leave a comment...'
-              autoSize={false}
             />
           </Form.Item>
           <Form.Item>
             <Row>
-              <Col span={14}>
+              <Col span={10}>
                 <Row gutter={10}>
                   <Col>
                     <Form.Item name='file'>
@@ -84,7 +88,11 @@ const CommentEditor: React.FC<Props> = ({
                         onChange={handleFileChange}
                       >
                         {uploadFile ? null : (
-                          <Button icon={<CameraOutlined />} shape='default' />
+                          <Button
+                            icon={<CameraOutlined />}
+                            shape='default'
+                            disabled={isUploading}
+                          />
                         )}
                       </Upload>
                     </Form.Item>
@@ -93,25 +101,30 @@ const CommentEditor: React.FC<Props> = ({
                     <Form.Item>
                       <Upload>
                         {uploadFile ? null : (
-                          <Button icon={<GifOutlined />} shape='default' />
+                          <Button
+                            icon={<GifOutlined />}
+                            shape='default'
+                            disabled={isUploading}
+                          />
                         )}
                       </Upload>
                     </Form.Item>
                   </Col>
                 </Row>
               </Col>
-              <Col span={10}>
+              <Col span={14}>
                 <Row justify='end' gutter={15}>
                   <Col>
                     <Button
                       type='text'
-                      onClick={handleCancel ? handleCancel : defaultHandleCancel}
+                      onClick={defaultHandleCancel}
+                      disabled={isUploading}
                     >
                       Cancel
                     </Button>
                   </Col>
                   <Col>
-                    <Button htmlType='submit' type='primary'>
+                    <Button htmlType='submit' type='primary' loading={isUploading}>
                       Post
                     </Button>
                   </Col>

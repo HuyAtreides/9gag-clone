@@ -1,13 +1,15 @@
 import { BarChartOutlined, ClockCircleOutlined, StarFilled } from '@ant-design/icons';
 import { Menu, MenuProps, Typography } from 'antd';
-import { SyntheticEvent, useMemo } from 'react';
+import { SyntheticEvent, useEffect, useMemo } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
-import { PostTag } from '../../../../models/enums/post-tag';
+import useProtectedAction from '../../../../custom-hooks/protected-action';
+import { SortType } from '../../../../models/enums/sort-type';
 import Section from '../../../../models/section';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   addSectionToUserFavorite,
+  getFavoriteSections,
   removeSectionFromUserFavorite,
 } from '../../../../Store/user/user-dipatchers';
 import isInEnum from '../../../../utils/is-in-enum';
@@ -35,24 +37,30 @@ const Sidebar = () => {
   const sections = useAppSelector((state) => state.section.sections);
   const dispatch = useAppDispatch();
   const favoriteSections = useAppSelector((state) => state.user.favoriteSections);
+  const user = useAppSelector((state) => state.user.profile);
   const { tag, section } = useParams();
+  const protectAction = useProtectedAction();
   const selectedTags = tag ? [tag] : undefined;
   const selectedSections = section ? [section] : undefined;
-  const navTag = tag ? tag : PostTag.FRESH;
+  const navTag = tag ? tag : SortType.FRESH;
 
   const preventNavigate = (event: SyntheticEvent) => {};
+
+  useEffect(() => {
+    dispatch(getFavoriteSections());
+  }, [user, dispatch]);
 
   const items = useMemo<MenuItem[]>(() => {
     return [
       getItem(
-        <Link to={`/tag/${PostTag.FRESH}`} className={styles.section}>
+        <Link to={`/tag/${SortType.FRESH}`} className={styles.section}>
           Fresh
         </Link>,
         'fresh',
         <ClockCircleOutlined />,
       ),
       getItem(
-        <Link to={`/tag/${PostTag.TOP}`} className={styles.section}>
+        <Link to={`/tag/${SortType.TOP}`} className={styles.section}>
           Top
         </Link>,
         'top',
@@ -115,15 +123,18 @@ const Sidebar = () => {
               {section.displayName}
             </Link>
 
-            <StarFilled className={styles.icon} onClick={() => addToFavorite(section)} />
+            <StarFilled
+              className={styles.icon}
+              onClick={protectAction(() => addToFavorite(section))}
+            />
           </div>,
 
           section.name.toLowerCase(),
         ),
       );
-  }, [sections, dispatch, favoriteSections, navTag]);
+  }, [sections, dispatch, favoriteSections, navTag, protectAction]);
 
-  if (tag && !isInEnum(tag, PostTag)) {
+  if (tag && !isInEnum(tag, SortType)) {
     return <Navigate to='/' />;
   }
 

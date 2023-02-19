@@ -55,7 +55,7 @@ public class CommentController {
 
     @GetMapping("{parentId}/children")
     public PageDto<CommentDto> getChildrenComment(@PathVariable Long parentId,
-            PageOptionsDto optionsDto) {
+            PageOptionsDto optionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(optionsDto);
         Page<Comment> comments = commentService.getChildrenComment(parentId, pageOptions);
 
@@ -90,12 +90,11 @@ public class CommentController {
         commentService.unDownvotesComment(id);
     }
 
-    @GetMapping("/post/{postId}")
+    @GetMapping("post/{postId}")
     public PageDto<CommentDto> getPostComments(@PathVariable Long postId,
-            PageOptionsDto optionsDto) {
+            PageOptionsDto optionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(optionsDto);
-        Page<Comment> comments = commentService.getPostComments(postId,
-                pageOptions);
+        Page<Comment> comments = commentService.getPostComments(postId, pageOptions);
         return pageMapper.toDto(comments, commentMapper);
     }
 
@@ -121,19 +120,24 @@ public class CommentController {
 
     @PostMapping("/post/{postId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addComment(@PathVariable Long postId, @RequestBody NewCommentDto newCommentDto)
+    public Long addComment(@PathVariable Long postId,
+            @RequestBody NewCommentDto newCommentDto)
             throws PostException, CommentException {
         NewComment newComment = newCommentMapper.fromDto(newCommentDto);
-        commentService.addComment(postId, newComment);
+        Comment savedComment = commentService.addComment(postId, newComment);
+
+        return savedComment.getId();
     }
 
     @PostMapping("replyTo/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addReply(@PathVariable Long id,
+    public Long addReply(@PathVariable Long id,
             @RequestBody NewCommentDto newReplyDto)
-            throws CommentException, PostException {
+            throws CommentException {
         NewComment newReply = newCommentMapper.fromDto(newReplyDto);
-        commentService.addReply(newReply, id);
+        Comment savedReply = commentService.addReply(newReply, id);
+
+        return savedReply.getId();
     }
 
     @ExceptionHandler({PostException.class, CommentException.class})

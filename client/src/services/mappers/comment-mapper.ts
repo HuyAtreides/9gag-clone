@@ -4,10 +4,11 @@ import { UserMapper } from './user-mapper';
 
 export namespace CommentMapper {
   export function fromDto(commentDto: CommentDto): AppComment {
-    return {
+    return new AppComment({
       ...commentDto,
       user: UserMapper.fromDto(commentDto.user),
-      replyTo: UserMapper.fromDto(commentDto.replyTo),
-    };
+      replyTo: commentDto.replyTo ? UserMapper.fromDto(commentDto.replyTo) : null,
+      date: new Date(commentDto.date),
+    });
   }
 }

@@ -8,30 +8,33 @@ import {
   downvote,
   getPostList,
   getSpecificPost,
+  savePost,
   unDownvote,
+  unSavePost,
   unUpvote,
   upvote,
 } from '../../services/post-service';
 import { upload } from '../../services/upload-service';
 import { handleError } from '../../utils/error-handler';
 import {
+  appendNewPosts,
   setIsGettingPage,
   setIsLoading,
-  setPosts,
-  setPostErrorMessage,
   setPagination,
-  appendNewPosts,
-  setPostUpvotes,
   setPostDownvotes,
+  setPostErrorMessage,
+  setPostIsSaved,
+  setPosts,
+  setPostUpvotes,
 } from './post-slice';
 
 export const getPosts =
-  (pageOptions: PageOptions, tag: string, section?: string): AppThunk =>
+  (pageOptions: PageOptions, section?: string): AppThunk =>
   async (dispatch, getState) => {
     try {
       dispatch(setIsLoading(true));
 
-      const pageOfPosts = await getPostList(pageOptions, tag, section);
+      const pageOfPosts = await getPostList(pageOptions, section);
 
       const pagination: Pagination = {
         size: pageOfPosts.size,
@@ -64,12 +67,12 @@ export const getPost =
   };
 
 export const addNewPosts =
-  (pageOptions: PageOptions, tag: string, section?: string): AppThunk =>
+  (pageOptions: PageOptions, section?: string): AppThunk =>
   async (dispatch, getState) => {
     try {
       dispatch(setIsGettingPage(true));
 
-      const pageOfPosts = await getPostList(pageOptions, tag, section);
+      const pageOfPosts = await getPostList(pageOptions, section);
 
       const pagination: Pagination = {
         size: pageOfPosts.size,
@@ -166,6 +169,32 @@ export const uploadNewPost =
       message.success('Add new post successfully');
     } catch (error: unknown) {
       dispatch(setIsLoading(false));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const save =
+  (index: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const post = getState().post.posts[index];
+      savePost(post.id);
+      dispatch(setPostIsSaved(index));
+      message.success('Post saved!');
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const unSave =
+  (index: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const post = getState().post.posts[index];
+      unSavePost(post.id);
+      dispatch(setPostIsSaved(index));
+      message.success('Post unsaved!');
+    } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
     }
   };

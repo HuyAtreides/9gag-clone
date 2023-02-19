@@ -15,7 +15,7 @@ public class VoteablePostManager extends VoteableObjectManager<Post> {
     @Override
     Set<Post> getUpvotedObjects() {
         try {
-            return userService.getUserById(userService.getUser().getId()).getUpvotedPosts();
+            return userService.getUserById(UserService.getUser().getId()).getUpvotedPosts();
         } catch (UserException e) {
             e.printStackTrace();
             return null;
@@ -25,7 +25,7 @@ public class VoteablePostManager extends VoteableObjectManager<Post> {
     @Override
     Set<Post> getDownvotedObjects() {
         try {
-            return userService.getUserById(userService.getUser().getId()).getDownvotedPosts();
+            return userService.getUserById(UserService.getUser().getId()).getDownvotedPosts();
         } catch (UserException e) {
             e.printStackTrace();
             return null;

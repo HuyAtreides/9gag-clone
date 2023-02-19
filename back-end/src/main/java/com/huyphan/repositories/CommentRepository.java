@@ -48,8 +48,8 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
             from Comment comment
             where comment.parent.id = :parentId
             """)
-    Page<CommentWithDerivedFields> findByParentIdAndIdNotIn(@Param("user") User user, Long parentId,
-            Pageable pageable);
+    Page<CommentWithDerivedFields> findChildrenComments(@Param("user") User user,
+            @Param("parentId") Long parentId, Pageable pageable);
 
     /**
      * Find all parent comments belongs to a post.
@@ -57,14 +57,14 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
     @EntityGraph("CommentEntityGraph")
     @Query(value = SELECT_STATEMENT + """
             from Comment comment
-            where comment.post.id = :postId
+            where comment.post.id = :postId and comment.parent is null
             """, countQuery = """
             select count(*)
             from Comment comment
-            where comment.post.id = :postId
+            where comment.post.id = :postId and comment.parent is null
             """)
-    Page<CommentWithDerivedFields> findByPostIdAndIdNotInAndParentIsNull(@Param("user") User user,
-            Long postId, Pageable pageable);
+    Page<CommentWithDerivedFields> findParentComments(@Param("user") User user,
+            @Param("postId") Long postId, Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Comment> findWithLockById(Long id);

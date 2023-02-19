@@ -12,6 +12,7 @@ import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
+import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +29,10 @@ public class PostService {
     private PostRepository postRepository;
 
     @Autowired
-    private SortTypeToSortOptionBuilder sortTypeToSortOptionBuilder;
+    private SortTypeToSortOptionBuilder postSortTypeToSortOptionBuilder;
+
+    @Autowired
+    private AWSS3Util awss3Util;
 
     @Autowired
     private VoteableObjectManager<Post> voteablePostManager;
@@ -53,8 +57,9 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public Slice<Post> getAllPost(PageOptions options, SortType sortType) throws AppException {
-        Sort sortOptions = sortTypeToSortOptionBuilder.toSortOption(SortType.USER_FAV_SECTIONS,
+    public Slice<Post> getAllPost(PageOptions options) throws AppException {
+        SortType sortType = options.getSortType();
+        Sort sortOptions = postSortTypeToSortOptionBuilder.toSortOption(SortType.USER_FAV_SECTIONS,
                 sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
         User user = UserService.getUser();
@@ -63,9 +68,10 @@ public class PostService {
         return page.map(PostWithDerivedFields::toPost);
     }
 
-    public Slice<Post> getAllPostsWithinSection(PageOptions options, SortType sortType,
-            String sectionName) throws AppException {
-        Sort sortOptions = sortTypeToSortOptionBuilder.toSortOption(sortType);
+    public Slice<Post> getAllPostsWithinSection(PageOptions options, String sectionName)
+            throws AppException {
+        SortType sortType = options.getSortType();
+        Sort sortOptions = postSortTypeToSortOptionBuilder.toSortOption(sortType);
 
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
@@ -93,10 +99,8 @@ public class PostService {
             throw new PostException("Post not found");
         }
 
+        awss3Util.deleteObject(post.getMediaUrl());
         postRepository.deleteById(id);
-        userService.removeSavedPost(post);
-        voteablePostManager.removeDownvotedObject(post);
-        voteablePostManager.removeUpvotedObject(post);
     }
 
     public Slice<Post> getSavedPosts(PageOptions options) {
@@ -174,11 +178,13 @@ public class PostService {
                 .orElseThrow(() -> new PostException("Post not found"));
     }
 
-    public void savePost(Post post) {
+    public void savePost(Long id) throws PostException {
+        Post post = getPost(id);
         userService.savePost(post);
     }
 
-    public void removeSavedPost(Post post) {
+    public void removeSavedPost(Long id) throws PostException {
+        Post post = getPost(id);
         userService.removeSavedPost(post);
     }
 }

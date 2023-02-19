@@ -1,12 +1,16 @@
 import {
+  BookOutlined,
   CaretDownOutlined,
   CaretUpOutlined,
   CommentOutlined,
+  CopyOutlined,
+  DeleteOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, List, Typography } from 'antd';
+import { Avatar, Button, List, message, Popover, Typography } from 'antd';
 import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import Media from '../../../../components/media/Media';
 import useDownvote from '../../../../custom-hooks/downvote';
 import useProtectedAction from '../../../../custom-hooks/protected-action';
@@ -14,15 +18,16 @@ import useUpvote from '../../../../custom-hooks/upvote';
 import useVirtualElement from '../../../../custom-hooks/virtual-element';
 import VotePostActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-post-action-executor';
 import { Constant } from '../../../../models/enums/constant';
-import { PostTag } from '../../../../models/enums/post-tag';
+import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { useAppDispatch } from '../../../../Store';
+import { save, unSave } from '../../../../Store/post/post-dispatchers';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
 
 interface Props {
   post: Post;
-  index?: number;
+  index: number;
 }
 
 const PostContent: React.FC<Props> = ({ post, index }: Props) => {
@@ -37,14 +42,29 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
   );
   const { tag } = useParams();
 
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(
+      `${process.env.REACT_APP_APP_URL}/post/${post.id}`,
+    );
+    message.success('Link copied!');
+  };
+
+  const savePost = () => {
+    if (post.isSaved) {
+      dispatch(unSave(index));
+      return;
+    }
+
+    dispatch(save(index));
+  };
+
   if (!isVisibleInViewPort) {
     return <div className={styles['virtual-post']} ref={virtualElementRef}></div>;
   }
 
   return (
-    <div ref={virtualElementRef}>
+    <div ref={virtualElementRef} className={styles['list-item']}>
       <List.Item
-        extra={[<Button icon={<MoreOutlined />} type='text' />]}
         actions={[
           <Button
             icon={<CaretUpOutlined />}
@@ -66,13 +86,56 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
           >
             {formatNumber(post.totalComments)}
           </Button>,
+          <Button
+            icon={<BookOutlined />}
+            onClick={protectAction(savePost)}
+            type={post.isSaved ? 'primary' : 'default'}
+          >
+            Save
+          </Button>,
+          <Popover
+            placement='bottom'
+            trigger='click'
+            content={
+              <div className={styles.buttonContainer}>
+                <OwnerGuard
+                  component={
+                    <Button
+                      danger
+                      type='text'
+                      className='full-width-btn'
+                      icon={<DeleteOutlined />}
+                    >
+                      Delete
+                    </Button>
+                  }
+                  owner={post.user}
+                />
+
+                <Button
+                  type='text'
+                  className='full-width-btn'
+                  icon={<CopyOutlined />}
+                  onClick={copyLink}
+                >
+                  Copy Link
+                </Button>
+              </div>
+            }
+          >
+            <Button
+              icon={<MoreOutlined />}
+              onClick={protectAction(() => {})}
+              type='text'
+            ></Button>
+          </Popover>,
         ]}
         className={styles['post-content']}
       >
         <List.Item.Meta
           avatar={<Avatar src={post.section.imgUrl} />}
           title={
-            <Link to={`/tag/${tag ? tag : PostTag.FRESH}/${post.section.name}`}>
+            <Link to={`/tag/${tag ? tag : SortType.FRESH}/${post.section.name}`}>
               <Typography.Link>{post.section.displayName}</Typography.Link>
             </Link>
           }
@@ -91,14 +154,7 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
   );
 };
 
-export default React.memo(PostContent, (prevProps, nextProps) => {
-  const prevPost = prevProps.post;
-  const nextPost = nextProps.post;
-  const prevIndex = prevProps.index;
-  const nextIndex = nextProps.index;
-  const isSameUpvoteState = prevPost.isUpvoted === nextPost.isUpvoted;
-  const isSameDownvoteState = prevPost.isDownvoted === nextPost.isDownvoted;
-  const isSameIndex = prevIndex === nextIndex;
-
-  return isSameDownvoteState && isSameUpvoteState && isSameIndex;
-});
+export default React.memo(
+  PostContent,
+  (prevProps, nextProps) => prevProps.post === nextProps.post,
+);

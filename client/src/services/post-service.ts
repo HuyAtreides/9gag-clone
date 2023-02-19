@@ -10,7 +10,7 @@ import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { PostMapper } from './mappers/post-mapper';
 import { SliceMapper } from './mappers/slice-mapper';
 
-const GET_POSTS_END_POINT = `${Constant.PostEndPoint}/tag`;
+const GET_POSTS_END_POINT = `${Constant.PostEndPoint}`;
 const UPVOTE_POST_END_POINT = `${Constant.PostEndPoint}/upvotes`;
 const DOWNVOTE_POST_END_POINT = `${Constant.PostEndPoint}/downvotes`;
 const UNUPVOTE_POST_END_POINT = `${Constant.PostEndPoint}/unupvotes`;
@@ -24,11 +24,19 @@ export async function getSpecificPost(id: number) {
   return PostMapper.fromDto(response.data);
 }
 
-export async function getPostList(
-  pageOptions: PageOptions,
-  tag: string,
-  section?: string,
-) {
+export async function savePost(id: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/save/${id}`;
+  await axios.put<void>(url);
+}
+
+export async function unSavePost(id: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/save/${id}`;
+  await axios.delete<void>(url);
+}
+
+export async function getPostList(pageOptions: PageOptions, section?: string) {
   const axios = createAxiosInstance();
   const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
   const axiosRequestConfig: AxiosRequestConfig = {
@@ -36,8 +44,8 @@ export async function getPostList(
   };
 
   const url = section
-    ? `${GET_POSTS_END_POINT}/${tag}/${section}`
-    : `${GET_POSTS_END_POINT}/${tag}`;
+    ? `${GET_POSTS_END_POINT}/section/${section}`
+    : `${GET_POSTS_END_POINT}/`;
 
   const response = await axios.get<SliceDto<PostDto>>(url, axiosRequestConfig);
 
