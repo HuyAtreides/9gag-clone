@@ -39,6 +39,8 @@ const Home: React.FC<IHomeProp> = ({ sideBarCollapse }) => {
           <Route path='' element={<PostList />} />
         </Routes>
       </Content>
+
+      <div className={styles.rightSpacer}></div>
     </Layout>
   );
 };

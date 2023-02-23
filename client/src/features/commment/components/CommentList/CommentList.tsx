@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppSelector } from '../../../../Store';
 import ParentComment from '../ParentComment/ParentComment';
+import styles from './CommentList.module.css';
 
 const CommentList: React.FC = () => {
   const user = useAppSelector((state) => state.user.profile);
@@ -9,7 +10,11 @@ const CommentList: React.FC = () => {
     return null;
   }
 
-  return <ParentComment user={user} />;
+  return (
+    <div className={styles.commentListContainer}>
+      <ParentComment user={user} />
+    </div>
+  );
 };
 
 export default CommentList;

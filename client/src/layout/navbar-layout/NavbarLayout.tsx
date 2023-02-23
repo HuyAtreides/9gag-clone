@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
 import useProtectedAction from '../../custom-hooks/protected-action';
+import { Constant } from '../../models/enums/constant';
 import { useAppDispatch, useAppSelector } from '../../Store';
 import { logout } from '../../Store/auth/auth-dispatchers';
 import {
@@ -32,7 +33,6 @@ interface INavbarLayout {
   collapse: boolean;
   setCollapse: (value: boolean) => void;
 }
-const DEBOUNCE_TIME_IN_MILI_SECONDS = 700;
 
 /** Common layout for other features. */
 const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
@@ -58,7 +58,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
   const handleSearch = useCallback(
     debounce((e: React.ChangeEvent<HTMLInputElement>) => {
       dispatch(setSearchTerm(e.target.value));
-    }, DEBOUNCE_TIME_IN_MILI_SECONDS),
+    }, Constant.DebounceTimeInMiliSeconds),
     [],
   );
 
@@ -84,7 +84,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
             onClick={() => setCollapse(!collapse)}
           />
           <Link to='./' className={styles.logo}>
-            9GAP
+            9GAG
           </Link>
         </div>
         <div className={styles.itemContainer}>

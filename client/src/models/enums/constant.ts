@@ -13,13 +13,16 @@ export enum Constant {
   CommentEndPoint = 'comment',
   CommentState = 'commentState',
   PageSize = 15,
+  DebounceTimeInMiliSeconds = 700,
 }
 
 export enum MediaType {
   Video = 'video',
   Image = 'image',
+  Gif = 'gif',
 }
 
 export enum ComputedConstants {
   ScreenHeight = window.innerHeight,
+  ScreenWidth = window.innerWidth,
 }

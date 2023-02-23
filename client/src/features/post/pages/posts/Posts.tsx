@@ -1,4 +1,9 @@
-import { CaretDownOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  CaretDownOutlined,
+  InfoCircleOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   AutoComplete,
   Avatar,
@@ -8,6 +13,7 @@ import {
   Input,
   List,
   Row,
+  Tooltip,
   Typography,
   Upload,
 } from 'antd';
@@ -143,7 +149,15 @@ const Posts: React.FC = () => {
               <Input
                 className={styles.searchInput}
                 size='large'
-                placeholder='+ Add tags to help people find your post'
+                placeholder='Add description to help people find your post'
+                suffix={
+                  <Tooltip
+                    trigger='hover'
+                    title='Post description will be used to search your post'
+                  >
+                    <InfoCircleOutlined />
+                  </Tooltip>
+                }
               />
             </Form.Item>
             <Button
@@ -161,7 +175,7 @@ const Posts: React.FC = () => {
         <div className={styles.rulesContainer}>
           <List
             header={
-              <Typography.Title className={styles.title}>9GAP Rules</Typography.Title>
+              <Typography.Title className={styles.title}>9GAG Rules</Typography.Title>
             }
             split={false}
             dataSource={data}

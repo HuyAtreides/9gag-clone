@@ -7,7 +7,7 @@ import {
   DeleteOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, List, message, Popover, Typography } from 'antd';
+import { Avatar, Button, List, message, Modal, Popover, Typography } from 'antd';
 import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
@@ -21,7 +21,7 @@ import { Constant } from '../../../../models/enums/constant';
 import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { useAppDispatch } from '../../../../Store';
-import { save, unSave } from '../../../../Store/post/post-dispatchers';
+import { remove, save, unSave } from '../../../../Store/post/post-dispatchers';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
 
@@ -58,6 +58,13 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
     dispatch(save(index));
   };
 
+  const deletePost = () => {
+    Modal.confirm({
+      onOk: () => remove(index),
+      title: 'Do you want to delete this post?',
+    });
+  };
+
   if (!isVisibleInViewPort) {
     return <div className={styles['virtual-post']} ref={virtualElementRef}></div>;
   }
@@ -65,6 +72,48 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
   return (
     <div ref={virtualElementRef} className={styles['list-item']}>
       <List.Item
+        extra={[
+          <Popover
+            placement='bottom'
+            trigger='click'
+            content={
+              <div className='more-action-box-container'>
+                <Button
+                  icon={<BookOutlined />}
+                  onClick={protectAction(savePost)}
+                  type={post.isSaved ? 'primary' : 'text'}
+                >
+                  {post.isSaved ? 'Unsave' : 'Save'}
+                </Button>
+                <OwnerGuard
+                  component={
+                    <Button
+                      danger
+                      type='text'
+                      className='full-width-btn'
+                      icon={<DeleteOutlined />}
+                      onClick={deletePost}
+                    >
+                      Delete
+                    </Button>
+                  }
+                  owner={post.user}
+                />
+
+                <Button
+                  type='text'
+                  className='full-width-btn'
+                  icon={<CopyOutlined />}
+                  onClick={copyLink}
+                >
+                  Copy Link
+                </Button>
+              </div>
+            }
+          >
+            <Button icon={<MoreOutlined />} type='text' />
+          </Popover>,
+        ]}
         actions={[
           <Button
             icon={<CaretUpOutlined />}
@@ -86,51 +135,7 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
           >
             {formatNumber(post.totalComments)}
           </Button>,
-          <Button
-            icon={<BookOutlined />}
-            onClick={protectAction(savePost)}
-            type={post.isSaved ? 'primary' : 'default'}
-          >
-            Save
-          </Button>,
-          <Popover
-            placement='bottom'
-            trigger='click'
-            content={
-              <div className={styles.buttonContainer}>
-                <OwnerGuard
-                  component={
-                    <Button
-                      danger
-                      type='text'
-                      className='full-width-btn'
-                      icon={<DeleteOutlined />}
-                    >
-                      Delete
-                    </Button>
-                  }
-                  owner={post.user}
-                />
-
-                <Button
-                  type='text'
-                  className='full-width-btn'
-                  icon={<CopyOutlined />}
-                  onClick={copyLink}
-                >
-                  Copy Link
-                </Button>
-              </div>
-            }
-          >
-            <Button
-              icon={<MoreOutlined />}
-              onClick={protectAction(() => {})}
-              type='text'
-            ></Button>
-          </Popover>,
         ]}
-        className={styles['post-content']}
       >
         <List.Item.Meta
           avatar={<Avatar src={post.section.imgUrl} />}
@@ -140,7 +145,11 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
             </Link>
           }
           description={
-            <Typography.Text>{post.uploadTime.toLocaleDateString()}</Typography.Text>
+            <>
+              {`Uploaded by `}{' '}
+              <Link to={`/user/${post.user.username}`}>{post.user.username}</Link> &#8226;{' '}
+              {post.uploadTime.toLocaleDateString()}
+            </>
           }
         />
         <Typography.Title level={4}>{post.title}</Typography.Title>

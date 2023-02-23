@@ -1,7 +1,3 @@
-.post-content {
-  margin-left: 10px;
-}
-
 .virtual-post {
   height: 100vh;
 }
@@ -16,21 +12,14 @@
   .virtual-post {
     height: 80vh;
   }
+
+  .list-item {
+    margin-left: 5px;
+  }
 }
 
 @media screen and (min-height: 705px) {
   .virtual-post {
     height: 65vh;
   }
-}
-
-.buttonContainer {
-  background-color: var(--body-background-dark-theme);
-  border-radius: var(--border-radius-base);
-  display: flex;
-  flex-direction: column;
-}
-
-.buttonContainer > button {
-  text-align: left;
 }

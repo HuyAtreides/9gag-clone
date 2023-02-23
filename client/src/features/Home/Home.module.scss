@@ -15,20 +15,25 @@
     bottom: 0;
   }
   .content {
-    margin: 20px auto;
+    margin-top: 20px;
   }
 
   .spacer {
+    width: 20%;
+  }
+
+  .rightSpacer {
     width: 25%;
   }
 
   .collapsed-spacer {
-    width: 15%;
+    width: 10%;
   }
 
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 768px) {
     .collapsed-spacer,
-    .spacer {
+    .spacer,
+    .rightSpacer {
       display: none;
     }
   }

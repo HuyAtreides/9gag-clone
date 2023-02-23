@@ -1,5 +1,11 @@
-import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
-import { Avatar, Button, Comment, Modal, Typography } from 'antd';
+import {
+  CaretDownOutlined,
+  CaretUpOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  MoreOutlined,
+} from '@ant-design/icons';
+import { Avatar, Button, Comment, Modal, Popover, Typography } from 'antd';
 import React, { useContext, useReducer, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
@@ -99,7 +105,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
   }
 
   return (
-    <div>
+    <div className={styles['comment-container']}>
       <Comment
         actions={[
           <Button
@@ -127,31 +133,45 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
           >
             Reply to
           </Button>,
-          <OwnerGuard
-            component={
-              <Button
-                className={`${styles.commentAction} ${styles.actionBtn}`}
-                type='text'
-                onClick={() => setShowCommentEditor(!showCommentEditor)}
-              >
-                Edit
-              </Button>
+          <Popover
+            placement='bottom'
+            trigger='click'
+            content={
+              <div className='more-action-box-container'>
+                <OwnerGuard
+                  component={
+                    <Button
+                      className={`${styles.commentAction} ${styles.actionBtn} `}
+                      block
+                      type='text'
+                      icon={<EditOutlined />}
+                      onClick={() => setShowCommentEditor(!showCommentEditor)}
+                    >
+                      Edit
+                    </Button>
+                  }
+                  owner={comment.user}
+                />
+                <OwnerGuard
+                  component={
+                    <Button
+                      className={`${styles.commentAction} ${styles.actionBtn}`}
+                      block
+                      type='text'
+                      icon={<DeleteOutlined />}
+                      danger
+                      onClick={deleteComment}
+                    >
+                      Delete
+                    </Button>
+                  }
+                  owner={comment.user}
+                />
+              </div>
             }
-            owner={comment.user}
-          />,
-          <OwnerGuard
-            component={
-              <Button
-                className={`${styles.commentAction} ${styles.actionBtn}`}
-                type='text'
-                danger
-                onClick={deleteComment}
-              >
-                Delete
-              </Button>
-            }
-            owner={comment.user}
-          />,
+          >
+            <Button icon={<MoreOutlined />} type='text'></Button>
+          </Popover>,
         ]}
         author={
           <Link className={styles.postCommentAuthor} to='/'>

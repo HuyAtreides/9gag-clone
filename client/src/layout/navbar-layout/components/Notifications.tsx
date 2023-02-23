@@ -105,22 +105,22 @@ const Notifications: React.FC = () => {
           trigger='click'
           color='var(--overlay-background-color)'
           content={
-            <>
+            <div className='more-action-box-container'>
               <Button
                 type='text'
-                className={styles.clearButton}
+                className='full-width-button'
                 onClick={clearNotifications}
               >
                 Clear
               </Button>
               <Button
                 type='text'
-                className={styles.clearButton}
+                className='full-width-button'
                 onClick={viewAllNotification}
               >
                 Read All
               </Button>
-            </>
+            </div>
           }
         >
           <Button type='text' icon={<MoreOutlined />} />

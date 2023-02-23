@@ -79,3 +79,9 @@ export async function addNewPost(newPost: NewPost) {
   const axios = createAxiosInstance();
   await axios.post<void>(Constant.PostEndPoint, NewPostMapper.toDto(newPost));
 }
+
+export async function deletePost(id: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/${id}`;
+  await axios.delete<void>(url);
+}

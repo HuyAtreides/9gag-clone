@@ -1,6 +1,7 @@
 import { UploadFile } from 'antd';
 import { UploadChangeParam } from 'antd/lib/upload';
 import { useEffect, useState } from 'react';
+import { MediaType } from '../models/enums/constant';
 import MediaLocation from '../models/media-location';
 import { generateVideoThumbnail } from '../utils/generate-video-thumbnail';
 
@@ -14,7 +15,7 @@ const useUploadFile = (media?: MediaLocation): ReturnType => {
   const [uploadFile, setUploadFile] = useState<UploadFile[] | undefined>();
 
   useEffect(() => {
-    if (media) {
+    if (media && media.type !== MediaType.Gif) {
       (async function () {
         const thumbUrl = await generateVideoThumbnail(media);
 

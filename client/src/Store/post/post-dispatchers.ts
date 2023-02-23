@@ -5,6 +5,7 @@ import PageOptions from '../../models/page-options';
 import { UploadPostFormData } from '../../models/upload-post-form-data';
 import {
   addNewPost,
+  deletePost,
   downvote,
   getPostList,
   getSpecificPost,
@@ -18,6 +19,7 @@ import { upload } from '../../services/upload-service';
 import { handleError } from '../../utils/error-handler';
 import {
   appendNewPosts,
+  removePost,
   setIsGettingPage,
   setIsLoading,
   setPagination,
@@ -181,6 +183,19 @@ export const save =
       savePost(post.id);
       dispatch(setPostIsSaved(index));
       message.success('Post saved!');
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const remove =
+  (index: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const post = getState().post.posts[index];
+      deletePost(post.id);
+      dispatch(removePost(index));
+      message.success('Post deleted!');
     } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
     }

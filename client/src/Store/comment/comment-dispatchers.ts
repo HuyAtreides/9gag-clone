@@ -36,7 +36,6 @@ const getParentCommentPage = async (
   pageOptions: PageOptions,
   dispatch: React.Dispatch<AppAction<CommentActionType>>,
 ) => {
-  dispatch({ type: CommentActionType.SET_IS_LOADING, payload: true });
   const commentPage = await getPostComments(postId, pageOptions);
 
   const pagination: Pagination = {
@@ -46,7 +45,6 @@ const getParentCommentPage = async (
     totalElements: commentPage.totalElements,
   };
   dispatch({ type: CommentActionType.SET_PAGINATION, payload: pagination });
-  dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });
 
   return commentPage;
 };
@@ -55,7 +53,9 @@ export const getNextParentComment =
   (postId: number, pageOptions: PageOptions): Dispatcher =>
   async (state, dispatch) => {
     try {
+      dispatch({ type: CommentActionType.SET_IS_GETTING_NEXT_PAGE, payload: true });
       const commentPage = await getParentCommentPage(postId, pageOptions, dispatch);
+      dispatch({ type: CommentActionType.SET_IS_GETTING_NEXT_PAGE, payload: false });
       dispatch({ type: CommentActionType.APPEND_COMMENTS, payload: commentPage.content });
     } catch (error: unknown) {
       dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });
@@ -78,7 +78,9 @@ export const getParentComment =
   (postId: number, pageOptions: PageOptions): Dispatcher =>
   async (state, dispatch) => {
     try {
+      dispatch({ type: CommentActionType.SET_IS_LOADING, payload: true });
       const commentPage = await getParentCommentPage(postId, pageOptions, dispatch);
+      dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });
       dispatch({ type: CommentActionType.SET_COMMENT, payload: commentPage.content });
     } catch (error: unknown) {
       dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });

@@ -1,12 +1,4 @@
-.commentEditorForm {
-  width: 90%;
-
-  .textArea {
-    max-height: 300px;
-  }
-}
-
-.childCommentEditorForm {
-  @extend .commentEditorForm;
-  margin-left: var(--comment-ident);
+.gifInputContainer {
+  display: flex;
+  align-items: center;
 }

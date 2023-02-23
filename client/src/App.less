@@ -16,6 +16,8 @@
   --border-radius-base: @border-radius-base;
   --overlay-background-color: rgba(0, 0, 0, 0.5);
   --contrast-background-color: black;
+  --post-width: 50vw;
+  --post-width-on-small-screen: 95vw;
 }
 
 html {
@@ -53,4 +55,19 @@ html {
   justify-content: center;
   margin-top: 15px;
   margin-bottom: 15px;
+}
+
+.more-action-box-container {
+  background-color: var(--body-background-dark-theme);
+  border-radius: var(--border-radius-base);
+  display: flex;
+  flex-direction: column;
+}
+
+.more-action-box-container > button {
+  text-align: left;
+}
+
+.ant-list-item-extra {
+  margin: 0 !important;
 }

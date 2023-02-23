@@ -31,6 +31,7 @@ const ParentComment: React.FC<Props> = ({ user }: Props) => {
   const postId = useContext(PostContext);
   const [sortType, setSortType] = useState(SortType.TOP);
   const { pagination } = state;
+  const hasMoreComments = !!pagination && !pagination.isLast;
 
   const handleUploadNewComment = async (values: CommentUploadFormData) => {
     await uploadComment(values, postId)(state, dispatch);
@@ -83,7 +84,7 @@ const ParentComment: React.FC<Props> = ({ user }: Props) => {
       <InfiniteScroll
         dataLength={state.comments.length}
         next={getParentComments}
-        hasMore={!Boolean(state.pagination?.isLast)}
+        hasMore={hasMoreComments}
         loader={<CenterSpinner />}
       >
         <List

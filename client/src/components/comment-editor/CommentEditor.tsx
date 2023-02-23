@@ -1,13 +1,17 @@
-import { CameraOutlined, GifOutlined } from '@ant-design/icons';
+import { CameraOutlined, DeleteFilled } from '@ant-design/icons';
 import { Button, Col, Comment, Form, Row, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import Avatar from 'antd/lib/avatar/avatar';
 import TextArea from 'antd/lib/input/TextArea';
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import useUploadGif from '../../custom-hooks/gif-location';
 import useUploadFile from '../../custom-hooks/upload-file';
 import { CommentContext } from '../../features/commment/context/comment-context';
 import AppComment from '../../models/comment';
+import { MediaType } from '../../models/enums/constant';
 import { CommentUploadFormData } from '../../models/upload-comment-form-data';
+import GifSelect from '../gif-select/GifSelect';
+import GifWrapper from '../gif-wrapper/GifWrapper';
 
 import styles from './CommentEditor.module.scss';
 
@@ -27,19 +31,23 @@ const CommentEditor: React.FC<Props> = ({
   const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(
     comment?.getMediaLocation(),
   );
+  const singleUploadFile = uploadFile && uploadFile[0];
   const [form] = useForm<CommentUploadFormData>();
   const { user } = useContext(CommentContext)!;
   const [isUploading, setIsUploading] = useState(false);
+  const [gifLocation, setGifLocation] = useUploadGif(comment?.getMediaLocation());
+  const isGifFile = singleUploadFile?.type === MediaType.Gif;
 
   useEffect(() => {
-    form.setFieldValue('file', uploadFile ? uploadFile[0] : undefined);
-  }, [form, uploadFile]);
+    form.setFieldValue('file', singleUploadFile || gifLocation);
+  }, [form, singleUploadFile, gifLocation]);
 
   const defaultHandleCancel = () => {
     if (handleCancel) {
       handleCancel();
     } else {
       setUploadFile(undefined);
+      setGifLocation(undefined);
       form.resetFields();
     }
   };
@@ -58,9 +66,9 @@ const CommentEditor: React.FC<Props> = ({
   return (
     <Comment
       avatar={<Avatar src={user.avatarUrl} alt='Han Solo' className='large-icon' />}
+      className={styles.commentEditor}
       content={
         <Form
-          className={styles.commentEditorForm}
           onFinish={defaultHandleSubmit}
           form={form}
           initialValues={{
@@ -72,22 +80,23 @@ const CommentEditor: React.FC<Props> = ({
               disabled={isUploading}
               className={styles.textArea}
               placeholder='Leave a comment...'
+              allowClear={true}
             />
           </Form.Item>
           <Form.Item>
             <Row>
-              <Col span={10}>
-                <Row gutter={10}>
+              <Col span={9}>
+                <Row gutter={[5, 5]}>
                   <Col>
                     <Form.Item name='file'>
                       <Upload
                         beforeUpload={() => false}
                         maxCount={1}
-                        fileList={uploadFile}
+                        fileList={isGifFile ? undefined : uploadFile}
                         listType='picture'
                         onChange={handleFileChange}
                       >
-                        {uploadFile ? null : (
+                        {uploadFile || gifLocation ? null : (
                           <Button
                             icon={<CameraOutlined />}
                             shape='default'
@@ -99,21 +108,26 @@ const CommentEditor: React.FC<Props> = ({
                   </Col>
                   <Col>
                     <Form.Item>
-                      <Upload>
-                        {uploadFile ? null : (
-                          <Button
-                            icon={<GifOutlined />}
-                            shape='default'
-                            disabled={isUploading}
-                          />
-                        )}
-                      </Upload>
+                      {uploadFile || gifLocation ? null : (
+                        <GifSelect setGif={setGifLocation} />
+                      )}
                     </Form.Item>
                   </Col>
+                  {gifLocation ? (
+                    <div className={styles.gifInputContainer}>
+                      <GifWrapper mediaLocation={gifLocation} />
+                      <Button
+                        icon={<DeleteFilled />}
+                        type='text'
+                        danger
+                        onClick={() => setGifLocation(undefined)}
+                      />
+                    </div>
+                  ) : null}
                 </Row>
               </Col>
-              <Col span={14}>
-                <Row justify='end' gutter={15}>
+              <Col span={15}>
+                <Row justify='end' gutter={[5, 5]}>
                   <Col>
                     <Button
                       type='text'

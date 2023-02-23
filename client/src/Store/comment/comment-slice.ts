@@ -23,6 +23,7 @@ export enum CommentActionType {
   ADD_REPLY,
   SET_COMMENT,
   DELETE_COMMENT,
+  SET_IS_GETTING_NEXT_PAGE,
   UPDATE_COMMENT,
 }
 
@@ -53,6 +54,11 @@ export function commentReducer(
       firstComments.forEach((value) => commentSet.add(value.id));
       newState.commentSet = commentSet;
       newState.comments = firstComments;
+
+      return newState;
+
+    case CommentActionType.SET_IS_GETTING_NEXT_PAGE:
+      newState.isGettingNextPage = payload as boolean;
 
       return newState;
 

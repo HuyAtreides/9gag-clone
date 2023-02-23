@@ -47,6 +47,10 @@ const postSlice = createSlice({
       state.posts?.push(...action.payload);
     },
 
+    removePost(state, action: PayloadAction<number>) {
+      state.posts.splice(action.payload, 1);
+    },
+
     setPostUpvotes(state, action: PayloadAction<[number, 1 | -1]>) {
       const index = action.payload[0];
       const amount = action.payload[1];
@@ -90,6 +94,7 @@ export const {
   setPostUpvotes,
   setSearchTerm,
   resetState,
+  removePost,
   setPostIsSaved,
 } = postSlice.actions;
 export const postReducer = postSlice.reducer;
