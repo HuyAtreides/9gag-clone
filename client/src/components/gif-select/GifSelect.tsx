@@ -56,6 +56,7 @@ const GifSelect: React.FC<Props> = ({ setGif }: Props) => {
         visible={open}
         onCancel={() => setOpen(false)}
         footer={null}
+        width={ComputedConstants.ScreenWidth * 0.6}
       >
         <Input
           className={styles.searchInput}

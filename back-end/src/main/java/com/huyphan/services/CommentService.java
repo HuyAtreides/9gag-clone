@@ -215,8 +215,8 @@ public class CommentService {
     }
 
     public Comment getComment(Long id) throws CommentException {
-        return commentRepository.findById(id)
-                .orElseThrow(() -> new CommentException("Comment not found"));
+        return commentRepository.findById(UserService.getUser(), id)
+                .orElseThrow(() -> new CommentException("Comment not found")).toComment();
     }
 
     /**

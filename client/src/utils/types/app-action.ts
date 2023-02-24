@@ -1,5 +1,5 @@
 export type AppAction<ActionType> = {
-  readonly payload: unknown;
+  readonly payload?: unknown;
   readonly type: ActionType;
 };
 

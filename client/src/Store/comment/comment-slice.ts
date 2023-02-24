@@ -25,6 +25,7 @@ export enum CommentActionType {
   DELETE_COMMENT,
   SET_IS_GETTING_NEXT_PAGE,
   UPDATE_COMMENT,
+  RESET_STATE,
 }
 
 export function getCommentInitialState() {
@@ -161,6 +162,9 @@ export function commentReducer(
       newState.comments = comments;
 
       return newState;
+
+    case CommentActionType.RESET_STATE:
+      return getCommentInitialState();
 
     default:
       return state;

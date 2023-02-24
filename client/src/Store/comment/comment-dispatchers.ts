@@ -81,7 +81,7 @@ export const getParentComment =
       dispatch({ type: CommentActionType.SET_IS_LOADING, payload: true });
       const commentPage = await getParentCommentPage(postId, pageOptions, dispatch);
       dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });
-      dispatch({ type: CommentActionType.SET_COMMENT, payload: commentPage.content });
+      dispatch({ type: CommentActionType.APPEND_COMMENTS, payload: commentPage.content });
     } catch (error: unknown) {
       dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });
       handleError(dispatch, error, errorMessageActionCreator);
@@ -229,3 +229,17 @@ export const getNewComment = async (
     mediaUrl: mediaLocation.url,
   };
 };
+
+export const appendSingleComment =
+  (id: number): Dispatcher =>
+  async (state, dispatch) => {
+    try {
+      dispatch({ type: CommentActionType.SET_IS_LOADING, payload: true });
+      const comment = await getComment(id);
+      dispatch({ type: CommentActionType.APPEND_COMMENTS, payload: [comment] });
+      dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });
+    } catch (error: unknown) {
+      dispatch({ type: CommentActionType.SET_IS_LOADING, payload: false });
+      handleError(dispatch, error, errorMessageActionCreator);
+    }
+  };

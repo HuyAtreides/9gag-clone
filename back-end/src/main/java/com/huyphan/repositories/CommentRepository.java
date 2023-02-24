@@ -66,6 +66,14 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
     Page<CommentWithDerivedFields> findParentComments(@Param("user") User user,
             @Param("postId") Long postId, Pageable pageable);
 
+    @EntityGraph("CommentEntityGraph")
+    @Query(value = SELECT_STATEMENT + """
+            from Comment comment
+            where comment.id = :id
+            """)
+    Optional<CommentWithDerivedFields> findById(@Param("user") User user,
+            @Param("id") Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Comment> findWithLockById(Long id);
 }
