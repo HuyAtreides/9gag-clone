@@ -1,13 +1,4 @@
-.commentEditorForm {
-  width: 90%;
-  min-width: 350px;
-
-  .textArea {
-    resize: none;
-  }
-}
-
-.childCommentEditorForm {
-  @extend .commentEditorForm;
-  margin-left: var(--comment-ident);
+.gifInputContainer {
+  display: flex;
+  align-items: center;
 }

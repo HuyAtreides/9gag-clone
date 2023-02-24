@@ -1,5 +1,6 @@
 package com.huyphan.dtos;
 
+import com.huyphan.models.enums.SortType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
@@ -16,4 +17,7 @@ public class PageOptionsDto {
 
     @Nullable
     private String search;
+
+    @Nullable
+    private SortType sortType;
 }

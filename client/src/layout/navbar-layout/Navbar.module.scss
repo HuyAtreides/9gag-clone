@@ -109,22 +109,3 @@
     }
   }
 }
-.searchContainer {
-  padding: 10px;
-  background-color: $backGroundColorDarkTheme;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  .searchInput {
-    background-color: $iconHoverColorDarkTheme;
-    color: $iconColorDarkTheme;
-    width: 300px;
-    input {
-      margin-left: 10px;
-      color: $iconColorDarkTheme;
-    }
-    &:hover {
-      background-color: $iconHoverColorDarkTheme;
-      color: $iconColorDarkTheme;
-    }
-  }
-}

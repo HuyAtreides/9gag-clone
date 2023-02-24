@@ -1,5 +1,6 @@
 package com.huyphan.models.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.huyphan.models.exceptions.ValueToEnumException;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
@@ -22,5 +23,10 @@ public enum SortType {
     static public SortType toSortType(String value) throws ValueToEnumException {
         return Arrays.stream(SortType.values()).filter(c -> c.getValue().equals(value)).findFirst()
                 .orElseThrow(() -> new ValueToEnumException("Post tag doesn't exist."));
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 }

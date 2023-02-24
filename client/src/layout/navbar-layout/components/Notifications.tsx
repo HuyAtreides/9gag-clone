@@ -21,7 +21,8 @@ import {
   resetNotificationState,
   setNotificationErrorMessage,
 } from '../../../Store/notification/notification-slice';
-import { IntervalIdContext } from '../NavbarLayout';
+import { IntervalIdContext } from './notifications-container/NotificationContainer';
+
 import styles from './Notifications.module.scss';
 
 const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
@@ -105,22 +106,22 @@ const Notifications: React.FC = () => {
           trigger='click'
           color='var(--overlay-background-color)'
           content={
-            <>
+            <div className='more-action-box-container'>
               <Button
                 type='text'
-                className={styles.clearButton}
+                className='full-width-button'
                 onClick={clearNotifications}
               >
                 Clear
               </Button>
               <Button
                 type='text'
-                className={styles.clearButton}
+                className='full-width-button'
                 onClick={viewAllNotification}
               >
                 Read All
               </Button>
-            </>
+            </div>
           }
         >
           <Button type='text' icon={<MoreOutlined />} />
@@ -143,7 +144,11 @@ const Notifications: React.FC = () => {
                 }`}
                 key={item.id}
               >
-                <Link to={item.destUrl} onClick={() => viewNotification(item, index)}>
+                <Link
+                  reloadDocument
+                  to={item.destUrl}
+                  onClick={() => viewNotification(item, index)}
+                >
                   <div className={styles.notificationDescriptionContainer}>
                     {NOTIFICATION_TYPE_TO_ICON_MAP[item.type]}
                     <Typography.Paragraph className={styles.notificationDescription}>

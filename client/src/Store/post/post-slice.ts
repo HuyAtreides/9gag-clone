@@ -47,6 +47,10 @@ const postSlice = createSlice({
       state.posts?.push(...action.payload);
     },
 
+    removePost(state, action: PayloadAction<number>) {
+      state.posts.splice(action.payload, 1);
+    },
+
     setPostUpvotes(state, action: PayloadAction<[number, 1 | -1]>) {
       const index = action.payload[0];
       const amount = action.payload[1];
@@ -63,8 +67,13 @@ const postSlice = createSlice({
       post.downvotes += amount;
     },
 
+    setPostIsSaved(state, action: PayloadAction<number>) {
+      const index = action.payload;
+      const currentIsSavedState = state.posts[index].isSaved;
+      state.posts[index].isSaved = !currentIsSavedState;
+    },
+
     setSearchTerm(state, action: PayloadAction<string>) {
-      console.log('set');
       state.searchTerm = action.payload.length ? action.payload : undefined;
     },
 
@@ -85,5 +94,7 @@ export const {
   setPostUpvotes,
   setSearchTerm,
   resetState,
+  removePost,
+  setPostIsSaved,
 } = postSlice.actions;
 export const postReducer = postSlice.reducer;

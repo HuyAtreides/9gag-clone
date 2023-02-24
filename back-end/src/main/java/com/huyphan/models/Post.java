@@ -32,6 +32,7 @@ import org.hibernate.annotations.Nationalized;
 @Entity
 @NamedEntityGraph(name = "PostEntityGraph", attributeNodes = {
         @NamedAttributeNode("section"),
+        @NamedAttributeNode("user")
 })
 @DynamicInsert
 public class Post {
@@ -89,6 +90,17 @@ public class Post {
 
     @Transient
     private boolean isInUserFavSections;
+
+    @Transient
+    private boolean isSaved;
+
+    public boolean getIsSaved() {
+        return isSaved;
+    }
+
+    public void setIsSaved(boolean saved) {
+        isSaved = saved;
+    }
 
     public boolean getIsDownvoted() {
         return isDownvoted;

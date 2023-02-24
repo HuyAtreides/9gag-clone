@@ -32,6 +32,12 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                     ) as isDownvoted,
                     
                     (
+                        select case when (count(*) > 0) then true else false end
+                        from Post savedPost
+                        where savedPost.id = post.id and :user in elements(savedPost.saveUsers)
+                    ) as isSaved,
+                    
+                    (
                         select count(*)
                         from Comment comment
                         where comment.post = post

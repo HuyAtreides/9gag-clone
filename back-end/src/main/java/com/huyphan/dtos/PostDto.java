@@ -21,6 +21,8 @@ public class PostDto {
 
     private SectionDto section;
 
+    private UserDto user;
+
     /**
      * The upload time of this post in ISO format e.g.2022-07-23T00:42:50Z .
      */
@@ -33,4 +35,6 @@ public class PostDto {
     private Boolean isUpvoted;
 
     private Boolean isDownvoted;
+
+    private Boolean isSaved;
 }

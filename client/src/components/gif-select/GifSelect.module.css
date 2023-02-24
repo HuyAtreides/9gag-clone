@@ -1,0 +1,9 @@
+.gif-select-container {
+  max-height: 50vh;
+  overflow: auto;
+  min-height: 20vh;
+}
+
+.searchInput {
+  margin-bottom: 15px;
+}

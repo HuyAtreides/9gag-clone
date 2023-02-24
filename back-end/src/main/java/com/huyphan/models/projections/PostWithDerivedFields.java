@@ -13,6 +13,8 @@ public interface PostWithDerivedFields {
 
     boolean getIsDownvoted();
 
+    boolean getIsSaved();
+
     int getTotalComments();
 
     default Post toPost() {
@@ -20,6 +22,7 @@ public interface PostWithDerivedFields {
         post.setTotalComments(getTotalComments());
         post.setIsUpvoted(getIsUpvoted());
         post.setIsDownvoted(getIsDownvoted());
+        post.setIsSaved(getIsSaved());
 
         return post;
     }

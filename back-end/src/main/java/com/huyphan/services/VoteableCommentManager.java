@@ -15,7 +15,7 @@ public class VoteableCommentManager extends VoteableObjectManager<Comment> {
     @Override
     Set<Comment> getUpvotedObjects() {
         try {
-            return userService.getUserById(userService.getUser().getId()).getUpvotedComments();
+            return userService.getUserById(UserService.getUser().getId()).getUpvotedComments();
         } catch (UserException e) {
             e.printStackTrace();
             return null;
@@ -25,7 +25,7 @@ public class VoteableCommentManager extends VoteableObjectManager<Comment> {
     @Override
     Set<Comment> getDownvotedObjects() {
         try {
-            return userService.getUserById(userService.getUser().getId()).getDownvotedComments();
+            return userService.getUserById(UserService.getUser().getId()).getDownvotedComments();
         } catch (UserException e) {
             e.printStackTrace();
             return null;

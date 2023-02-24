@@ -9,18 +9,20 @@ import com.huyphan.models.User;
 import com.huyphan.models.builders.AddCommentNotificationBuilder;
 import com.huyphan.models.builders.AddReplyNotificationBuilder;
 import com.huyphan.models.builders.VoteCommentNotificationBuilder;
-import com.huyphan.models.enums.CommentSortField;
+import com.huyphan.models.enums.SortType;
+import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.models.projections.CommentWithDerivedFields;
 import com.huyphan.repositories.CommentRepository;
+import com.huyphan.utils.AWSS3Util;
+import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,9 @@ public class CommentService {
     private PostService postService;
 
     @Autowired
+    private SortTypeToSortOptionBuilder commentSortTypeToSortOptionBuilder;
+
+    @Autowired
     private NotificationSender notificationSender;
 
     @Autowired
@@ -51,18 +56,22 @@ public class CommentService {
     @Autowired
     private AddCommentNotificationBuilder addCommentNotificationBuilder;
 
+    @Autowired
+    private AWSS3Util awss3Util;
 
     @Transactional
-    public void addComment(Long postId, NewComment newComment)
-            throws PostException {
+    public Comment addComment(Long postId, NewComment newComment)
+            throws PostException, CommentException {
         Post post = postService.getPost(postId);
         Comment comment = createNewCommentEntity(post, newComment);
         Comment savedComment = commentRepository.save(comment);
         Notification notification = addCommentNotificationBuilder.build(savedComment);
         notificationSender.send(notification, post.getUser());
+
+        return savedComment;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {Exception.class})
     public void deleteComment(Long id) throws CommentException {
         User currentUser = UserService.getUser();
         Comment comment = getComment(id);
@@ -71,9 +80,8 @@ public class CommentService {
             throw new CommentException("Comment not found");
         }
 
+        awss3Util.deleteObject(comment.getMediaUrl());
         commentRepository.deleteById(id);
-        voteableCommentManager.removeDownvotedObject(comment);
-        voteableCommentManager.removeUpvotedObject(comment);
     }
 
     @Transactional(rollbackFor = {VoteableObjectException.class})
@@ -92,8 +100,11 @@ public class CommentService {
     @Transactional(rollbackFor = {VoteableObjectException.class})
     public void unUpvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
-        voteableCommentManager.removeUpvotedObject(comment);
-        comment.setUpvotes(comment.getUpvotes() - 1);
+        boolean isRemoved = voteableCommentManager.removeUpvotedObject(comment);
+
+        if (isRemoved) {
+            comment.setUpvotes(comment.getUpvotes() - 1);
+        }
     }
 
     private void sendVoteCommentNotification(Comment comment) {
@@ -118,14 +129,18 @@ public class CommentService {
     @Transactional(rollbackFor = {VoteableObjectException.class})
     public void unDownvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
-        voteableCommentManager.removeDownvotedObject(comment);
-        comment.setDownvotes(comment.getDownvotes() - 1);
+        boolean isRemoved = voteableCommentManager.removeDownvotedObject(comment);
+
+        if (isRemoved) {
+            comment.setDownvotes(comment.getDownvotes() - 1);
+        }
     }
 
     @Transactional
     public void updateComment(Long id, NewComment updatedCommentFields) throws CommentException {
         Comment comment = getComment(id);
         User currentUser = UserService.getUser();
+        validateNewComment(updatedCommentFields);
 
         if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
             throw new CommentException("Comment not found");
@@ -137,7 +152,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void addReply(NewComment newReply, Long replyToId)
+    public Comment addReply(NewComment newReply, Long replyToId)
             throws CommentException {
         Comment replyTo = getComment(replyToId);
         Comment reply = createNewCommentEntity(replyTo.getPost(), newReply);
@@ -147,10 +162,15 @@ public class CommentService {
         Comment savedReply = commentRepository.save(reply);
         Notification notification = addReplyNotificationBuilder.build(savedReply);
         notificationSender.send(notification, replyTo.getUser());
+
+        return savedReply;
     }
 
-    private Comment createNewCommentEntity(Post post, NewComment newComment) {
+    private Comment createNewCommentEntity(Post post, NewComment newComment)
+            throws CommentException {
         Comment comment = new Comment();
+        validateNewComment(newComment);
+
         comment.setUser(UserService.getUser());
         comment.setText(newComment.getText());
         comment.setMediaUrl(newComment.getMediaUrl());
@@ -159,24 +179,35 @@ public class CommentService {
         return comment;
     }
 
-    public Page<Comment> getChildrenComment(Long parentId, PageOptions options) {
-        Sort sortOptions = Sort.by(Order.desc(CommentSortField.UPVOTES.getValue()),
-                Order.desc(CommentSortField.DATE.getValue()));
+    private void validateNewComment(NewComment newComment) throws CommentException {
+        String newCommentText = newComment.getText();
+        String newCommentMediaUrl = newComment.getMediaUrl();
+
+        if (newCommentText == null && newCommentMediaUrl == null) {
+            throw new CommentException("Please provide either media or text");
+        }
+    }
+
+    public Page<Comment> getChildrenComment(Long parentId, PageOptions options)
+            throws AppException {
+        SortType sortType = options.getSortType();
+        Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findByParentIdAndIdNotIn(
+        return commentRepository.findChildrenComments(
                 UserService.getUser(),
                 parentId,
                 pageable
         ).map(CommentWithDerivedFields::toComment);
     }
 
-    public Page<Comment> getPostComments(Long postId, PageOptions options) {
-        Sort sortOptions = Sort.by(Order.desc(CommentSortField.UPVOTES.getValue()),
-                Order.desc(CommentSortField.DATE.getValue()));
+    public Page<Comment> getPostComments(Long postId, PageOptions options)
+            throws AppException {
+        SortType sortType = options.getSortType();
+        Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findByPostIdAndIdNotInAndParentIsNull(
+        return commentRepository.findParentComments(
                 UserService.getUser(),
                 postId,
                 pageable
@@ -184,8 +215,8 @@ public class CommentService {
     }
 
     public Comment getComment(Long id) throws CommentException {
-        return commentRepository.findById(id)
-                .orElseThrow(() -> new CommentException("Comment not found"));
+        return commentRepository.findById(UserService.getUser(), id)
+                .orElseThrow(() -> new CommentException("Comment not found")).toComment();
     }
 
     /**

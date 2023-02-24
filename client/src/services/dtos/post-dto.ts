@@ -1,4 +1,5 @@
 import SectionDto from './section-dto';
+import { UserDto } from './user-dto';
 
 export default interface PostDto {
   readonly id: number;
@@ -27,4 +28,8 @@ export default interface PostDto {
   readonly isDownvoted: boolean;
 
   readonly totalComments: number;
+
+  readonly user: UserDto;
+
+  readonly isSaved: boolean;
 }

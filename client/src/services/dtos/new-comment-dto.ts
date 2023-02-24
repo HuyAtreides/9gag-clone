@@ -1,7 +1,7 @@
 export default interface NewCommentDto {
-  readonly text: string;
+  readonly text: string | null;
 
-  readonly mediaUrl: string;
+  readonly mediaUrl: string | null;
 
-  readonly mediaType: string;
+  readonly mediaType: string | null;
 }

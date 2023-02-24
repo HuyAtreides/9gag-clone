@@ -1,21 +1,23 @@
 import { Image } from 'antd';
-import { useEffect, useRef } from 'react';
-import { MediaType } from '../../models/enums/constant';
+import React, { useEffect, useRef } from 'react';
+import { ComputedConstants, MediaType } from '../../models/enums/constant';
 import { toEnum } from '../../utils/value-to-enum';
+import GifWrapper from '../gif-wrapper/GifWrapper';
 import styles from './Media.module.css';
 
 interface Props {
   readonly url: string;
   readonly type: string;
   readonly scrollAreaId: string;
-  readonly width?: string;
-  readonly height?: string;
+  readonly width?: string | number;
+  readonly height?: string | number;
 }
 
 const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Props) => {
   const mediaType = toEnum(type.split('/')[0], MediaType);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
+  const className =
+    width || height ? styles['media'] : `${styles['media']} ${styles['media-size']}`;
   const observerCallback: IntersectionObserverCallback = (entries, _) => {
     const entry = entries[0];
     const video = entry.target as HTMLVideoElement;
@@ -46,17 +48,27 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
   }, []);
 
   if (mediaType === MediaType.Image) {
-    return <Image src={url} width={width} height={height} className={styles['media']} />;
+    return <Image src={url} width={width} height={height} className={className} />;
+  }
+
+  if (mediaType === MediaType.Gif) {
+    return (
+      <GifWrapper
+        mediaLocation={{ url, type }}
+        width={ComputedConstants.ScreenWidth * 0.3}
+      />
+    );
   }
 
   return (
     <video
       ref={videoRef}
-      className={styles['media']}
+      className={className}
       src={url}
       width={width}
       height={height}
       controls
+      autoPlay
       preload='auto'
     />
   );

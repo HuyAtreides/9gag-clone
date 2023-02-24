@@ -1,4 +1,5 @@
 import Section from './section';
+import { User } from './user';
 
 export default interface Post {
   readonly id: number;
@@ -15,9 +16,6 @@ export default interface Post {
 
   readonly section: Section;
 
-  /**
-   * The upload time of this post in ISO format e.g.2022-07-23T00:42:50Z .
-   */
   readonly uploadTime: Date;
 
   readonly tags: String;
@@ -27,4 +25,8 @@ export default interface Post {
   readonly isDownvoted: boolean;
 
   readonly totalComments: number;
+
+  readonly user: User;
+
+  readonly isSaved: boolean;
 }

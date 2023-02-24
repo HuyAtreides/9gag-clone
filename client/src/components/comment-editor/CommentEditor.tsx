@@ -1,117 +1,144 @@
-import { CameraOutlined, GifOutlined } from '@ant-design/icons';
+import { CameraOutlined, DeleteFilled } from '@ant-design/icons';
 import { Button, Col, Comment, Form, Row, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import Avatar from 'antd/lib/avatar/avatar';
 import TextArea from 'antd/lib/input/TextArea';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import useUploadGif from '../../custom-hooks/gif-location';
 import useUploadFile from '../../custom-hooks/upload-file';
+import { CommentContext } from '../../features/commment/context/comment-context';
 import AppComment from '../../models/comment';
+import { MediaType } from '../../models/enums/constant';
+import { CommentUploadFormData } from '../../models/upload-comment-form-data';
+import GifSelect from '../gif-select/GifSelect';
+import GifWrapper from '../gif-wrapper/GifWrapper';
 
-import { User } from '../../models/user';
 import styles from './CommentEditor.module.scss';
 
 interface Props {
-  readonly user: User;
-  readonly children?: ReactNode[];
+  readonly children?: ReactNode;
   readonly comment?: AppComment;
-  readonly handleSubmit?: (values: CommentEditorFormValue) => void;
+  readonly handleSubmit: (values: CommentUploadFormData) => void;
   readonly handleCancel?: () => void;
 }
 
-type CommentEditorFormValue = {
-  readonly text: string;
-  readonly file: File;
-};
-
 const CommentEditor: React.FC<Props> = ({
-  user,
   children,
   comment,
   handleCancel,
   handleSubmit,
 }: Props) => {
   const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(
-    comment ? { url: comment.mediaUrl, type: comment.mediaType } : undefined,
+    comment?.getMediaLocation(),
   );
-  const [form] = useForm<CommentEditorFormValue>();
+  const singleUploadFile = uploadFile && uploadFile[0];
+  const [form] = useForm<CommentUploadFormData>();
+  const { user } = useContext(CommentContext)!;
+  const [isUploading, setIsUploading] = useState(false);
+  const [gifLocation, setGifLocation] = useUploadGif(comment?.getMediaLocation());
+  const isGifFile = singleUploadFile?.type === MediaType.Gif;
+
+  useEffect(() => {
+    form.setFieldValue('file', singleUploadFile || gifLocation);
+  }, [form, singleUploadFile, gifLocation]);
 
   const defaultHandleCancel = () => {
-    form.resetFields();
-    setUploadFile(undefined);
+    if (handleCancel) {
+      handleCancel();
+    } else {
+      setUploadFile(undefined);
+      setGifLocation(undefined);
+      form.resetFields();
+    }
   };
 
-  const defaultHandleSubmit = () => {};
+  const defaultHandleSubmit = async (values: CommentUploadFormData) => {
+    setIsUploading(true);
+    const result = await Promise.allSettled([handleSubmit(values)]);
+    setIsUploading(false);
+    const status = result[0].status;
+
+    if (status === 'fulfilled') {
+      defaultHandleCancel();
+    }
+  };
 
   return (
     <Comment
       avatar={<Avatar src={user.avatarUrl} alt='Han Solo' className='large-icon' />}
+      className={styles.commentEditor}
       content={
         <Form
-          className={styles.commentEditorForm}
-          onFinish={handleSubmit ? handleSubmit : defaultHandleSubmit}
+          onFinish={defaultHandleSubmit}
           form={form}
+          initialValues={{
+            text: comment?.text,
+          }}
         >
-          <Form.Item
-            name='text'
-            rules={[
-              {
-                validator: (_, value) => {
-                  if (!value.text && !value.file) {
-                    throw new Error('Please provide either text or file');
-                  }
-                },
-                message: 'Please provide either text or file',
-              },
-            ]}
-          >
+          <Form.Item name='text'>
             <TextArea
+              disabled={isUploading}
               className={styles.textArea}
               placeholder='Leave a comment...'
-              autoSize={false}
+              allowClear={true}
             />
           </Form.Item>
           <Form.Item>
             <Row>
-              <Col span={14}>
-                <Row gutter={10}>
+              <Col span={9}>
+                <Row gutter={[5, 5]}>
                   <Col>
                     <Form.Item name='file'>
                       <Upload
                         beforeUpload={() => false}
                         maxCount={1}
-                        fileList={uploadFile}
+                        fileList={isGifFile ? undefined : uploadFile}
                         listType='picture'
                         onChange={handleFileChange}
                       >
-                        {uploadFile ? null : (
-                          <Button icon={<CameraOutlined />} shape='default' />
+                        {uploadFile || gifLocation ? null : (
+                          <Button
+                            icon={<CameraOutlined />}
+                            shape='default'
+                            disabled={isUploading}
+                          />
                         )}
                       </Upload>
                     </Form.Item>
                   </Col>
                   <Col>
                     <Form.Item>
-                      <Upload>
-                        {uploadFile ? null : (
-                          <Button icon={<GifOutlined />} shape='default' />
-                        )}
-                      </Upload>
+                      {uploadFile || gifLocation ? null : (
+                        <GifSelect setGif={setGifLocation} />
+                      )}
                     </Form.Item>
                   </Col>
+                  {gifLocation ? (
+                    <div className={styles.gifInputContainer}>
+                      <GifWrapper mediaLocation={gifLocation} />
+                      <Button
+                        icon={<DeleteFilled />}
+                        type='text'
+                        danger
+                        onClick={() => setGifLocation(undefined)}
+                      />
+                    </div>
+                  ) : null}
                 </Row>
               </Col>
-              <Col span={10}>
-                <Row justify='end' gutter={15}>
+              <Col span={15}>
+                <Row justify='end' gutter={[5, 5]}>
                   <Col>
                     <Button
                       type='text'
-                      onClick={handleCancel ? handleCancel : defaultHandleCancel}
+                      onClick={defaultHandleCancel}
+                      disabled={isUploading}
                     >
                       Cancel
                     </Button>
                   </Col>
                   <Col>
-                    <Button htmlType='submit' type='primary'>
+                    <Button htmlType='submit' type='primary' loading={isUploading}>
                       Post
                     </Button>
                   </Col>
