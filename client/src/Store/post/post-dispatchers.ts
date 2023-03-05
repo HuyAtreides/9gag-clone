@@ -2,6 +2,7 @@ import { message } from 'antd';
 import { AppThunk } from '..';
 import { Pagination } from '../../models/page';
 import PageOptions from '../../models/page-options';
+import Post from '../../models/post';
 import { UploadPostFormData } from '../../models/upload-post-form-data';
 import {
   addNewPost,
@@ -91,13 +92,13 @@ export const addNewPosts =
   };
 
 export const upvotePost =
-  (index: number = 0): AppThunk =>
+  (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      dispatch(setPostUpvotes([index, 1]));
-      await upvote(getState().post.posts![index].id);
+      dispatch(setPostUpvotes([post, 1]));
+      await upvote(post.id);
     } catch (error: unknown) {
-      dispatch(setPostUpvotes([index, -1]));
+      dispatch(setPostUpvotes([post, -1]));
       handleError(
         dispatch,
         'Failed to upvote post. Please try again',
@@ -107,13 +108,13 @@ export const upvotePost =
   };
 
 export const unUpvotePost =
-  (index: number = 0): AppThunk =>
+  (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      dispatch(setPostUpvotes([index, -1]));
-      await unUpvote(getState().post.posts![index].id);
+      dispatch(setPostUpvotes([post, -1]));
+      await unUpvote(post.id);
     } catch (error: unknown) {
-      dispatch(setPostUpvotes([index, 1]));
+      dispatch(setPostUpvotes([post, 1]));
       handleError(
         dispatch,
         'Failed to unupvote post. Please try again',
@@ -123,13 +124,13 @@ export const unUpvotePost =
   };
 
 export const downvotePost =
-  (index: number = 0): AppThunk =>
+  (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      dispatch(setPostDownvotes([index, 1]));
-      await downvote(getState().post.posts![index].id);
+      dispatch(setPostDownvotes([post, 1]));
+      await downvote(post.id);
     } catch (error: unknown) {
-      dispatch(setPostDownvotes([index, -1]));
+      dispatch(setPostDownvotes([post, -1]));
       handleError(
         dispatch,
         'Failed to downvote post. Please try again',
@@ -139,13 +140,13 @@ export const downvotePost =
   };
 
 export const unDownvotePost =
-  (index: number = 0): AppThunk =>
+  (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      dispatch(setPostDownvotes([index, -1]));
-      await unDownvote(getState().post.posts![index].id);
+      dispatch(setPostDownvotes([post, -1]));
+      await unDownvote(post.id);
     } catch (error: unknown) {
-      dispatch(setPostDownvotes([index, 1]));
+      dispatch(setPostDownvotes([post, 1]));
       handleError(
         dispatch,
         'Failed to undownvote post. Please try again',
@@ -176,12 +177,11 @@ export const uploadNewPost =
   };
 
 export const save =
-  (index: number): AppThunk =>
+  (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      const post = getState().post.posts[index];
       savePost(post.id);
-      dispatch(setPostIsSaved(index));
+      dispatch(setPostIsSaved(post));
       message.success('Post saved!');
     } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
@@ -189,25 +189,23 @@ export const save =
   };
 
 export const remove =
-  (index: number): AppThunk =>
+  (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      const post = getState().post.posts[index];
-      deletePost(post.id);
-      dispatch(removePost(index));
+      dispatch(removePost(post));
       message.success('Post deleted!');
+      await deletePost(post.id);
     } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
 
 export const unSave =
-  (index: number): AppThunk =>
+  (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      const post = getState().post.posts[index];
       unSavePost(post.id);
-      dispatch(setPostIsSaved(index));
+      dispatch(setPostIsSaved(post));
       message.success('Post unsaved!');
     } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);

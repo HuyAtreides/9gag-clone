@@ -5,7 +5,7 @@ import { Grid } from '@giphy/react-components';
 import { Button, Empty, Input, Modal, Spin } from 'antd';
 import { debounce } from 'lodash';
 import { useCallback, useState } from 'react';
-import { ComputedConstants, Constant, MediaType } from '../../models/enums/constant';
+import { Constant, MediaType } from '../../models/enums/constant';
 import MediaLocation from '../../models/media-location';
 import styles from './GifSelect.module.css';
 
@@ -56,7 +56,7 @@ const GifSelect: React.FC<Props> = ({ setGif }: Props) => {
         visible={open}
         onCancel={() => setOpen(false)}
         footer={null}
-        width={ComputedConstants.ScreenWidth * 0.6}
+        width={window.innerWidth * 0.9}
       >
         <Input
           className={styles.searchInput}
@@ -69,7 +69,7 @@ const GifSelect: React.FC<Props> = ({ setGif }: Props) => {
           <div className={styles['gif-select-container']}>
             <Grid
               fetchGifs={fetchGifs}
-              width={ComputedConstants.ScreenWidth * 0.5}
+              width={window.innerWidth * 0.8}
               columns={3}
               key={searchTerm}
               noLink

@@ -1,10 +1,13 @@
-package com.huyphan.services;
+package com.huyphan.services.notification;
 
 import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.User;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.repositories.NotificationRepository;
+import com.huyphan.services.UserService;
+import com.huyphan.services.notification.builders.NotificationBuilder;
+import com.huyphan.services.notification.payload.NotificationPayload;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -22,23 +25,25 @@ public class NotificationService implements NotificationSender {
     private NotificationRepository notificationRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private List<NotificationBuilder> notificationBuilders;
 
     public Slice<Notification> getNotifications(PageOptions options) {
         Sort sort = Sort.by(Order.desc("id"));
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sort);
-        User user = userService.getUser();
+        User user = UserService.getUser();
         return notificationRepository.findByUserId(user.getId(), pageable);
     }
 
     @Transactional
     public void markAllNotificationsAsViewed() {
-        User user = userService.getUser();
+        User user = UserService.getUser();
         notificationRepository.markAllAsViewed(user.getId());
     }
 
     @Transactional
     public void markNotificationAsViewed(Long id) throws AppException {
-        User user = userService.getUser();
+        User user = UserService.getUser();
         Notification notification = notificationRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() ->
                         new AppException("No Notification Found")
@@ -47,32 +52,32 @@ public class NotificationService implements NotificationSender {
     }
 
     public int countNotViewedNotification() {
-        User user = userService.getUser();
+        User user = UserService.getUser();
 
         return notificationRepository.countByIsViewedFalseAndUserId(user.getId());
     }
 
     @Transactional
     public void deleteAllNotifications() {
-        User user = userService.getUser();
+        User user = UserService.getUser();
         notificationRepository.deleteAllByUserId(user.getId());
     }
 
     public List<Notification> getLatestNotifications(Long currentLatestId) {
-        User user = userService.getUser();
+        User user = UserService.getUser();
         return notificationRepository.findByUserIdAndIdGreaterThanOrderByIdDesc(user.getId(),
                 currentLatestId);
     }
 
     @Override
-    public void send(Notification notification, User receiver) {
-        User user = userService.getUser();
-
-        if (receiver.getId().equals(user.getId())) {
-            return;
-        }
-
-        notification.setUser(receiver);
-        notificationRepository.save(notification);
+    public void send(NotificationPayload notificationPayload) throws AppException {
+        NotificationBuilder<NotificationPayload> notificationBuilder = notificationBuilders.stream()
+                .filter(
+                        builder -> notificationPayload.getNotificationType()
+                                == builder.getNotificationType()
+                ).findFirst().orElseThrow(() -> new AppException("Invalid notification type"));
+        notificationBuilder.build(notificationPayload).forEach(notification -> {
+            notificationRepository.save(notification);
+        });
     }
 }

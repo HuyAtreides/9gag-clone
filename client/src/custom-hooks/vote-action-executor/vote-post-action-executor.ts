@@ -1,3 +1,4 @@
+import Post from '../../models/post';
 import { AppDispatch } from '../../Store';
 import {
   downvotePost,
@@ -9,26 +10,26 @@ import VoteActionExecutor from './vote-action-executor';
 
 export default class VotePostActionExecutor implements VoteActionExecutor {
   private readonly dispatch: AppDispatch;
-  private readonly postIndex: number;
+  private readonly post: Post;
 
-  public constructor(dispatch: AppDispatch, postIndex: number = 0) {
+  public constructor(dispatch: AppDispatch, post: Post) {
     this.dispatch = dispatch;
-    this.postIndex = postIndex;
+    this.post = post;
   }
 
   public executeUpvoteAction(): void {
-    this.dispatch(upvotePost(this.postIndex));
+    this.dispatch(upvotePost(this.post));
   }
 
   public executeDownvoteAction(): void {
-    this.dispatch(downvotePost(this.postIndex));
+    this.dispatch(downvotePost(this.post));
   }
 
   public executeUndownvoteAction(): void {
-    this.dispatch(unDownvotePost(this.postIndex));
+    this.dispatch(unDownvotePost(this.post));
   }
 
   public executeUnupvoteAction(): void {
-    this.dispatch(unUpvotePost(this.postIndex));
+    this.dispatch(unUpvotePost(this.post));
   }
 }

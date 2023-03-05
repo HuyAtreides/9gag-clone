@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -65,7 +64,7 @@ public class Post {
     @Column(name = "Tags")
     @Nationalized
     private String tags;
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "post")
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @ManyToMany
@@ -74,9 +73,15 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> saveUsers = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "upvotedPosts")
+    @ManyToMany
+    @JoinTable(name = "UpvotedPost",
+            joinColumns = @JoinColumn(name = "PostId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> upvoteUsers = new LinkedHashSet<>();
-    @ManyToMany(mappedBy = "downvotedPosts")
+    @ManyToMany
+    @JoinTable(name = "DownvotedPost",
+            joinColumns = @JoinColumn(name = "PostId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> downvoteUsers = new LinkedHashSet<>();
 
     @Transient

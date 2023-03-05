@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,6 +25,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Nationalized;
@@ -45,6 +45,7 @@ import org.hibernate.annotations.Nationalized;
         }),
 })
 @DynamicInsert
+@DynamicUpdate
 public class Comment {
 
     @Id
@@ -71,7 +72,7 @@ public class Comment {
     private Integer upvotes;
     @Column(name = "Downvotes")
     private Integer downvotes;
-    @OneToMany(mappedBy = "replyTo", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "replyTo")
     private Set<Comment> replies = new LinkedHashSet<>();
     @Column(name = "MediaType", length = 70)
     private String mediaType;
@@ -80,7 +81,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ParentId")
     private Comment parent;
-    @OneToMany(mappedBy = "parent", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "parent")
     @Fetch(FetchMode.SUBSELECT)
     private Set<Comment> children = new LinkedHashSet<>();
 

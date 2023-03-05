@@ -1,19 +1,22 @@
 package com.huyphan.services;
 
+import com.huyphan.events.DeletePostEvent;
+import com.huyphan.events.VotePostEvent;
+import com.huyphan.mediators.IMediator;
+import com.huyphan.models.Comment;
 import com.huyphan.models.NewPost;
-import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
-import com.huyphan.models.builders.VotePostNotificationBuilder;
 import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
-import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,28 +26,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Getter
+@Setter
 public class PostService {
 
     @Autowired
     private PostRepository postRepository;
-
     @Autowired
     private SortTypeToSortOptionBuilder postSortTypeToSortOptionBuilder;
-
     @Autowired
     private AWSS3Util awss3Util;
-
     @Autowired
     private VoteableObjectManager<Post> voteablePostManager;
-
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private NotificationSender notificationSender;
-
-    @Autowired
-    private VotePostNotificationBuilder votePostNotificationBuilder;
+    private IMediator mediator;
 
     public void addNewPost(NewPost newPost) {
         Post post = new Post();
@@ -90,17 +87,23 @@ public class PostService {
         return search;
     }
 
-    @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void deletePost(Long id) throws PostException {
+    @Transactional(rollbackFor = {AppException.class})
+    public void deletePost(Long id) throws AppException {
         User currentUser = UserService.getUser();
-        Post post = getPost(id);
+        Post post = getPostWithoutDerivedFields(id);
 
         if (!post.getUser().getUsername().equals(currentUser.getUsername())) {
             throw new PostException("Post not found");
         }
 
         awss3Util.deleteObject(post.getMediaUrl());
+        mediator.notify(new DeletePostEvent(id));
         postRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void addNewComment(Long postId, Comment comment) throws PostException {
+        comment.setPost(getPostWithoutDerivedFields(postId));
     }
 
     public Slice<Post> getSavedPosts(PageOptions options) {
@@ -117,8 +120,8 @@ public class PostService {
                 .map(PostWithDerivedFields::toPost);
     }
 
-    @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void upvotesPost(Long id) throws PostException, VoteableObjectException {
+    @Transactional(rollbackFor = {AppException.class})
+    public void upvotesPost(Long id) throws AppException {
         Post post = getPostUsingLock(id);
 
         if (voteablePostManager.getDownvotedObjects().contains(post)) {
@@ -127,15 +130,10 @@ public class PostService {
 
         voteablePostManager.addUpvotedObject(post);
         post.setUpvotes(post.getUpvotes() + 1);
-        sendVotePostNotification(post);
+        mediator.notify(new VotePostEvent(post));
     }
 
-    private void sendVotePostNotification(Post post) {
-        Notification notification = votePostNotificationBuilder.build(post);
-        notificationSender.send(notification, post.getUser());
-    }
-
-    @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
+    @Transactional(rollbackFor = {AppException.class})
     public void unUpvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
         boolean isRemoved = voteablePostManager.removeUpvotedObject(post);
@@ -145,8 +143,8 @@ public class PostService {
         }
     }
 
-    @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
-    public void downvotesPost(Long id) throws PostException, VoteableObjectException {
+    @Transactional(rollbackFor = {AppException.class})
+    public void downvotesPost(Long id) throws AppException {
         Post post = getPostUsingLock(id);
 
         if (voteablePostManager.getUpvotedObjects().contains(post)) {
@@ -155,10 +153,10 @@ public class PostService {
 
         voteablePostManager.addDownVotedObject(post);
         post.setDownvotes(post.getDownvotes() + 1);
-        sendVotePostNotification(post);
+        mediator.notify(new VotePostEvent(post));
     }
 
-    @Transactional(rollbackFor = {VoteableObjectException.class, PostException.class})
+    @Transactional(rollbackFor = {AppException.class})
     public void unDownvotesPost(Long id) throws PostException {
         Post post = getPostUsingLock(id);
         boolean isRemoved = voteablePostManager.removeDownvotedObject(post);
@@ -171,6 +169,11 @@ public class PostService {
     public Post getPost(Long id) throws PostException {
         return postRepository.findByPostId(UserService.getUser(), id)
                 .orElseThrow(() -> new PostException("Post not found")).toPost();
+    }
+
+    public Post getPostWithoutDerivedFields(Long id) throws PostException {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new PostException("Post not found"));
     }
 
     public Post getPostUsingLock(Long id) throws PostException {

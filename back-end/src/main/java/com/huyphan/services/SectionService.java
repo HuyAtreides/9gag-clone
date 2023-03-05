@@ -6,7 +6,6 @@ import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.SectionRepository;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +27,14 @@ public class SectionService {
 
     @Transactional
     public void addSectionToFavorite(Long id) throws AppException {
-        User user = userService.getUserById(Objects.requireNonNull(UserService.getUser()).getId());
+        User user = userService.getCurrentUser();
         Section section = getSectionById(id);
         user.getFavoriteSections().add(section);
     }
 
     @Transactional
     public void removeSectionFromFavorite(Long id) throws AppException {
-        User user = userService.getUserById(Objects.requireNonNull(UserService.getUser()).getId());
+        User user = userService.getCurrentUser();
         Section section = getSectionById(id);
         user.getFavoriteSections().remove(section);
     }
@@ -46,7 +45,7 @@ public class SectionService {
     }
 
     public List<Section> getFavoriteSection() throws UserException {
-        User user = userService.getUserById(Objects.requireNonNull(UserService.getUser()).getId());
+        User user = userService.getCurrentUser();
 
         return user.getFavoriteSections().stream().collect(Collectors.toList());
     }

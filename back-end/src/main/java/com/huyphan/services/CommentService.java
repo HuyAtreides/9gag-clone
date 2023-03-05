@@ -1,23 +1,25 @@
 package com.huyphan.services;
 
+import com.huyphan.events.AddReplyEvent;
+import com.huyphan.events.AppEvent;
+import com.huyphan.events.CreateCommentEvent;
+import com.huyphan.events.VoteCommentEvent;
+import com.huyphan.mediators.IMediator;
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewComment;
-import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
-import com.huyphan.models.Post;
 import com.huyphan.models.User;
-import com.huyphan.models.builders.AddCommentNotificationBuilder;
-import com.huyphan.models.builders.AddReplyNotificationBuilder;
-import com.huyphan.models.builders.VoteCommentNotificationBuilder;
 import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.CommentException;
-import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.models.projections.CommentWithDerivedFields;
 import com.huyphan.repositories.CommentRepository;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
+import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,65 +29,67 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Getter
+@Setter
 public class CommentService {
 
     @Autowired
     private CommentRepository commentRepository;
-
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private PostService postService;
+    private IMediator mediator;
 
     @Autowired
     private SortTypeToSortOptionBuilder commentSortTypeToSortOptionBuilder;
 
     @Autowired
-    private NotificationSender notificationSender;
-
-    @Autowired
     private VoteableObjectManager<Comment> voteableCommentManager;
-
-    @Autowired
-    private VoteCommentNotificationBuilder voteCommentNotificationBuilder;
-
-    @Autowired
-    private AddReplyNotificationBuilder addReplyNotificationBuilder;
-
-    @Autowired
-    private AddCommentNotificationBuilder addCommentNotificationBuilder;
 
     @Autowired
     private AWSS3Util awss3Util;
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public Comment addComment(Long postId, NewComment newComment)
-            throws PostException, CommentException {
-        Post post = postService.getPost(postId);
-        Comment comment = createNewCommentEntity(post, newComment);
-        Comment savedComment = commentRepository.save(comment);
-        Notification notification = addCommentNotificationBuilder.build(savedComment);
-        notificationSender.send(notification, post.getUser());
-
-        return savedComment;
+            throws AppException {
+        Comment comment = commentRepository.save(createNewCommentEntity(newComment));
+        AppEvent createCommentEvent = new CreateCommentEvent(comment, postId);
+        mediator.notify(createCommentEvent);
+        return comment;
     }
 
-    @Transactional(rollbackFor = {Exception.class})
+    @Transactional(rollbackFor = {AppException.class})
     public void deleteComment(Long id) throws CommentException {
         User currentUser = UserService.getUser();
-        Comment comment = getComment(id);
+        Comment comment = getCommentWithoutDerivedFields(id);
 
         if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
             throw new CommentException("Comment not found");
         }
 
         awss3Util.deleteObject(comment.getMediaUrl());
+        Set<Long> leafCommentIds = commentRepository.getLeafReplyIdsOfComment(id);
+
+        while (!leafCommentIds.isEmpty()) {
+            commentRepository.deleteComments(leafCommentIds);
+            leafCommentIds = commentRepository.getLeafReplyIdsOfComment(id);
+        }
+
         commentRepository.deleteById(id);
     }
 
-    @Transactional(rollbackFor = {VoteableObjectException.class})
-    public void upvotesComment(Long id) throws CommentException, VoteableObjectException {
+    @Transactional(rollbackFor = {AppException.class})
+    public void deleteCommentOfPosts(Long postId) {
+        Set<Long> leafPostCommentIds = commentRepository.getLeafCommentIdsOfPost(postId);
+
+        while (!leafPostCommentIds.isEmpty()) {
+            commentRepository.deleteComments(leafPostCommentIds);
+            leafPostCommentIds = commentRepository.getLeafCommentIdsOfPost(postId);
+        }
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void upvotesComment(Long id) throws AppException {
         Comment comment = getCommentUsingLock(id);
 
         if (voteableCommentManager.getDownvotedObjects().contains(comment)) {
@@ -94,10 +98,10 @@ public class CommentService {
 
         voteableCommentManager.addUpvotedObject(comment);
         comment.setUpvotes(comment.getUpvotes() + 1);
-        sendVoteCommentNotification(comment);
+        mediator.notify(new VoteCommentEvent(comment));
     }
 
-    @Transactional(rollbackFor = {VoteableObjectException.class})
+    @Transactional(rollbackFor = {AppException.class})
     public void unUpvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
         boolean isRemoved = voteableCommentManager.removeUpvotedObject(comment);
@@ -107,14 +111,8 @@ public class CommentService {
         }
     }
 
-    private void sendVoteCommentNotification(Comment comment) {
-        Notification notification = voteCommentNotificationBuilder.build(comment);
-        notificationSender.send(notification, comment.getUser());
-    }
-
-
-    @Transactional(rollbackFor = {VoteableObjectException.class})
-    public void downvotesComment(Long id) throws CommentException, VoteableObjectException {
+    @Transactional(rollbackFor = {AppException.class})
+    public void downvotesComment(Long id) throws AppException {
         Comment comment = getCommentUsingLock(id);
 
         if (voteableCommentManager.getUpvotedObjects().contains(comment)) {
@@ -123,10 +121,10 @@ public class CommentService {
 
         voteableCommentManager.addDownVotedObject(comment);
         comment.setDownvotes(comment.getDownvotes() + 1);
-        sendVoteCommentNotification(comment);
+        mediator.notify(new VoteCommentEvent(comment));
     }
 
-    @Transactional(rollbackFor = {VoteableObjectException.class})
+    @Transactional(rollbackFor = {AppException.class})
     public void unDownvotesComment(Long id) throws CommentException, VoteableObjectException {
         Comment comment = getCommentUsingLock(id);
         boolean isRemoved = voteableCommentManager.removeDownvotedObject(comment);
@@ -136,9 +134,9 @@ public class CommentService {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void updateComment(Long id, NewComment updatedCommentFields) throws CommentException {
-        Comment comment = getComment(id);
+        Comment comment = getCommentUsingLock(id);
         User currentUser = UserService.getUser();
         validateNewComment(updatedCommentFields);
 
@@ -151,22 +149,21 @@ public class CommentService {
         comment.setMediaUrl(updatedCommentFields.getMediaUrl());
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public Comment addReply(NewComment newReply, Long replyToId)
-            throws CommentException {
-        Comment replyTo = getComment(replyToId);
-        Comment reply = createNewCommentEntity(replyTo.getPost(), newReply);
+            throws AppException {
+        Comment replyTo = getCommentWithoutDerivedFields(replyToId);
+        Comment reply = createNewCommentEntity(newReply);
         Comment parent = replyTo.getParent() == null ? replyTo : replyTo.getParent();
         reply.setReplyTo(replyTo);
         reply.setParent(parent);
+        reply.setPost(replyTo.getPost());
         Comment savedReply = commentRepository.save(reply);
-        Notification notification = addReplyNotificationBuilder.build(savedReply);
-        notificationSender.send(notification, replyTo.getUser());
-
+        mediator.notify(new AddReplyEvent(savedReply));
         return savedReply;
     }
 
-    private Comment createNewCommentEntity(Post post, NewComment newComment)
+    private Comment createNewCommentEntity(NewComment newComment)
             throws CommentException {
         Comment comment = new Comment();
         validateNewComment(newComment);
@@ -174,7 +171,6 @@ public class CommentService {
         comment.setUser(UserService.getUser());
         comment.setText(newComment.getText());
         comment.setMediaUrl(newComment.getMediaUrl());
-        comment.setPost(post);
         comment.setMediaType(newComment.getMediaType());
         return comment;
     }
@@ -217,6 +213,11 @@ public class CommentService {
     public Comment getComment(Long id) throws CommentException {
         return commentRepository.findById(UserService.getUser(), id)
                 .orElseThrow(() -> new CommentException("Comment not found")).toComment();
+    }
+
+    private Comment getCommentWithoutDerivedFields(Long id) throws CommentException {
+        return commentRepository.findById(id)
+                .orElseThrow(() -> new CommentException("Comment not found"));
     }
 
     /**

@@ -1,6 +1,6 @@
 import { Image } from 'antd';
 import React, { useEffect, useRef } from 'react';
-import { ComputedConstants, MediaType } from '../../models/enums/constant';
+import { MediaType } from '../../models/enums/constant';
 import { toEnum } from '../../utils/value-to-enum';
 import GifWrapper from '../gif-wrapper/GifWrapper';
 import styles from './Media.module.css';
@@ -52,12 +52,7 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
   }
 
   if (mediaType === MediaType.Gif) {
-    return (
-      <GifWrapper
-        mediaLocation={{ url, type }}
-        width={ComputedConstants.ScreenWidth * 0.3}
-      />
-    );
+    return <GifWrapper mediaLocation={{ url, type }} />;
   }
 
   return (

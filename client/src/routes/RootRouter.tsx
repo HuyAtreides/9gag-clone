@@ -1,15 +1,21 @@
-import { useState } from 'react';
 import { Layout } from 'antd';
+import { useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Home from '../features/Home';
 import PostRoutes from '../features/post/PostRoutes';
 import NavbarLayout from '../layout/navbar-layout/NavbarLayout';
+import { ScreenBreakPoint } from '../models/enums/constant';
 
 const { Content } = Layout;
 
+const IS_SMALLER_OR_EQUAL_TO_COLLAPSE_BREAK_POINT =
+  window.innerWidth <= ScreenBreakPoint.Large;
+
 /** App routes. */
 const RootRoutes: React.FC = () => {
-  const [collapse, setCollapse] = useState<boolean>(false);
+  const [collapse, setCollapse] = useState<boolean>(
+    IS_SMALLER_OR_EQUAL_TO_COLLAPSE_BREAK_POINT,
+  );
 
   return (
     <Layout>
@@ -17,11 +23,11 @@ const RootRoutes: React.FC = () => {
       <Content>
         <Routes>
           <Route path='/add-post' element={<PostRoutes />} />
-          <Route path='/tag/:tag//*' element={<Home sideBarCollapse={collapse} />} />
           <Route
             path='/tag/:tag/:section//*'
             element={<Home sideBarCollapse={collapse} />}
           />
+          <Route path='/tag/:tag//*' element={<Home sideBarCollapse={collapse} />} />
           <Route path='/post//*' element={<Home sideBarCollapse={collapse} />} />
 
           <Route path='/*' element={<Navigate to='tag/fresh' replace />} />

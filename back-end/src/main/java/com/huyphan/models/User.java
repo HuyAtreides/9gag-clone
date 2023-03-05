@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -94,6 +95,12 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> upvotedPosts = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private Set<Comment> comments;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Post> posts;
 
     @ManyToMany
     @JoinTable(name = "DownvotedPost",

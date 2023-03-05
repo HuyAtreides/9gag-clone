@@ -67,8 +67,8 @@ export const deleteAppComment =
   (id: number): Dispatcher =>
   async (state, dispatch) => {
     try {
-      deleteComment(id);
       dispatch({ type: CommentActionType.DELETE_COMMENT, payload: id });
+      await deleteComment(id);
     } catch (error: unknown) {
       handleError(dispatch, error, errorMessageActionCreator);
     }

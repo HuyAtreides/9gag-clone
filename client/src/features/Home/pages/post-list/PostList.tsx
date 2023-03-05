@@ -82,9 +82,7 @@ const PostList: React.FC = () => {
       <List
         id={Constant.PostScrollAreaId as string}
         dataSource={posts!}
-        renderItem={(post, index) => (
-          <PostContent post={post} key={post.id} index={index} />
-        )}
+        renderItem={(post, index) => <PostContent post={post} key={post.id} />}
         itemLayout='vertical'
       />
     </InfiniteScroll>

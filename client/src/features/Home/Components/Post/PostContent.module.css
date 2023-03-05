@@ -8,7 +8,7 @@
   border-bottom: 1px solid var(--border-color-base);
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 992px) {
   .virtual-post {
     height: 80vh;
   }

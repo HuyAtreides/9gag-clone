@@ -12,13 +12,15 @@ import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import Media from '../../../../components/media/Media';
 import useDownvote from '../../../../custom-hooks/downvote';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import useUpvote from '../../../../custom-hooks/upvote';
 import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-comment-action-executor';
 import AppComment from '../../../../models/comment';
-import { ComputedConstants, Constant } from '../../../../models/enums/constant';
+import { Constant } from '../../../../models/enums/constant';
 import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
 import {
   deleteAppComment,
+  errorMessageActionCreator,
   reply,
   update,
 } from '../../../../Store/comment/comment-dispatchers';
@@ -42,14 +44,18 @@ const getChildCommentInitialState = () => {
   };
 };
 
-const FIFTY_PERCENT_SCREEN_HEIGHT = ComputedConstants.ScreenHeight * 0.5;
+const FIFTY_PERCENT_SCREEN_HEIGHT = window.innerHeight * 0.5;
 
 const PostComment: React.FC<Props> = ({ comment }: Props) => {
   const [childrenState, childrenDispatch] = useReducer(
     commentReducer,
     getChildCommentInitialState(),
   );
-
+  useRenderErrorMessage(
+    childrenState.errorMessage,
+    errorMessageActionCreator,
+    childrenDispatch,
+  );
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [showCommentEditor, setShowCommentEditor] = useState(false);
   const { user, dispatch, state, sortType } = useContext(CommentContext)!;
@@ -65,7 +71,10 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
 
   const deleteComment = () => {
     Modal.confirm({
-      onOk: () => deleteAppComment(comment.id)(state, dispatch),
+      onOk: () => {
+        deleteAppComment(comment.id)(state, dispatch);
+        return false;
+      },
       title: 'Do you want to delete this comment?',
     });
   };

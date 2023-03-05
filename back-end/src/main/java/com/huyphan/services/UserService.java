@@ -40,6 +40,12 @@ public class UserService implements UserDetailsService {
         return (User) principal;
     }
 
+    public User getCurrentUser() {
+        User user = getUser();
+        assert user != null;
+        return userRepo.save(user);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepo.findByUsername(username)
@@ -48,24 +54,13 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void removeSavedPost(Post post) {
-        Long userId = getUser().getId();
-
-        try {
-            getUserById(userId).getSavedPosts()
-                    .removeIf((savedPost) -> Objects.equals(savedPost.getId(), post.getId()));
-        } catch (UserException e) {
-            e.printStackTrace();
-        }
+        getCurrentUser().getSavedPosts()
+                .removeIf((savedPost) -> Objects.equals(savedPost.getId(), post.getId()));
     }
 
     @Transactional
     public void savePost(Post post) {
-        Long userId = getUser().getId();
-        try {
-            getUserById(userId).getSavedPosts().add(post);
-        } catch (UserException e) {
-            e.printStackTrace();
-        }
+        getCurrentUser().getSavedPosts().add(post);
     }
 
     public User register(RegisterData registerData) throws UserAlreadyExistsException {
