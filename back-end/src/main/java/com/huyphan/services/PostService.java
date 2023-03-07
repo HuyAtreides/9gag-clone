@@ -11,6 +11,7 @@ import com.huyphan.models.User;
 import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
 import com.huyphan.utils.AWSS3Util;
@@ -106,17 +107,30 @@ public class PostService {
         comment.setPost(getPostWithoutDerivedFields(postId));
     }
 
-    public Slice<Post> getSavedPosts(PageOptions options) {
+    public Slice<Post> getSavedPosts(Long userId, PageOptions options) throws UserException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        String searchTerm = getSearchTerm(options.getSearch());
 
-        return postRepository.findSavedPost(UserService.getUser(), pageable)
+        return postRepository.findSavedPost(user, searchTerm, pageable)
                 .map(PostWithDerivedFields::toPost);
     }
 
-    public Slice<Post> getVotedPosts(PageOptions options) {
+    public Slice<Post> getVotedPosts(Long userId, PageOptions options) throws UserException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        String searchTerm = getSearchTerm(options.getSearch());
 
-        return postRepository.findVotedPost(UserService.getUser(), pageable)
+        return postRepository.findVotedPost(user, searchTerm, pageable)
+                .map(PostWithDerivedFields::toPost);
+    }
+
+    public Slice<Post> getUserPosts(Long userId, PageOptions options) throws UserException {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        String searchTerm = getSearchTerm(options.getSearch());
+
+        return postRepository.findUserPost(user, searchTerm, pageable)
                 .map(PostWithDerivedFields::toPost);
     }
 

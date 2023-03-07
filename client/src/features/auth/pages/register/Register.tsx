@@ -1,6 +1,7 @@
 import { Button, Form, Input, Select, Typography } from 'antd';
 import { Option } from 'antd/lib/mentions';
 import React from 'react';
+import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import { getCountryListOptions } from '../../../../models/enums/country';
 import RegisterData from '../../../../models/register-data';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
@@ -51,7 +52,9 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
       <Form.Item name='country'>
         <Select placeholder='Select your country' size='large'>
           {getCountryListOptions().map((option) => (
-            <Option value={option.value}>{option.label}</Option>
+            <Option value={option.value}>
+              <NameWithCountryFlag name={option.label} country={option.value} />
+            </Option>
           ))}
         </Select>
       </Form.Item>

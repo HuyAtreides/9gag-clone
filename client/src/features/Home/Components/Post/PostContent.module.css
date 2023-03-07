@@ -1,25 +1,5 @@
-.virtual-post {
-  height: 100vh;
-}
-
 .list-item {
   padding-bottom: 15px;
   margin-bottom: 15px;
   border-bottom: 1px solid var(--border-color-base);
-}
-
-@media screen and (max-width: 992px) {
-  .virtual-post {
-    height: 80vh;
-  }
-
-  .list-item {
-    margin-left: 5px;
-  }
-}
-
-@media screen and (min-height: 705px) {
-  .virtual-post {
-    height: 65vh;
-  }
 }

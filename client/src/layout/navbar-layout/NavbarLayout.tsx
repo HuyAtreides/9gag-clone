@@ -68,12 +68,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                 )}
                 <AuthenticatedGuard
                   component={
-                    <Link
-                      className={styles.btnDropdown}
-                      to='/'
-                      target='_blank'
-                      rel='noreferrer'
-                    >
+                    <Link className={styles.btnDropdown} to={`/user`} rel='noreferrer'>
                       Profile
                     </Link>
                   }
@@ -82,11 +77,21 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                   component={
                     <Link
                       className={styles.btnDropdown}
-                      to='/'
-                      target='_blank'
+                      to='/user/saved-posts'
                       rel='noreferrer'
                     >
                       Saved Posts
+                    </Link>
+                  }
+                />
+                <AuthenticatedGuard
+                  component={
+                    <Link
+                      className={styles.btnDropdown}
+                      to='/user/settings'
+                      rel='noreferrer'
+                    >
+                      Settings
                     </Link>
                   }
                 />

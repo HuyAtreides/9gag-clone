@@ -2,7 +2,7 @@
 
 .notifyContainer {
   min-width: 320px;
-  padding: 10px;
+  padding: 15px;
   background-color: $backGroundColorDarkTheme;
   border-radius: 8px;
 
@@ -13,6 +13,7 @@
     align-items: flex-start;
     justify-content: none;
     padding-left: 10px;
+    margin-right: 10px;
     border-radius: var(--border-radius-base);
 
     .notificationDescriptionContainer {

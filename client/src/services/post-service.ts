@@ -1,7 +1,10 @@
 import { AxiosRequestConfig } from 'axios';
 import { Constant } from '../models/enums/constant';
 import NewPost from '../models/new-post';
-import PageOptions from '../models/page-options';
+import Post from '../models/post';
+import { PostsFetchingRequest } from '../models/requests/posts-fetching-request';
+import { UserSpecificPostFetchingRequest } from '../models/requests/user-specific-posts-fetching-request';
+import Slice from '../models/slice';
 import { createAxiosInstance } from '../utils/create-axios-instance';
 import PostDto from './dtos/post-dto';
 import SliceDto from './dtos/slice-dto';
@@ -15,6 +18,10 @@ const UPVOTE_POST_END_POINT = `${Constant.PostEndPoint}/upvotes`;
 const DOWNVOTE_POST_END_POINT = `${Constant.PostEndPoint}/downvotes`;
 const UNUPVOTE_POST_END_POINT = `${Constant.PostEndPoint}/unupvotes`;
 const UNDOWNVOTE_POST_END_POINT = `${Constant.PostEndPoint}/undownvotes`;
+
+export type PostFetchingFunc<T extends PostsFetchingRequest> = (
+  postFetchingRequest: T,
+) => Promise<Slice<Post>>;
 
 export async function getSpecificPost(id: number) {
   const axios = createAxiosInstance();
@@ -36,7 +43,10 @@ export async function unSavePost(id: number) {
   await axios.delete<void>(url);
 }
 
-export async function getPostList(pageOptions: PageOptions, section?: string) {
+export const getPostList: PostFetchingFunc<PostsFetchingRequest> = async ({
+  pageOptions,
+  section,
+}: PostsFetchingRequest) => {
   const axios = createAxiosInstance();
   const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
   const axiosRequestConfig: AxiosRequestConfig = {
@@ -50,7 +60,7 @@ export async function getPostList(pageOptions: PageOptions, section?: string) {
   const response = await axios.get<SliceDto<PostDto>>(url, axiosRequestConfig);
 
   return SliceMapper.fromDto(response.data, PostMapper.fromDto);
-}
+};
 
 export async function upvote(id: number) {
   const axios = createAxiosInstance();
@@ -85,3 +95,47 @@ export async function deletePost(id: number) {
   const url = `${Constant.PostEndPoint}/${id}`;
   await axios.delete<void>(url);
 }
+
+export const getSavedPostList: PostFetchingFunc<
+  UserSpecificPostFetchingRequest
+> = async ({ userId, pageOptions }: UserSpecificPostFetchingRequest) => {
+  const axios = createAxiosInstance();
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.PostEndPoint}/save/${userId}`;
+  const response = await axios.get<SliceDto<PostDto>>(url, axiosRequestConfig);
+
+  return SliceMapper.fromDto(response.data, PostMapper.fromDto);
+};
+
+export const getUpvotedPostList = async ({
+  userId,
+  pageOptions,
+}: UserSpecificPostFetchingRequest) => {
+  const axios = createAxiosInstance();
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.PostEndPoint}/upvote/${userId}`;
+  const response = await axios.get<SliceDto<PostDto>>(url, axiosRequestConfig);
+
+  return SliceMapper.fromDto(response.data, PostMapper.fromDto);
+};
+
+export const getUserPostList = async ({
+  userId,
+  pageOptions,
+}: UserSpecificPostFetchingRequest) => {
+  const axios = createAxiosInstance();
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.PostEndPoint}/user/${userId}`;
+  const response = await axios.get<SliceDto<PostDto>>(url, axiosRequestConfig);
+
+  return SliceMapper.fromDto(response.data, PostMapper.fromDto);
+};

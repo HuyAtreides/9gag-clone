@@ -1,4 +1,3 @@
-import { getFlagEmoji } from '../utils/get-flag-emoji';
 import { Country } from './enums/country';
 
 export interface UserConstructorArguments {
@@ -37,15 +36,11 @@ export class User {
     this.displayName = constructorArguments.displayName;
   }
 
-  public get usernameWithFlag() {
-    if (this.country === null) {
-      return this.username;
-    }
-
+  public get countryCode() {
     const countryCode = Object.keys(Country).find(
       (code) => Country[code as keyof typeof Country] === this.country,
     );
 
-    return `${this.username} ${getFlagEmoji(countryCode!)}`;
+    return countryCode;
   }
 }

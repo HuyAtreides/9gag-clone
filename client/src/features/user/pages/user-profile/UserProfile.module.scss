@@ -1,0 +1,15 @@
+.userProfile {
+  width: 72%;
+}
+
+@media screen and (max-width: 768px) {
+  .userProfile {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .userProfile {
+    width: 80%;
+  }
+}

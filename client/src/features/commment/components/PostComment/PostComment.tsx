@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import Media from '../../../../components/media/Media';
+import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import useDownvote from '../../../../custom-hooks/downvote';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import useUpvote from '../../../../custom-hooks/upvote';
@@ -184,10 +185,13 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
         ]}
         author={
           <Link className={styles.postCommentAuthor} to='/'>
-            {comment.user.usernameWithFlag}
+            <NameWithCountryFlag
+              country={comment.user.country || undefined}
+              name={comment.user.username}
+            />
           </Link>
         }
-        avatar={<Avatar src={user.avatarUrl} alt='User avatar' />}
+        avatar={<Avatar src={comment.user.avatarUrl} alt='User avatar' />}
         content={
           <>
             <Typography.Paragraph className={styles.postCommentText}>

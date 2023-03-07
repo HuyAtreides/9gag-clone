@@ -13,6 +13,7 @@ import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
@@ -104,18 +105,29 @@ public class PostController {
         postService.unDownvotesPost(id);
     }
 
-    @GetMapping("save")
-    public SliceDto<PostDto> getSavedPosts(PageOptionsDto pageOptionsDto) {
+    @GetMapping("save/{userId}")
+    public SliceDto<PostDto> getSavedPosts(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto) throws UserException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Slice<Post> savedPosts = postService.getSavedPosts(pageOptions);
+        Slice<Post> savedPosts = postService.getSavedPosts(userId, pageOptions);
 
         return sliceMapper.toDto(savedPosts, postMapper);
     }
 
-    @GetMapping("vote")
-    public SliceDto<PostDto> getVotedPosts(PageOptionsDto pageOptionsDto) {
+    @GetMapping("upvote/{userId}")
+    public SliceDto<PostDto> getVotedPosts(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto) throws UserException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Slice<Post> votedPosts = postService.getVotedPosts(pageOptions);
+        Slice<Post> votedPosts = postService.getVotedPosts(userId, pageOptions);
+
+        return sliceMapper.toDto(votedPosts, postMapper);
+    }
+
+    @GetMapping("user/{userId}")
+    public SliceDto<PostDto> getUserPosts(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto) throws UserException {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> votedPosts = postService.getUserPosts(userId, pageOptions);
 
         return sliceMapper.toDto(votedPosts, postMapper);
     }

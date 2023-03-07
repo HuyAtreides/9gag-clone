@@ -57,17 +57,33 @@ public interface PostRepository extends CrudRepository<Post, Long> {
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
-            from Post post
-            where :user in elements(post.saveUsers)
+            from Post post inner join post.saveUsers saveUsers
+            where :user = saveUsers.id and (:searchTerm = '""'
+                or freetext(post.title, :searchTerm) = true
+                or freetext(post.tags, :searchTerm) = true)
             """)
-    Slice<PostWithDerivedFields> findSavedPost(@Param("user") User user, Pageable pageable);
+    Slice<PostWithDerivedFields> findSavedPost(@Param("user") User user,
+            @Param("searchTerm") String searchTerm, Pageable pageable);
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where :user in elements(post.upvoteUsers)
+            where :user in elements(post.upvoteUsers) and (:searchTerm = '""'
+                or freetext(post.title, :searchTerm) = true
+                or freetext(post.tags, :searchTerm) = true)
             """)
-    Slice<PostWithDerivedFields> findVotedPost(@Param("user") User user, Pageable pageable);
+    Slice<PostWithDerivedFields> findVotedPost(@Param("user") User user,
+            @Param("searchTerm") String searchTerm, Pageable pageable);
+
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT + """
+            from Post post
+            where :user = post.user and (:searchTerm = '""'
+                or freetext(post.title, :searchTerm) = true
+                or freetext(post.tags, :searchTerm) = true)
+            """)
+    Slice<PostWithDerivedFields> findUserPost(@Param("user") User user,
+            @Param("searchTerm") String searchTerm, Pageable pageable);
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
