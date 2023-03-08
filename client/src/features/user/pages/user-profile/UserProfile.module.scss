@@ -2,14 +2,14 @@
   width: 72%;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 992px) {
   .userProfile {
-    width: 100%;
+    width: 85%;
   }
 }
 
-@media screen and (max-width: 992px) {
+@media screen and (max-width: 768px) {
   .userProfile {
-    width: 80%;
+    width: 100%;
   }
 }
