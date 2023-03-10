@@ -73,14 +73,10 @@ const ParentComment: React.FC<Props> = ({ user }: Props) => {
         sortType,
       })(state, dispatch);
     })();
-
+    document.getElementById(Constant.CommentScrollAreaId)?.scrollIntoView();
     return () => dispatch({ type: CommentActionType.RESET_STATE });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId, dispatch, sortType, searchParams]);
-
-  useEffect(() => {
-    document.getElementById(Constant.CommentScrollAreaId)?.scrollIntoView();
-  }, []);
+  }, [postId, dispatch, sortType, searchParams, parentId, commentId]);
 
   if (state.isLoading) {
     return (

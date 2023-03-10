@@ -12,6 +12,7 @@ import {
   getChildrenComment,
   reply,
 } from '../../../../Store/comment/comment-dispatchers';
+import { CommentActionType } from '../../../../Store/comment/comment-slice';
 import { CommentContext } from '../../context/comment-context';
 import PostComment from '../PostComment/PostComment';
 
@@ -58,6 +59,8 @@ const ChildComment: React.FC<Props> = ({ showEditor, parent, handleCancel }: Pro
         appendSingleComment(commentId)(state, dispatch);
       }
     })();
+
+    return () => dispatch({ type: CommentActionType.RESET_STATE });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 

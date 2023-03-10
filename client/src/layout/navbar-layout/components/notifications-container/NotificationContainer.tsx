@@ -1,6 +1,6 @@
 import { BellFilled } from '@ant-design/icons';
 import { Badge, Button, Popover } from 'antd';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
@@ -23,6 +23,7 @@ const NotificationContainer: React.FC = () => {
   const intervalRef = useRef<Promise<undefined | NodeJS.Timer>>(
     promiseWithUndefinedValue,
   );
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const clearNotViewedNotificationsCount = () => {
     dispatch(clearNotViewedCount());
@@ -45,9 +46,11 @@ const NotificationContainer: React.FC = () => {
         <Popover
           placement='bottom'
           trigger='click'
+          visible={showNotifications}
+          onVisibleChange={setShowNotifications}
           content={
             <IntervalIdContext.Provider value={intervalRef.current}>
-              <Notifications />
+              <Notifications setShowNotifications={setShowNotifications} />
             </IntervalIdContext.Provider>
           }
         >

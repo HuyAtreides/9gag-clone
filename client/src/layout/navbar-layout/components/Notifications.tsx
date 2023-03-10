@@ -32,7 +32,11 @@ const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
   [NotificationType.VOTE_POST]: <LikeOutlined />,
 };
 
-const Notifications: React.FC = () => {
+interface Props {
+  setShowNotifications: (showNotifications: boolean) => void;
+}
+
+const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
   const dispatch = useAppDispatch();
   const notifications = useAppSelector((state) => state.notification.notifications);
   const page = useAppSelector((state) => state.notification.pagination?.page);
@@ -75,10 +79,11 @@ const Notifications: React.FC = () => {
   };
 
   const viewNotification = (notification: Notification, index: number) => {
+    setShowNotifications(false);
+    window.scrollTo(0, 0);
     if (notification.isViewed) {
       return;
     }
-
     dispatch(markAsViewed(index));
   };
 
@@ -104,7 +109,6 @@ const Notifications: React.FC = () => {
         <Popover
           placement='bottom'
           trigger='click'
-          color='var(--overlay-background-color)'
           content={
             <div className='more-action-box-container'>
               <Button
@@ -145,11 +149,7 @@ const Notifications: React.FC = () => {
                 }`}
                 key={item.id}
               >
-                <Link
-                  reloadDocument
-                  to={item.destUrl}
-                  onClick={() => viewNotification(item, index)}
-                >
+                <Link to={item.destUrl} onClick={() => viewNotification(item, index)}>
                   <div className={styles.notificationDescriptionContainer}>
                     {NOTIFICATION_TYPE_TO_ICON_MAP[item.type]}
                     <Typography.Paragraph className={styles.notificationDescription}>
