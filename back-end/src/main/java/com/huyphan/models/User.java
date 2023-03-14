@@ -91,6 +91,21 @@ public class User implements UserDetails {
     private Set<Comment> downvotedComments = new LinkedHashSet<>();
 
     @ManyToMany
+    @JoinTable(name = "FollowingUser",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "FollowerId"))
+    private Set<User> followers = new LinkedHashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "PostFollower",
+            joinColumns = @JoinColumn(name = "UserId"),
+            inverseJoinColumns = @JoinColumn(name = "PostId"))
+    private Set<Post> followingPosts = new LinkedHashSet<>();
+
+    @ManyToMany(mappedBy = "followers")
+    private Set<User> followingUsers = new LinkedHashSet<>();
+
+    @ManyToMany
     @JoinTable(name = "UpvotedPost",
             joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "PostId"))

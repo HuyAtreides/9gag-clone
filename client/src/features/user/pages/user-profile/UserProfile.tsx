@@ -5,12 +5,15 @@ import {
   UserAddOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Popover, Skeleton } from 'antd';
+import { Avatar, Button, Card, Descriptions, Popover, Skeleton } from 'antd';
 import Meta from 'antd/lib/card/Meta';
-import React, { useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
-import { useAppSelector } from '../../../../Store';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { getSpecificUser } from '../../../../Store/user/user-dipatchers';
+import { resetOtherProfileState } from '../../../../Store/user/user-slice';
+import UserFollowingPosts from '../../components/user-following-posts/UserFollowingPosts';
 import UserPosts from '../../components/user-posts/UserPosts';
 import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
 import UserUpvotedPosts from '../../components/user-upvoted-posts/UserUpvotedPosts';
@@ -29,10 +32,10 @@ const tabListNoTitle = [
     key: 'Upvoted Posts',
     tab: 'Upvoted Posts',
   },
-  // {
-  //   key: 'Following Posts',
-  //   tab: 'Following Posts',
-  // },
+  {
+    key: 'Following Posts',
+    tab: 'Following Posts',
+  },
   // {
   //   key: 'Following Users',
   //   tab: 'Following Users',
@@ -43,17 +46,36 @@ const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
   Posts: UserPosts,
   'Saved Posts': UserSavedPosts,
   'Upvoted Posts': UserUpvotedPosts,
+  'Following Posts': UserFollowingPosts,
 };
 
 const UserProfile: React.FC = () => {
-  const user = useAppSelector((state) => state.user.profile);
+  const user = useAppSelector((state) => state.user.otherProfile!);
+  const currentUser = useAppSelector((state) => state.user.profile);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState<string>('Posts');
   const { id } = useParams();
-  const userId = !id ? user?.id : Number.parseInt(id);
+  const userId = !id ? undefined : Number.parseInt(id);
 
-  if (userId !== undefined && Number.isNaN(userId)) {
-    return <Navigate to='/' />;
-  }
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    if (!userId || Number.isNaN(userId)) {
+      navigate(`/user/${currentUser.id}`);
+      return;
+    }
+
+    dispatch(getSpecificUser(userId));
+  }, [currentUser, dispatch, navigate, userId]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetOtherProfileState());
+    };
+  }, [dispatch]);
 
   return (
     <Card
@@ -102,6 +124,12 @@ const UserProfile: React.FC = () => {
             }
           />
           <br></br>
+          <Descriptions column={{ xl: 2, md: 1 }}>
+            <Descriptions.Item label={<strong>Posts</strong>}>0</Descriptions.Item>
+            <Descriptions.Item label={<strong>Comments</strong>}>0</Descriptions.Item>
+            <Descriptions.Item label={<strong>Following</strong>}>0 </Descriptions.Item>
+            <Descriptions.Item label={<strong>Followers</strong>}>0</Descriptions.Item>
+          </Descriptions>
         </Skeleton>
       }
     >

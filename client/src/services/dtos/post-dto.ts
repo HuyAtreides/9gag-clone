@@ -29,7 +29,11 @@ export default interface PostDto {
 
   readonly totalComments: number;
 
+  readonly followed: boolean;
+
   readonly user: UserDto;
 
   readonly isSaved: boolean;
+
+  readonly sendNotifications: boolean;
 }

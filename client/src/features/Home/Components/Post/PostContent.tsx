@@ -1,4 +1,6 @@
 import {
+  BellFilled,
+  BellOutlined,
   BookOutlined,
   CaretDownOutlined,
   CaretUpOutlined,
@@ -6,6 +8,8 @@ import {
   CopyOutlined,
   DeleteOutlined,
   MoreOutlined,
+  NotificationFilled,
+  NotificationOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, List, message, Modal, Popover, Typography } from 'antd';
 import React, { useRef } from 'react';
@@ -21,7 +25,15 @@ import { Constant } from '../../../../models/enums/constant';
 import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { useAppDispatch } from '../../../../Store';
-import { remove, save, unSave } from '../../../../Store/post/post-dispatchers';
+import {
+  follow,
+  remove,
+  save,
+  turnOffNotifications,
+  turnOnNotifications,
+  unFollow,
+  unSave,
+} from '../../../../Store/post/post-dispatchers';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
 
@@ -64,6 +76,24 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
     });
   };
 
+  const followPost = () => {
+    if (post.followed) {
+      dispatch(unFollow(post));
+      return;
+    }
+
+    dispatch(follow(post));
+  };
+
+  const toggleSendNotifications = () => {
+    if (post.sendNotifications) {
+      dispatch(turnOffNotifications(post));
+      return;
+    }
+
+    dispatch(turnOnNotifications(post));
+  };
+
   return (
     <VirtualComponent scrollAreaId={Constant.PostScrollAreaId as string}>
       <div className={styles['list-item']}>
@@ -104,6 +134,38 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                   >
                     Copy Link
                   </Button>
+
+                  <OwnerGuard
+                    owner={post.user}
+                    component={
+                      <Button
+                        type='text'
+                        className='full-width-btn'
+                        icon={post.sendNotifications ? <BellFilled /> : <BellOutlined />}
+                        onClick={protectAction(toggleSendNotifications)}
+                      >
+                        {post.sendNotifications
+                          ? 'Turn off notifications'
+                          : 'Turn on notifications'}
+                      </Button>
+                    }
+                    replace={
+                      <Button
+                        type='text'
+                        className='full-width-btn'
+                        icon={
+                          post.followed ? (
+                            <NotificationFilled />
+                          ) : (
+                            <NotificationOutlined />
+                          )
+                        }
+                        onClick={protectAction(followPost)}
+                      >
+                        {post.followed ? 'Unfollow' : 'Follow'}
+                      </Button>
+                    }
+                  />
                 </div>
               }
             >
@@ -143,8 +205,8 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             description={
               <>
                 {`Uploaded by `}{' '}
-                <Link to={`/user/${post.user.username}`}>{post.user.username}</Link>{' '}
-                &#8226; {post.uploadTime.toLocaleDateString()}
+                <Link to={`/user/${post.user.id}`}>{post.user.username}</Link> &#8226;{' '}
+                {post.uploadTime.toLocaleDateString()}
               </>
             }
           />

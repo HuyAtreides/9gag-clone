@@ -1,6 +1,8 @@
 package com.huyphan.services;
 
 import com.huyphan.events.DeletePostEvent;
+import com.huyphan.events.FollowPostEvent;
+import com.huyphan.events.UnfollowPostEvent;
 import com.huyphan.events.VotePostEvent;
 import com.huyphan.mediators.IMediator;
 import com.huyphan.models.Comment;
@@ -66,11 +68,46 @@ public class PostService {
         return page.map(PostWithDerivedFields::toPost);
     }
 
+    public void followPost(Long id) throws AppException {
+        Post post = getPostWithoutDerivedFields(id);
+
+        if (post.getUser().equals(UserService.getUser())) {
+            return;
+        }
+
+        FollowPostEvent followPostEvent = new FollowPostEvent(post);
+        mediator.notify(followPostEvent);
+    }
+
+    public void unFollowPost(Long id) throws AppException {
+        Post post = getPostWithoutDerivedFields(id);
+
+        if (post.getUser().equals(UserService.getUser())) {
+            return;
+        }
+
+        UnfollowPostEvent followPostEvent = new UnfollowPostEvent(post);
+        mediator.notify(followPostEvent);
+    }
+
+    public Slice<Post> getFollowingPost(Long userId, PageOptions options) throws UserException {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
+        String searchTerm = getSearchTerm(options.getSearch());
+
+        return postRepository.findFollowingPost(
+                user,
+                currentUser,
+                searchTerm,
+                pageable
+        ).map(PostWithDerivedFields::toPost);
+    }
+
     public Slice<Post> getAllPostsWithinSection(PageOptions options, String sectionName)
             throws AppException {
         SortType sortType = options.getSortType();
         Sort sortOptions = postSortTypeToSortOptionBuilder.toSortOption(sortType);
-
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
         return postRepository.findBySectionName(
@@ -107,30 +144,59 @@ public class PostService {
         comment.setPost(getPostWithoutDerivedFields(postId));
     }
 
+    @Transactional
+    public void setPostTurnOffNotifications(Long id, boolean value) throws PostException {
+        Post post = getPostWithoutDerivedFields(id);
+
+        if (!post.getUser().equals(UserService.getUser())) {
+            throw new PostException("Post not found");
+        }
+
+        post.setSendNotifications(value);
+    }
+
     public Slice<Post> getSavedPosts(Long userId, PageOptions options) throws UserException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
         User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
         String searchTerm = getSearchTerm(options.getSearch());
 
-        return postRepository.findSavedPost(user, searchTerm, pageable)
+        return postRepository.findSavedPost(
+                        user,
+                        currentUser,
+                        searchTerm,
+                        pageable
+                )
                 .map(PostWithDerivedFields::toPost);
     }
 
     public Slice<Post> getVotedPosts(Long userId, PageOptions options) throws UserException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
         User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
         String searchTerm = getSearchTerm(options.getSearch());
 
-        return postRepository.findVotedPost(user, searchTerm, pageable)
+        return postRepository.findVotedPost(
+                        user,
+                        currentUser,
+                        searchTerm,
+                        pageable
+                )
                 .map(PostWithDerivedFields::toPost);
     }
 
     public Slice<Post> getUserPosts(Long userId, PageOptions options) throws UserException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
         User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
         String searchTerm = getSearchTerm(options.getSearch());
 
-        return postRepository.findUserPost(user, searchTerm, pageable)
+        return postRepository.findUserPost(
+                        user,
+                        currentUser,
+                        searchTerm,
+                        pageable
+                )
                 .map(PostWithDerivedFields::toPost);
     }
 

@@ -41,7 +41,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                         select count(*)
                         from Comment comment
                         where comment.post = post
-                    ) as totalComments
+                    ) as totalComments,
+                    
+                    (
+                        select case when (count(*) > 0) then true else false end
+                        from Post followedPost
+                        where followedPost.id = post.id and :user in elements(followedPost.followers)
+                    ) as followed
             """;
 
     String SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD =
@@ -57,33 +63,59 @@ public interface PostRepository extends CrudRepository<Post, Long> {
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
-            from Post post inner join post.saveUsers saveUsers
-            where :user = saveUsers.id and (:searchTerm = '""'
+            from Post post inner join post.saveUsers saveUser
+            where :requestUser = saveUser and (:searchTerm = '""'
                 or freetext(post.title, :searchTerm) = true
                 or freetext(post.tags, :searchTerm) = true)
             """)
-    Slice<PostWithDerivedFields> findSavedPost(@Param("user") User user,
-            @Param("searchTerm") String searchTerm, Pageable pageable);
+    Slice<PostWithDerivedFields> findSavedPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where :user in elements(post.upvoteUsers) and (:searchTerm = '""'
+            where :requestUser in elements(post.upvoteUsers) and (:searchTerm = '""'
                 or freetext(post.title, :searchTerm) = true
                 or freetext(post.tags, :searchTerm) = true)
             """)
-    Slice<PostWithDerivedFields> findVotedPost(@Param("user") User user,
-            @Param("searchTerm") String searchTerm, Pageable pageable);
+    Slice<PostWithDerivedFields> findVotedPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
+
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT + """
+            from Post post inner join post.followers follower
+            where :requestUser = follower and (:searchTerm = '""'
+                or freetext(post.title, :searchTerm) = true
+                or freetext(post.tags, :searchTerm) = true)
+            """)
+    Slice<PostWithDerivedFields> findFollowingPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where :user = post.user and (:searchTerm = '""'
+            where :requestUser = post.user and (:searchTerm = '""'
                 or freetext(post.title, :searchTerm) = true
                 or freetext(post.tags, :searchTerm) = true)
             """)
-    Slice<PostWithDerivedFields> findUserPost(@Param("user") User user,
-            @Param("searchTerm") String searchTerm, Pageable pageable);
+    Slice<PostWithDerivedFields> findUserPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """

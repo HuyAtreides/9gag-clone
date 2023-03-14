@@ -3,6 +3,7 @@ import Section from '../../models/section';
 import { getUserInfo } from '../../services/auth-service';
 import {
   addSectionToUserFavoriteSections,
+  getSpecificUserInfo,
   getUserFavoriteSections,
   removeSectionFromUserFavoriteSections,
 } from '../../services/user-service';
@@ -11,7 +12,9 @@ import {
   addSectionToFavorite,
   removeSectionFromFavorite,
   setFavoriteSections,
+  setIsGettingOtherProfile,
   setIsLoading,
+  setOtherProfile,
   setProfile,
   setUserErrorMessage,
 } from './user-slice';
@@ -27,6 +30,26 @@ export const getUser = (): AppThunk => async (dispatch, getState) => {
     dispatch(setIsLoading(false));
   }
 };
+
+export const getSpecificUser =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const currentUser = getState().user.profile!;
+
+      if (currentUser.id === id) {
+        return dispatch(setOtherProfile(currentUser));
+      }
+
+      dispatch(setIsGettingOtherProfile(true));
+      const user = await getSpecificUserInfo(id);
+      dispatch(setOtherProfile(user));
+      dispatch(setIsGettingOtherProfile(false));
+    } catch (err: unknown) {
+      handleError(dispatch, err, setUserErrorMessage);
+      dispatch(setIsGettingOtherProfile(false));
+    }
+  };
 
 export const addSectionToUserFavorite =
   (section: Section): AppThunk =>

@@ -1,7 +1,7 @@
 package com.huyphan.repositories;
 
-import com.huyphan.models.Comment;
 import com.huyphan.models.Notification;
+import com.huyphan.models.Post;
 import com.huyphan.models.User;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +30,10 @@ public interface NotificationRepository extends CrudRepository<Notification, Lon
     @Query("""
             select user
             from User user
+            where :post in elements(user.followingPosts) and user not in :excludeUsers
             """)
-    List<User> findAllCommentFollowers(@Param("comment") Comment comment);
+    List<User> findAllPostFollowers(@Param("post") Post post,
+            @Param("excludeUsers") List<User> excludeUsers);
 
     Optional<Notification> findByIdAndUserId(Long id, Long userId);
 

@@ -30,6 +30,7 @@ const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
   [NotificationType.ADD_REPLY]: <CommentOutlined />,
   [NotificationType.VOTE_COMMENT]: <LikeOutlined />,
   [NotificationType.VOTE_POST]: <LikeOutlined />,
+  [NotificationType.FOLLOWING_POST_HAS_NEW_COMMENT]: <CommentOutlined />,
 };
 
 interface Props {

@@ -1,6 +1,6 @@
 import { EditFilled, MenuOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Layout, Popover, Typography } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
 import useProtectedAction from '../../custom-hooks/protected-action';
@@ -23,8 +23,15 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
   const navigate = useNavigate();
   const user = useAppSelector((state) => state.user.profile);
   const protectAction = useProtectedAction();
+  const [showMenu, setShowMenu] = useState(false);
+
+  const hideMenu = () => {
+    setShowMenu(false);
+    window.scrollTo(0, 0);
+  };
 
   const handlerLogout = () => {
+    hideMenu();
     dispatch(logout());
     navigate('/', { replace: true });
   };
@@ -52,6 +59,8 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
           <Popover
             placement='bottom'
             trigger='click'
+            visible={showMenu}
+            onVisibleChange={setShowMenu}
             content={
               <div className={styles.navbarDropdown}>
                 {user ? (
@@ -68,7 +77,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                 )}
                 <AuthenticatedGuard
                   component={
-                    <Link className={styles.btnDropdown} to={`/user`} rel='noreferrer'>
+                    <Link className={styles.btnDropdown} to={`/user`} onClick={hideMenu}>
                       Profile
                     </Link>
                   }
@@ -78,7 +87,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                     <Link
                       className={styles.btnDropdown}
                       to='/user/saved-posts'
-                      rel='noreferrer'
+                      onClick={hideMenu}
                     >
                       Saved Posts
                     </Link>
@@ -89,7 +98,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                     <Link
                       className={styles.btnDropdown}
                       to='/user/settings'
-                      rel='noreferrer'
+                      onClick={hideMenu}
                     >
                       Settings
                     </Link>

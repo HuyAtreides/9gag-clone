@@ -28,6 +28,8 @@ public class PostDto {
      */
     private String uploadTime;
 
+    private boolean sendNotifications;
+
     private String tags;
 
     private Long totalComments;
@@ -37,4 +39,6 @@ public class PostDto {
     private Boolean isDownvoted;
 
     private Boolean isSaved;
+
+    private boolean followed;
 }

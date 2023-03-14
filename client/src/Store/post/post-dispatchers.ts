@@ -9,6 +9,8 @@ import {
   addNewPost,
   deletePost,
   downvote,
+  followPost,
+  getFollowingPostList,
   getPostList,
   getSavedPostList,
   getSpecificPost,
@@ -16,7 +18,10 @@ import {
   getUserPostList,
   PostFetchingFunc,
   savePost,
+  turnOffPostNotifications,
+  turnOnPostNotifications,
   unDownvote,
+  unFollowPost,
   unSavePost,
   unUpvote,
   upvote,
@@ -31,9 +36,11 @@ import {
   setPagination,
   setPostDownvotes,
   setPostErrorMessage,
+  setPostFollowed,
   setPostIsSaved,
   setPosts,
   setPostUpvotes,
+  setSendNotifications,
 } from './post-slice';
 
 export type FetchPostsThunkAction<T extends PostsFetchingRequest> = (
@@ -270,3 +277,63 @@ export const unSave =
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
+
+export const follow =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      followPost(post.id);
+      dispatch(setPostFollowed(post));
+      message.success('Post followed!');
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const unFollow =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      unFollowPost(post.id);
+      dispatch(setPostFollowed(post));
+      message.success('Post un followed!');
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const turnOnNotifications =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      turnOnPostNotifications(post.id);
+      dispatch(setSendNotifications(post));
+      message.success('You will now receive notifications from this post!');
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const turnOffNotifications =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      turnOffPostNotifications(post.id);
+      dispatch(setSendNotifications(post));
+      message.success("You won't receive notifications from this post!");
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const getFollowingPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+): AppThunk => {
+  return getPostsDispatcher(postsFetchingRequest, getFollowingPostList);
+};
+
+export const addNewFollowingPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+) => {
+  return addNewPostsDispatcher(postsFetchingRequest, getFollowingPostList);
+};

@@ -139,3 +139,42 @@ export const getUserPostList = async ({
 
   return SliceMapper.fromDto(response.data, PostMapper.fromDto);
 };
+
+export const followPost = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/follow/${id}`;
+  await axios.put<void>(url);
+};
+
+export const unFollowPost = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/unfollow/${id}`;
+  await axios.put<void>(url);
+};
+
+export const turnOffPostNotifications = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/turn-off-notifications/${id}`;
+  await axios.put<void>(url);
+};
+
+export const turnOnPostNotifications = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.PostEndPoint}/turn-on-notifications/${id}`;
+  await axios.put<void>(url);
+};
+
+export const getFollowingPostList = async ({
+  userId,
+  pageOptions,
+}: UserSpecificPostFetchingRequest) => {
+  const axios = createAxiosInstance();
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.PostEndPoint}/following/${userId}`;
+  const response = await axios.get<SliceDto<PostDto>>(url, axiosRequestConfig);
+
+  return SliceMapper.fromDto(response.data, PostMapper.fromDto);
+};

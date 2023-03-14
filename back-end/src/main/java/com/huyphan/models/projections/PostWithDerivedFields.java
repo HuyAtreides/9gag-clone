@@ -17,12 +17,15 @@ public interface PostWithDerivedFields {
 
     int getTotalComments();
 
+    boolean getFollowed();
+
     default Post toPost() {
         Post post = getPost();
         post.setTotalComments(getTotalComments());
         post.setIsUpvoted(getIsUpvoted());
         post.setIsDownvoted(getIsDownvoted());
         post.setIsSaved(getIsSaved());
+        post.setFollowed(getFollowed());
 
         return post;
     }

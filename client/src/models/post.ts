@@ -18,6 +18,8 @@ export default interface Post {
 
   readonly uploadTime: Date;
 
+  readonly followed: boolean;
+
   readonly tags: String;
 
   readonly isUpvoted: boolean;
@@ -29,4 +31,6 @@ export default interface Post {
   readonly user: User;
 
   readonly isSaved: boolean;
+
+  readonly sendNotifications: boolean;
 }

@@ -184,7 +184,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
           </Popover>,
         ]}
         author={
-          <Link className={styles.postCommentAuthor} to='/'>
+          <Link className={styles.postCommentAuthor} to={`/user/${comment.user.id}`}>
             <NameWithCountryFlag
               country={comment.user.country || undefined}
               name={comment.user.username}

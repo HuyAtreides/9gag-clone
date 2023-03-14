@@ -1,4 +1,3 @@
-import { Navigate } from 'react-router-dom';
 import { PostsFetchingRequest } from '../../../../models/requests/posts-fetching-request';
 import {
   addNewUpvotedPosts,
@@ -24,10 +23,6 @@ const UserUpvotedPosts: React.FC<{ userId: number }> = ({ userId }) => {
 
     return addNewUpvotedPosts(userSpecificPostsFetchingRequest);
   };
-
-  if (Number.isNaN(userId)) {
-    return <Navigate to='/' />;
-  }
 
   return <PostList fetchPosts={fetchPosts} addPosts={addPosts} />;
 };

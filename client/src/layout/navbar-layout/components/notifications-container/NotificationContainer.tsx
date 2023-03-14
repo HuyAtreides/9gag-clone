@@ -8,6 +8,7 @@ import {
   initialize,
 } from '../../../../Store/notification/notification-dispatchers';
 import { clearNotViewedCount } from '../../../../Store/notification/notification-slice';
+import { abbreviateNumber } from '../../../../utils/abbreviate-number';
 import styles from '../../Navbar.module.scss';
 import Notifications from '../Notifications';
 
@@ -54,7 +55,7 @@ const NotificationContainer: React.FC = () => {
             </IntervalIdContext.Provider>
           }
         >
-          <Badge count={notViewedCount}>
+          <Badge count={abbreviateNumber(notViewedCount)}>
             <Button
               shape='circle'
               icon={<BellFilled />}

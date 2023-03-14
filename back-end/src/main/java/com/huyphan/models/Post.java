@@ -60,6 +60,8 @@ public class Post {
     private Section section;
     @Column(name = "UploadTime")
     private Instant uploadTime;
+    @Column(name = "SendNotifications")
+    private boolean sendNotifications;
     @Lob
     @Column(name = "Tags")
     @Nationalized
@@ -84,6 +86,9 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> downvoteUsers = new LinkedHashSet<>();
 
+    @ManyToMany(mappedBy = "followingPosts")
+    private Set<User> followers = new LinkedHashSet<>();
+
     @Transient
     private int totalComments;
 
@@ -95,6 +100,9 @@ public class Post {
 
     @Transient
     private boolean isInUserFavSections;
+
+    @Transient
+    private boolean followed;
 
     @Transient
     private boolean isSaved;

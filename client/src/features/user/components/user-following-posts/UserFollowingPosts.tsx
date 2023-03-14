@@ -1,15 +1,18 @@
 import { PostsFetchingRequest } from '../../../../models/requests/posts-fetching-request';
-import { addNewUserPosts, getUserPosts } from '../../../../Store/post/post-dispatchers';
+import {
+  addNewFollowingPosts,
+  getFollowingPosts,
+} from '../../../../Store/post/post-dispatchers';
 import PostList from '../../../Home/pages/post-list/PostList';
 
-const UserPosts: React.FC<{ userId: number }> = ({ userId }) => {
+const UserFollowingPosts: React.FC<{ userId: number }> = ({ userId }) => {
   const fetchPosts = (postFetchingRequest: PostsFetchingRequest) => {
     const userSpecificPostsFetchingRequest = {
       ...postFetchingRequest,
       userId,
     };
 
-    return getUserPosts(userSpecificPostsFetchingRequest);
+    return getFollowingPosts(userSpecificPostsFetchingRequest);
   };
 
   const addPosts = (postFetchingRequest: PostsFetchingRequest) => {
@@ -18,10 +21,10 @@ const UserPosts: React.FC<{ userId: number }> = ({ userId }) => {
       userId,
     };
 
-    return addNewUserPosts(userSpecificPostsFetchingRequest);
+    return addNewFollowingPosts(userSpecificPostsFetchingRequest);
   };
 
   return <PostList fetchPosts={fetchPosts} addPosts={addPosts} />;
 };
 
-export default UserPosts;
+export default UserFollowingPosts;

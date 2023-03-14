@@ -46,9 +46,21 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addNewPost(@RequestBody NewPostDto newPostDto) {
+    public void addNewPost(@RequestBody NewPostDto newPostDto) throws AppException {
         NewPost newPost = newPostMapper.fromDto(newPostDto);
         postService.addNewPost(newPost);
+    }
+
+    @PutMapping("turn-off-notifications/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void turnOffNotifications(@PathVariable Long id) throws PostException {
+        postService.setPostTurnOffNotifications(id, true);
+    }
+
+    @PutMapping("turn-on-notifications/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void turnOnNotifications(@PathVariable Long id) throws PostException {
+        postService.setPostTurnOffNotifications(id, false);
     }
 
     @DeleteMapping("{id}")
@@ -90,6 +102,27 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void downvotesPost(@PathVariable Long id) throws AppException {
         postService.downvotesPost(id);
+    }
+
+    @PutMapping("follow/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void followPost(@PathVariable Long id) throws AppException {
+        postService.followPost(id);
+    }
+
+    @PutMapping("unfollow/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unFollowPost(@PathVariable Long id) throws AppException {
+        postService.unFollowPost(id);
+    }
+
+    @GetMapping("following/{userId}")
+    public SliceDto<PostDto> getFollowingPost(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto)
+            throws UserException {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> page = postService.getFollowingPost(userId, pageOptions);
+        return sliceMapper.toDto(page, postMapper);
     }
 
     @PutMapping("unupvotes/{id}")

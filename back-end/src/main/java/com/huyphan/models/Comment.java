@@ -99,6 +99,12 @@ public class Comment {
     @Fetch(FetchMode.SUBSELECT)
     private Set<User> usersDownvote = new LinkedHashSet<>();
 
+    @ManyToMany
+    @JoinTable(name = "CommentFollower",
+            joinColumns = @JoinColumn(name = "CommentId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
+    private Set<User> followers = new LinkedHashSet<>();
+
     @Transient
     private boolean isUpvoted;
 

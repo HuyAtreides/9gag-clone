@@ -6,6 +6,8 @@ export interface UserState {
   readonly isLoading: boolean;
   readonly profile: User | null;
   readonly errorMessage: string | null;
+  readonly otherProfile: User | null;
+  readonly isGettingOtherProfile: boolean;
   readonly favoriteSections: readonly Section[];
 }
 
@@ -14,6 +16,8 @@ const initialState: UserState = {
   isLoading: true,
   profile: null,
   errorMessage: null,
+  otherProfile: null,
+  isGettingOtherProfile: false,
   favoriteSections: [],
 };
 
@@ -43,6 +47,17 @@ const userSlice = createSlice({
     setFavoriteSections(state, action: PayloadAction<Section[]>) {
       state.favoriteSections = action.payload;
     },
+    setOtherProfile(state, action: PayloadAction<User | null>) {
+      state.otherProfile = action.payload;
+    },
+    setIsGettingOtherProfile(state, action: PayloadAction<boolean>) {
+      state.isGettingOtherProfile = action.payload;
+    },
+
+    resetOtherProfileState(state, _: PayloadAction<void>) {
+      state.isGettingOtherProfile = false;
+      state.otherProfile = null;
+    },
   },
 });
 
@@ -54,4 +69,7 @@ export const {
   addSectionToFavorite,
   removeSectionFromFavorite,
   setFavoriteSections,
+  setOtherProfile,
+  setIsGettingOtherProfile,
+  resetOtherProfileState,
 } = userSlice.actions;

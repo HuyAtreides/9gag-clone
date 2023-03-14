@@ -14,7 +14,11 @@ import {
   FetchPostsThunkAction,
   getPosts,
 } from '../../../../Store/post/post-dispatchers';
-import { resetState, setPostErrorMessage } from '../../../../Store/post/post-slice';
+import {
+  resetState,
+  setPostErrorMessage,
+  setSearchTerm,
+} from '../../../../Store/post/post-slice';
 import { toEnum } from '../../../../utils/value-to-enum';
 import PostContent from '../../Components/Post/PostContent';
 import PostSkeleton from '../../Components/PostSkeleton/PostSkeleton';
@@ -86,6 +90,10 @@ const PostList: React.FC<Props> = ({
     window.scrollTo(0, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, tag, section, user, searchTerm]);
+
+  useEffect(() => {
+    dispatch(setSearchTerm(''));
+  }, [dispatch, tag, section, user]);
 
   useEffect(() => {
     return () => {

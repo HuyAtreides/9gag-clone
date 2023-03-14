@@ -59,6 +59,12 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    public void removeFollowingPost(Long postId) {
+        getCurrentUser().getFollowingPosts()
+                .removeIf((savedPost) -> Objects.equals(savedPost.getId(), postId));
+    }
+
+    @Transactional
     public void savePost(Post post) {
         getCurrentUser().getSavedPosts().add(post);
     }
@@ -77,6 +83,17 @@ public class UserService implements UserDetailsService {
         }
 
         return userRepo.save(newUser);
+    }
+
+    @Transactional
+    public void addFollowingPost(Post post) {
+        getCurrentUser().getFollowingPosts().add(post);
+    }
+
+    @Transactional
+    public void removeFollowingPost(Post post) {
+        getCurrentUser().getFollowingPosts()
+                .removeIf((savedPost) -> Objects.equals(savedPost.getId(), post.getId()));
     }
 
     /**
