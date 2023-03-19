@@ -2,29 +2,28 @@ import { Button } from 'antd';
 import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
-import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import AppComment from '../../../../models/comment';
 import { Constant } from '../../../../models/enums/constant';
-import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
 import { CommentQueryParamMapper } from '../../../../services/mappers/comment-query-param-mapper';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   appendSingleComment,
   getChildrenComment,
-  reply,
 } from '../../../../Store/comment/comment-dispatchers';
-import { CommentActionType } from '../../../../Store/comment/comment-slice';
-import { CommentContext } from '../../context/comment-context';
+import { CommentSortTypeContext } from '../ParentComment/ParentComment';
+
 import PostComment from '../PostComment/PostComment';
 
 interface Props {
-  readonly showEditor: boolean;
   readonly parent: AppComment;
-  readonly handleCancel: () => void;
 }
 
-const ChildComment: React.FC<Props> = ({ showEditor, parent, handleCancel }: Props) => {
-  const { state, dispatch, sortType } = useContext(CommentContext)!;
-  const { pagination } = state;
+const ChildComment: React.FC<Props> = ({ parent }: Props) => {
+  const dispatch = useAppDispatch();
+  const sortType = useContext(CommentSortTypeContext);
+  const commentState = useAppSelector((state) => state.comment[parent.id]);
+  const commentRecord = useAppSelector((state) => state.comment);
+  const { pagination } = commentState;
   const currentChildren = (pagination?.size || 0) * ((pagination?.page || 0) + 1);
   const totalChildrenLeft = parent.totalChildren - currentChildren;
   const hasMoreReplies = totalChildrenLeft > 0 || (pagination && !pagination.isLast);
@@ -32,17 +31,18 @@ const ChildComment: React.FC<Props> = ({ showEditor, parent, handleCancel }: Pro
   const { commentId, parentId, replyToId } =
     CommentQueryParamMapper.fromDto(searchParams);
 
-  const handleReply = async (values: CommentUploadFormData) => {
-    await reply(values, parent.id)(state, dispatch);
-  };
-
   const getComments = () => {
     const pageOptions = {
       page: pagination ? pagination.page + 1 : 0,
       size: pagination ? pagination.size : Constant.PageSize,
       sortType,
     };
-    getChildrenComment(parent.id, pageOptions)(state, dispatch);
+    dispatch(
+      getChildrenComment({
+        pageOptions,
+        parentId: parent.id,
+      }),
+    );
   };
 
   useEffect(() => {
@@ -52,29 +52,24 @@ const ChildComment: React.FC<Props> = ({ showEditor, parent, handleCancel }: Pro
 
     (async () => {
       if (replyToId && replyToId !== parentId) {
-        await appendSingleComment(replyToId)(state, dispatch);
+        await dispatch(appendSingleComment(replyToId, parent.id));
       }
 
       if (commentId) {
-        appendSingleComment(commentId)(state, dispatch);
+        dispatch(appendSingleComment(commentId, parent.id));
       }
     })();
 
-    return () => dispatch({ type: CommentActionType.RESET_STATE });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   return (
     <>
-      {showEditor ? (
-        <CommentEditor handleSubmit={handleReply} handleCancel={handleCancel} />
-      ) : null}
-
-      {state.comments.map((comment, _) => (
-        <PostComment comment={comment} key={comment.id} />
+      {commentState.childrenId.map((id, _) => (
+        <PostComment comment={commentRecord[id].comment!} key={id} />
       ))}
 
-      {state.isLoading ? <CenterSpinner /> : null}
+      {commentState.isLoading ? <CenterSpinner /> : null}
 
       {hasMoreReplies ? (
         <Button

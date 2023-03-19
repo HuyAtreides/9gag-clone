@@ -24,6 +24,8 @@ interface AppCommentConstructorArguments {
 
   readonly isUpvoted: boolean;
 
+  readonly parentId: number | null;
+
   readonly isDownvoted: boolean;
 }
 
@@ -52,6 +54,8 @@ export default class AppComment {
 
   readonly isDownvoted: boolean;
 
+  readonly parentId: number | null;
+
   constructor(comment: AppCommentConstructorArguments) {
     this.id = comment.id;
     this.replyTo = comment.replyTo;
@@ -71,6 +75,8 @@ export default class AppComment {
     this.date = comment.date;
 
     this.user = comment.user;
+
+    this.parentId = comment.parentId;
 
     this.totalChildren = comment.totalChildren;
 

@@ -1,172 +1,155 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import AppComment from '../../models/comment';
 import NewComment from '../../models/new-comment';
 import { Pagination } from '../../models/page';
-import { AppAction } from '../../utils/types/app-action';
 
-export interface CommentState {
+interface CommentState {
+  readonly comment: AppComment | null;
   readonly isLoading: boolean;
-  readonly comments: AppComment[];
-  readonly errorMessage: string | null;
+  readonly childrenId: number[];
   readonly isGettingNextPage: boolean;
   readonly pagination: Pagination | null;
-  readonly commentSet: Set<number>;
-  readonly isUploading: boolean;
+  readonly errorMessage: null | string;
 }
 
-export enum CommentActionType {
-  SET_IS_LOADING,
-  APPEND_COMMENTS,
-  SET_ERROR_MESSAGE,
-  SET_PAGINATION,
-  SET_UPVOTES,
-  SET_DOWNVOTES,
-  ADD_REPLY,
-  SET_COMMENT,
-  DELETE_COMMENT,
-  SET_IS_GETTING_NEXT_PAGE,
-  UPDATE_COMMENT,
-  RESET_STATE,
-}
-
-export function getCommentInitialState() {
+function getCommentInitialState(comment: AppComment | null) {
   return {
-    isLoading: true,
-    comments: [],
+    isLoading: false,
+    comment: comment,
+    childrenId: [],
     errorMessage: null,
-    commentSet: new Set<number>(),
     isGettingNextPage: false,
-    isUploading: false,
     pagination: null,
   };
 }
 
-export function commentReducer(
-  state: CommentState,
-  action: AppAction<CommentActionType>,
-): CommentState {
-  const { type, payload } = action;
-  const newState = { ...state };
-  const comments = [...newState.comments];
-  const commentSet = new Set<number>(state.commentSet);
+const initialState: Record<number, CommentState> = {
+  0: getCommentInitialState(null),
+};
 
-  switch (type) {
-    case CommentActionType.SET_COMMENT:
-      const firstComments = payload as AppComment[];
-      firstComments.forEach((value) => commentSet.add(value.id));
-      newState.commentSet = commentSet;
-      newState.comments = firstComments;
+const commentSlice = createSlice({
+  name: 'comment',
+  initialState: initialState,
+  reducers: {
+    addReply(state, action: PayloadAction<{ replyToId: number; reply: AppComment }>) {
+      const { replyToId, reply } = action.payload;
+      const parentId = reply.parentId || 0;
+      const parentComment = state[parentId];
+      state[reply.id] = getCommentInitialState(reply);
 
-      return newState;
+      const replyToIndex =
+        parentComment.childrenId.findIndex((childId) => childId === replyToId) + 1;
+      parentComment.childrenId.splice(replyToIndex, 0, reply.id);
+    },
 
-    case CommentActionType.SET_IS_GETTING_NEXT_PAGE:
-      newState.isGettingNextPage = payload as boolean;
+    updateCommentState(
+      state,
+      action: PayloadAction<{ id: number; newComment: NewComment }>,
+    ) {
+      const { id, newComment } = action.payload;
+      const currentCommentState = state[id];
+      const currentComment = currentCommentState.comment!;
+      currentComment.text = newComment.text;
+      currentComment.mediaType = newComment.mediaType;
+      currentComment.mediaUrl = newComment.mediaUrl;
+    },
 
-      return newState;
-
-    case CommentActionType.DELETE_COMMENT:
-      const deleteId = payload as number;
-      commentSet.delete(deleteId);
-      newState.comments = comments.filter((comment) => comment.id !== deleteId);
-      newState.commentSet = commentSet;
-
-      return newState;
-
-    case CommentActionType.APPEND_COMMENTS:
-      const newComments = payload as AppComment[];
-      comments.push(...newComments.filter((value) => !commentSet.has(value.id)));
-
-      newState.comments = comments;
-      newComments.forEach((value) => {
-        commentSet.add(value.id);
+    appendChildren(
+      state,
+      action: PayloadAction<{ parentId: number; children: readonly AppComment[] }>,
+    ) {
+      const parentId = action.payload.parentId;
+      const children = action.payload.children;
+      const parentState = state[parentId];
+      children.forEach((child) => {
+        if (state[child.id] === undefined) {
+          state[child.id] = getCommentInitialState(child);
+          parentState.childrenId.push(child.id);
+        }
       });
-      newState.commentSet = commentSet;
+    },
 
-      return newState;
+    setChildren(
+      state,
+      action: PayloadAction<{ parentId: number; children: readonly AppComment[] }>,
+    ) {
+      const parentId = action.payload.parentId;
+      const children = action.payload.children;
+      const parentState = state[parentId];
+      parentState.childrenId = children.map((child) => child.id);
+      children.forEach((child) => {
+        state[child.id] = getCommentInitialState(child);
+      });
+    },
 
-    case CommentActionType.SET_IS_LOADING:
-      const isLoading = payload as boolean;
-      newState.isLoading = isLoading;
+    setIsLoading(state, action: PayloadAction<{ id: number; value: boolean }>) {
+      const commentId = action.payload.id;
+      state[commentId].isLoading = action.payload.value;
+    },
 
-      return newState;
+    setIsGettingNextPage(state, action: PayloadAction<{ id: number; value: boolean }>) {
+      const commentId = action.payload.id;
+      state[commentId].isGettingNextPage = action.payload.value;
+    },
 
-    case CommentActionType.SET_PAGINATION:
-      const pagination = payload as Pagination;
-      newState.pagination = pagination;
+    setErrorMessage(state, action: PayloadAction<string>) {
+      state[0].errorMessage = action.payload;
+    },
 
-      return newState;
+    setPagination(state, action: PayloadAction<{ id: number; value: Pagination }>) {
+      const commentId = action.payload.id;
+      state[commentId].pagination = action.payload.value;
+    },
 
-    case CommentActionType.SET_ERROR_MESSAGE:
-      const errorMessage = payload as string | null;
-      newState.errorMessage = errorMessage;
+    setUpvotes(state, action: PayloadAction<{ id: number; value: 1 | -1 }>) {
+      const commentId = action.payload.id;
+      const currentComment = state[commentId].comment!;
+      state[commentId].comment = new AppComment({
+        ...currentComment,
+        upvotes: currentComment.upvotes + action.payload.value,
+        isUpvoted: !currentComment.isUpvoted,
+      });
+    },
 
-      return newState;
+    setDownvotes(state, action: PayloadAction<{ id: number; value: 1 | -1 }>) {
+      const commentId = action.payload.id;
+      const currentComment = state[commentId].comment!;
+      state[commentId].comment = new AppComment({
+        ...currentComment,
+        downvotes: currentComment.downvotes + action.payload.value,
+        isDownvoted: !currentComment.isDownvoted,
+      });
+    },
 
-    case CommentActionType.ADD_REPLY:
-      const { reply, replyToId } = payload as { reply: AppComment; replyToId: number };
-      const insertIndex =
-        newState.comments.findIndex((comment) => comment.id === replyToId) + 1;
-      comments.splice(insertIndex, 0, reply);
-      newState.comments = comments;
-      commentSet.add(reply.id);
-      newState.commentSet = commentSet;
-
-      return newState;
-
-    case CommentActionType.UPDATE_COMMENT:
-      const { updatedId, newComment } = payload as {
-        updatedId: number;
-        newComment: NewComment;
-      };
-
-      const commentIndex = state.comments.findIndex(
-        (comment) => comment.id === updatedId,
+    deleteCommentState(state, action: PayloadAction<{ id: number }>) {
+      const commentId = action.payload.id;
+      const parentId = state[commentId].comment?.parentId || 0;
+      const parent = state[parentId];
+      const commentIndex = parent.childrenId.findIndex(
+        (childId) => childId === commentId,
       );
+      parent.childrenId.splice(commentIndex, 1);
+      delete state[commentId];
+    },
 
-      comments[commentIndex] = new AppComment({
-        ...comments[commentIndex],
-        text: newComment.text,
-        mediaType: newComment.mediaType,
-        mediaUrl: newComment.mediaUrl,
-      });
-      newState.comments = comments;
+    resetState(state) {
+      return { ...initialState };
+    },
+  },
+});
 
-      return newState;
-
-    case CommentActionType.SET_DOWNVOTES:
-      const [downvotedId, downvoteAmount] = payload as [number, 1 | -1];
-      const downvotedIndex = state.comments.findIndex(
-        (comment) => comment.id === downvotedId,
-      );
-      const currentDownvotes = comments[downvotedIndex].downvotes;
-      comments[downvotedIndex] = new AppComment({
-        ...comments[downvotedIndex],
-        downvotes: currentDownvotes + downvoteAmount,
-        isDownvoted: !comments[downvotedIndex].isDownvoted,
-      });
-      newState.comments = comments;
-
-      return newState;
-
-    case CommentActionType.SET_UPVOTES:
-      const [upvotedId, upvoteAmount] = payload as [number, 1 | -1];
-
-      const upvotedIndex = state.comments.findIndex(
-        (comment) => comment.id === upvotedId,
-      );
-      const currentUpvotes = comments[upvotedIndex].upvotes;
-      comments[upvotedIndex] = new AppComment({
-        ...comments[upvotedIndex],
-        upvotes: currentUpvotes + upvoteAmount,
-        isUpvoted: !comments[upvotedIndex].isUpvoted,
-      });
-      newState.comments = comments;
-
-      return newState;
-
-    case CommentActionType.RESET_STATE:
-      return getCommentInitialState();
-
-    default:
-      return state;
-  }
-}
+export const commentReducer = commentSlice.reducer;
+export const {
+  resetState,
+  addReply,
+  appendChildren,
+  setChildren,
+  setDownvotes,
+  setErrorMessage,
+  setIsGettingNextPage,
+  setIsLoading,
+  setPagination,
+  setUpvotes,
+  deleteCommentState,
+  updateCommentState,
+} = commentSlice.actions;

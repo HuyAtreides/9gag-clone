@@ -1,42 +1,35 @@
-import React from 'react';
+import { AppDispatch } from '../../Store';
 import {
   downvoteComment,
   unDownvoteComment,
   unUpvoteComment,
   upvoteComment,
 } from '../../Store/comment/comment-dispatchers';
-import { CommentActionType, CommentState } from '../../Store/comment/comment-slice';
-import { AppAction } from '../../utils/types/app-action';
+
 import VoteActionExecutor from './vote-action-executor';
 
 export default class VoteCommentActionExecutor implements VoteActionExecutor {
-  private readonly dispatch: React.Dispatch<AppAction<CommentActionType>>;
+  private readonly dispatch: AppDispatch;
   private readonly id: number;
-  private readonly state: CommentState;
 
-  public constructor(
-    dispatch: React.Dispatch<AppAction<CommentActionType>>,
-    id: number,
-    state: CommentState,
-  ) {
+  public constructor(dispatch: AppDispatch, id: number) {
     this.dispatch = dispatch;
     this.id = id;
-    this.state = state;
   }
 
   public executeUpvoteAction(): void {
-    upvoteComment(this.id)(this.state, this.dispatch);
+    this.dispatch(upvoteComment(this.id));
   }
 
   public executeDownvoteAction(): void {
-    downvoteComment(this.id)(this.state, this.dispatch);
+    this.dispatch(downvoteComment(this.id));
   }
 
   public executeUndownvoteAction(): void {
-    unDownvoteComment(this.id)(this.state, this.dispatch);
+    this.dispatch(unDownvoteComment(this.id));
   }
 
   public executeUnupvoteAction(): void {
-    unUpvoteComment(this.id)(this.state, this.dispatch);
+    this.dispatch(unUpvoteComment(this.id));
   }
 }

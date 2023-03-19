@@ -1,7 +1,12 @@
 import { AxiosRequestConfig } from 'axios';
+import AppComment from '../models/comment';
 import { Constant } from '../models/enums/constant';
 import NewComment from '../models/new-comment';
+import Page from '../models/page';
 import PageOptions from '../models/page-options';
+import { FetchChildrenCommentRequest } from '../models/requests/fetch-children-comment-request';
+import { FetchCommentRequest } from '../models/requests/fetch-comment-request';
+import { FetchPostCommentRequest } from '../models/requests/fetch-post-comment-request';
 import { createAxiosInstance } from '../utils/create-axios-instance';
 import CommentDto from './dtos/comment-dto';
 import PageDto from './dtos/page-dto';
@@ -9,6 +14,10 @@ import { CommentMapper } from './mappers/comment-mapper';
 import { NewCommentMapper } from './mappers/new-comment-mapper';
 import { PageMapper } from './mappers/page-mapper';
 import { PageOptionsMapper } from './mappers/page-options-mapper';
+
+export type FetchCommentPageFunc<T extends FetchCommentRequest> = (
+  request: T,
+) => Promise<Page<AppComment>>;
 
 export async function uploadNewPostComment(newComment: NewComment, postId: number) {
   const axios = createAxiosInstance();
@@ -32,7 +41,8 @@ export async function updateComment(id: number, newComment: NewComment) {
   await axios.put<void>(url, NewCommentMapper.toDto(newComment));
 }
 
-export async function getPostComments(postId: number, pageOptions: PageOptions) {
+export async function getPostComments(request: FetchPostCommentRequest) {
+  const { postId, pageOptions } = request;
   const url = `${Constant.CommentEndPoint}/post/${postId}`;
   const pageOfComments = await getPageOfComments(url, pageOptions);
 
@@ -45,10 +55,10 @@ export async function deleteComment(id: number) {
   await axios.delete<void>(url);
 }
 
-export async function getPostChildrenComments(
-  parentId: number,
-  pageOptions: PageOptions,
-) {
+export async function getPostChildrenComments({
+  parentId,
+  pageOptions,
+}: FetchChildrenCommentRequest) {
   const url = `${Constant.CommentEndPoint}/${parentId}/children`;
   const pageOfComments = await getPageOfComments(url, pageOptions);
 

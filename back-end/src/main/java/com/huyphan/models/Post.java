@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
@@ -34,6 +35,7 @@ import org.hibernate.annotations.Nationalized;
         @NamedAttributeNode("user")
 })
 @DynamicInsert
+@DynamicUpdate
 public class Post {
 
     @Id
@@ -86,7 +88,10 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> downvoteUsers = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "followingPosts")
+    @ManyToMany
+    @JoinTable(name = "PostFollower",
+            joinColumns = @JoinColumn(name = "PostId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> followers = new LinkedHashSet<>();
 
     @Transient

@@ -107,7 +107,7 @@ public class CommentController {
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long id) throws CommentException {
-        commentService.deleteComment(id);
+        commentService.deleteCommentInBatch(id);
     }
 
     @PutMapping("{id}")

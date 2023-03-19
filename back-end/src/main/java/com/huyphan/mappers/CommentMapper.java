@@ -29,13 +29,22 @@ public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto,
             return reply == null ? null : modelMapper.map(reply.getUser(), UserDto.class);
         };
 
+        Converter<Comment, Long> parentToParentIdConverter = (context) -> {
+            Comment parent = context.getSource();
+
+            return parent != null ? parent.getId() : null;
+        };
+
         modelMapper.typeMap(Comment.class, CommentDto.class)
                 .addMappings(
                         mapper -> mapper.using(instantToStringConverter)
                                 .map(Comment::getDate, CommentDto::setDate))
                 .addMappings(
                         mapper -> mapper.using(replyToReplyDtoConverter)
-                                .map(Comment::getReplyTo, CommentDto::setReplyTo));
+                                .map(Comment::getReplyTo, CommentDto::setReplyTo))
+                .addMappings(
+                        mapper -> mapper.using(parentToParentIdConverter)
+                                .map(Comment::getParent, CommentDto::setParentId));
 
         modelMapper.typeMap(CommentDto.class, Comment.class).addMappings(
                 mapper -> mapper.using(stringToInstantConverter)

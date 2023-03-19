@@ -80,6 +80,7 @@ export const removeNotifications = (): AppThunk => async (dispatch, getState) =>
     await removeAllNotifications();
     dispatch(setIsLoading(false));
     dispatch(setNotifications([]));
+    dispatch(setPagination(null));
   } catch (error: unknown) {
     dispatch(setIsLoading(false));
     handleError(

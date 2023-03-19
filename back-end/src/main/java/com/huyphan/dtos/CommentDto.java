@@ -37,6 +37,8 @@ public class CommentDto {
 
     private boolean isDownvoted;
 
+    private Long parentId;
+
     public boolean getIsDownvoted() {
         return isDownvoted;
     }

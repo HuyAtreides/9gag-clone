@@ -36,6 +36,7 @@ import org.hibernate.annotations.Nationalized;
 @Entity
 @NamedEntityGraphs({
         @NamedEntityGraph(name = "CommentEntityGraph", attributeNodes = {
+                @NamedAttributeNode(value = "parent"),
                 @NamedAttributeNode(value = "replyTo", subgraph = "CommentEntityGraph"),
                 @NamedAttributeNode(value = "user")
         }, subgraphs = {

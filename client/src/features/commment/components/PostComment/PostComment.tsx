@@ -6,31 +6,26 @@ import {
   MoreOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Comment, Modal, Popover, Typography } from 'antd';
-import React, { useContext, useReducer, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import Media from '../../../../components/media/Media';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import useDownvote from '../../../../custom-hooks/downvote';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import useUpvote from '../../../../custom-hooks/upvote';
 import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-comment-action-executor';
 import AppComment from '../../../../models/comment';
 import { Constant } from '../../../../models/enums/constant';
 import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
+import { useAppDispatch } from '../../../../Store';
 import {
   deleteAppComment,
-  errorMessageActionCreator,
   reply,
   update,
 } from '../../../../Store/comment/comment-dispatchers';
-import {
-  commentReducer,
-  getCommentInitialState,
-} from '../../../../Store/comment/comment-slice';
+import {} from '../../../../Store/comment/comment-slice';
 import { formatNumber } from '../../../../utils/format-number';
-import { CommentContext } from '../../context/comment-context';
 import ChildComment from '../ChildComment/ChildComment';
 import styles from './PostComment.module.scss';
 
@@ -38,59 +33,33 @@ interface Props {
   readonly comment: AppComment;
 }
 
-const getChildCommentInitialState = () => {
-  return {
-    ...getCommentInitialState(),
-    isLoading: false,
-  };
-};
-
 const FIFTY_PERCENT_SCREEN_HEIGHT = window.innerHeight * 0.5;
 
 const PostComment: React.FC<Props> = ({ comment }: Props) => {
-  const [childrenState, childrenDispatch] = useReducer(
-    commentReducer,
-    getChildCommentInitialState(),
-  );
-  useRenderErrorMessage(
-    childrenState.errorMessage,
-    errorMessageActionCreator,
-    childrenDispatch,
-  );
+  const dispatch = useAppDispatch();
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [showCommentEditor, setShowCommentEditor] = useState(false);
-  const { user, dispatch, state, sortType } = useContext(CommentContext)!;
   const voteCommentExecutorRef = useRef(
-    new VoteCommentActionExecutor(dispatch, comment.id, state),
+    new VoteCommentActionExecutor(dispatch, comment.id),
   );
   const handleUpvote = useUpvote(comment, voteCommentExecutorRef.current);
   const handleDownvote = useDownvote(comment, voteCommentExecutorRef.current);
 
   const addReply = async (values: CommentUploadFormData) => {
-    await reply(values, comment.id)(state, dispatch);
+    await dispatch(reply(values, comment.id));
   };
 
   const deleteComment = () => {
     Modal.confirm({
       onOk: () => {
-        deleteAppComment(comment.id)(state, dispatch);
+        dispatch(deleteAppComment(comment.id));
         return false;
       },
       title: 'Do you want to delete this comment?',
     });
   };
 
-  const children = comment.isParent ? (
-    <CommentContext.Provider
-      value={{ user: user, state: childrenState, dispatch: childrenDispatch, sortType }}
-    >
-      <ChildComment
-        showEditor={showReplyEditor && comment.isParent}
-        handleCancel={() => setShowReplyEditor(false)}
-        parent={comment}
-      />
-    </CommentContext.Provider>
-  ) : undefined;
+  const children = comment.isParent ? <ChildComment parent={comment} /> : undefined;
 
   const mention = comment.replyTo ? (
     <Typography.Link
@@ -101,7 +70,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
 
   if (showCommentEditor) {
     const updateComment = async (values: CommentUploadFormData) => {
-      await update(comment.id, values)(state, dispatch);
+      await dispatch(update(comment.id, values));
     };
 
     return (
@@ -209,7 +178,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
         }
         datetime={comment.date.toLocaleDateString()}
       >
-        {showReplyEditor && !comment.isParent ? (
+        {showReplyEditor ? (
           <CommentEditor
             handleCancel={() => setShowReplyEditor(false)}
             handleSubmit={addReply}

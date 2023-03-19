@@ -45,7 +45,7 @@ const PostWithComment: React.FC = () => {
       renderItem={(post, index) => (
         <>
           <PostContent post={post} key={post.id} />
-          <PostContext.Provider value={post.id}>
+          <PostContext.Provider value={postId}>
             <CommentList />
           </PostContext.Provider>
         </>

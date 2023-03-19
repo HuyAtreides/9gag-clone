@@ -92,7 +92,7 @@ const postSlice = createSlice({
     },
 
     resetState(state) {
-      state = initialState;
+      return initialState;
     },
   },
 });

@@ -41,7 +41,8 @@ const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
   const dispatch = useAppDispatch();
   const notifications = useAppSelector((state) => state.notification.notifications);
   const page = useAppSelector((state) => state.notification.pagination?.page);
-  const isLast = useAppSelector((state) => state.notification.pagination?.isLast);
+  const pagination = useAppSelector((state) => state.notification.pagination);
+  const isLast = !pagination || pagination.isLast;
   const isLoading = useAppSelector((state) => state.notification.isLoading);
   const errorMessage = useAppSelector((state) => state.notification.errorMessage);
   const isGettingPage = useAppSelector((state) => state.notification.isGettingPage);

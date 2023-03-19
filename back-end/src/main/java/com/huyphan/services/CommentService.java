@@ -17,6 +17,8 @@ import com.huyphan.models.projections.CommentWithDerivedFields;
 import com.huyphan.repositories.CommentRepository;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,8 +52,7 @@ public class CommentService {
     private AWSS3Util awss3Util;
 
     @Transactional(rollbackFor = {AppException.class})
-    public Comment addComment(Long postId, NewComment newComment)
-            throws AppException {
+    public Comment addComment(Long postId, NewComment newComment) throws AppException {
         Comment comment = commentRepository.save(createNewCommentEntity(newComment));
         AppEvent createCommentEvent = new CreateCommentEvent(comment, postId);
         mediator.notify(createCommentEvent);
@@ -59,33 +60,41 @@ public class CommentService {
     }
 
     @Transactional(rollbackFor = {AppException.class})
-    public void deleteComment(Long id) throws CommentException {
+    public void deleteCommentInBatch(Long id) throws CommentException {
         User currentUser = UserService.getUser();
         Comment comment = getCommentWithoutDerivedFields(id);
 
         if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
             throw new CommentException("Comment not found");
         }
+        deleteCommentInBatch(Set.of(id));
+    }
 
-        awss3Util.deleteObject(comment.getMediaUrl());
-        Set<Long> leafCommentIds = commentRepository.getLeafReplyIdsOfComment(id);
-
-        while (!leafCommentIds.isEmpty()) {
-            commentRepository.deleteComments(leafCommentIds);
-            leafCommentIds = commentRepository.getLeafReplyIdsOfComment(id);
+    private void deleteCommentInBatch(Set<Long> ids) {
+        if (ids.isEmpty()) {
+            return;
         }
 
-        commentRepository.deleteById(id);
+        Set<Long> leafComments = commentRepository.getLeafReplyIdsOfComment(ids);
+        deleteCommentInBatch(leafComments);
+        List<String> mediaUrls = commentRepository.getMediaUrlByIdIn(ids);
+        commentRepository.deleteComments(ids);
+        mediaUrls.forEach(mediaUrl -> awss3Util.deleteObject(mediaUrl));
     }
 
     @Transactional(rollbackFor = {AppException.class})
     public void deleteCommentOfPosts(Long postId) {
         Set<Long> leafPostCommentIds = commentRepository.getLeafCommentIdsOfPost(postId);
+        Set<Long> allPostCommentIds = new LinkedHashSet<>();
 
         while (!leafPostCommentIds.isEmpty()) {
             commentRepository.deleteComments(leafPostCommentIds);
+            allPostCommentIds.addAll(leafPostCommentIds);
             leafPostCommentIds = commentRepository.getLeafCommentIdsOfPost(postId);
         }
+
+        List<String> mediaUrls = commentRepository.getMediaUrlByIdIn(allPostCommentIds);
+        mediaUrls.forEach(mediaUrl -> awss3Util.deleteObject(mediaUrl));
     }
 
     @Transactional(rollbackFor = {AppException.class})
@@ -150,8 +159,7 @@ public class CommentService {
     }
 
     @Transactional(rollbackFor = {AppException.class})
-    public Comment addReply(NewComment newReply, Long replyToId)
-            throws AppException {
+    public Comment addReply(NewComment newReply, Long replyToId) throws AppException {
         Comment replyTo = getCommentWithoutDerivedFields(replyToId);
         Comment reply = createNewCommentEntity(newReply);
         Comment parent = replyTo.getParent() == null ? replyTo : replyTo.getParent();
@@ -163,8 +171,7 @@ public class CommentService {
         return savedReply;
     }
 
-    private Comment createNewCommentEntity(NewComment newComment)
-            throws CommentException {
+    private Comment createNewCommentEntity(NewComment newComment) throws CommentException {
         Comment comment = new Comment();
         validateNewComment(newComment);
 
@@ -190,24 +197,17 @@ public class CommentService {
         Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findChildrenComments(
-                UserService.getUser(),
-                parentId,
-                pageable
-        ).map(CommentWithDerivedFields::toComment);
+        return commentRepository.findChildrenComments(UserService.getUser(), parentId, pageable)
+                .map(CommentWithDerivedFields::toComment);
     }
 
-    public Page<Comment> getPostComments(Long postId, PageOptions options)
-            throws AppException {
+    public Page<Comment> getPostComments(Long postId, PageOptions options) throws AppException {
         SortType sortType = options.getSortType();
         Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findParentComments(
-                UserService.getUser(),
-                postId,
-                pageable
-        ).map(CommentWithDerivedFields::toComment);
+        return commentRepository.findParentComments(UserService.getUser(), postId, pageable)
+                .map(CommentWithDerivedFields::toComment);
     }
 
     public Comment getComment(Long id) throws CommentException {

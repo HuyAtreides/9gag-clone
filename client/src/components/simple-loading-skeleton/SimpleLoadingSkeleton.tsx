@@ -8,7 +8,7 @@ interface Props {
 
 const SimpleLoadingSkeleton: React.FC<Props> = ({ isLoading, component }) => {
   if (isLoading) {
-    <Skeleton.Input active={true} size='default' />;
+    return <Skeleton.Input active={true} size='small' />;
   }
 
   return component;

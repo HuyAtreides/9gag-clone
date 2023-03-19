@@ -3,13 +3,13 @@ import { Button, Col, Comment, Form, Row, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import Avatar from 'antd/lib/avatar/avatar';
 import TextArea from 'antd/lib/input/TextArea';
-import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import useUploadGif from '../../custom-hooks/gif-location';
 import useUploadFile from '../../custom-hooks/upload-file';
-import { CommentContext } from '../../features/commment/context/comment-context';
 import AppComment from '../../models/comment';
 import { MediaType } from '../../models/enums/constant';
 import { CommentUploadFormData } from '../../models/upload-comment-form-data';
+import { useAppSelector } from '../../Store';
 import GifSelect from '../gif-select/GifSelect';
 import GifWrapper from '../gif-wrapper/GifWrapper';
 
@@ -33,7 +33,7 @@ const CommentEditor: React.FC<Props> = ({
   );
   const singleUploadFile = uploadFile && uploadFile[0];
   const [form] = useForm<CommentUploadFormData>();
-  const { user } = useContext(CommentContext)!;
+  const user = useAppSelector((state) => state.user.profile!);
   const [isUploading, setIsUploading] = useState(false);
   const [gifLocation, setGifLocation] = useUploadGif(comment?.getMediaLocation());
   const isGifFile = singleUploadFile?.type === MediaType.Gif;
