@@ -1,9 +1,9 @@
-package com.huyphan.services.togglesendnotificationsinvoker;
+package com.huyphan.services.togglenotificationinvoker;
 
-import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.AppException;
 
-public interface IToggleSendNotificationsInvoker {
+public interface IToggleNotificationInvoker {
 
-    void toggle(ToggleableSendNotifications toggleableSendNotifications, boolean value)
-            throws PostException;
+    void toggle(Notifiable notifiable, boolean value)
+            throws AppException;
 }

@@ -1,11 +1,15 @@
+import { message } from 'antd';
 import { AppThunk } from '..';
 import Section from '../../models/section';
 import { getUserInfo } from '../../services/auth-service';
 import {
   addSectionToUserFavoriteSections,
+  followUser,
   getSpecificUserInfo,
   getUserFavoriteSections,
+  getUserStats,
   removeSectionFromUserFavoriteSections,
+  unFollowUser,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
 import {
@@ -13,10 +17,13 @@ import {
   removeSectionFromFavorite,
   setFavoriteSections,
   setIsGettingOtherProfile,
+  setIsGettingUserStats,
   setIsLoading,
   setOtherProfile,
+  setOtherProfileFollowed,
   setProfile,
   setUserErrorMessage,
+  setUserStats,
 } from './user-slice';
 
 export const getUser = (): AppThunk => async (dispatch, getState) => {
@@ -30,6 +37,20 @@ export const getUser = (): AppThunk => async (dispatch, getState) => {
     dispatch(setIsLoading(false));
   }
 };
+
+export const getStats =
+  (userId: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsGettingUserStats(true));
+      const userStats = await getUserStats(userId);
+      dispatch(setUserStats(userStats));
+      dispatch(setIsGettingUserStats(false));
+    } catch (err: unknown) {
+      handleError(dispatch, err, setUserErrorMessage);
+      dispatch(setIsGettingUserStats(false));
+    }
+  };
 
 export const getSpecificUser =
   (id: number): AppThunk =>
@@ -95,3 +116,27 @@ export const getFavoriteSections = (): AppThunk => async (dispatch, _) => {
     );
   }
 };
+
+export const follow =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setOtherProfileFollowed(true));
+      message.success('User followed!');
+      await followUser(id);
+    } catch (error: unknown) {
+      handleError(dispatch, error, setUserErrorMessage);
+    }
+  };
+
+export const unFollow =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setOtherProfileFollowed(false));
+      message.success('User un followed!');
+      await unFollowUser(id);
+    } catch (error: unknown) {
+      handleError(dispatch, error, setUserErrorMessage);
+    }
+  };

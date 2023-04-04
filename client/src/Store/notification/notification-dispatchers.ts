@@ -142,7 +142,7 @@ export const countNotViewed = (): AppThunk => async (dispatch, getState) => {
 
 export const initialize = (): AppThunk => async (dispatch, getState) => {
   try {
-    const INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS = 20000;
+    const INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS = 5000;
     const pageOptions: PageOptions = {
       size: Constant.PageSize as number,
       page: 0,

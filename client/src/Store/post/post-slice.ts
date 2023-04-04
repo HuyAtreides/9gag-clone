@@ -68,8 +68,8 @@ const postSlice = createSlice({
 
     setSendNotifications(state, action: PayloadAction<Post>) {
       const index = state.posts.findIndex((post) => post.id === action.payload.id);
-      const currentSendNotification = state.posts[index].sendNotifications;
-      state.posts[index].sendNotifications = !currentSendNotification;
+      const currentSendNotification = state.posts[index].notificationEnabled;
+      state.posts[index].notificationEnabled = !currentSendNotification;
     },
 
     setPostDownvotes(state, action: PayloadAction<[Post, 1 | -1]>) {

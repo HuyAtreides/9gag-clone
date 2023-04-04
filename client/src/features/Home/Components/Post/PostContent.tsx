@@ -1,6 +1,4 @@
 import {
-  BellFilled,
-  BellOutlined,
   BookOutlined,
   CaretDownOutlined,
   CaretUpOutlined,
@@ -8,17 +6,19 @@ import {
   CopyOutlined,
   DeleteOutlined,
   MoreOutlined,
-  NotificationFilled,
-  NotificationOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, List, message, Modal, Popover, Typography } from 'antd';
 import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
+import FollowButton from '../../../../components/follow-button/FollowButton';
 import Media from '../../../../components/media/Media';
+import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
 import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
 import useDownvote from '../../../../custom-hooks/downvote';
+import useFollow from '../../../../custom-hooks/follow';
 import useProtectedAction from '../../../../custom-hooks/protected-action';
+import useToggleNotification from '../../../../custom-hooks/toggle-notification';
 import useUpvote from '../../../../custom-hooks/upvote';
 import VotePostActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-post-action-executor';
 import { Constant } from '../../../../models/enums/constant';
@@ -29,8 +29,8 @@ import {
   follow,
   remove,
   save,
-  turnOffNotifications,
-  turnOnNotifications,
+  turnOffNotification,
+  turnOnNotification,
   unFollow,
   unSave,
 } from '../../../../Store/post/post-dispatchers';
@@ -48,6 +48,16 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
   const handleUpvote = useUpvote(post, votePostExecutorRef.current);
   const handleDownvote = useDownvote(post, votePostExecutorRef.current);
   const protectAction = useProtectedAction();
+  const followPost = useFollow({
+    isFollowed: post.followed,
+    followThunkAction: follow(post),
+    unFollowThunkAction: unFollow(post),
+  });
+  const toggleSendNotifications = useToggleNotification({
+    notificationEnabled: post.notificationEnabled,
+    turnOnNotificationThunkAction: turnOnNotification(post),
+    turnOffNotificationThunkAction: turnOffNotification(post),
+  });
   const { tag } = useParams();
 
   const copyLink = async () => {
@@ -74,24 +84,6 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
       },
       title: 'Do you want to delete this post?',
     });
-  };
-
-  const followPost = () => {
-    if (post.followed) {
-      dispatch(unFollow(post));
-      return;
-    }
-
-    dispatch(follow(post));
-  };
-
-  const toggleSendNotifications = () => {
-    if (post.sendNotifications) {
-      dispatch(turnOffNotifications(post));
-      return;
-    }
-
-    dispatch(turnOnNotifications(post));
   };
 
   return (
@@ -138,32 +130,13 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                   <OwnerGuard
                     owner={post.user}
                     component={
-                      <Button
-                        type='text'
-                        className='full-width-btn'
-                        icon={post.sendNotifications ? <BellFilled /> : <BellOutlined />}
-                        onClick={protectAction(toggleSendNotifications)}
-                      >
-                        {post.sendNotifications
-                          ? 'Turn off notifications'
-                          : 'Turn on notifications'}
-                      </Button>
+                      <ToggleNotificationButton
+                        notificationEnabled={post.notificationEnabled}
+                        handleToggle={toggleSendNotifications}
+                      />
                     }
                     replace={
-                      <Button
-                        type='text'
-                        className='full-width-btn'
-                        icon={
-                          post.followed ? (
-                            <NotificationFilled />
-                          ) : (
-                            <NotificationOutlined />
-                          )
-                        }
-                        onClick={protectAction(followPost)}
-                      >
-                        {post.followed ? 'Unfollow' : 'Follow'}
-                      </Button>
+                      <FollowButton followed={post.followed} handleFollow={followPost} />
                     }
                   />
                 </div>

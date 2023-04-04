@@ -1,12 +1,15 @@
 package com.huyphan.services;
 
-import com.huyphan.models.Post;
+import com.huyphan.events.FollowEvent;
+import com.huyphan.mediators.IMediator;
 import com.huyphan.models.RegisterData;
 import com.huyphan.models.User;
+import com.huyphan.models.UserStats;
+import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.UserRepository;
-import java.util.Objects;
+import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +29,11 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private IFollowActionInvoker followActionInvoker;
+
+    private IMediator mediator;
+
     /**
      * Get current authenticated user.
      */
@@ -40,6 +48,10 @@ public class UserService implements UserDetailsService {
         return (User) principal;
     }
 
+    public void setMediator(IMediator mediator) {
+        this.mediator = mediator;
+    }
+
     public User getCurrentUser() {
         User user = getUser();
         assert user != null;
@@ -52,21 +64,9 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Username is not found"));
     }
 
-    @Transactional
-    public void removeSavedPost(Post post) {
-        getCurrentUser().getSavedPosts()
-                .removeIf((savedPost) -> Objects.equals(savedPost.getId(), post.getId()));
-    }
-
-    @Transactional
-    public void removeFollowingPost(Long postId) {
-        getCurrentUser().getFollowingPosts()
-                .removeIf((savedPost) -> Objects.equals(savedPost.getId(), postId));
-    }
-
-    @Transactional
-    public void savePost(Post post) {
-        getCurrentUser().getSavedPosts().add(post);
+    public UserStats getUserStats(long userId) throws UserException {
+        User user = getUserById(userId);
+        return userRepo.getUserStats(user);
     }
 
     public User register(RegisterData registerData) throws UserAlreadyExistsException {
@@ -86,14 +86,16 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void addFollowingPost(Post post) {
-        getCurrentUser().getFollowingPosts().add(post);
+    public void followUser(Long userId) throws AppException {
+        User user = getUserById(userId);
+        followActionInvoker.follow(user);
+        mediator.notify(new FollowEvent(user));
     }
 
     @Transactional
-    public void removeFollowingPost(Post post) {
-        getCurrentUser().getFollowingPosts()
-                .removeIf((savedPost) -> Objects.equals(savedPost.getId(), post.getId()));
+    public void unFollowUser(Long userId) throws UserException {
+        User user = getUserById(userId);
+        followActionInvoker.unFollow(user);
     }
 
     /**

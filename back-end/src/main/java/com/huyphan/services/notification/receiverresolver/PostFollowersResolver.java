@@ -25,7 +25,7 @@ public class PostFollowersResolver implements
         User postOwner = post.getUser();
         User commentOwner = comment.getUser();
         return notificationRepository.findAllPostFollowers(
-                notificationPayload.getComment().getPost(),
+                post,
                 List.of(postOwner, commentOwner)
         );
     }

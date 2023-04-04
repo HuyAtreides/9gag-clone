@@ -1,8 +1,7 @@
 package com.huyphan.services;
 
+import com.huyphan.events.AddPostEvent;
 import com.huyphan.events.DeletePostEvent;
-import com.huyphan.events.FollowPostEvent;
-import com.huyphan.events.UnfollowPostEvent;
 import com.huyphan.events.VotePostEvent;
 import com.huyphan.mediators.IMediator;
 import com.huyphan.models.Comment;
@@ -16,6 +15,8 @@ import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
+import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
+import com.huyphan.services.togglenotificationinvoker.IToggleNotificationInvoker;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import lombok.Getter;
@@ -43,18 +44,25 @@ public class PostService {
     private VoteableObjectManager<Post> voteablePostManager;
     @Autowired
     private UserService userService;
+    @Autowired
+    private IFollowActionInvoker followActionInvoker;
+    @Autowired
+    private IToggleNotificationInvoker toggleNotificationInvoker;
 
     private IMediator mediator;
 
-    public void addNewPost(NewPost newPost) {
+    @Transactional(rollbackFor = {AppException.class})
+    public void addNewPost(NewPost newPost) throws AppException {
         Post post = new Post();
-        post.setUser(UserService.getUser());
+        post.setUser(userService.getCurrentUser());
         post.setSection(newPost.getSection());
         post.setMediaUrl(newPost.getMediaUrl());
         post.setMediaType(newPost.getMediaType());
         post.setTitle(newPost.getTitle());
         post.setTags(newPost.getTags());
-        postRepository.save(post);
+        post.setNotificationEnabled(true);
+        Post savedPost = postRepository.save(post);
+        mediator.notify(new AddPostEvent(savedPost));
     }
 
     public Slice<Post> getAllPost(PageOptions options) throws AppException {
@@ -68,26 +76,16 @@ public class PostService {
         return page.map(PostWithDerivedFields::toPost);
     }
 
+    @Transactional
     public void followPost(Long id) throws AppException {
         Post post = getPostWithoutDerivedFields(id);
-
-        if (post.getUser().equals(UserService.getUser())) {
-            return;
-        }
-
-        FollowPostEvent followPostEvent = new FollowPostEvent(post);
-        mediator.notify(followPostEvent);
+        followActionInvoker.follow(post);
     }
 
+    @Transactional
     public void unFollowPost(Long id) throws AppException {
         Post post = getPostWithoutDerivedFields(id);
-
-        if (post.getUser().equals(UserService.getUser())) {
-            return;
-        }
-
-        UnfollowPostEvent followPostEvent = new UnfollowPostEvent(post);
-        mediator.notify(followPostEvent);
+        followActionInvoker.unFollow(post);
     }
 
     public Slice<Post> getFollowingPost(Long userId, PageOptions options) throws UserException {
@@ -145,14 +143,9 @@ public class PostService {
     }
 
     @Transactional
-    public void setPostTurnOffNotifications(Long id, boolean value) throws PostException {
+    public void toggleNotification(Long id, boolean value) throws AppException {
         Post post = getPostWithoutDerivedFields(id);
-
-        if (!post.getUser().equals(UserService.getUser())) {
-            throw new PostException("Post not found");
-        }
-
-        post.setSendNotifications(value);
+        toggleNotificationInvoker.toggle(post, value);
     }
 
     public Slice<Post> getSavedPosts(Long userId, PageOptions options) throws UserException {
@@ -263,11 +256,11 @@ public class PostService {
 
     public void savePost(Long id) throws PostException {
         Post post = getPost(id);
-        userService.savePost(post);
+        post.getSaveUsers().add(UserService.getUser());
     }
 
     public void removeSavedPost(Long id) throws PostException {
         Post post = getPost(id);
-        userService.removeSavedPost(post);
+        post.getSaveUsers().remove(UserService.getUser());
     }
 }

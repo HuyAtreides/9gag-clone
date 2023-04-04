@@ -32,5 +32,5 @@ export default interface Post {
 
   readonly isSaved: boolean;
 
-  readonly sendNotifications: boolean;
+  readonly notificationEnabled: boolean;
 }

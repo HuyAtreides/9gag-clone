@@ -7,6 +7,7 @@ import PageOptions from '../models/page-options';
 import { FetchChildrenCommentRequest } from '../models/requests/fetch-children-comment-request';
 import { FetchCommentRequest } from '../models/requests/fetch-comment-request';
 import { FetchPostCommentRequest } from '../models/requests/fetch-post-comment-request';
+import { FetchUserCommentRequest } from '../models/requests/fetch-user-comment-request';
 import { createAxiosInstance } from '../utils/create-axios-instance';
 import CommentDto from './dtos/comment-dto';
 import PageDto from './dtos/page-dto';
@@ -44,6 +45,14 @@ export async function updateComment(id: number, newComment: NewComment) {
 export async function getPostComments(request: FetchPostCommentRequest) {
   const { postId, pageOptions } = request;
   const url = `${Constant.CommentEndPoint}/post/${postId}`;
+  const pageOfComments = await getPageOfComments(url, pageOptions);
+
+  return pageOfComments;
+}
+
+export async function getUserComments(request: FetchUserCommentRequest) {
+  const { userId, pageOptions } = request;
+  const url = `${Constant.CommentEndPoint}/user/${userId}`;
   const pageOfComments = await getPageOfComments(url, pageOptions);
 
   return pageOfComments;
@@ -106,3 +115,27 @@ export async function unDownvote(id: number) {
   const url = `${Constant.CommentEndPoint}/undownvotes/${id}`;
   await axios.put<void>(url);
 }
+
+export const followComment = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.CommentEndPoint}/follow/${id}`;
+  await axios.put<void>(url);
+};
+
+export const unFollowComment = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.CommentEndPoint}/unfollow/${id}`;
+  await axios.put<void>(url);
+};
+
+export const turnOffCommentNotification = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.CommentEndPoint}/turn-off-notifications/${id}`;
+  await axios.put<void>(url);
+};
+
+export const turnOnCommentNotifications = async (id: number) => {
+  const axios = createAxiosInstance();
+  const url = `${Constant.CommentEndPoint}/turn-on-notifications/${id}`;
+  await axios.put<void>(url);
+};

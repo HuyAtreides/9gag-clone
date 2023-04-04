@@ -4,4 +4,6 @@ export enum NotificationType {
   ADD_COMMENT = 'AddComment',
   ADD_REPLY = 'AddReply',
   FOLLOWING_POST_HAS_NEW_COMMENT = 'FollowingPostHasNewComment',
+  ADD_POST = 'AddPost',
+  FOLLOW_USER = 'FollowUser',
 }

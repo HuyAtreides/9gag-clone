@@ -10,4 +10,6 @@ export interface UserDto {
   readonly country: string;
 
   readonly created: string;
+
+  readonly followed: boolean;
 }

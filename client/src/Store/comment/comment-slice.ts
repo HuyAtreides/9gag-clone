@@ -54,6 +54,24 @@ const commentSlice = createSlice({
       currentComment.mediaUrl = newComment.mediaUrl;
     },
 
+    setCommentFollowed(state, action: PayloadAction<{ id: number; value: boolean }>) {
+      const { id, value } = action.payload;
+      const currentComment = state[id].comment!;
+      state[id].comment = new AppComment({
+        ...currentComment,
+        followed: value,
+      });
+    },
+
+    setSendNotification(state, action: PayloadAction<{ id: number; value: boolean }>) {
+      const { id, value } = action.payload;
+      const currentComment = state[id].comment!;
+      state[id].comment = new AppComment({
+        ...currentComment,
+        notificationEnabled: value,
+      });
+    },
+
     appendChildren(
       state,
       action: PayloadAction<{ parentId: number; children: readonly AppComment[] }>,
@@ -133,7 +151,7 @@ const commentSlice = createSlice({
     },
 
     resetState(state) {
-      return { ...initialState };
+      return initialState;
     },
   },
 });
@@ -152,4 +170,6 @@ export const {
   setUpvotes,
   deleteCommentState,
   updateCommentState,
+  setCommentFollowed,
+  setSendNotification,
 } = commentSlice.actions;

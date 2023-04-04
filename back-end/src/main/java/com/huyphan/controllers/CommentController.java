@@ -4,10 +4,12 @@ import com.huyphan.dtos.CommentDto;
 import com.huyphan.dtos.NewCommentDto;
 import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
+import com.huyphan.dtos.SliceDto;
 import com.huyphan.mappers.CommentMapper;
 import com.huyphan.mappers.NewCommentMapper;
 import com.huyphan.mappers.PageMapper;
 import com.huyphan.mappers.PageOptionMapper;
+import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewComment;
 import com.huyphan.models.PageOptions;
@@ -19,6 +21,7 @@ import com.huyphan.repositories.CommentRepository;
 import com.huyphan.services.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,19 +40,16 @@ public class CommentController {
 
     @Autowired
     private CommentRepository commentRepository;
-
     @Autowired
     private CommentMapper commentMapper;
-
     @Autowired
     private PageOptionMapper pageOptionMapper;
-
     @Autowired
     private PageMapper<CommentDto, Comment> pageMapper;
-
+    @Autowired
+    private SliceMapper<CommentDto, Comment> sliceMapper;
     @Autowired
     private CommentService commentService;
-
     @Autowired
     private NewCommentMapper newCommentMapper;
 
@@ -138,6 +138,37 @@ public class CommentController {
         Comment savedReply = commentService.addReply(newReply, id);
 
         return savedReply.getId();
+    }
+
+    @GetMapping("user/{userId}")
+    public SliceDto<CommentDto> getUserComments(@PathVariable Long userId,
+            PageOptionsDto optionsDto) throws AppException {
+        PageOptions pageOptions = pageOptionMapper.fromDto(optionsDto);
+        Slice<Comment> comments = commentService.getUserComments(userId, pageOptions);
+
+        return sliceMapper.toDto(comments, commentMapper);
+    }
+
+    @PutMapping("follow/{id}")
+    public void followComment(@PathVariable Long id) throws CommentException {
+        commentService.followComment(id);
+    }
+
+    @PutMapping("unfollow/{id}")
+    public void unFollowComment(@PathVariable Long id) throws CommentException {
+        commentService.unfollowComment(id);
+    }
+
+    @PutMapping("turn-off-notifications/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void turnOffNotifications(@PathVariable Long id) throws AppException {
+        commentService.toggleNotification(id, false);
+    }
+
+    @PutMapping("turn-on-notifications/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void turnOnNotifications(@PathVariable Long id) throws AppException {
+        commentService.toggleNotification(id, true);
     }
 
     @ExceptionHandler({PostException.class, CommentException.class})

@@ -12,7 +12,7 @@ const CommentList: React.FC = () => {
 
   return (
     <div className={styles.commentListContainer}>
-      <ParentComment user={user} />
+      <ParentComment />
     </div>
   );
 };

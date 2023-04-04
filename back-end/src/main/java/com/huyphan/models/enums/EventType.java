@@ -11,6 +11,6 @@ public enum EventType {
     VOTE_COMMENT,
     CREATE_COMMENT,
     ADD_REPLY,
-    FOLLOW_POST,
-    UNFOLLOW_POST
+    ADD_POST,
+    FOLLOW_USER
 }

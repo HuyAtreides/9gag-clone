@@ -36,8 +36,14 @@ public class CommentDto {
     private boolean isUpvoted;
 
     private boolean isDownvoted;
-
+    private boolean notificationEnabled;
     private Long parentId;
+
+    private boolean followed;
+
+    private Long postId;
+
+    private Long replyToId;
 
     public boolean getIsDownvoted() {
         return isDownvoted;

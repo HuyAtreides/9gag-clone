@@ -53,14 +53,14 @@ public class PostController {
 
     @PutMapping("turn-off-notifications/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void turnOffNotifications(@PathVariable Long id) throws PostException {
-        postService.setPostTurnOffNotifications(id, true);
+    public void turnOffNotifications(@PathVariable Long id) throws AppException {
+        postService.toggleNotification(id, false);
     }
 
     @PutMapping("turn-on-notifications/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void turnOnNotifications(@PathVariable Long id) throws PostException {
-        postService.setPostTurnOffNotifications(id, false);
+    public void turnOnNotifications(@PathVariable Long id) throws AppException {
+        postService.toggleNotification(id, true);
     }
 
     @DeleteMapping("{id}")

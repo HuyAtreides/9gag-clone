@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import { AppThunk } from '..';
 import NewComment from '../../models/new-comment';
 import { Pagination } from '../../models/page';
@@ -9,10 +10,14 @@ import {
   deleteComment,
   downvote,
   FetchCommentPageFunc,
+  followComment,
   getComment,
   getPostChildrenComments,
   getPostComments,
+  turnOffCommentNotification,
+  turnOnCommentNotifications,
   unDownvote,
+  unFollowComment,
   unUpvote,
   updateComment,
   uploadNewPostComment,
@@ -25,11 +30,13 @@ import {
   addReply,
   appendChildren,
   deleteCommentState,
+  setCommentFollowed,
   setDownvotes,
   setErrorMessage,
   setIsGettingNextPage,
   setIsLoading,
   setPagination,
+  setSendNotification,
   setUpvotes,
   updateCommentState,
 } from './comment-slice';
@@ -235,6 +242,60 @@ export const appendSingleComment =
       dispatch(setIsLoading({ id: parentId, value: false }));
     } catch (error: unknown) {
       dispatch(setIsLoading({ id: parentId, value: false }));
+      handleError(dispatch, error, setErrorMessage);
+    }
+  };
+
+export const follow =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setCommentFollowed({ id, value: true }));
+      message.success(
+        'Comment followed! You will receive notification when this comment receives replies.',
+      );
+      await followComment(id);
+    } catch (error: unknown) {
+      dispatch(setCommentFollowed({ id, value: false }));
+      handleError(dispatch, error, setErrorMessage);
+    }
+  };
+
+export const unFollow =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setCommentFollowed({ id, value: false }));
+      message.success("You won't receive notification from this comment!");
+      await unFollowComment(id);
+    } catch (error: unknown) {
+      dispatch(setCommentFollowed({ id, value: true }));
+      handleError(dispatch, error, setErrorMessage);
+    }
+  };
+
+export const turnOnNotification =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setSendNotification({ id, value: true }));
+      message.success('You will now receive notifications from this comment!');
+      await turnOnCommentNotifications(id);
+    } catch (error: unknown) {
+      dispatch(setSendNotification({ id, value: false }));
+      handleError(dispatch, error, setErrorMessage);
+    }
+  };
+
+export const turnOffNotification =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setSendNotification({ id, value: false }));
+      message.success('You will now receive notifications from this comment!');
+      await turnOffCommentNotification(id);
+    } catch (error: unknown) {
+      dispatch(setSendNotification({ id, value: true }));
       handleError(dispatch, error, setErrorMessage);
     }
   };

@@ -22,7 +22,6 @@ public class VotePostNotificationBuilder implements
     private NotificationReceiverResolver<VotePostNotificationPayload> receiverResolver;
 
     @Override
-
     public List<Notification> build(VotePostNotificationPayload votePostNotificationPayload) {
         List<User> receivers = receiverResolver.resolve(votePostNotificationPayload);
         String destUrl = buildDestUrl(votePostNotificationPayload);

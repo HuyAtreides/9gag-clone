@@ -1,6 +1,10 @@
 package com.huyphan.services.followactioninvoker;
 
-public interface FollowActionInvoker {
+import com.huyphan.models.User;
+import com.huyphan.services.OwnedObject;
+import java.util.Set;
 
-    void executeFollowAction();
+public interface Followable extends OwnedObject {
+
+    Set<User> getFollowers();
 }

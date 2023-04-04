@@ -2,17 +2,24 @@ import {
   EditOutlined,
   MoreOutlined,
   SettingOutlined,
+  StopOutlined,
   UserAddOutlined,
-  WarningOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Descriptions, Popover, Skeleton } from 'antd';
+import { Avatar, Button, Card, Popover, Skeleton } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import { getSpecificUser } from '../../../../Store/user/user-dipatchers';
+import {
+  follow,
+  getSpecificUser,
+  unFollow,
+} from '../../../../Store/user/user-dipatchers';
 import { resetOtherProfileState } from '../../../../Store/user/user-slice';
+import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
+import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import UserStats from '../../../../components/user-stats/UserStats';
+import UserComments from '../../components/user-comments/UserComments';
 import UserFollowingPosts from '../../components/user-following-posts/UserFollowingPosts';
 import UserPosts from '../../components/user-posts/UserPosts';
 import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
@@ -36,10 +43,10 @@ const tabListNoTitle = [
     key: 'Following Posts',
     tab: 'Following Posts',
   },
-  // {
-  //   key: 'Following Users',
-  //   tab: 'Following Users',
-  // },
+  {
+    key: 'Comments',
+    tab: 'Comments',
+  },
 ];
 
 const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
@@ -47,6 +54,7 @@ const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
   'Saved Posts': UserSavedPosts,
   'Upvoted Posts': UserUpvotedPosts,
   'Following Posts': UserFollowingPosts,
+  Comments: UserComments,
 };
 
 const UserProfile: React.FC = () => {
@@ -57,6 +65,15 @@ const UserProfile: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<string>('Posts');
   const { id } = useParams();
   const userId = !id ? undefined : Number.parseInt(id);
+
+  const followUser = () => {
+    if (user.followed) {
+      dispatch(unFollow(user.id));
+      return;
+    }
+
+    dispatch(follow(user.id));
+  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -87,18 +104,45 @@ const UserProfile: React.FC = () => {
           trigger='click'
           content={
             <div className='more-action-box-container'>
-              <Button icon={<SettingOutlined />} type='text'>
-                Settings
-              </Button>
-              <Button type='text' icon={<EditOutlined />}>
-                Edit
-              </Button>
-              <Button type='text' icon={<UserAddOutlined />}>
-                Follow
-              </Button>
-              <Button type='text' icon={<WarningOutlined />}>
-                Report
-              </Button>
+              <OwnerGuard
+                component={
+                  <Button icon={<SettingOutlined />} type='text'>
+                    Settings
+                  </Button>
+                }
+                owner={user}
+              />
+              <OwnerGuard
+                component={
+                  <Button type='text' icon={<EditOutlined />}>
+                    Edit
+                  </Button>
+                }
+                owner={user}
+              />
+              <OwnerGuard
+                component={<></>}
+                replace={
+                  <Button
+                    type={user?.followed ? 'primary' : 'text'}
+                    icon={<UserAddOutlined />}
+                    onClick={followUser}
+                  >
+                    {user?.followed ? 'Unfollow' : 'Follow'}
+                  </Button>
+                }
+                owner={user}
+              />
+
+              <OwnerGuard
+                component={<></>}
+                replace={
+                  <Button type='text' icon={<StopOutlined />} danger>
+                    Block
+                  </Button>
+                }
+                owner={user}
+              />
             </div>
           }
         >
@@ -124,12 +168,7 @@ const UserProfile: React.FC = () => {
             }
           />
           <br></br>
-          <Descriptions column={{ xl: 2, md: 1 }}>
-            <Descriptions.Item label={<strong>Posts</strong>}>0</Descriptions.Item>
-            <Descriptions.Item label={<strong>Comments</strong>}>0</Descriptions.Item>
-            <Descriptions.Item label={<strong>Following</strong>}>0 </Descriptions.Item>
-            <Descriptions.Item label={<strong>Followers</strong>}>0</Descriptions.Item>
-          </Descriptions>
+          {userId && <UserStats id={userId} />}
         </Skeleton>
       }
     >

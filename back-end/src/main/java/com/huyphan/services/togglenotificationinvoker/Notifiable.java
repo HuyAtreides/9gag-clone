@@ -1,8 +1,8 @@
-package com.huyphan.services.togglesendnotificationsinvoker;
+package com.huyphan.services.togglenotificationinvoker;
 
 import com.huyphan.services.OwnedObject;
 
-public interface ToggleableSendNotifications extends OwnedObject {
+public interface Notifiable extends OwnedObject {
 
     void setNotificationEnabled(boolean value);
 }

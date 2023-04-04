@@ -35,5 +35,5 @@ export default interface PostDto {
 
   readonly isSaved: boolean;
 
-  readonly sendNotifications: boolean;
+  readonly notificationEnabled: boolean;
 }

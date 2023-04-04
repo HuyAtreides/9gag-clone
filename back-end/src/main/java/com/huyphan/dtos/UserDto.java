@@ -22,4 +22,6 @@ public class UserDto {
     private Country country;
 
     private String created;
+
+    private boolean followed;
 }

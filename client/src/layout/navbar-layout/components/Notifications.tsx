@@ -1,4 +1,10 @@
-import { CommentOutlined, LikeOutlined, MoreOutlined } from '@ant-design/icons';
+import {
+  CommentOutlined,
+  LikeOutlined,
+  MoreOutlined,
+  PlusSquareOutlined,
+  UserAddOutlined,
+} from '@ant-design/icons';
 import { Button, List, Popover, Typography } from 'antd';
 import React, { ReactElement, useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -31,6 +37,8 @@ const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
   [NotificationType.VOTE_COMMENT]: <LikeOutlined />,
   [NotificationType.VOTE_POST]: <LikeOutlined />,
   [NotificationType.FOLLOWING_POST_HAS_NEW_COMMENT]: <CommentOutlined />,
+  [NotificationType.ADD_POST]: <PlusSquareOutlined />,
+  [NotificationType.FOLLOW_USER]: <UserAddOutlined />,
 };
 
 interface Props {

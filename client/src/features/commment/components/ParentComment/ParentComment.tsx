@@ -8,7 +8,6 @@ import useRenderErrorMessage from '../../../../custom-hooks/render-error-message
 import { Constant } from '../../../../models/enums/constant';
 import { SortType } from '../../../../models/enums/sort-type';
 import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
-import { User } from '../../../../models/user';
 import { CommentQueryParamMapper } from '../../../../services/mappers/comment-query-param-mapper';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
@@ -22,13 +21,9 @@ import { PostContext } from '../../../Home/Components/post-with-comment/PostWith
 import PostComment from '../PostComment/PostComment';
 import styles from './ParentComment.module.css';
 
-interface Props {
-  readonly user: User;
-}
-
 export const CommentSortTypeContext = React.createContext(SortType.FRESH);
 
-const ParentComment: React.FC<Props> = ({ user }: Props) => {
+const ParentComment: React.FC = () => {
   const dispatch = useAppDispatch();
   const commentRecord = useAppSelector((state) => state.comment);
   const commentState = useAppSelector((state) => state.comment[0]);

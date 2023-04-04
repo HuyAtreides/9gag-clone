@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import Section from '../../models/section';
 import { User } from '../../models/user';
+import { UserStats } from '../../models/user-stats';
 
 export interface UserState {
   readonly isLoading: boolean;
@@ -8,6 +9,8 @@ export interface UserState {
   readonly errorMessage: string | null;
   readonly otherProfile: User | null;
   readonly isGettingOtherProfile: boolean;
+  readonly isGettingUserStats: boolean;
+  readonly stats: UserStats | null;
   readonly favoriteSections: readonly Section[];
 }
 
@@ -18,6 +21,8 @@ const initialState: UserState = {
   errorMessage: null,
   otherProfile: null,
   isGettingOtherProfile: false,
+  isGettingUserStats: false,
+  stats: null,
   favoriteSections: [],
 };
 
@@ -58,6 +63,20 @@ const userSlice = createSlice({
       state.isGettingOtherProfile = false;
       state.otherProfile = null;
     },
+
+    setUserStats(state, action: PayloadAction<UserStats | null>) {
+      state.stats = action.payload;
+    },
+    setIsGettingUserStats(state, action: PayloadAction<boolean>) {
+      state.isGettingUserStats = action.payload;
+    },
+    setOtherProfileFollowed(state, action: PayloadAction<boolean>) {
+      const otherProfile = state.otherProfile!;
+      state.otherProfile = new User({
+        ...otherProfile,
+        followed: action.payload,
+      });
+    },
   },
 });
 
@@ -72,4 +91,7 @@ export const {
   setOtherProfile,
   setIsGettingOtherProfile,
   resetOtherProfileState,
+  setUserStats,
+  setIsGettingUserStats,
+  setOtherProfileFollowed,
 } = userSlice.actions;

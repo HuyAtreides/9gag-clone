@@ -1,6 +1,8 @@
 package com.huyphan.services.followactioninvoker;
 
-public interface FollowActionInvokerI {
+public interface IFollowActionInvoker {
 
-    void invoke(Followable followable);
+    void follow(Followable followable);
+
+    void unFollow(Followable followable);
 }

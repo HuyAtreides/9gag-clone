@@ -28,7 +28,7 @@ public class PostDto {
      */
     private String uploadTime;
 
-    private boolean sendNotifications;
+    private boolean notificationEnabled;
 
     private String tags;
 

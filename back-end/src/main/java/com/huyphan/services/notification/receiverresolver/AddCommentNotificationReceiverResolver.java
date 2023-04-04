@@ -19,7 +19,7 @@ public class AddCommentNotificationReceiverResolver implements NotificationRecei
         List<User> users = new ArrayList<>();
         Post post = notificationPayload.getComment().getPost();
         User postOwner = post.getUser();
-        if (postOwner.equals(UserService.getUser()) || !post.isSendNotifications()) {
+        if (postOwner.equals(UserService.getUser()) || !post.isNotificationEnabled()) {
             return users;
         }
 

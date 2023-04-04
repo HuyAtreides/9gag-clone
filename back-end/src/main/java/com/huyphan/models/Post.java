@@ -1,5 +1,7 @@
 package com.huyphan.models;
 
+import com.huyphan.services.followactioninvoker.Followable;
+import com.huyphan.services.togglenotificationinvoker.Notifiable;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -36,7 +38,7 @@ import org.hibernate.annotations.Nationalized;
 })
 @DynamicInsert
 @DynamicUpdate
-public class Post {
+public class Post implements Followable, Notifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,21 +64,19 @@ public class Post {
     private Section section;
     @Column(name = "UploadTime")
     private Instant uploadTime;
-    @Column(name = "SendNotifications")
-    private boolean sendNotifications;
+    @Column(name = "NotificationEnabled")
+    private boolean notificationEnabled;
     @Lob
     @Column(name = "Tags")
     @Nationalized
     private String tags;
     @OneToMany(mappedBy = "post")
     private Set<Comment> comments = new LinkedHashSet<>();
-
     @ManyToMany
     @JoinTable(name = "SavedPost",
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> saveUsers = new LinkedHashSet<>();
-
     @ManyToMany
     @JoinTable(name = "UpvotedPost",
             joinColumns = @JoinColumn(name = "PostId"),
@@ -87,30 +87,28 @@ public class Post {
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> downvoteUsers = new LinkedHashSet<>();
-
     @ManyToMany
     @JoinTable(name = "PostFollower",
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> followers = new LinkedHashSet<>();
-
     @Transient
     private int totalComments;
-
     @Transient
     private boolean isUpvoted;
-
     @Transient
     private boolean isDownvoted;
-
     @Transient
     private boolean isInUserFavSections;
-
     @Transient
     private boolean followed;
-
     @Transient
     private boolean isSaved;
+
+    @Override
+    public User getOwner() {
+        return user;
+    }
 
     public boolean getIsSaved() {
         return isSaved;

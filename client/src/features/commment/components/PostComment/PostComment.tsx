@@ -10,9 +10,13 @@ import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
+import FollowButton from '../../../../components/follow-button/FollowButton';
 import Media from '../../../../components/media/Media';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
 import useDownvote from '../../../../custom-hooks/downvote';
+import useFollow from '../../../../custom-hooks/follow';
+import useToggleNotification from '../../../../custom-hooks/toggle-notification';
 import useUpvote from '../../../../custom-hooks/upvote';
 import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-comment-action-executor';
 import AppComment from '../../../../models/comment';
@@ -21,7 +25,11 @@ import { CommentUploadFormData } from '../../../../models/upload-comment-form-da
 import { useAppDispatch } from '../../../../Store';
 import {
   deleteAppComment,
+  follow,
   reply,
+  turnOffNotification,
+  turnOnNotification,
+  unFollow,
   update,
 } from '../../../../Store/comment/comment-dispatchers';
 import {} from '../../../../Store/comment/comment-slice';
@@ -42,6 +50,16 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
   const voteCommentExecutorRef = useRef(
     new VoteCommentActionExecutor(dispatch, comment.id),
   );
+  const followComment = useFollow({
+    isFollowed: comment.followed,
+    followThunkAction: follow(comment.id),
+    unFollowThunkAction: unFollow(comment.id),
+  });
+  const toggleSendNotifications = useToggleNotification({
+    notificationEnabled: comment.notificationEnabled,
+    turnOnNotificationThunkAction: turnOnNotification(comment.id),
+    turnOffNotificationThunkAction: turnOffNotification(comment.id),
+  });
   const handleUpvote = useUpvote(comment, voteCommentExecutorRef.current);
   const handleDownvote = useDownvote(comment, voteCommentExecutorRef.current);
 
@@ -63,7 +81,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
 
   const mention = comment.replyTo ? (
     <Typography.Link
-      href=''
+      href={`/user/${comment.replyTo.id}`}
       target='_blank'
     >{`@${comment.replyTo.username}`}</Typography.Link>
   ) : null;
@@ -130,6 +148,21 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
                     </Button>
                   }
                   owner={comment.user}
+                />
+                <OwnerGuard
+                  owner={comment.user}
+                  component={
+                    <ToggleNotificationButton
+                      notificationEnabled={comment.notificationEnabled}
+                      handleToggle={toggleSendNotifications}
+                    />
+                  }
+                  replace={
+                    <FollowButton
+                      followed={comment.followed}
+                      handleFollow={followComment}
+                    />
+                  }
                 />
                 <OwnerGuard
                   component={

@@ -89,7 +89,7 @@ const PostList: React.FC<Props> = ({
     dispatch(fetchPosts(fetchPostRequest));
     window.scrollTo(0, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, tag, section, user, searchTerm]);
+  }, [dispatch, tag, section, user, searchTerm, fetchPosts]);
 
   useEffect(() => {
     dispatch(setSearchTerm(''));
@@ -115,7 +115,7 @@ const PostList: React.FC<Props> = ({
     <InfiniteScroll
       dataLength={posts!.length}
       next={getNextPage}
-      hasMore={!isLast}
+      hasMore={isLast !== undefined && !isLast}
       loader={<PostSkeleton />}
     >
       <List

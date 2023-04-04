@@ -282,9 +282,9 @@ export const follow =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      followPost(post.id);
       dispatch(setPostFollowed(post));
       message.success('Post followed!');
+      await followPost(post.id);
     } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
     }
@@ -294,15 +294,15 @@ export const unFollow =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      unFollowPost(post.id);
       dispatch(setPostFollowed(post));
       message.success('Post un followed!');
+      await unFollowPost(post.id);
     } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
 
-export const turnOnNotifications =
+export const turnOnNotification =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
@@ -314,7 +314,7 @@ export const turnOnNotifications =
     }
   };
 
-export const turnOffNotifications =
+export const turnOffNotification =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {

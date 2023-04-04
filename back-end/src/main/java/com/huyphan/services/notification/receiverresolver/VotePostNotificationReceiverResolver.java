@@ -17,7 +17,7 @@ public class VotePostNotificationReceiverResolver implements
         List<User> users = new ArrayList<>();
         Post post = notificationPayload.getPost();
         User postOwner = post.getUser();
-        if (postOwner.equals(UserService.getUser()) || !post.isSendNotifications()) {
+        if (postOwner.equals(UserService.getUser()) || !post.isNotificationEnabled()) {
             return users;
         }
 

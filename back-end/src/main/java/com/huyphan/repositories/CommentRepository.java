@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -39,7 +40,13 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
                         select count(*)
                         from Comment children
                         where children.parent = comment
-                    ) as totalChildren
+                    ) as totalChildren,
+                    
+                    (
+                        select case when (count(*) > 0) then true else false end
+                        from Comment followedComment
+                        where followedComment.id = comment.id and :user in elements(followedComment.followers)
+                    ) as followed
             """;
 
     @EntityGraph("CommentEntityGraph")
@@ -108,4 +115,11 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
             where comment.id in :ids
             """)
     List<String> getMediaUrlByIdIn(Set<Long> ids);
+
+    @EntityGraph("CommentEntityGraph")
+    @Query(SELECT_STATEMENT + """
+            from Comment comment
+            where comment.user = :user
+            """)
+    Slice<CommentWithDerivedFields> findUserComments(@Param("user") User user, Pageable pageable);
 }

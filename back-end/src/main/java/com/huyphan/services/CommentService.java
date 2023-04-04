@@ -15,6 +15,8 @@ import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.models.projections.CommentWithDerivedFields;
 import com.huyphan.repositories.CommentRepository;
+import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
+import com.huyphan.services.togglenotificationinvoker.IToggleNotificationInvoker;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import java.util.LinkedHashSet;
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +52,20 @@ public class CommentService {
     private VoteableObjectManager<Comment> voteableCommentManager;
 
     @Autowired
+    private IFollowActionInvoker followActionInvoker;
+
+    @Autowired
+    private IToggleNotificationInvoker toggleSendNotificationsInvoker;
+
+    @Autowired
     private AWSS3Util awss3Util;
+
+    @Transactional
+    public void toggleNotification(Long id, boolean value)
+            throws AppException {
+        Comment comment = getCommentWithoutDerivedFields(id);
+        toggleSendNotificationsInvoker.toggle(comment, value);
+    }
 
     @Transactional(rollbackFor = {AppException.class})
     public Comment addComment(Long postId, NewComment newComment) throws AppException {
@@ -143,6 +159,15 @@ public class CommentService {
         }
     }
 
+    public Slice<Comment> getUserComments(Long userId, PageOptions options) throws AppException {
+        SortType sortType = options.getSortType();
+        Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
+
+        return commentRepository.findUserComments(userService.getUserById(userId), pageable)
+                .map(CommentWithDerivedFields::toComment);
+    }
+
     @Transactional(rollbackFor = {AppException.class})
     public void updateComment(Long id, NewComment updatedCommentFields) throws CommentException {
         Comment comment = getCommentUsingLock(id);
@@ -179,6 +204,7 @@ public class CommentService {
         comment.setText(newComment.getText());
         comment.setMediaUrl(newComment.getMediaUrl());
         comment.setMediaType(newComment.getMediaType());
+        comment.setNotificationEnabled(true);
         return comment;
     }
 
@@ -218,6 +244,18 @@ public class CommentService {
     private Comment getCommentWithoutDerivedFields(Long id) throws CommentException {
         return commentRepository.findById(id)
                 .orElseThrow(() -> new CommentException("Comment not found"));
+    }
+
+    @Transactional
+    public void followComment(Long id) throws CommentException {
+        Comment comment = getCommentWithoutDerivedFields(id);
+        followActionInvoker.follow(comment);
+    }
+
+    @Transactional
+    public void unfollowComment(Long id) throws CommentException {
+        Comment comment = getCommentWithoutDerivedFields(id);
+        followActionInvoker.unFollow(comment);
     }
 
     /**

@@ -12,6 +12,8 @@ export interface UserConstructorArguments {
   readonly country: Country | null;
 
   readonly created: Date;
+
+  readonly followed: boolean;
 }
 
 export class User {
@@ -27,6 +29,8 @@ export class User {
 
   readonly created: Date;
 
+  readonly followed: boolean;
+
   public constructor(constructorArguments: UserConstructorArguments) {
     this.id = constructorArguments.id;
     this.username = constructorArguments.username;
@@ -34,6 +38,7 @@ export class User {
     this.country = constructorArguments.country;
     this.created = constructorArguments.created;
     this.displayName = constructorArguments.displayName;
+    this.followed = constructorArguments.followed;
   }
 
   public get countryCode() {

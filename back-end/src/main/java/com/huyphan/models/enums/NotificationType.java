@@ -10,7 +10,10 @@ public enum NotificationType {
     VOTE_COMMENT("VoteComment"),
     ADD_COMMENT("AddComment"),
     ADD_REPLY("AddReply"),
-    FOLLOWING_POST_HAS_NEW_COMMENT("FollowingPostHasNewComment");
+    FOLLOWING_POST_HAS_NEW_COMMENT("FollowingPostHasNewComment"),
+    FOLLOWING_COMMENT_HAS_NEW_REPLY("FollowingCommentHasNewReply"),
+    ADD_POST("AddPost"),
+    FOLLOW_USER("FollowUser");
 
     private final String value;
 

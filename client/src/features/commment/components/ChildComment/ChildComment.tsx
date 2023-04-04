@@ -61,7 +61,7 @@ const ChildComment: React.FC<Props> = ({ parent }: Props) => {
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [commentId, parentId, replyToId]);
 
   return (
     <>
