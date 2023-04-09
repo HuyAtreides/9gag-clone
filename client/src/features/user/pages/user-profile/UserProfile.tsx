@@ -25,6 +25,7 @@ import UserPosts from '../../components/user-posts/UserPosts';
 import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
 import UserUpvotedPosts from '../../components/user-upvoted-posts/UserUpvotedPosts';
 import styles from './UserProfile.module.scss';
+import UserFollowers from '../../components/user-followers/UserFollowers';
 
 const tabListNoTitle = [
   {
@@ -47,6 +48,10 @@ const tabListNoTitle = [
     key: 'Comments',
     tab: 'Comments',
   },
+  {
+    key: 'Followers',
+    tab: 'Followers',
+  },
 ];
 
 const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
@@ -55,6 +60,7 @@ const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
   'Upvoted Posts': UserUpvotedPosts,
   'Following Posts': UserFollowingPosts,
   Comments: UserComments,
+  Followers: UserFollowers,
 };
 
 const UserProfile: React.FC = () => {
