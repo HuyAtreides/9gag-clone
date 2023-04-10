@@ -2,6 +2,7 @@ package com.huyphan.services;
 
 import com.huyphan.events.FollowEvent;
 import com.huyphan.mediators.IMediator;
+import com.huyphan.models.PageOptions;
 import com.huyphan.models.RegisterData;
 import com.huyphan.models.User;
 import com.huyphan.models.UserStats;
@@ -11,6 +12,10 @@ import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.UserRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -97,6 +102,19 @@ public class UserService implements UserDetailsService {
         User user = getUserById(userId);
         followActionInvoker.unFollow(user);
     }
+
+    public Page<User> getUserFollowers(PageOptions options, Long id) throws UserException {
+        User user = getUserById(id);
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        return userRepo.getUserFollowers(user, pageable);
+    }
+
+    public Page<User> getUserFollowing(PageOptions options, Long id) throws UserException {
+        User user = getUserById(id);
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        return userRepo.getUserFollowing(user, pageable);
+    }
+
 
     /**
      * Get a specific user using user's id.

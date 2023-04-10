@@ -90,6 +90,10 @@ public class User implements UserDetails, Followable {
             joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> followingPosts = new LinkedHashSet<>();
+
+    @ManyToMany(mappedBy = "followers")
+    private Set<User> following = new LinkedHashSet<>();
+
     @ManyToMany
     @JoinTable(name = "CommentFollower",
             joinColumns = @JoinColumn(name = "UserId"),

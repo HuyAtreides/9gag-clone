@@ -1,8 +1,13 @@
+import { AxiosRequestConfig } from 'axios';
 import { Constant } from '../models/enums/constant';
+import { FetchUserRequest } from '../models/requests/fetch-user-request';
 import { createAxiosInstance } from '../utils/create-axios-instance';
+import PageDto from './dtos/page-dto';
 import SectionDto from './dtos/section-dto';
 import { UserDto } from './dtos/user-dto';
 import { UserStatsDto } from './dtos/user-stats-dto';
+import { PageMapper } from './mappers/page-mapper';
+import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { SectionMapper } from './mappers/section-mapper';
 import { UserMapper } from './mappers/user-mapper';
 import { UserStatsMapper } from './mappers/user-stats-mapper';
@@ -48,4 +53,30 @@ export async function followUser(id: number) {
 export async function unFollowUser(id: number) {
   const axios = createAxiosInstance();
   await axios.put<void>(`${Constant.UserEndpoint}/unfollow/${id}`);
+}
+
+export async function getUserFollowers(request: FetchUserRequest) {
+  const axios = createAxiosInstance();
+  const { userId, pageOptions } = request;
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.UserEndpoint}/${userId}/followers`;
+  const response = await axios.get<PageDto<UserDto>>(url, axiosRequestConfig);
+
+  return PageMapper.fromDto(response.data, UserMapper.fromDto);
+}
+
+export async function getUserFollowing(request: FetchUserRequest) {
+  const axios = createAxiosInstance();
+  const { userId, pageOptions } = request;
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.UserEndpoint}/${userId}/following`;
+  const response = await axios.get<PageDto<UserDto>>(url, axiosRequestConfig);
+
+  return PageMapper.fromDto(response.data, UserMapper.fromDto);
 }
