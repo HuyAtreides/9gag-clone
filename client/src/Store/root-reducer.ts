@@ -6,6 +6,7 @@ import { postReducer } from './post/post-slice';
 import { notificationReducer } from './notification/notification-slice';
 import { commentReducer } from './comment/comment-slice';
 import { abbreviateCommentReducer } from './abbreviate-comment/abbreviate-comment-slice';
+import { userSummaryReducers } from './user-summary/user-summary-slice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   comment: commentReducer,
   notification: notificationReducer,
   abbreviateComment: abbreviateCommentReducer,
+  userSummary: userSummaryReducers,
 });
 
 export default rootReducer;

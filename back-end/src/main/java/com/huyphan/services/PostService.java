@@ -254,11 +254,13 @@ public class PostService {
                 .orElseThrow(() -> new PostException("Post not found"));
     }
 
+    @Transactional
     public void savePost(Long id) throws PostException {
         Post post = getPost(id);
         post.getSaveUsers().add(UserService.getUser());
     }
 
+    @Transactional
     public void removeSavedPost(Long id) throws PostException {
         Post post = getPost(id);
         post.getSaveUsers().remove(UserService.getUser());

@@ -1,21 +1,21 @@
 import { useCallback } from 'react';
 import {
-  appendFollowers,
-  getFollowers,
+  appendFollowing,
+  getFollowing,
 } from '../../../../Store/user-summary/user-summary-dispatcher';
 import UserSummaryList from '../../../../components/user-summary-list/UserSummaryList';
 import { FetchUserRequest } from '../../../../models/requests/fetch-user-request';
 import { PageFetchingRequest } from '../../../../models/requests/page-fetching-request';
-import UserFollowerSummary from './user-follower-summary/UserFollowerSummary';
+import UserFollowingSummary from './user-following-summary/UserFollowingSummary';
 
-const UserFollowers: React.FC<{ userId: number }> = ({ userId }) => {
+const UserFollowing: React.FC<{ userId: number }> = ({ userId }) => {
   const fetchFollowers = useCallback(
     (pageRequest: PageFetchingRequest) => {
       const fetchUserRequest: FetchUserRequest = {
         ...pageRequest,
         userId,
       };
-      return getFollowers(fetchUserRequest);
+      return getFollowing(fetchUserRequest);
     },
     [userId],
   );
@@ -25,7 +25,7 @@ const UserFollowers: React.FC<{ userId: number }> = ({ userId }) => {
         ...pageRequest,
         userId,
       };
-      return appendFollowers(fetchUserRequest);
+      return appendFollowing(fetchUserRequest);
     },
     [userId],
   );
@@ -33,9 +33,9 @@ const UserFollowers: React.FC<{ userId: number }> = ({ userId }) => {
     <UserSummaryList
       fetchUsers={fetchFollowers}
       appendUsers={fetchNewFollowers}
-      UserSummary={UserFollowerSummary}
+      UserSummary={UserFollowingSummary}
     />
   );
 };
 
-export default UserFollowers;
+export default UserFollowing;

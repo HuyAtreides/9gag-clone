@@ -17,7 +17,7 @@ const PostWithComment: React.FC = () => {
   const posts = useAppSelector((state) => state.post.posts);
   const errorMessage = useAppSelector((state) => state.post.errorMessage);
   const { id } = useParams();
-  const postId = id as unknown as number;
+  const postId = Number(id);
   const isValidId = id && !isNaN(postId);
 
   useRenderErrorMessage(errorMessage, setPostErrorMessage);

@@ -154,7 +154,7 @@ public class User implements UserDetails, Followable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null) {
             return false;
         }
 

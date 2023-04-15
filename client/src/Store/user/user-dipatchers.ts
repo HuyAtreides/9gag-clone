@@ -125,6 +125,7 @@ export const follow =
       message.success('User followed!');
       await followUser(id);
     } catch (error: unknown) {
+      dispatch(setOtherProfileFollowed(false));
       handleError(dispatch, error, setUserErrorMessage);
     }
   };
@@ -137,6 +138,7 @@ export const unFollow =
       message.success('User un followed!');
       await unFollowUser(id);
     } catch (error: unknown) {
+      dispatch(setOtherProfileFollowed(true));
       handleError(dispatch, error, setUserErrorMessage);
     }
   };

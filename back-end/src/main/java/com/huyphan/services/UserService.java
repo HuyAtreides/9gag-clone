@@ -11,6 +11,7 @@ import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.UserRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -101,6 +102,13 @@ public class UserService implements UserDetailsService {
     public void unFollowUser(Long userId) throws UserException {
         User user = getUserById(userId);
         followActionInvoker.unFollow(user);
+    }
+
+    @Transactional
+    public void removeFollower(Long followerId) {
+        User user = getCurrentUser();
+        boolean removed = user.getFollowers().removeIf(follower -> Objects.equals(follower.getId(),
+                followerId));
     }
 
     public Page<User> getUserFollowers(PageOptions options, Long id) throws UserException {

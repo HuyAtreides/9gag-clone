@@ -125,7 +125,10 @@ export const addLatestNotifications = (): AppThunk => async (dispatch, getState)
       (notification) => !notification.isViewed,
     );
     dispatch(appendLatestNotifications(latestNotifications));
-    dispatch(setNotViewedCount(notViewedNotifications.length + notViewedCount));
+
+    if (notViewedNotifications.length > 0) {
+      dispatch(setNotViewedCount(notViewedNotifications.length + notViewedCount));
+    }
   } catch (error: unknown) {
     console.log(error);
   }

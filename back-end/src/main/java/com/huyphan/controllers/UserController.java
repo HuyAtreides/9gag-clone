@@ -17,6 +17,7 @@ import com.huyphan.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,7 +77,7 @@ public class UserController {
         userService.unFollowUser(id);
     }
 
-    @GetMapping("${id}/followers")
+    @GetMapping("{id}/followers")
     public PageDto<UserDto> getUserFollowers(@PathVariable Long id, PageOptionsDto pageOptionsDto)
             throws UserException {
         PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
@@ -85,7 +86,7 @@ public class UserController {
         return pageMapper.toDto(users, userMapper);
     }
 
-    @GetMapping("${id}/following")
+    @GetMapping("{id}/following")
     public PageDto<UserDto> getUserFollowing(@PathVariable Long id, PageOptionsDto pageOptionsDto)
             throws UserException {
         PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
@@ -94,6 +95,10 @@ public class UserController {
         return pageMapper.toDto(users, userMapper);
     }
 
+    @DeleteMapping("follower/{id}")
+    public void removeFollower(@PathVariable Long id) {
+        userService.removeFollower(id);
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)

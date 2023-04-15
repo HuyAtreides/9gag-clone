@@ -55,6 +55,11 @@ export async function unFollowUser(id: number) {
   await axios.put<void>(`${Constant.UserEndpoint}/unfollow/${id}`);
 }
 
+export async function removeUserFollower(id: number) {
+  const axios = createAxiosInstance();
+  await axios.delete<void>(`${Constant.UserEndpoint}/follower/${id}`);
+}
+
 export async function getUserFollowers(request: FetchUserRequest) {
   const axios = createAxiosInstance();
   const { userId, pageOptions } = request;

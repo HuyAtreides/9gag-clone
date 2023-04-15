@@ -1,3 +1,4 @@
+import { FileImageFilled, VideoCameraFilled } from '@ant-design/icons';
 import { Avatar, Comment, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import AppComment from '../../models/comment';
@@ -11,9 +12,14 @@ interface Props {
 const CommentContent: React.FC<{ comment: AppComment }> = ({ comment }) => {
   if (!comment.text && comment.mediaType) {
     return (
-      <Typography.Text ellipsis strong italic>{`Comment with a ${
-        comment.mediaType === MediaType.Video ? 'video' : 'image'
-      }`}</Typography.Text>
+      <Typography.Text ellipsis strong italic>
+        {`Comment with ${comment.mediaType === MediaType.Video ? 'a video' : 'an image'}`}{' '}
+        {comment.mediaType === MediaType.Video ? (
+          <VideoCameraFilled />
+        ) : (
+          <FileImageFilled />
+        )}
+      </Typography.Text>
     );
   }
 

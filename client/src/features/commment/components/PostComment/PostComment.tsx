@@ -6,7 +6,7 @@ import {
   MoreOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Comment, Modal, Popover, Typography } from 'antd';
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
@@ -22,7 +22,7 @@ import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-exec
 import AppComment from '../../../../models/comment';
 import { Constant } from '../../../../models/enums/constant';
 import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
-import { useAppDispatch } from '../../../../Store';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   deleteAppComment,
   follow,
@@ -36,6 +36,7 @@ import {} from '../../../../Store/comment/comment-slice';
 import { formatNumber } from '../../../../utils/format-number';
 import ChildComment from '../ChildComment/ChildComment';
 import styles from './PostComment.module.scss';
+import { PostContext } from '../../../Home/Components/post-with-comment/PostWithComment';
 
 interface Props {
   readonly comment: AppComment;
@@ -47,6 +48,12 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
   const dispatch = useAppDispatch();
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [showCommentEditor, setShowCommentEditor] = useState(false);
+  const postId = useContext(PostContext);
+  const post = useAppSelector((state) =>
+    state.post.posts.find((post) => {
+      return post.id === postId;
+    }),
+  )!;
   const voteCommentExecutorRef = useRef(
     new VoteCommentActionExecutor(dispatch, comment.id),
   );
@@ -84,6 +91,41 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
       href={`/user/${comment.replyTo.id}`}
       target='_blank'
     >{`@${comment.replyTo.username}`}</Typography.Link>
+  ) : null;
+
+  const commentDeleteButton = post ? (
+    <OwnerGuard
+      component={
+        <Button
+          className={`${styles.commentAction} ${styles.actionBtn}`}
+          block
+          type='text'
+          icon={<DeleteOutlined />}
+          danger
+          onClick={deleteComment}
+        >
+          Delete
+        </Button>
+      }
+      replace={
+        <OwnerGuard
+          component={
+            <Button
+              className={`${styles.commentAction} ${styles.actionBtn}`}
+              block
+              type='text'
+              icon={<DeleteOutlined />}
+              danger
+              onClick={deleteComment}
+            >
+              Delete
+            </Button>
+          }
+          owner={post.user}
+        />
+      }
+      owner={comment.user}
+    />
   ) : null;
 
   if (showCommentEditor) {
@@ -164,21 +206,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
                     />
                   }
                 />
-                <OwnerGuard
-                  component={
-                    <Button
-                      className={`${styles.commentAction} ${styles.actionBtn}`}
-                      block
-                      type='text'
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={deleteComment}
-                    >
-                      Delete
-                    </Button>
-                  }
-                  owner={comment.user}
-                />
+                {commentDeleteButton}
               </div>
             }
           >

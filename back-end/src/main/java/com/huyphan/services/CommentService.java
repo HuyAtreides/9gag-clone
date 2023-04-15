@@ -79,13 +79,16 @@ public class CommentService {
     public void deleteCommentInBatch(Long id) throws CommentException {
         User currentUser = UserService.getUser();
         Comment comment = getCommentWithoutDerivedFields(id);
+        User commentOwner = comment.getOwner();
+        User commentPostOwner = comment.getPost().getOwner();
 
-        if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
+        if (!currentUser.equals(commentOwner) && !currentUser.equals(commentPostOwner)) {
             throw new CommentException("Comment not found");
         }
         deleteCommentInBatch(Set.of(id));
     }
 
+    @Transactional
     private void deleteCommentInBatch(Set<Long> ids) {
         if (ids.isEmpty()) {
             return;
