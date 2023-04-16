@@ -28,6 +28,7 @@ import UserPosts from '../../components/user-posts/UserPosts';
 import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
 import UserUpvotedPosts from '../../components/user-upvoted-posts/UserUpvotedPosts';
 import styles from './UserProfile.module.scss';
+import { UserProfileContext } from '../../context/context';
 
 const tabListNoTitle = [
   {
@@ -104,87 +105,91 @@ const UserProfile: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <Card
-      className={styles.userProfile}
-      loading={!user}
-      extra={
-        !user ? null : (
-          <Popover
-            placement='left'
-            trigger='click'
-            content={
-              <div className='more-action-box-container'>
-                <OwnerGuard
-                  component={
-                    <Button icon={<SettingOutlined />} type='text'>
-                      Settings
-                    </Button>
-                  }
-                  owner={user}
-                />
-                <OwnerGuard
-                  component={
-                    <Button type='text' icon={<EditOutlined />}>
-                      Edit
-                    </Button>
-                  }
-                  owner={user}
-                />
-                <OwnerGuard
-                  component={<></>}
-                  replace={
-                    <Button
-                      type={user?.followed ? 'primary' : 'text'}
-                      icon={<UserAddOutlined />}
-                      onClick={followUser}
-                    >
-                      {user?.followed ? 'Unfollow' : 'Follow'}
-                    </Button>
-                  }
-                  owner={user}
-                />
+    <UserProfileContext.Provider value={user}>
+      <Card
+        className={styles.userProfile}
+        loading={!user}
+        extra={
+          !user ? null : (
+            <Popover
+              placement='left'
+              trigger='click'
+              content={
+                <div className='more-action-box-container'>
+                  <OwnerGuard
+                    component={
+                      <Button icon={<SettingOutlined />} type='text'>
+                        Settings
+                      </Button>
+                    }
+                    owner={user}
+                  />
+                  <OwnerGuard
+                    component={
+                      <Button type='text' icon={<EditOutlined />}>
+                        Edit
+                      </Button>
+                    }
+                    owner={user}
+                  />
+                  <OwnerGuard
+                    component={<></>}
+                    replace={
+                      <Button
+                        type={user?.followed ? 'primary' : 'text'}
+                        icon={<UserAddOutlined />}
+                        onClick={followUser}
+                      >
+                        {user?.followed ? 'Unfollow' : 'Follow'}
+                      </Button>
+                    }
+                    owner={user}
+                  />
 
-                <OwnerGuard
-                  component={<></>}
-                  replace={
-                    <Button type='text' icon={<StopOutlined />} danger>
-                      Block
-                    </Button>
-                  }
-                  owner={user}
-                />
-              </div>
-            }
-          >
-            <Button icon={<MoreOutlined />} type='text' />
-          </Popover>
-        )
-      }
-      tabList={tabListNoTitle}
-      activeTabKey={selectedTab}
-      onTabChange={setSelectedTab}
-      title={
-        <Skeleton loading={!user} avatar active>
-          <Meta
-            avatar={<Avatar src={user?.avatarUrl} size={70} />}
-            title={<strong>{user?.displayName}</strong>}
-            description={
-              <>
-                <NameWithCountryFlag
-                  country={user?.country || undefined}
-                  name={user?.username || ''}
-                />{' '}
-                &#8226; Joined in {user?.created.toLocaleDateString()}
-              </>
-            }
-          />
-          <br></br>
-          {userId && <UserStats id={userId} />}
-        </Skeleton>
-      }
-    >
-      {!userId ? null : React.createElement(tabKeyToTabContent[selectedTab], { userId })}
-    </Card>
+                  <OwnerGuard
+                    component={<></>}
+                    replace={
+                      <Button type='text' icon={<StopOutlined />} danger>
+                        Block
+                      </Button>
+                    }
+                    owner={user}
+                  />
+                </div>
+              }
+            >
+              <Button icon={<MoreOutlined />} type='text' />
+            </Popover>
+          )
+        }
+        tabList={tabListNoTitle}
+        activeTabKey={selectedTab}
+        onTabChange={setSelectedTab}
+        title={
+          <Skeleton loading={!user} avatar active>
+            <Meta
+              avatar={<Avatar src={user?.avatarUrl} size={70} />}
+              title={<strong>{user?.displayName}</strong>}
+              description={
+                <>
+                  <NameWithCountryFlag
+                    country={user?.country || undefined}
+                    name={user?.username || ''}
+                  />{' '}
+                  &#8226; Joined in {user?.created.toLocaleDateString()}
+                </>
+              }
+            />
+            <br></br>
+            {userId && <UserStats id={userId} />}
+          </Skeleton>
+        }
+      >
+        {!userId
+          ? null
+          : React.createElement(tabKeyToTabContent[selectedTab], { userId })}
+      </Card>
+    </UserProfileContext.Provider>
   );
 };
 
