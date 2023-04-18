@@ -1,8 +1,10 @@
 package com.huyphan.models;
 
 import com.huyphan.models.converters.CountryConverter;
+import com.huyphan.models.converters.SocialProviderConverter;
 import com.huyphan.models.enums.Country;
 import com.huyphan.models.enums.Role;
+import com.huyphan.models.enums.SocialProvider;
 import com.huyphan.services.UserService;
 import com.huyphan.services.followactioninvoker.Followable;
 import java.time.Instant;
@@ -44,7 +46,7 @@ public class User implements UserDetails, Followable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Column(name = "Username", nullable = false, length = 20, unique = true)
+    @Column(name = "Username", nullable = false, length = 100, unique = true)
     private String username;
     @Column(name = "AvatarUrl")
     private String avatarUrl;
@@ -57,7 +59,8 @@ public class User implements UserDetails, Followable {
     @Column(name = "Password")
     private String password;
     @Column(name = "Provider", length = 20)
-    private String provider;
+    @Convert(converter = SocialProviderConverter.class)
+    private SocialProvider provider;
     @ManyToMany
     @JoinTable(name = "SavedPost",
             joinColumns = @JoinColumn(name = "UserId"),

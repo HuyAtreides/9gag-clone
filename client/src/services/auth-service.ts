@@ -11,6 +11,8 @@ import { RegisterDataMapper } from './mappers/register-data-mapper';
 import { LoginDataMapper } from './mappers/login-data-mapper';
 import { UserMapper } from './mappers/user-mapper';
 import { UserSecretMapper } from './mappers/user-secret-mapper';
+import SocialLoginData from '../models/social-login-data';
+import { SocialLoginDataMapper } from './mappers/social-login-data-mapper';
 
 const REGISTER_END_POINT = `${Constant.AuthEndpoint}/register`;
 const LOGIN_END_POINT = `${Constant.AuthEndpoint}/login`;
@@ -27,6 +29,16 @@ export async function loginUser(loginData: LoginData): Promise<UserSecret> {
   const loginDataDto = LoginDataMapper.toDto(loginData);
   const axios = createAxiosInstance();
   const response = await axios.post<UserSecretDto>(LOGIN_END_POINT, loginDataDto);
+  return UserSecretMapper.fromDto(response.data);
+}
+
+export async function loginUserWithSocialSignIn(socialLoginData: SocialLoginData) {
+  const loginDataDto = SocialLoginDataMapper.toDto(socialLoginData);
+  const axios = createAxiosInstance();
+  const response = await axios.post<UserSecretDto>(
+    `${Constant.AuthEndpoint}/social-login`,
+    loginDataDto,
+  );
   return UserSecretMapper.fromDto(response.data);
 }
 
