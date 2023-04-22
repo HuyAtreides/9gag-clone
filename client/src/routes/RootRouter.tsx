@@ -30,15 +30,26 @@ const RootRoutes: React.FC = () => {
           />
           <Route
             path='/tag/:tag/:section//*'
-            element={<Home sideBarCollapse={collapse} />}
+            element={<Home sideBarCollapse={collapse} setSideBarCollapse={setCollapse} />}
           />
-          <Route path='/tag/:tag//*' element={<Home sideBarCollapse={collapse} />} />
-          <Route path='/post//*' element={<Home sideBarCollapse={collapse} />} />
+          <Route
+            path='/tag/:tag//*'
+            element={<Home sideBarCollapse={collapse} setSideBarCollapse={setCollapse} />}
+          />
+          <Route
+            path='/post//*'
+            element={<Home sideBarCollapse={collapse} setSideBarCollapse={setCollapse} />}
+          />
           <Route
             path='/user//*'
             element={
               <ProtectedRoute
-                targetComponent={<UserRoutes sideBarCollapse={collapse} />}
+                targetComponent={
+                  <UserRoutes
+                    sideBarCollapse={collapse}
+                    setSideBarCollapse={setCollapse}
+                  />
+                }
               />
             }
           />
