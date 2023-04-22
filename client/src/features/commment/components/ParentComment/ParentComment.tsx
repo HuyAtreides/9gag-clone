@@ -2,21 +2,19 @@ import { List, Select, Skeleton } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useSearchParams } from 'react-router-dom';
-import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import {
+  appendParentComments,
+  getParentComments,
+  uploadComment,
+} from '../../../../Store/comment/comment-dispatchers';
+import { resetState, setErrorMessage } from '../../../../Store/comment/comment-slice';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import { Constant } from '../../../../models/enums/constant';
 import { SortType } from '../../../../models/enums/sort-type';
 import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
 import { CommentQueryParamMapper } from '../../../../services/mappers/comment-query-param-mapper';
-import { useAppDispatch, useAppSelector } from '../../../../Store';
-import {
-  appendParentComments,
-  appendSingleComment,
-  getParentComments,
-  uploadComment,
-} from '../../../../Store/comment/comment-dispatchers';
-import { resetState, setErrorMessage } from '../../../../Store/comment/comment-slice';
 import { PostContext } from '../../../Home/Components/post-with-comment/PostWithComment';
 import PostComment from '../PostComment/PostComment';
 import styles from './ParentComment.module.css';
@@ -61,23 +59,19 @@ const ParentComment: React.FC = () => {
   };
 
   useEffect(() => {
-    (async () => {
-      if (commentId) {
-        const id = parentId ? parentId : commentId;
-        await dispatch(appendSingleComment(id, 0));
-      }
-      const pageOptions = {
-        page: 0,
-        size: Constant.PageSize as number,
-        sortType,
-      };
-      dispatch(
-        getParentComments({
-          postId,
-          pageOptions,
-        }),
-      );
-    })();
+    const priorityIds = commentId ? [parentId ? parentId : commentId] : undefined;
+    const pageOptions = {
+      page: 0,
+      size: Constant.PageSize as number,
+      sortType,
+    };
+    dispatch(
+      getParentComments({
+        postId,
+        pageOptions,
+        priorityIds,
+      }),
+    );
 
     document.getElementById(Constant.CommentScrollAreaId)?.scrollIntoView();
     return () => {
@@ -116,7 +110,12 @@ const ParentComment: React.FC = () => {
         dataLength={commentState.childrenId.length}
         next={handleGetNextComments}
         hasMore={hasMoreComments}
-        loader={<CenterSpinner />}
+        loader={
+          <>
+            <br />
+            <Skeleton avatar paragraph={{ rows: 4 }} active />
+          </>
+        }
       >
         <List
           id={Constant.CommentScrollAreaId as string}
