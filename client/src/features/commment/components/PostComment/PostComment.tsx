@@ -8,20 +8,6 @@ import {
 import { Avatar, Button, Comment, Modal, Popover, Typography } from 'antd';
 import React, { useContext, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import CommentEditor from '../../../../components/comment-editor/CommentEditor';
-import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
-import FollowButton from '../../../../components/follow-button/FollowButton';
-import Media from '../../../../components/media/Media';
-import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
-import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
-import useDownvote from '../../../../custom-hooks/downvote';
-import useFollow from '../../../../custom-hooks/follow';
-import useToggleNotification from '../../../../custom-hooks/toggle-notification';
-import useUpvote from '../../../../custom-hooks/upvote';
-import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-comment-action-executor';
-import AppComment from '../../../../models/comment';
-import { Constant } from '../../../../models/enums/constant';
-import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   deleteAppComment,
@@ -33,16 +19,34 @@ import {
   update,
 } from '../../../../Store/comment/comment-dispatchers';
 import {} from '../../../../Store/comment/comment-slice';
+import CommentEditor from '../../../../components/comment-editor/CommentEditor';
+import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
+import FollowButton from '../../../../components/follow-button/FollowButton';
+import Media from '../../../../components/media/Media';
+import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
+import useDownvote from '../../../../custom-hooks/downvote';
+import useFollow from '../../../../custom-hooks/follow';
+import useToggleNotification from '../../../../custom-hooks/toggle-notification';
+import useUpvote from '../../../../custom-hooks/upvote';
+import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
+import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-comment-action-executor';
+import AppComment from '../../../../models/comment';
+import { Constant, ScreenBreakPoint } from '../../../../models/enums/constant';
+import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
 import { formatNumber } from '../../../../utils/format-number';
+import { PostContext } from '../../../Home/Components/post-with-comment/PostWithComment';
 import ChildComment from '../ChildComment/ChildComment';
 import styles from './PostComment.module.scss';
-import { PostContext } from '../../../Home/Components/post-with-comment/PostWithComment';
 
 interface Props {
   readonly comment: AppComment;
 }
 
-const FIFTY_PERCENT_SCREEN_HEIGHT = window.innerHeight * 0.5;
+const isSmallerThanLargeBreakPoint = window.innerWidth < ScreenBreakPoint.Large;
+const mediaWidth = isSmallerThanLargeBreakPoint
+  ? window.innerWidth * 0.5
+  : window.innerWidth * 0.3;
 
 const PostComment: React.FC<Props> = ({ comment }: Props) => {
   const dispatch = useAppDispatch();
@@ -69,6 +73,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
   });
   const handleUpvote = useUpvote(comment, voteCommentExecutorRef.current);
   const handleDownvote = useDownvote(comment, voteCommentExecutorRef.current);
+  const commentDateDiff = useTimeDiffFromToday(comment.date);
 
   const addReply = async (values: CommentUploadFormData) => {
     await dispatch(reply(values, comment.id));
@@ -231,13 +236,13 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
               <Media
                 url={comment.mediaUrl}
                 type={comment.mediaType}
-                height={FIFTY_PERCENT_SCREEN_HEIGHT}
+                width={mediaWidth}
                 scrollAreaId={Constant.CommentScrollAreaId as string}
               />
             ) : null}
           </>
         }
-        datetime={comment.date.toLocaleDateString()}
+        datetime={<span>&#8226; {commentDateDiff}</span>}
       >
         {showReplyEditor ? (
           <CommentEditor

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import AppComment from '../../models/comment';
 import { MediaType } from '../../models/enums/constant';
 import NameWithCountryFlag from '../name-with-country-flag/NameWithCountryFlag';
+import useTimeDiffFromToday from '../../custom-hooks/use-time-diff-from-today';
 
 interface Props {
   readonly comment: AppComment;
@@ -42,6 +43,7 @@ const getCommentUrl = (comment: AppComment) => {
 };
 
 const AbbreviateComment: React.FC<Props> = ({ comment }) => {
+  const commentDateDiff = useTimeDiffFromToday(comment.date);
   return (
     <Link to={getCommentUrl(comment)}>
       <Comment
@@ -53,7 +55,7 @@ const AbbreviateComment: React.FC<Props> = ({ comment }) => {
         }
         avatar={<Avatar src={comment.user.avatarUrl} alt='Han Solo' />}
         content={<CommentContent comment={comment} />}
-        datetime={<span>&#8226; {comment.date.toLocaleDateString()}</span>}
+        datetime={<span>&#8226; {commentDateDiff}</span>}
       />
     </Link>
   );
