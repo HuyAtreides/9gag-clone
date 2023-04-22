@@ -61,6 +61,15 @@ const tabListNoTitle = [
   },
 ];
 
+const PARAM_TO_TAB_KEY: Record<string, string> = {
+  posts: 'Posts',
+  'saved-posts': 'Saved Posts',
+  'following-posts': 'Following Posts',
+  comments: 'Comments',
+  followers: 'Followers',
+  following: 'Following',
+};
+
 const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
   Posts: UserPosts,
   'Saved Posts': UserSavedPosts,
@@ -76,8 +85,9 @@ const UserProfile: React.FC = () => {
   const currentUser = useAppSelector((state) => state.user.profile);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState<string>('Posts');
-  const { id } = useParams();
+  const { id, tab } = useParams();
+  const tabKey = tab && PARAM_TO_TAB_KEY[tab] ? PARAM_TO_TAB_KEY[tab] : 'Posts';
+  const [selectedTab, setSelectedTab] = useState<string>(tabKey);
   const userId = !id ? undefined : Number.parseInt(id);
   const followUser = useFollow({
     isFollowed: user?.followed || false,
@@ -103,6 +113,10 @@ const UserProfile: React.FC = () => {
       dispatch(resetOtherProfileState());
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    setSelectedTab(tabKey);
+  }, [tabKey]);
 
   return (
     <UserProfileContext.Provider value={user}>

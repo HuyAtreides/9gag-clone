@@ -9,6 +9,7 @@ import { logout } from '../../Store/auth/auth-dispatchers';
 import NotificationContainer from './components/notifications-container/NotificationContainer';
 import PostSearch from './components/post-search/PostSearch';
 import styles from './Navbar.module.scss';
+import DropdownMenu from './components/DropdownMenu';
 
 const { Header } = Layout;
 
@@ -86,7 +87,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                   component={
                     <Link
                       className={styles.btnDropdown}
-                      to='/user/saved-posts'
+                      to={`/user/${user?.id}/saved-posts`}
                       onClick={hideMenu}
                     >
                       Saved Posts
@@ -104,6 +105,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
                     </Link>
                   }
                 />
+                <DropdownMenu />
               </div>
             }
           >

@@ -14,6 +14,7 @@ const UserRoutes: React.FC<Props> = ({ sideBarCollapse, setSideBarCollapse }) =>
       setSideBarCollapse={setSideBarCollapse}
     >
       <Routes>
+        <Route path=':id/:tab' element={<UserProfile />} />
         <Route path=':id' element={<UserProfile />} />
         <Route path='' element={<UserProfile />} />
       </Routes>

@@ -56,54 +56,6 @@ const DropdownMenu = () => {
           '3',
         ),
       ]),
-      getItem('Advertise', 'sub2', [
-        getItem(
-          <a
-            className={styles.item}
-            href='https://about.9gag.com/advertise'
-            target='_blank'
-            rel='noreferrer'
-          >
-            Advertise on 9GAG
-          </a>,
-          '4',
-        ),
-        getItem(
-          <a
-            className={styles.item}
-            href='https://about.9gag.com/report-bad-ads'
-            target='_blank'
-            rel='noreferrer'
-          >
-            Report ads
-          </a>,
-          '5',
-        ),
-      ]),
-      getItem('Contact', 'sub4', [
-        getItem(
-          <a
-            className={styles.item}
-            href='https://about.9gag.com/jobs'
-            target='_blank'
-            rel='noreferrer'
-          >
-            Career
-          </a>,
-          '6',
-        ),
-        getItem(
-          <a
-            className={styles.item}
-            href='https://about.9gag.com/contact'
-            target='_blank'
-            rel='noreferrer'
-          >
-            Business enquiry
-          </a>,
-          '7',
-        ),
-      ]),
     ];
   }, []);
 
