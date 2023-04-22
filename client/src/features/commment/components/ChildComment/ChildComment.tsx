@@ -1,15 +1,15 @@
 import { Button } from 'antd';
 import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import {
+  getChildrenComment,
+  getPriorityComments,
+} from '../../../../Store/comment/comment-dispatchers';
 import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
 import AppComment from '../../../../models/comment';
 import { Constant } from '../../../../models/enums/constant';
 import { CommentQueryParamMapper } from '../../../../services/mappers/comment-query-param-mapper';
-import { useAppDispatch, useAppSelector } from '../../../../Store';
-import {
-  appendSingleComment,
-  getChildrenComment,
-} from '../../../../Store/comment/comment-dispatchers';
 import { CommentSortTypeContext } from '../ParentComment/ParentComment';
 
 import PostComment from '../PostComment/PostComment';
@@ -24,7 +24,7 @@ const ChildComment: React.FC<Props> = ({ parent }: Props) => {
   const commentState = useAppSelector((state) => state.comment[parent.id]);
   const commentRecord = useAppSelector((state) => state.comment);
   const { pagination } = commentState;
-  const currentChildren = (pagination?.size || 0) * ((pagination?.page || 0) + 1);
+  const currentChildren = commentState.childrenId.length;
   const totalChildrenLeft = parent.totalChildren - currentChildren;
   const hasMoreReplies = totalChildrenLeft > 0 || (pagination && !pagination.isLast);
   const [searchParams] = useSearchParams();
@@ -50,15 +50,16 @@ const ChildComment: React.FC<Props> = ({ parent }: Props) => {
       return;
     }
 
-    (async () => {
-      if (replyToId && replyToId !== parentId) {
-        await dispatch(appendSingleComment(replyToId, parent.id));
-      }
+    const priorityIds = [];
+    if (replyToId && replyToId !== parentId) {
+      priorityIds.push(replyToId);
+    }
 
-      if (commentId) {
-        dispatch(appendSingleComment(commentId, parent.id));
-      }
-    })();
+    if (commentId) {
+      priorityIds.push(commentId);
+    }
+
+    dispatch(getPriorityComments(parent.id, priorityIds));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentId, parentId, replyToId]);

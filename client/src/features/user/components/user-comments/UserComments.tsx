@@ -95,7 +95,7 @@ const UserComments: React.FC<Props> = ({ userId }) => {
         <List
           dataSource={comments}
           renderItem={(comment, index) => (
-            <List.Item>
+            <List.Item key={comment.id}>
               <AbbreviateComment comment={comment} />
             </List.Item>
           )}

@@ -1,5 +1,6 @@
 import PageOptions from '../page-options';
 
 export interface FetchCommentRequest {
-  pageOptions: PageOptions;
+  readonly pageOptions: PageOptions;
+  readonly priorityIds?: number[];
 }

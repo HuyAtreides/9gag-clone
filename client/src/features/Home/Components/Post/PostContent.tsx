@@ -7,23 +7,9 @@ import {
   DeleteOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, List, message, Modal, Popover, Typography } from 'antd';
+import { Avatar, Button, List, Modal, Popover, Typography, message } from 'antd';
 import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
-import FollowButton from '../../../../components/follow-button/FollowButton';
-import Media from '../../../../components/media/Media';
-import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
-import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
-import useDownvote from '../../../../custom-hooks/downvote';
-import useFollow from '../../../../custom-hooks/follow';
-import useProtectedAction from '../../../../custom-hooks/protected-action';
-import useToggleNotification from '../../../../custom-hooks/toggle-notification';
-import useUpvote from '../../../../custom-hooks/upvote';
-import VotePostActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-post-action-executor';
-import { Constant } from '../../../../models/enums/constant';
-import { SortType } from '../../../../models/enums/sort-type';
-import Post from '../../../../models/post';
 import { useAppDispatch } from '../../../../Store';
 import {
   follow,
@@ -34,6 +20,21 @@ import {
   unFollow,
   unSave,
 } from '../../../../Store/post/post-dispatchers';
+import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
+import FollowButton from '../../../../components/follow-button/FollowButton';
+import Media from '../../../../components/media/Media';
+import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
+import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
+import useDownvote from '../../../../custom-hooks/downvote';
+import useFollow from '../../../../custom-hooks/follow';
+import useProtectedAction from '../../../../custom-hooks/protected-action';
+import useToggleNotification from '../../../../custom-hooks/toggle-notification';
+import useUpvote from '../../../../custom-hooks/upvote';
+import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
+import VotePostActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-post-action-executor';
+import { Constant } from '../../../../models/enums/constant';
+import { SortType } from '../../../../models/enums/sort-type';
+import Post from '../../../../models/post';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
 
@@ -58,6 +59,7 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
     turnOnNotificationThunkAction: turnOnNotification(post),
     turnOffNotificationThunkAction: turnOffNotification(post),
   });
+  const uploadTimeDiffFromToday = useTimeDiffFromToday(post.uploadTime);
   const { tag } = useParams();
 
   const copyLink = async () => {
@@ -179,7 +181,7 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
               <>
                 {`Uploaded by `}{' '}
                 <Link to={`/user/${post.user.id}`}>{post.user.username}</Link> &#8226;{' '}
-                {post.uploadTime.toLocaleDateString()}
+                {uploadTimeDiffFromToday}
               </>
             }
           />

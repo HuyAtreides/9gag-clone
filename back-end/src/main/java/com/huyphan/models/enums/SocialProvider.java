@@ -15,9 +15,13 @@ public enum SocialProvider {
     }
 
     static public SocialProvider toProvider(String value) throws ValueToEnumException {
+        if (value == null) {
+            return null;
+        }
+
         return Arrays.stream(SocialProvider.values()).filter(c -> c.getValue().equals(value))
                 .findFirst()
-                .orElseThrow(() -> new ValueToEnumException("Notification type doesn't exist."));
+                .orElseThrow(() -> new ValueToEnumException("Social provider doesn't exist."));
     }
 
     @JsonValue

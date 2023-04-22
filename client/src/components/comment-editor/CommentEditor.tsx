@@ -109,7 +109,7 @@ const CommentEditor: React.FC<Props> = ({
                   <Col>
                     <Form.Item>
                       {uploadFile || gifLocation ? null : (
-                        <GifSelect setGif={setGifLocation} />
+                        <GifSelect setGif={setGifLocation} disabled={isUploading} />
                       )}
                     </Form.Item>
                   </Col>

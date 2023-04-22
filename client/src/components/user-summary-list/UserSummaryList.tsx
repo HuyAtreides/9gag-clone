@@ -85,7 +85,7 @@ const UserSummaryList: React.FC<Props> = ({ UserSummary, fetchUsers, appendUsers
     >
       <List
         dataSource={users}
-        renderItem={(user, _) => React.createElement(UserSummary, { user })}
+        renderItem={(user, _) => React.createElement(UserSummary, { user, key: user.id })}
       />
     </InfiniteScroll>
   );

@@ -39,3 +39,7 @@ code {
 .postCommentAuthor {
   font-size: 1.3rem;
 }
+
+.infinite-scroll-component {
+  padding: 3px;
+}

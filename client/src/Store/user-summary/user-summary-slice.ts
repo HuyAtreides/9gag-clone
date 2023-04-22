@@ -39,7 +39,7 @@ const userSummarySlice = createSlice({
     },
 
     setUsers(state, action: PayloadAction<readonly User[]>) {
-      state.users = action.payload ? action.payload.map((post) => post) : action.payload;
+      state.users = action.payload.map((user) => user);
     },
 
     appendNewUsers(state, action: PayloadAction<readonly User[]>) {

@@ -6,12 +6,16 @@ import PostList from './pages/post-list/PostList';
 import styles from './Home.module.scss';
 
 interface IHomeProp {
-  sideBarCollapse: boolean;
+  readonly sideBarCollapse: boolean;
+  readonly setSideBarCollapse: (collapse: boolean) => void;
 }
 
-const Home: React.FC<IHomeProp> = ({ sideBarCollapse }) => {
+const Home: React.FC<IHomeProp> = ({ sideBarCollapse, setSideBarCollapse }) => {
   return (
-    <SideBarLayout sideBarCollapse={sideBarCollapse}>
+    <SideBarLayout
+      sideBarCollapse={sideBarCollapse}
+      setSideBarCollapse={setSideBarCollapse}
+    >
       <div className={styles.homeContent}>
         <Routes>
           <Route path=':id' element={<PostWithComment />} />

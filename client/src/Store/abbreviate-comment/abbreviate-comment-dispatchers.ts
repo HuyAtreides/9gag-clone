@@ -5,6 +5,7 @@ import { getUserComments } from '../../services/comment-service';
 import { handleError } from '../../utils/error-handler';
 import {
   appendComments,
+  setComments,
   setErrorMessage,
   setIsGettingComments,
   setIsGettingNextComments,
@@ -24,7 +25,7 @@ export const getCommentsOfUser =
       };
       dispatch(setIsGettingComments(false));
       dispatch(setPagination(pagination));
-      dispatch(appendComments(commentPage.content));
+      dispatch(setComments(commentPage.content));
     } catch (error: unknown) {
       handleError(dispatch, error, setErrorMessage);
     }

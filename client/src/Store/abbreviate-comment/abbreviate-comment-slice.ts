@@ -25,6 +25,9 @@ const abbreviateCommentSlice = createSlice({
     appendComments(state, action: PayloadAction<readonly AppComment[]>) {
       state.comments.push(...action.payload);
     },
+    setComments(state, action: PayloadAction<readonly AppComment[]>) {
+      state.comments = action.payload.map((comment) => comment);
+    },
     setIsGettingComments(state, action: PayloadAction<boolean>) {
       state.isGettingComments = action.payload;
     },
@@ -55,4 +58,5 @@ export const {
   resetState,
   setPagination,
   setErrorMessage,
+  setComments,
 } = abbreviateCommentSlice.actions;
