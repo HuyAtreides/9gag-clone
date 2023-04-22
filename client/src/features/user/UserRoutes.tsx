@@ -4,11 +4,15 @@ import UserProfile from './pages/user-profile/UserProfile';
 
 interface Props {
   readonly sideBarCollapse: boolean;
+  readonly setSideBarCollapse: (collapse: boolean) => void;
 }
 
-const UserRoutes: React.FC<Props> = ({ sideBarCollapse }) => {
+const UserRoutes: React.FC<Props> = ({ sideBarCollapse, setSideBarCollapse }) => {
   return (
-    <SideBarLayout sideBarCollapse={sideBarCollapse}>
+    <SideBarLayout
+      sideBarCollapse={sideBarCollapse}
+      setSideBarCollapse={setSideBarCollapse}
+    >
       <Routes>
         <Route path=':id' element={<UserProfile />} />
         <Route path='' element={<UserProfile />} />

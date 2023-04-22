@@ -8,9 +8,14 @@ const { Sider, Content } = Layout;
 interface Props {
   readonly children?: ReactNode;
   readonly sideBarCollapse: boolean;
+  readonly setSideBarCollapse: (collapse: boolean) => void;
 }
 
-const SideBarLayout: React.FC<Props> = ({ children, sideBarCollapse }) => {
+const SideBarLayout: React.FC<Props> = ({
+  children,
+  sideBarCollapse,
+  setSideBarCollapse,
+}) => {
   return (
     <Layout className={styles.layout} hasSider>
       <Sider
@@ -27,7 +32,10 @@ const SideBarLayout: React.FC<Props> = ({ children, sideBarCollapse }) => {
       ) : (
         <>
           <div className={styles.spacer}></div>
-          <div className='overlay-background'></div>
+          <div
+            className='overlay-background'
+            onClick={() => setSideBarCollapse(true)}
+          ></div>
         </>
       )}
 

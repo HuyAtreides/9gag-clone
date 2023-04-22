@@ -1,17 +1,17 @@
 import { BarChartOutlined, ClockCircleOutlined, StarFilled } from '@ant-design/icons';
 import { Menu, MenuProps, Typography } from 'antd';
-import { SyntheticEvent, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
-import useProtectedAction from '../../../../custom-hooks/protected-action';
-import { SortType } from '../../../../models/enums/sort-type';
-import Section from '../../../../models/section';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   addSectionToUserFavorite,
   getFavoriteSections,
   removeSectionFromUserFavorite,
 } from '../../../../Store/user/user-dipatchers';
+import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
+import useProtectedAction from '../../../../custom-hooks/protected-action';
+import { SortType } from '../../../../models/enums/sort-type';
+import Section from '../../../../models/section';
 import isInEnum from '../../../../utils/is-in-enum';
 import styles from './Sidebar.module.scss';
 
@@ -43,8 +43,6 @@ const Sidebar = () => {
   const selectedTags = tag ? [tag] : undefined;
   const selectedSections = section ? [section] : undefined;
   const navTag = tag ? tag : SortType.FRESH;
-
-  const preventNavigate = (event: SyntheticEvent) => {};
 
   useEffect(() => {
     dispatch(getFavoriteSections());
@@ -84,7 +82,6 @@ const Sidebar = () => {
           <Link
             to={`/tag/${navTag}/${section.name}`}
             className={styles.text}
-            onClick={preventNavigate}
             title={section.displayName}
           >
             {section.displayName}
@@ -117,7 +114,6 @@ const Sidebar = () => {
             <Link
               to={`/tag/${navTag}/${section.name}`}
               className={styles.text}
-              onClick={preventNavigate}
               title={section.displayName}
             >
               {section.displayName}
