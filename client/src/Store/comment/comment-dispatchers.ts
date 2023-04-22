@@ -50,6 +50,8 @@ export const getCommentPageDispatcher =
   async (dispatch, getState) => {
     try {
       dispatch(setIsLoading({ id, value: true }));
+      await dispatch(getPriorityComments(id, request.priorityIds));
+
       const commentPage = await fetchFunc(request);
 
       const pagination: Pagination = {
@@ -91,6 +93,19 @@ export const appendCommentPageDispatcher =
       dispatch(setIsGettingNextPage({ id, value: false }));
       handleError(dispatch, error, setErrorMessage);
     }
+  };
+
+export const getPriorityComments =
+  (parentId: number, priorityIds?: number[]): AppThunk =>
+  async (dispatch, getState) => {
+    if (!priorityIds) {
+      return;
+    }
+    dispatch(setIsLoading({ id: parentId, value: true }));
+    for (const priorityId of priorityIds) {
+      await dispatch(appendSingleComment(priorityId, parentId));
+    }
+    dispatch(setIsLoading({ id: parentId, value: false }));
   };
 
 export const getParentComments = (request: FetchPostCommentRequest): AppThunk => {
@@ -236,12 +251,9 @@ export const appendSingleComment =
   (id: number, parentId: number): AppThunk =>
   async (dispatch, getState) => {
     try {
-      dispatch(setIsLoading({ id: parentId, value: true }));
       const comment = await getComment(id);
       dispatch(appendChildren({ parentId, children: [comment] }));
-      dispatch(setIsLoading({ id: parentId, value: false }));
     } catch (error: unknown) {
-      dispatch(setIsLoading({ id: parentId, value: false }));
       handleError(dispatch, error, setErrorMessage);
     }
   };
