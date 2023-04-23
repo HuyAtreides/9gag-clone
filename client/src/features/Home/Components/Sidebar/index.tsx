@@ -45,7 +45,9 @@ const Sidebar = () => {
   const navTag = tag ? tag : SortType.FRESH;
 
   useEffect(() => {
-    dispatch(getFavoriteSections());
+    if (user) {
+      dispatch(getFavoriteSections());
+    }
   }, [user, dispatch]);
 
   const items = useMemo<MenuItem[]>(() => {

@@ -11,6 +11,7 @@ export interface UserState {
   readonly isGettingOtherProfile: boolean;
   readonly isGettingUserStats: boolean;
   readonly stats: UserStats | null;
+  readonly isUpdating: boolean;
   readonly favoriteSections: readonly Section[];
 }
 
@@ -18,6 +19,7 @@ const initialState: UserState = {
   /** isLoading is true because we always want to get user info when the app starts. */
   isLoading: true,
   profile: null,
+  isUpdating: false,
   errorMessage: null,
   otherProfile: null,
   isGettingOtherProfile: false,
@@ -32,6 +34,9 @@ const userSlice = createSlice({
   reducers: {
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
+    },
+    setIsUpdating(state, action: PayloadAction<boolean>) {
+      state.isUpdating = action.payload;
     },
     setProfile(state, action: PayloadAction<User | null>) {
       state.profile = action.payload;
@@ -91,6 +96,7 @@ export const {
   setOtherProfile,
   setIsGettingOtherProfile,
   resetOtherProfileState,
+  setIsUpdating,
   setUserStats,
   setIsGettingUserStats,
   setOtherProfileFollowed,

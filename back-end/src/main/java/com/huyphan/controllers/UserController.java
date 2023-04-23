@@ -2,18 +2,29 @@ package com.huyphan.controllers;
 
 import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
+import com.huyphan.dtos.UpdatePasswordDataDto;
+import com.huyphan.dtos.UpdateProfileDataDto;
 import com.huyphan.dtos.UserDto;
+import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.dtos.UserStatsDto;
 import com.huyphan.mappers.PageMapper;
 import com.huyphan.mappers.PageOptionMapper;
+import com.huyphan.mappers.UpdatePasswordDataMapper;
+import com.huyphan.mappers.UpdateProfileDataMapper;
 import com.huyphan.mappers.UserMapper;
+import com.huyphan.mappers.UserSecretMapper;
 import com.huyphan.mappers.UserStatsMapper;
 import com.huyphan.models.PageOptions;
+import com.huyphan.models.UpdatePasswordData;
+import com.huyphan.models.UpdateProfileData;
 import com.huyphan.models.User;
+import com.huyphan.models.UserSecret;
 import com.huyphan.models.UserStats;
 import com.huyphan.models.exceptions.AppException;
+import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.UserService;
+import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -22,6 +33,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +56,15 @@ public class UserController {
 
     @Autowired
     private UserStatsMapper userStatsMapper;
+
+    @Autowired
+    private UpdateProfileDataMapper updateProfileDataMapper;
+
+    @Autowired
+    private UpdatePasswordDataMapper updatePasswordDataMapper;
+
+    @Autowired
+    private UserSecretMapper userSecretMapper;
 
     /**
      * Get current authenticated user profile.
@@ -93,6 +114,22 @@ public class UserController {
         Page<User> users = userService.getUserFollowing(pageOptions, id);
 
         return pageMapper.toDto(users, userMapper);
+    }
+
+    @PutMapping("profile")
+    public UserSecretDto updateProfile(@RequestBody UpdateProfileDataDto updateProfileDataDto)
+            throws UserException {
+        UpdateProfileData updateProfileData = updateProfileDataMapper.fromDto(updateProfileDataDto);
+        UserSecret userSecret = userService.updateProfile(updateProfileData);
+
+        return userSecretMapper.toDto(userSecret);
+    }
+
+    @PutMapping("password")
+    public void updatePassword(@RequestBody UpdatePasswordDataDto updatePasswordDataDto)
+            throws AppException {
+        UpdatePasswordData updatePasswordData = updatePasswordDataMapper.fromDto(updatePasswordDataDto);
+        userService.updatePassword(updatePasswordData);
     }
 
     @DeleteMapping("follower/{id}")

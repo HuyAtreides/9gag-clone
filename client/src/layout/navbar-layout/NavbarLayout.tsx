@@ -54,7 +54,12 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
         <div className={styles.itemContainer}>
           <PostSearch />
           <NotificationContainer />
-          <Typography.Text className={styles.text} onClick={protectAction(() => {})}>
+          <Typography.Text
+            className={styles.text}
+            onClick={protectAction(() => {})}
+            ellipsis
+            title={user?.displayName}
+          >
             {user ? user.displayName : 'Sign up/Log in'}
           </Typography.Text>
           <Popover

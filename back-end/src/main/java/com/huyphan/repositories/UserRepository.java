@@ -2,6 +2,7 @@ package com.huyphan.repositories;
 
 import com.huyphan.models.User;
 import com.huyphan.models.UserStats;
+import com.huyphan.models.enums.SocialProvider;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +16,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     boolean existsByUsername(String username);
+
+    Optional<User> findByProviderAndSocialId(SocialProvider provider, String socialId);
 
     @Query("""
             select new com.huyphan.models.UserStats(

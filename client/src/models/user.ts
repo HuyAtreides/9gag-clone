@@ -1,4 +1,6 @@
+import { MediaType } from './enums/constant';
 import { Country } from './enums/country';
+import MediaLocation from './media-location';
 
 export interface UserConstructorArguments {
   readonly id: number;
@@ -14,6 +16,8 @@ export interface UserConstructorArguments {
   readonly created: Date;
 
   readonly followed: boolean;
+
+  readonly isPrivate: boolean;
 }
 
 export class User {
@@ -31,6 +35,8 @@ export class User {
 
   readonly followed: boolean;
 
+  readonly isPrivate: boolean;
+
   public constructor(constructorArguments: UserConstructorArguments) {
     this.id = constructorArguments.id;
     this.username = constructorArguments.username;
@@ -39,6 +45,14 @@ export class User {
     this.created = constructorArguments.created;
     this.displayName = constructorArguments.displayName;
     this.followed = constructorArguments.followed;
+    this.isPrivate = constructorArguments.isPrivate;
+  }
+
+  public getMediaLocation(): MediaLocation {
+    return {
+      url: this.avatarUrl,
+      type: MediaType.Image,
+    };
   }
 
   public get countryCode() {

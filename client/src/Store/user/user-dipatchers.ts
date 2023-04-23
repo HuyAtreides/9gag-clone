@@ -10,6 +10,8 @@ import {
   getUserStats,
   removeSectionFromUserFavoriteSections,
   unFollowUser,
+  updateUserPassword,
+  updateUserProfile,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
 import {
@@ -19,12 +21,18 @@ import {
   setIsGettingOtherProfile,
   setIsGettingUserStats,
   setIsLoading,
+  setIsUpdating,
   setOtherProfile,
   setOtherProfileFollowed,
   setProfile,
   setUserErrorMessage,
   setUserStats,
 } from './user-slice';
+import { UpdateProfileFormData } from '../../models/update-profile-form-data';
+import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
+import { LocalStorage } from '../../services/local-storage';
+import { Constant } from '../../models/enums/constant';
+import UpdatePasswordData from '../../models/update-password-data';
 
 export const getUser = (): AppThunk => async (dispatch, getState) => {
   try {
@@ -140,5 +148,40 @@ export const unFollow =
     } catch (error: unknown) {
       dispatch(setOtherProfileFollowed(true));
       handleError(dispatch, error, setUserErrorMessage);
+    }
+  };
+
+export const updateProfile =
+  (updateProfileFormData: UpdateProfileFormData): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsUpdating(true));
+      const mediaLocation = await getMediaLocationFromForm(updateProfileFormData.avatar);
+      const userSecret = await updateUserProfile({
+        ...updateProfileFormData,
+        avatarUrl: mediaLocation.url || Constant.DefaultUserAvatarUrl,
+        country: updateProfileFormData.country || undefined,
+      });
+      LocalStorage.save(Constant.TokenKey, userSecret.token);
+      dispatch(getUser());
+      dispatch(setIsUpdating(false));
+      message.success('Update profile successfully!');
+    } catch (error: unknown) {
+      dispatch(setIsUpdating(false));
+      handleError(dispatch, error, setUserErrorMessage);
+    }
+  };
+
+export const updatePassword =
+  (updatePasswordData: UpdatePasswordData): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsUpdating(true));
+      await updateUserPassword(updatePasswordData);
+      dispatch(setIsUpdating(false));
+      message.success('Update password successfully!');
+    } catch (err: unknown) {
+      dispatch(setIsUpdating(false));
+      handleError(dispatch, err, setUserErrorMessage);
     }
   };

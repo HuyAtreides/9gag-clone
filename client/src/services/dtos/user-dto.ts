@@ -12,4 +12,6 @@ export interface UserDto {
   readonly created: string;
 
   readonly followed: boolean;
+
+  readonly isPrivate: boolean;
 }

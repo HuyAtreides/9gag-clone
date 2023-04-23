@@ -10,4 +10,6 @@ public class SocialLoginData extends RegisterData {
     private SocialProvider provider;
 
     private String avatarUrl;
+
+    private String socialId;
 }

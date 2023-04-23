@@ -72,6 +72,28 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
         <Input.Password size='large' placeholder='Enter your password' />
       </Form.Item>
 
+      <Form.Item
+        name='confirmNewPassword'
+        rules={[
+          {
+            required: true,
+            message: 'Please confirm your password!',
+          },
+          ({ getFieldValue }) => ({
+            validator(_, value) {
+              if (!value || getFieldValue('password') === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject(
+                new Error('The two passwords that you entered do not match!'),
+              );
+            },
+          }),
+        ]}
+      >
+        <Input.Password size='large' placeholder='Confirm your password' />
+      </Form.Item>
+
       <Form.Item wrapperCol={{ span: 24 }}>
         <Button
           type='primary'

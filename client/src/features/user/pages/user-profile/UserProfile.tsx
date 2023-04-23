@@ -27,8 +27,8 @@ import UserFollowing from '../../components/user-following/UserFollowing';
 import UserPosts from '../../components/user-posts/UserPosts';
 import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
 import UserUpvotedPosts from '../../components/user-upvoted-posts/UserUpvotedPosts';
-import styles from './UserProfile.module.scss';
 import { UserProfileContext } from '../../context/context';
+import styles from './UserProfile.module.scss';
 
 const tabListNoTitle = [
   {
@@ -108,6 +108,14 @@ const UserProfile: React.FC = () => {
     dispatch(getSpecificUser(userId));
   }, [currentUser, dispatch, navigate, userId]);
 
+  const handleTabChange = (tab: string) => {
+    setSelectedTab(tab);
+    const param = Object.keys(PARAM_TO_TAB_KEY).find(
+      (key) => PARAM_TO_TAB_KEY[key] === tab,
+    );
+    navigate(`/user/${userId}/${param}`);
+  };
+
   useEffect(() => {
     return () => {
       dispatch(resetOtherProfileState());
@@ -132,7 +140,11 @@ const UserProfile: React.FC = () => {
                 <div className='more-action-box-container'>
                   <OwnerGuard
                     component={
-                      <Button icon={<SettingOutlined />} type='text'>
+                      <Button
+                        icon={<SettingOutlined />}
+                        type='text'
+                        onClick={() => navigate('/user/settings')}
+                      >
                         Settings
                       </Button>
                     }
@@ -140,7 +152,11 @@ const UserProfile: React.FC = () => {
                   />
                   <OwnerGuard
                     component={
-                      <Button type='text' icon={<EditOutlined />}>
+                      <Button
+                        type='text'
+                        icon={<EditOutlined />}
+                        onClick={() => navigate('/user/settings')}
+                      >
                         Edit
                       </Button>
                     }
@@ -178,20 +194,20 @@ const UserProfile: React.FC = () => {
         }
         tabList={tabListNoTitle}
         activeTabKey={selectedTab}
-        onTabChange={setSelectedTab}
+        onTabChange={handleTabChange}
         title={
           <Skeleton loading={!user} avatar active>
             <Meta
               avatar={<Avatar src={user?.avatarUrl} size={70} />}
               title={<strong>{user?.displayName}</strong>}
               description={
-                <>
+                <span className={styles.cardDescription}>
                   <NameWithCountryFlag
                     country={user?.country || undefined}
                     name={user?.username || ''}
                   />{' '}
                   &#8226; Joined in {user?.created.toLocaleDateString()}
-                </>
+                </span>
               }
             />
             <br></br>

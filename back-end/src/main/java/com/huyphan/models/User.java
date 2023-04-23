@@ -29,6 +29,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Nationalized;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,6 +41,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @Table(name = "[User]")
 @DynamicInsert
+@DynamicUpdate
 public class User implements UserDetails, Followable {
 
     @Id
@@ -73,6 +75,20 @@ public class User implements UserDetails, Followable {
     private Set<Section> favoriteSections = new LinkedHashSet<>();
     @Column(name = "Created")
     private Instant created;
+
+    @Transient
+    private String defaultAvatarUrl = "https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp";
+
+    @Column(name = "IsPrivate")
+    private boolean isPrivate;
+
+    @Column(name = "SocialId")
+    private String socialId;
+
+    public boolean getIsPrivate() {
+        return isPrivate;
+    }
+
     @ManyToMany
     @JoinTable(name = "UpvotedComment",
             joinColumns = @JoinColumn(name = "UserId"),

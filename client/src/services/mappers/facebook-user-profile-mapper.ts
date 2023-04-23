@@ -9,6 +9,7 @@ export namespace FacebookUserProfileMapper {
       username: `${SocialProvider.FACEBOOK}_${data.id}`,
       avatarUrl: data.picture.data.url,
       provider: SocialProvider.FACEBOOK,
+      socialId: data.id,
     };
   }
 }

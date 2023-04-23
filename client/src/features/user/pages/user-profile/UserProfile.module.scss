@@ -3,6 +3,10 @@
   margin-bottom: 15px;
 }
 
+.cardDescription {
+  white-space: break-spaces;
+}
+
 @media screen and (max-width: 992px) {
   .userProfile {
     width: 85%;

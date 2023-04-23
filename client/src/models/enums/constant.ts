@@ -13,6 +13,7 @@ export enum Constant {
   CommentEndPoint = 'comment',
   CommentState = 'commentState',
   PageSize = 15,
+  DefaultUserAvatarUrl = 'https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp',
   DebounceTimeInMiliSeconds = 700,
 }
 

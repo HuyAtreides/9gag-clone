@@ -5,11 +5,13 @@ import com.huyphan.models.RegisterData;
 import com.huyphan.models.SocialLoginData;
 import com.huyphan.models.User;
 import com.huyphan.models.UserSecret;
+import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.AuthException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.repositories.UserRepository;
 import com.huyphan.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -56,11 +58,11 @@ public class AuthService {
     }
 
     public UserSecret login(SocialLoginData socialLoginData) {
-        String username = socialLoginData.getUsername();
+        String socialId = socialLoginData.getSocialId();
+        Optional<User> user = userRepo.findByProviderAndSocialId(socialLoginData.getProvider(), socialId);
 
-        if (userRepo.existsByUsername(username)) {
-            UserDetails user = userService.loadUserByUsername(username);
-            String token = jwtUtil.generateToken(user);
+        if (user.isPresent()) {
+            String token = jwtUtil.generateToken(user.get());
             return new UserSecret(token);
         }
 
@@ -70,6 +72,7 @@ public class AuthService {
         newUser.setDisplayName(socialLoginData.getDisplayName());
         newUser.setUsername(socialLoginData.getUsername());
         newUser.setProvider(socialLoginData.getProvider());
+        newUser.setSocialId(socialId);
         User savedUser = userRepo.save(newUser);
         String token = jwtUtil.generateToken(savedUser);
 

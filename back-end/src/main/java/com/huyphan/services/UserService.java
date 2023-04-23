@@ -4,17 +4,21 @@ import com.huyphan.events.FollowEvent;
 import com.huyphan.mediators.IMediator;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.RegisterData;
+import com.huyphan.models.UpdatePasswordData;
+import com.huyphan.models.UpdateProfileData;
 import com.huyphan.models.User;
+import com.huyphan.models.UserSecret;
 import com.huyphan.models.UserStats;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.UserRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
+import com.huyphan.utils.AWSS3Util;
+import com.huyphan.utils.JwtUtil;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContext;
@@ -37,6 +41,12 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private IFollowActionInvoker followActionInvoker;
+
+    @Autowired
+    private AWSS3Util awss3Util;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     private IMediator mediator;
 
@@ -73,6 +83,38 @@ public class UserService implements UserDetailsService {
     public UserStats getUserStats(long userId) throws UserException {
         User user = getUserById(userId);
         return userRepo.getUserStats(user);
+    }
+
+    @Transactional(rollbackFor = {UserException.class})
+    public UserSecret updateProfile(UpdateProfileData updateProfileData)
+            throws UserException {
+        User user = getCurrentUser();
+        String updatedUsername = updateProfileData.getUsername();
+
+        if (!Objects.equals(user.getUsername(), updatedUsername) && userRepo.existsByUsername(updatedUsername)) {
+            throw new UserException("Username is taken");
+        }
+
+        String oldAvatarUrl = user.getAvatarUrl();
+        user.setUsername(updateProfileData.getUsername());
+        user.setDisplayName(updateProfileData.getDisplayName());
+        user.setAvatarUrl(updateProfileData.getAvatarUrl());
+        user.setCountry(updateProfileData.getCountry());
+        user.setPrivate(updateProfileData.isPrivate());
+        awss3Util.deleteObject(oldAvatarUrl);
+        return new UserSecret(jwtUtil.generateToken(user));
+    }
+
+    @Transactional(rollbackFor = {UserException.class})
+    public void updatePassword(UpdatePasswordData updatePasswordData) throws UserException {
+        User user = getCurrentUser();
+        String currentPassword = updatePasswordData.getCurrentPassword();
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new UserException("Password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(updatePasswordData.getNewPassword()));
     }
 
     public User register(RegisterData registerData) throws UserAlreadyExistsException {

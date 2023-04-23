@@ -8,4 +8,6 @@ public class SocialLoginDataDto extends RegisterDataDto{
     private SocialProvider provider;
 
     private String avatarUrl;
+
+    private String socialId;
 }

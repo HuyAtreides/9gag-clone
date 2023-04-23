@@ -59,7 +59,7 @@
       .text {
         color: $textColorDarkTheme;
         font-size: 1.6rem;
-        cursor: pointer;
+        max-width: 110px;
 
         @media screen and (max-width: 500px) {
           & {

@@ -33,12 +33,12 @@ const NotificationContainer: React.FC = () => {
   useEffect(() => {
     dispatch(countNotViewed());
 
-    if (user) {
-      intervalRef.current = (async () => {
-        const intervalId = await dispatch(initialize());
-        return intervalId as unknown as undefined | NodeJS.Timer;
-      })();
-    }
+    // if (user) {
+    //   intervalRef.current = (async () => {
+    //     const intervalId = await dispatch(initialize());
+    //     return intervalId as unknown as undefined | NodeJS.Timer;
+    //   })();
+    // }
   }, [dispatch, user]);
 
   return (

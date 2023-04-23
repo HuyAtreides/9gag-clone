@@ -1,0 +1,29 @@
+.userSettingsContainer {
+  width: 85%;
+
+  min-height: calc(100vh - 50px - 25px);
+}
+
+.menuContainer {
+  border-right: 1px solid var(--border-color-base);
+}
+
+.menuContainerHorizontal {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .userSettingsContainer {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .menuContainer {
+    display: none !important;
+  }
+
+  .menuContainerHorizontal {
+    margin-bottom: 20px;
+    display: block !important;
+  }
+}

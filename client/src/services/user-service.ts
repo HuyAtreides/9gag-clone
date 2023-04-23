@@ -1,15 +1,21 @@
 import { AxiosRequestConfig } from 'axios';
 import { Constant } from '../models/enums/constant';
 import { FetchUserRequest } from '../models/requests/fetch-user-request';
+import UpdatePasswordData from '../models/update-password-data';
+import { UpdateProfileData } from '../models/update-profile-data';
 import { createAxiosInstance } from '../utils/create-axios-instance';
 import PageDto from './dtos/page-dto';
 import SectionDto from './dtos/section-dto';
 import { UserDto } from './dtos/user-dto';
+import UserSecretDto from './dtos/user-secret-dto';
 import { UserStatsDto } from './dtos/user-stats-dto';
 import { PageMapper } from './mappers/page-mapper';
 import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { SectionMapper } from './mappers/section-mapper';
+import { UpdatePasswordDataMapper } from './mappers/update-password-data-mapper';
+import { UpdateProfileDataMapper } from './mappers/update-profile-data-mapper';
 import { UserMapper } from './mappers/user-mapper';
+import { UserSecretMapper } from './mappers/user-secret-mapper';
 import { UserStatsMapper } from './mappers/user-stats-mapper';
 export function addSectionToUserFavoriteSections(id: number) {
   const axios = createAxiosInstance();
@@ -84,4 +90,21 @@ export async function getUserFollowing(request: FetchUserRequest) {
   const response = await axios.get<PageDto<UserDto>>(url, axiosRequestConfig);
 
   return PageMapper.fromDto(response.data, UserMapper.fromDto);
+}
+
+export async function updateUserProfile(updateProfileData: UpdateProfileData) {
+  const axios = createAxiosInstance();
+  const updateProfileDataDto = UpdateProfileDataMapper.toDto(updateProfileData);
+  const response = await axios.put<UserSecretDto>(
+    `${Constant.UserEndpoint}/profile`,
+    updateProfileDataDto,
+  );
+
+  return UserSecretMapper.fromDto(response.data);
+}
+
+export async function updateUserPassword(updatePasswordData: UpdatePasswordData) {
+  const axios = createAxiosInstance();
+  const updatePasswordDataDto = UpdatePasswordDataMapper.toDto(updatePasswordData);
+  await axios.put<void>(`${Constant.UserEndpoint}/password`, updatePasswordDataDto);
 }
