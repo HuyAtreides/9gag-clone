@@ -64,9 +64,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post inner join post.saveUsers saveUser
-            where :requestUser = saveUser and (:searchTerm = '""'
+            where :requestUser = saveUser and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
                 or freetext(post.title, :searchTerm) = true
-                or freetext(post.tags, :searchTerm) = true)
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            )
             """)
     Slice<PostWithDerivedFields> findSavedPost(
             @Param("requestUser") User requestUser,
@@ -78,9 +82,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where :requestUser in elements(post.upvoteUsers) and (:searchTerm = '""'
+            where :requestUser in elements(post.upvoteUsers) and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
                 or freetext(post.title, :searchTerm) = true
-                or freetext(post.tags, :searchTerm) = true)
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            )
             """)
     Slice<PostWithDerivedFields> findVotedPost(
             @Param("requestUser") User requestUser,
@@ -92,9 +100,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post inner join post.followers follower
-            where :requestUser = follower and (:searchTerm = '""'
+            where :requestUser = follower and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
                 or freetext(post.title, :searchTerm) = true
-                or freetext(post.tags, :searchTerm) = true)
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            )
             """)
     Slice<PostWithDerivedFields> findFollowingPost(
             @Param("requestUser") User requestUser,
@@ -106,9 +118,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where :requestUser = post.user and (:searchTerm = '""'
+            where :requestUser = post.user and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
                 or freetext(post.title, :searchTerm) = true
-                or freetext(post.tags, :searchTerm) = true)
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            )
             """)
     Slice<PostWithDerivedFields> findUserPost(
             @Param("requestUser") User requestUser,
@@ -130,9 +146,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
             from Post post
-            where post.section.name = :sectionName and (:searchTerm = '""'
+            where post.section.name = :sectionName and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
                 or freetext(post.title, :searchTerm) = true
-                or freetext(post.tags, :searchTerm) = true)
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            )
             """)
     Slice<PostWithDerivedFields> findBySectionName(
             @Param("user") User user,
@@ -143,8 +163,11 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
             from Post post
-            where :searchTerm = '""' or freetext(post.title, :searchTerm) = true 
-            or freetext(post.tags, :searchTerm) = true
+            where :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
+                or freetext(post.title, :searchTerm) = true
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
             """
     )
     Slice<PostWithDerivedFields> findAll(

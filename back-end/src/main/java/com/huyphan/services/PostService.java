@@ -120,7 +120,7 @@ public class PostService {
             return "\"\"";
         }
 
-        return search;
+        return "\"" + "*" + search + "*" + "\"";
     }
 
     @Transactional(rollbackFor = {AppException.class})

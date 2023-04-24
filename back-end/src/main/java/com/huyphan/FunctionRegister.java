@@ -13,5 +13,9 @@ public class FunctionRegister implements MetadataBuilderContributor {
                 "freetext",
                 new SQLFunctionTemplate(StandardBasicTypes.BOOLEAN, "freetext(?1, ?2) AND 1")
         );
+        metadataBuilder.applySqlFunction(
+                "contains",
+                new SQLFunctionTemplate(StandardBasicTypes.BOOLEAN, "contains(?1, ?2) AND 1")
+        );
     }
 }
