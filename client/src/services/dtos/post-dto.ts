@@ -31,9 +31,11 @@ export default interface PostDto {
 
   readonly followed: boolean;
 
-  readonly user: UserDto;
+  readonly user?: UserDto;
 
   readonly isSaved: boolean;
 
   readonly notificationEnabled: boolean;
+
+  readonly anonymous: boolean;
 }

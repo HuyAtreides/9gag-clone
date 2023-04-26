@@ -61,8 +61,20 @@ public class PostService {
         post.setTitle(newPost.getTitle());
         post.setTags(newPost.getTags());
         post.setNotificationEnabled(true);
+        post.setAnonymous(newPost.isAnonymous());
         Post savedPost = postRepository.save(post);
         mediator.notify(new AddPostEvent(savedPost));
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void setAnonymous(Long id, boolean value) throws PostException {
+        Post post = getPostWithoutDerivedFields(id);
+
+        if (!post.getOwner().equals(UserService.getUser())) {
+            throw  new PostException("Post not found");
+        }
+
+        post.setAnonymous(value);
     }
 
     public Slice<Post> getAllPost(PageOptions options) throws AppException {

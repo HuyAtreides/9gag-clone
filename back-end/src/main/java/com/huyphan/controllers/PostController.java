@@ -91,6 +91,15 @@ public class PostController {
         return postMapper.toDto(post);
     }
 
+    @PutMapping("enable-anonymous/{id}")
+    public void enableAnonymous(@PathVariable Long id) throws PostException {
+        postService.setAnonymous(id , true);
+    }
+
+    @PutMapping("disable-anonymous/{id}")
+    public void disableAnonymous(@PathVariable Long id) throws PostException {
+        postService.setAnonymous(id, false);
+    }
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void upvotesPost(@PathVariable Long id)

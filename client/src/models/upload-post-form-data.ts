@@ -5,4 +5,5 @@ export interface UploadPostFormData {
   readonly section: Section;
   readonly tags: string;
   readonly title: string;
+  readonly anonymous: boolean;
 }

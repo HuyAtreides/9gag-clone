@@ -4,14 +4,14 @@ import { useAppSelector } from '../../Store';
 
 interface Props {
   component: ReactElement;
-  owner: User;
+  owner?: User;
   replace?: ReactNode;
 }
 
 const OwnerGuard: React.FC<Props> = ({ component, owner, replace }: Props) => {
   const currentUser = useAppSelector((state) => state.user.profile);
 
-  if (currentUser?.username !== owner.username) {
+  if (!owner || currentUser?.id !== owner.id) {
     return <>{replace}</>;
   }
 

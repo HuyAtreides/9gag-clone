@@ -8,7 +8,9 @@ import { UploadPostFormData } from '../../models/upload-post-form-data';
 import {
   addNewPost,
   deletePost,
+  disablePostAnonymous,
   downvote,
+  enablePostAnonymous,
   followPost,
   getFollowingPostList,
   getPostList,
@@ -34,6 +36,7 @@ import {
   setIsGettingPage,
   setIsLoading,
   setPagination,
+  setPostAnonymous,
   setPostDownvotes,
   setPostErrorMessage,
   setPostFollowed,
@@ -233,11 +236,36 @@ export const uploadNewPost =
         mediaType: mediaLocation.type,
         mediaUrl: mediaLocation.url,
         tags: newPostFormData.tags,
+        anonymous: newPostFormData.anonymous,
       });
       dispatch(setIsLoading(false));
       message.success('Add new post successfully');
     } catch (error: unknown) {
       dispatch(setIsLoading(false));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const enableAnonymous =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPostAnonymous(post));
+      message.success('Post is now anonymous!');
+      await enablePostAnonymous(post.id);
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const disableAnonymous =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPostAnonymous(post));
+      message.success('Post is no longer anonymous!');
+      await disablePostAnonymous(post.id);
+    } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
     }
   };

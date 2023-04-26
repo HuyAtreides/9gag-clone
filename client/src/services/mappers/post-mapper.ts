@@ -9,7 +9,8 @@ export namespace PostMapper {
       ...data,
       uploadTime: new Date(data.uploadTime),
       section: SectionMapper.fromDto(data.section),
-      user: UserMapper.fromDto(data.user),
+      user: data.user ? UserMapper.fromDto(data.user) : data.user,
+      tags: data.tags ? data.tags.split(',').filter((tag) => tag.trim().length > 0) : [],
     };
   }
 }

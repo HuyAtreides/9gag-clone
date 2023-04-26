@@ -76,9 +76,6 @@ public class User implements UserDetails, Followable {
     @Column(name = "Created")
     private Instant created;
 
-    @Transient
-    private String defaultAvatarUrl = "https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp";
-
     @Column(name = "IsPrivate")
     private boolean isPrivate;
 

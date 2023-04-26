@@ -64,6 +64,7 @@ const tabListNoTitle = [
 const PARAM_TO_TAB_KEY: Record<string, string> = {
   posts: 'Posts',
   'saved-posts': 'Saved Posts',
+  'upvoted-posts': 'Upvoted Posts',
   'following-posts': 'Following Posts',
   comments: 'Comments',
   followers: 'Followers',

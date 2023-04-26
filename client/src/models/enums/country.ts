@@ -58,7 +58,7 @@ export enum Country {
   CU = 'Cuba',
   CW = 'Curaçao',
   CY = 'Cyprus',
-  CZ = 'CzechRepublic',
+  CZ = 'Czech Republic',
   DK = 'Denmark',
   DJ = 'Djibouti',
   DM = 'Dominica',

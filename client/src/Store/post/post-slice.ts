@@ -66,6 +66,12 @@ const postSlice = createSlice({
       state.posts[index].followed = !currentIsFollowedState;
     },
 
+    setPostAnonymous(state, action: PayloadAction<Post>) {
+      const index = state.posts.findIndex((post) => post.id === action.payload.id);
+      const currentIsAnonymousState = state.posts[index].anonymous;
+      state.posts[index].anonymous = !currentIsAnonymousState;
+    },
+
     setSendNotifications(state, action: PayloadAction<Post>) {
       const index = state.posts.findIndex((post) => post.id === action.payload.id);
       const currentSendNotification = state.posts[index].notificationEnabled;
@@ -112,5 +118,6 @@ export const {
   setPostIsSaved,
   setPostFollowed,
   setSendNotifications,
+  setPostAnonymous,
 } = postSlice.actions;
 export const postReducer = postSlice.reducer;

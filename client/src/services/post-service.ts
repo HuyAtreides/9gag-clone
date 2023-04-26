@@ -178,3 +178,13 @@ export const getFollowingPostList = async ({
 
   return SliceMapper.fromDto(response.data, PostMapper.fromDto);
 };
+
+export const enablePostAnonymous = async (id: number) => {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.PostEndPoint}/enable-anonymous/${id}`);
+};
+
+export const disablePostAnonymous = async (id: number) => {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.PostEndPoint}/disable-anonymous/${id}`);
+};

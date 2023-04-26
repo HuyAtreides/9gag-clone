@@ -18,6 +18,7 @@ import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.JwtUtil;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Value("${app.default-avatar-url}")
+    private String defaultAvatarUrl;
 
     @Autowired
     private IFollowActionInvoker followActionInvoker;
@@ -101,7 +105,11 @@ public class UserService implements UserDetailsService {
         user.setAvatarUrl(updateProfileData.getAvatarUrl());
         user.setCountry(updateProfileData.getCountry());
         user.setPrivate(updateProfileData.isPrivate());
-        awss3Util.deleteObject(oldAvatarUrl);
+
+        if (!Objects.equals(oldAvatarUrl, defaultAvatarUrl)) {
+            awss3Util.deleteObject(oldAvatarUrl);
+        }
+
         return new UserSecret(jwtUtil.generateToken(user));
     }
 

@@ -1,5 +1,6 @@
 package com.huyphan.models;
 
+import com.huyphan.services.UserService;
 import com.huyphan.services.followactioninvoker.Followable;
 import com.huyphan.services.togglenotificationinvoker.Notifiable;
 import java.time.Instant;
@@ -66,6 +67,8 @@ public class Post implements Followable, Notifiable {
     private Instant uploadTime;
     @Column(name = "NotificationEnabled")
     private boolean notificationEnabled;
+    @Column(name = "Anonymous")
+    private boolean anonymous;
     @Lob
     @Column(name = "Tags")
     @Nationalized

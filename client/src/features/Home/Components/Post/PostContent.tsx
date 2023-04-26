@@ -6,12 +6,15 @@ import {
   CopyOutlined,
   DeleteOutlined,
   MoreOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, List, Modal, Popover, Typography, message } from 'antd';
+import { Avatar, Button, List, Modal, Popover, Tag, Typography, message } from 'antd';
 import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../../../Store';
 import {
+  disableAnonymous,
+  enableAnonymous,
   follow,
   remove,
   save,
@@ -78,6 +81,15 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
     dispatch(save(post));
   };
 
+  const setPostAnonymous = () => {
+    if (post.anonymous) {
+      dispatch(disableAnonymous(post));
+      return;
+    }
+
+    dispatch(enableAnonymous(post));
+  };
+
   const deletePost = () => {
     Modal.confirm({
       onOk: () => {
@@ -119,7 +131,6 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                     }
                     owner={post.user}
                   />
-
                   <Button
                     type='text'
                     className='full-width-btn'
@@ -128,7 +139,19 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                   >
                     Copy Link
                   </Button>
-
+                  <OwnerGuard
+                    owner={post.user}
+                    component={
+                      <Button
+                        icon={<UserOutlined />}
+                        type={post.anonymous ? 'primary' : 'text'}
+                        className='full-width-btn'
+                        onClick={setPostAnonymous}
+                      >
+                        {post.anonymous ? 'Turn off anonymous' : 'Turn on anonymous'}
+                      </Button>
+                    }
+                  />
                   <OwnerGuard
                     owner={post.user}
                     component={
@@ -180,8 +203,12 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             description={
               <>
                 {`Uploaded by `}{' '}
-                <Link to={`/user/${post.user.id}`}>{post.user.username}</Link> &#8226;{' '}
-                {uploadTimeDiffFromToday}
+                {post.user ? (
+                  <Link to={`/user/${post.user.id}`}>{post.user.username}</Link>
+                ) : (
+                  'an anonymous user'
+                )}{' '}
+                &#8226; {uploadTimeDiffFromToday}
               </>
             }
           />
@@ -191,6 +218,11 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             url={post.mediaUrl}
             scrollAreaId={Constant.PostScrollAreaId as string}
           />
+          <div>
+            {post.tags.map((tag) => (
+              <Tag className={styles.tag}>{tag}</Tag>
+            ))}
+          </div>
         </List.Item>
       </div>
     </VirtualComponent>

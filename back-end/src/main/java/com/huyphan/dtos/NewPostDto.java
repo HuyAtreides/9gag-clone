@@ -16,4 +16,6 @@ public class NewPostDto {
     private SectionDto section;
 
     private String tags;
+
+    private boolean anonymous;
 }

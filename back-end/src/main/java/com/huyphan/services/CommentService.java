@@ -82,7 +82,7 @@ public class CommentService {
         User commentOwner = comment.getOwner();
         User commentPostOwner = comment.getPost().getOwner();
 
-        if (!currentUser.equals(commentOwner) && !currentUser.equals(commentPostOwner)) {
+        if (!commentOwner.equals(currentUser) && !commentPostOwner.equals(currentUser)) {
             throw new CommentException("Comment not found");
         }
         deleteCommentInBatch(Set.of(id));

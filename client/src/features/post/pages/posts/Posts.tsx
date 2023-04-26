@@ -1,29 +1,25 @@
-import {
-  CaretDownOutlined,
-  InfoCircleOutlined,
-  PlusOutlined,
-  SearchOutlined,
-} from '@ant-design/icons';
+import { CaretDownOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   AutoComplete,
   Avatar,
   Button,
+  Checkbox,
   Col,
   Form,
   Input,
   List,
   Row,
-  Tooltip,
   Typography,
   Upload,
 } from 'antd';
 import { useState } from 'react';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import useUploadFile from '../../../../custom-hooks/upload-file';
-import Section from '../../../../models/section';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { uploadNewPost } from '../../../../Store/post/post-dispatchers';
 import { setPostErrorMessage } from '../../../../Store/post/post-slice';
+import DynamicTagList from '../../../../components/dynamic-tag-list/DynamicTagList';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
+import useUploadFile from '../../../../custom-hooks/upload-file';
+import Section from '../../../../models/section';
 import styles from './Post.module.scss';
 
 const renderItem = (section: Section) => ({
@@ -63,6 +59,7 @@ const Posts: React.FC = () => {
 
   const onFinish = (value: any) => {
     if (selectedSection === undefined) {
+      dispatch(setPostErrorMessage('Please select post section'));
       return;
     }
 
@@ -72,6 +69,7 @@ const Posts: React.FC = () => {
         section: selectedSection,
         tags: value.tags,
         title: value.title,
+        anonymous: value.anonymous,
       }),
     );
   };
@@ -92,7 +90,7 @@ const Posts: React.FC = () => {
               filterOption={(value, option) =>
                 option?.value.match(new RegExp(`.*${value}.*`, 'i')) != null
               }
-              onSelect={handleSectionSelect}
+              onChange={handleSectionSelect}
             >
               <Input
                 className={styles.searchInput}
@@ -146,19 +144,14 @@ const Posts: React.FC = () => {
               </Form.Item>
             </div>
             <Form.Item name='tags'>
-              <Input
-                className={styles.searchInput}
-                size='large'
-                placeholder='Add description to help people find your post'
-                suffix={
-                  <Tooltip
-                    trigger='hover'
-                    title='Post description will be used to search your post'
-                  >
-                    <InfoCircleOutlined />
-                  </Tooltip>
-                }
-              />
+              <DynamicTagList />
+            </Form.Item>
+            <Form.Item
+              name='anonymous'
+              valuePropName='checked'
+              extra='When you enable anonymous posting, people will not see who is the owner of this post.'
+            >
+              <Checkbox>Enable anonymous posting</Checkbox>
             </Form.Item>
             <Button
               type='primary'
