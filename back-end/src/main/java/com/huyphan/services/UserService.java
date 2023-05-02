@@ -2,6 +2,7 @@ package com.huyphan.services;
 
 import com.huyphan.events.FollowEvent;
 import com.huyphan.mediators.IMediator;
+import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.RegisterData;
 import com.huyphan.models.UpdatePasswordData;
@@ -12,6 +13,7 @@ import com.huyphan.models.UserStats;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
+import com.huyphan.models.projections.UserWithDerivedFields;
 import com.huyphan.repositories.UserRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
 import com.huyphan.utils.AWSS3Util;
@@ -19,9 +21,11 @@ import com.huyphan.utils.JwtUtil;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService implements UserDetailsService, MediatorComponent {
 
     @Autowired
     private UserRepository userRepo;
@@ -85,7 +89,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserStats getUserStats(long userId) throws UserException {
-        User user = getUserById(userId);
+        User user = getUserWithoutDerivedFieldsById(userId);
         return userRepo.getUserStats(user);
     }
 
@@ -95,7 +99,8 @@ public class UserService implements UserDetailsService {
         User user = getCurrentUser();
         String updatedUsername = updateProfileData.getUsername();
 
-        if (!Objects.equals(user.getUsername(), updatedUsername) && userRepo.existsByUsername(updatedUsername)) {
+        if (!Objects.equals(user.getUsername(), updatedUsername) && userRepo.existsByUsername(
+                updatedUsername)) {
             throw new UserException("Username is taken");
         }
 
@@ -143,14 +148,19 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void followUser(Long userId) throws AppException {
-        User user = getUserById(userId);
+        User user = getUserWithoutDerivedFieldsById(userId);
+
+        if (user.getIsPrivate()) {
+            throw new AppException("This user profile is private. Please send follow request.");
+        }
+
         followActionInvoker.follow(user);
         mediator.notify(new FollowEvent(user));
     }
 
     @Transactional
     public void unFollowUser(Long userId) throws UserException {
-        User user = getUserById(userId);
+        User user = getUserWithoutDerivedFieldsById(userId);
         followActionInvoker.unFollow(user);
     }
 
@@ -161,16 +171,28 @@ public class UserService implements UserDetailsService {
                 followerId));
     }
 
-    public Page<User> getUserFollowers(PageOptions options, Long id) throws UserException {
+    public Slice<User> getUserFollowers(PageOptions options, Long id) throws UserException {
         User user = getUserById(id);
-        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
-        return userRepo.getUserFollowers(user, pageable);
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), JpaSort.unsafe(
+                Direction.DESC
+                ,
+                "(isFollowedByCurrentUser)"
+        ));
+        return userRepo.getUserFollowers(user, UserService.getUser(), pageable).map(
+                UserWithDerivedFields::toUser
+        );
     }
 
-    public Page<User> getUserFollowing(PageOptions options, Long id) throws UserException {
+    public Slice<User> getUserFollowing(PageOptions options, Long id) throws UserException {
         User user = getUserById(id);
-        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
-        return userRepo.getUserFollowing(user, pageable);
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), JpaSort.unsafe(
+                Direction.DESC
+                ,
+                "(isFollowedByCurrentUser)"
+        ));
+        return userRepo.getUserFollowing(user, UserService.getUser(), pageable).map(
+                UserWithDerivedFields::toUser
+        );
     }
 
 
@@ -178,6 +200,14 @@ public class UserService implements UserDetailsService {
      * Get a specific user using user's id.
      */
     public User getUserById(Long id) throws UserException {
-        return userRepo.findById(id).orElseThrow(() -> new UserException("User is not found"));
+        User currentUser = getUser();
+        return userRepo.findByUserId(id, currentUser)
+                .orElseThrow(() -> new UserException("User is not found"))
+                .toUser();
+    }
+
+    public User getUserWithoutDerivedFieldsById(Long id) throws UserException {
+        return userRepo.findById(id)
+                .orElseThrow(() -> new UserException("User is not found"));
     }
 }

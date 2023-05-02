@@ -1,14 +1,30 @@
-import { KeyOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  ExportOutlined,
+  ImportOutlined,
+  KeyOutlined,
+  SendOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { Col, Menu, MenuProps, Row } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import UserAccountSettings from '../../components/user-account-settings/UserAccountSettings';
+import UserFollowRequests from '../../components/user-follow-requests/UserFollowRequests';
 import UserPasswordSettings from '../../components/user-password-settings/UserPasswordSettings';
 import styles from './UserSettings.module.scss';
 
 type MenuItem = Required<MenuProps>['items'][number];
-type ItemKey = 'account' | 'password';
-const validItemKeys: ItemKey[] = ['account', 'password'];
+type ItemKey =
+  | 'account'
+  | 'password'
+  | 'received-follow-requests'
+  | 'sent-follow-requests';
+const validItemKeys: ItemKey[] = [
+  'account',
+  'password',
+  'received-follow-requests',
+  'sent-follow-requests',
+];
 
 const items: MenuItem[] = [
   {
@@ -29,11 +45,41 @@ const items: MenuItem[] = [
     ),
     icon: <KeyOutlined />,
   },
+  {
+    key: 'requests',
+    label: 'Follow Requests',
+    icon: <SendOutlined />,
+    children: [
+      {
+        key: 'received-follow-requests',
+        label: (
+          <Link
+            to={`/user/settings/received-follow-requests`}
+            className={styles.menuLink}
+          >
+            Received Requests
+          </Link>
+        ),
+        icon: <ImportOutlined />,
+      },
+      {
+        key: 'sent-follow-requests',
+        label: (
+          <Link to={`/user/settings/sent-follow-requests`} className={styles.menuLink}>
+            Sent Requests
+          </Link>
+        ),
+        icon: <ExportOutlined />,
+      },
+    ],
+  },
 ];
 
 const MENU_ITEM_KEY_TO_CONTENT: Record<ItemKey, React.ReactNode> = {
   account: <UserAccountSettings />,
   password: <UserPasswordSettings />,
+  'received-follow-requests': <UserFollowRequests />,
+  'sent-follow-requests': <UserFollowRequests />,
 };
 
 const UserSettings: React.FC = () => {
@@ -56,9 +102,11 @@ const UserSettings: React.FC = () => {
           onClick={(menuInfo) => {
             setCurrentItemKey(menuInfo.key as ItemKey);
           }}
+          defaultOpenKeys={['requests']}
           selectedKeys={[currentItemKey]}
           items={items}
           theme='dark'
+          mode='inline'
         />
       </Col>
       <Col className={styles.menuContainerHorizontal} xs={24} lg={6}>
@@ -72,7 +120,7 @@ const UserSettings: React.FC = () => {
           theme='light'
         />
       </Col>
-      <Col xs={24} lg={18}>
+      <Col xs={24} lg={18} className={styles.menuItemContainer}>
         {MENU_ITEM_KEY_TO_CONTENT[currentItemKey]}
       </Col>
     </Row>

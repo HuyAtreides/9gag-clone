@@ -1,8 +1,10 @@
 import {
+  CheckSquareOutlined,
   CommentOutlined,
   LikeOutlined,
   MoreOutlined,
   PlusSquareOutlined,
+  SendOutlined,
   UserAddOutlined,
 } from '@ant-design/icons';
 import { Button, List, Popover, Typography } from 'antd';
@@ -39,6 +41,8 @@ const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
   [NotificationType.FOLLOWING_POST_HAS_NEW_COMMENT]: <CommentOutlined />,
   [NotificationType.ADD_POST]: <PlusSquareOutlined />,
   [NotificationType.FOLLOW_USER]: <UserAddOutlined />,
+  [NotificationType.SEND_FOLLOW_REQUEST]: <SendOutlined />,
+  [NotificationType.FOLLOW_REQUEST_ACCEPTED]: <CheckSquareOutlined />,
 };
 
 interface Props {

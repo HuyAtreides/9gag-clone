@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,6 +29,7 @@ import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Nationalized;
@@ -123,9 +125,17 @@ public class User implements UserDetails, Followable {
             inverseJoinColumns = @JoinColumn(name = "PostId"))
     private Set<Post> upvotedPosts = new LinkedHashSet<>();
     @OneToMany(mappedBy = "user")
-    private Set<Comment> comments;
+    private Set<Comment> comments = new LinkedHashSet<>();
+
     @OneToMany(mappedBy = "user")
-    private Set<Post> posts;
+    private Set<Post> posts = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "sender")
+    private Set<FollowRequest> sentRequests = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "receiver")
+    private Set<FollowRequest> receivedRequests = new LinkedHashSet<>();
+
     @ManyToMany
     @JoinTable(name = "DownvotedPost",
             joinColumns = @JoinColumn(name = "UserId"),
@@ -134,15 +144,8 @@ public class User implements UserDetails, Followable {
     @Transient
     private boolean followed;
 
-    public boolean isFollowed() {
-        User currentUser = UserService.getUser();
-
-        if (currentUser == null || currentUser.equals(this)) {
-            return false;
-        }
-
-        return followers.contains(currentUser);
-    }
+    @Transient
+    private boolean receivedFollowRequest;
 
     @Override
     public User getOwner() {
@@ -170,7 +173,8 @@ public class User implements UserDetails, Followable {
         if (this == o) {
             return true;
         }
-        if (o == null) {
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(
+                o)) {
             return false;
         }
 

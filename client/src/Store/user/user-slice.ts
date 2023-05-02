@@ -72,14 +72,24 @@ const userSlice = createSlice({
     setUserStats(state, action: PayloadAction<UserStats | null>) {
       state.stats = action.payload;
     },
+
     setIsGettingUserStats(state, action: PayloadAction<boolean>) {
       state.isGettingUserStats = action.payload;
     },
+
     setOtherProfileFollowed(state, action: PayloadAction<boolean>) {
       const otherProfile = state.otherProfile!;
       state.otherProfile = new User({
         ...otherProfile,
         followed: action.payload,
+      });
+    },
+
+    setOtherProfileReceivedFollowRequest(state, action: PayloadAction<boolean>) {
+      const otherProfile = state.otherProfile!;
+      state.otherProfile = new User({
+        ...otherProfile,
+        receivedFollowRequest: action.payload,
       });
     },
   },
@@ -100,4 +110,5 @@ export const {
   setUserStats,
   setIsGettingUserStats,
   setOtherProfileFollowed,
+  setOtherProfileReceivedFollowRequest,
 } = userSlice.actions;

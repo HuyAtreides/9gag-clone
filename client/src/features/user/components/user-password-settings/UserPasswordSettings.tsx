@@ -14,7 +14,6 @@ const UserPasswordSettings: React.FC = () => {
   return (
     <Form
       layout='vertical'
-      className={styles.form}
       name='changePassword'
       disabled={isUpdating}
       onFinish={(values) => dispatch(updatePassword(values))}

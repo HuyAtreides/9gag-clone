@@ -7,6 +7,7 @@ import { notificationReducer } from './notification/notification-slice';
 import { commentReducer } from './comment/comment-slice';
 import { abbreviateCommentReducer } from './abbreviate-comment/abbreviate-comment-slice';
 import { userSummaryReducers } from './user-summary/user-summary-slice';
+import { followRequestReducer } from './follow-request/follow-request-slice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   notification: notificationReducer,
   abbreviateComment: abbreviateCommentReducer,
   userSummary: userSummaryReducers,
+  followRequest: followRequestReducer,
 });
 
 export default rootReducer;

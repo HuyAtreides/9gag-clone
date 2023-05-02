@@ -1,7 +1,7 @@
 package com.huyphan.controllers;
 
-import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
+import com.huyphan.dtos.SliceDto;
 import com.huyphan.dtos.UpdatePasswordDataDto;
 import com.huyphan.dtos.UpdateProfileDataDto;
 import com.huyphan.dtos.UserDto;
@@ -9,6 +9,7 @@ import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.dtos.UserStatsDto;
 import com.huyphan.mappers.PageMapper;
 import com.huyphan.mappers.PageOptionMapper;
+import com.huyphan.mappers.SliceMapper;
 import com.huyphan.mappers.UpdatePasswordDataMapper;
 import com.huyphan.mappers.UpdateProfileDataMapper;
 import com.huyphan.mappers.UserMapper;
@@ -21,12 +22,10 @@ import com.huyphan.models.User;
 import com.huyphan.models.UserSecret;
 import com.huyphan.models.UserStats;
 import com.huyphan.models.exceptions.AppException;
-import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.UserService;
-import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,7 +48,7 @@ public class UserController {
     private UserMapper userMapper;
 
     @Autowired
-    private PageMapper<UserDto, User> pageMapper;
+    private SliceMapper<UserDto, User> sliceMapper;
 
     @Autowired
     private PageOptionMapper pageOptionsMapper;
@@ -99,21 +98,21 @@ public class UserController {
     }
 
     @GetMapping("{id}/followers")
-    public PageDto<UserDto> getUserFollowers(@PathVariable Long id, PageOptionsDto pageOptionsDto)
+    public SliceDto<UserDto> getUserFollowers(@PathVariable Long id, PageOptionsDto pageOptionsDto)
             throws UserException {
         PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
-        Page<User> users = userService.getUserFollowers(pageOptions, id);
+        Slice<User> users = userService.getUserFollowers(pageOptions, id);
 
-        return pageMapper.toDto(users, userMapper);
+        return sliceMapper.toDto(users, userMapper);
     }
 
     @GetMapping("{id}/following")
-    public PageDto<UserDto> getUserFollowing(@PathVariable Long id, PageOptionsDto pageOptionsDto)
+    public SliceDto<UserDto> getUserFollowing(@PathVariable Long id, PageOptionsDto pageOptionsDto)
             throws UserException {
         PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
-        Page<User> users = userService.getUserFollowing(pageOptions, id);
+        Slice<User> users = userService.getUserFollowing(pageOptions, id);
 
-        return pageMapper.toDto(users, userMapper);
+        return sliceMapper.toDto(users, userMapper);
     }
 
     @PutMapping("profile")

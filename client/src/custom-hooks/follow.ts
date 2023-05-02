@@ -1,3 +1,4 @@
+import { Modal } from 'antd';
 import { AppThunk, useAppDispatch } from '../Store';
 
 interface UseFollowParams {
@@ -14,7 +15,13 @@ const useFollow = ({
   const dispatch = useAppDispatch();
   return () => {
     if (isFollowed) {
-      dispatch(unFollowThunkAction);
+      Modal.confirm({
+        onOk: () => {
+          dispatch(unFollowThunkAction);
+          return false;
+        },
+        title: 'Do you want to unfollow this user?',
+      });
       return;
     }
 

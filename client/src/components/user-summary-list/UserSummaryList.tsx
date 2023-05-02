@@ -1,5 +1,5 @@
 import { List, Skeleton } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AppThunk, useAppDispatch, useAppSelector } from '../../Store';
 import {
@@ -13,6 +13,7 @@ import PageOptions from '../../models/page-options';
 import { PageFetchingRequest } from '../../models/requests/page-fetching-request';
 import { User } from '../../models/user';
 import CenterSpinner from '../center-spinner/CenterSpinner';
+import { InfiniteScrollHeight } from '../../context/infinite-scroll-height';
 
 interface Props {
   readonly UserSummary: React.FC<{ user: User }>;
@@ -28,6 +29,7 @@ const UserSummaryList: React.FC<Props> = ({ UserSummary, fetchUsers, appendUsers
   const isLast = useAppSelector((state) => state.userSummary.pagination?.isLast);
   const errorMessage = useAppSelector((state) => state.userSummary.errorMessage);
   const isGettingPage = useAppSelector((state) => state.userSummary.isGettingPage);
+  const infiniteScrollHeight = useContext(InfiniteScrollHeight);
 
   useRemoveErrorWhenUnmount(setUserSummaryErrorMessage);
   useRenderErrorMessage(errorMessage, setUserSummaryErrorMessage);
@@ -82,6 +84,7 @@ const UserSummaryList: React.FC<Props> = ({ UserSummary, fetchUsers, appendUsers
       next={getNextPage}
       hasMore={isLast !== undefined && !isLast}
       loader={<CenterSpinner />}
+      height={infiniteScrollHeight}
     >
       <List
         dataSource={users}

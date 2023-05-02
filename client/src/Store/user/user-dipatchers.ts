@@ -1,7 +1,15 @@
 import { message } from 'antd';
 import { AppThunk } from '..';
+import { Constant } from '../../models/enums/constant';
 import Section from '../../models/section';
+import UpdatePasswordData from '../../models/update-password-data';
+import { UpdateProfileFormData } from '../../models/update-profile-form-data';
 import { getUserInfo } from '../../services/auth-service';
+import {
+  cancelFollowRequest,
+  sendFollowRequest,
+} from '../../services/follow-request-service';
+import { LocalStorage } from '../../services/local-storage';
 import {
   addSectionToUserFavoriteSections,
   followUser,
@@ -14,6 +22,7 @@ import {
   updateUserProfile,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
+import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
 import {
   addSectionToFavorite,
   removeSectionFromFavorite,
@@ -24,15 +33,11 @@ import {
   setIsUpdating,
   setOtherProfile,
   setOtherProfileFollowed,
+  setOtherProfileReceivedFollowRequest,
   setProfile,
   setUserErrorMessage,
   setUserStats,
 } from './user-slice';
-import { UpdateProfileFormData } from '../../models/update-profile-form-data';
-import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
-import { LocalStorage } from '../../services/local-storage';
-import { Constant } from '../../models/enums/constant';
-import UpdatePasswordData from '../../models/update-password-data';
 
 export const getUser = (): AppThunk => async (dispatch, getState) => {
   try {
@@ -134,6 +139,32 @@ export const follow =
       await followUser(id);
     } catch (error: unknown) {
       dispatch(setOtherProfileFollowed(false));
+      handleError(dispatch, error, setUserErrorMessage);
+    }
+  };
+
+export const sendRequest =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setOtherProfileReceivedFollowRequest(true));
+      message.success('Follow request sent!');
+      await sendFollowRequest(id);
+    } catch (error: unknown) {
+      dispatch(setOtherProfileReceivedFollowRequest(false));
+      handleError(dispatch, error, setUserErrorMessage);
+    }
+  };
+
+export const cancelRequest =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setOtherProfileReceivedFollowRequest(false));
+      message.info('Follow request canceled');
+      await cancelFollowRequest(id);
+    } catch (error: unknown) {
+      dispatch(setOtherProfileReceivedFollowRequest(true));
       handleError(dispatch, error, setUserErrorMessage);
     }
   };

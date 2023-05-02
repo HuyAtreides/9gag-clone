@@ -74,7 +74,6 @@ const UserAccountSettings: React.FC = () => {
   return (
     <Form
       layout='vertical'
-      className={styles.form}
       disabled={isUpdating}
       form={form}
       onFinish={handleUpdateProfile}

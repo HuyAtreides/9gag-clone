@@ -4,14 +4,14 @@ import { FetchUserRequest } from '../models/requests/fetch-user-request';
 import UpdatePasswordData from '../models/update-password-data';
 import { UpdateProfileData } from '../models/update-profile-data';
 import { createAxiosInstance } from '../utils/create-axios-instance';
-import PageDto from './dtos/page-dto';
 import SectionDto from './dtos/section-dto';
+import SliceDto from './dtos/slice-dto';
 import { UserDto } from './dtos/user-dto';
 import UserSecretDto from './dtos/user-secret-dto';
 import { UserStatsDto } from './dtos/user-stats-dto';
-import { PageMapper } from './mappers/page-mapper';
 import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { SectionMapper } from './mappers/section-mapper';
+import { SliceMapper } from './mappers/slice-mapper';
 import { UpdatePasswordDataMapper } from './mappers/update-password-data-mapper';
 import { UpdateProfileDataMapper } from './mappers/update-profile-data-mapper';
 import { UserMapper } from './mappers/user-mapper';
@@ -74,9 +74,9 @@ export async function getUserFollowers(request: FetchUserRequest) {
     params: pageOptionsDto,
   };
   const url = `${Constant.UserEndpoint}/${userId}/followers`;
-  const response = await axios.get<PageDto<UserDto>>(url, axiosRequestConfig);
+  const response = await axios.get<SliceDto<UserDto>>(url, axiosRequestConfig);
 
-  return PageMapper.fromDto(response.data, UserMapper.fromDto);
+  return SliceMapper.fromDto(response.data, UserMapper.fromDto);
 }
 
 export async function getUserFollowing(request: FetchUserRequest) {
@@ -87,9 +87,9 @@ export async function getUserFollowing(request: FetchUserRequest) {
     params: pageOptionsDto,
   };
   const url = `${Constant.UserEndpoint}/${userId}/following`;
-  const response = await axios.get<PageDto<UserDto>>(url, axiosRequestConfig);
+  const response = await axios.get<SliceDto<UserDto>>(url, axiosRequestConfig);
 
-  return PageMapper.fromDto(response.data, UserMapper.fromDto);
+  return SliceMapper.fromDto(response.data, UserMapper.fromDto);
 }
 
 export async function updateUserProfile(updateProfileData: UpdateProfileData) {

@@ -3,7 +3,6 @@ import {
   MoreOutlined,
   SettingOutlined,
   StopOutlined,
-  UserAddOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Card, Popover, Skeleton } from 'antd';
 import Meta from 'antd/lib/card/Meta';
@@ -11,15 +10,19 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
+  cancelRequest,
   follow,
   getSpecificUser,
+  sendRequest,
   unFollow,
 } from '../../../../Store/user/user-dipatchers';
 import { resetOtherProfileState } from '../../../../Store/user/user-slice';
+import UserFollowButton from '../../../../components/UserFollowButton/UserFollowButton';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import UserStats from '../../../../components/user-stats/UserStats';
 import useFollow from '../../../../custom-hooks/follow';
+import useSendFollowRequest from '../../../../custom-hooks/send-follow-request';
 import UserComments from '../../components/user-comments/UserComments';
 import UserFollowers from '../../components/user-followers/UserFollowers';
 import UserFollowingPosts from '../../components/user-following-posts/UserFollowingPosts';
@@ -95,6 +98,11 @@ const UserProfile: React.FC = () => {
     followThunkAction: follow(user?.id || -1),
     unFollowThunkAction: unFollow(user?.id || -1),
   });
+  const sendFollowRequest = useSendFollowRequest({
+    receivedRequest: user?.receivedFollowRequest || false,
+    sendRequestThunkAction: sendRequest(user?.id || -1),
+    cancelRequestThunkAction: cancelRequest(user?.id || -1),
+  });
 
   useEffect(() => {
     if (!currentUser) {
@@ -166,13 +174,12 @@ const UserProfile: React.FC = () => {
                   <OwnerGuard
                     component={<></>}
                     replace={
-                      <Button
-                        type={user?.followed ? 'primary' : 'text'}
-                        icon={<UserAddOutlined />}
-                        onClick={followUser}
-                      >
-                        {user?.followed ? 'Unfollow' : 'Follow'}
-                      </Button>
+                      <UserFollowButton
+                        hasIcon={true}
+                        followUser={followUser}
+                        sendRequest={sendFollowRequest}
+                        user={user}
+                      />
                     }
                     owner={user}
                   />
@@ -212,7 +219,7 @@ const UserProfile: React.FC = () => {
               }
             />
             <br></br>
-            {userId && <UserStats id={userId} />}
+            {userId && <UserStats userId={userId} />}
           </Skeleton>
         }
       >

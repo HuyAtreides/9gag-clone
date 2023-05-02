@@ -13,7 +13,9 @@ public enum NotificationType {
     FOLLOWING_POST_HAS_NEW_COMMENT("FollowingPostHasNewComment"),
     FOLLOWING_COMMENT_HAS_NEW_REPLY("FollowingCommentHasNewReply"),
     ADD_POST("AddPost"),
-    FOLLOW_USER("FollowUser");
+    FOLLOW_USER("FollowUser"),
+    FOLLOW_REQUEST_ACCEPTED("FollowRequestAccepted"),
+    SEND_FOLLOW_REQUEST("SendFollowRequest");
 
     private final String value;
 

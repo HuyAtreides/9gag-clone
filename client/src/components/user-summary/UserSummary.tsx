@@ -7,13 +7,16 @@ import { ReactNode } from 'react';
 interface Props {
   readonly actions: ReactNode[];
   readonly user: User;
+  readonly description?: ReactNode;
 }
 
-const UserSummary: React.FC<Props> = ({ user, actions }) => {
+const UserSummary: React.FC<Props> = ({ user, actions, description }) => {
+  const defaultDescription = <>{user.displayName}</>;
+
   return (
     <List.Item actions={actions}>
       <List.Item.Meta
-        avatar={<Avatar src={user.avatarUrl} />}
+        avatar={<Avatar src={user.avatarUrl} size={50} />}
         title={
           <Link to={`/user/${user.id}`}>
             <NameWithCountryFlag
@@ -22,7 +25,7 @@ const UserSummary: React.FC<Props> = ({ user, actions }) => {
             />
           </Link>
         }
-        description={user.displayName}
+        description={description ? description : defaultDescription}
       />
     </List.Item>
   );

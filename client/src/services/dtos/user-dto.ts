@@ -14,4 +14,6 @@ export interface UserDto {
   readonly followed: boolean;
 
   readonly isPrivate: boolean;
+
+  readonly receivedFollowRequest: boolean;
 }

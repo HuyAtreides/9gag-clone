@@ -25,6 +25,8 @@ public class UserDto {
     private String created;
 
     private boolean followed;
+
+    private boolean receivedFollowRequest;
     private boolean isPrivate;
 
     public void setIsPrivate(boolean isPrivate) {

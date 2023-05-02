@@ -18,6 +18,8 @@ export interface UserConstructorArguments {
   readonly followed: boolean;
 
   readonly isPrivate: boolean;
+
+  readonly receivedFollowRequest: boolean;
 }
 
 export class User {
@@ -37,6 +39,8 @@ export class User {
 
   readonly isPrivate: boolean;
 
+  readonly receivedFollowRequest: boolean;
+
   public constructor(constructorArguments: UserConstructorArguments) {
     this.id = constructorArguments.id;
     this.username = constructorArguments.username;
@@ -46,6 +50,7 @@ export class User {
     this.displayName = constructorArguments.displayName;
     this.followed = constructorArguments.followed;
     this.isPrivate = constructorArguments.isPrivate;
+    this.receivedFollowRequest = constructorArguments.receivedFollowRequest;
   }
 
   public getMediaLocation(): MediaLocation {

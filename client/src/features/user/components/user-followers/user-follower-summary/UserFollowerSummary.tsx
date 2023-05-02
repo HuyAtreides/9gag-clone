@@ -1,15 +1,20 @@
 import { Avatar, Button, List, Modal } from 'antd';
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../../../../Store';
 import {
+  cancelRequest,
   followUserInSummaryList,
   removeFollower,
+  sendRequest,
+  unFollowUserInSummaryList,
 } from '../../../../../Store/user-summary/user-summary-dispatcher';
-import NameWithCountryFlag from '../../../../../components/name-with-country-flag/NameWithCountryFlag';
-import { User } from '../../../../../models/user';
+import UserFollowButton from '../../../../../components/UserFollowButton/UserFollowButton';
 import OwnerGuard from '../../../../../components/component-guard/OwnerGuard';
+import NameWithCountryFlag from '../../../../../components/name-with-country-flag/NameWithCountryFlag';
 import useFollow from '../../../../../custom-hooks/follow';
-import { useContext } from 'react';
+import useSendFollowRequest from '../../../../../custom-hooks/send-follow-request';
+import { User } from '../../../../../models/user';
 import { UserProfileContext } from '../../../context/context';
 
 interface Props {
@@ -22,7 +27,12 @@ const UserFollowerSummary: React.FC<Props> = ({ user }) => {
   const follow = useFollow({
     isFollowed: user.followed,
     followThunkAction: followUserInSummaryList(user.id),
-    unFollowThunkAction: followUserInSummaryList(user.id),
+    unFollowThunkAction: unFollowUserInSummaryList(user.id),
+  });
+  const sendFollowRequest = useSendFollowRequest({
+    receivedRequest: user.receivedFollowRequest,
+    sendRequestThunkAction: sendRequest(user.id),
+    cancelRequestThunkAction: cancelRequest(user.id),
   });
   const remove = () => {
     Modal.confirm({
@@ -53,9 +63,11 @@ const UserFollowerSummary: React.FC<Props> = ({ user }) => {
             <OwnerGuard
               component={<></>}
               replace={
-                <Button type={user.followed ? 'default' : 'primary'} onClick={follow}>
-                  {user.followed ? 'Unfollow' : 'Follow'}
-                </Button>
+                <UserFollowButton
+                  followUser={follow}
+                  sendRequest={sendFollowRequest}
+                  user={user}
+                />
               }
               owner={user}
             />

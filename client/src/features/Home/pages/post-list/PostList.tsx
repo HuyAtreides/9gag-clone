@@ -1,5 +1,5 @@
 import { List } from 'antd';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useParams } from 'react-router-dom';
 import useRemoveErrorWhenUnmount from '../../../../custom-hooks/remove-error';
@@ -22,6 +22,7 @@ import {
 import { toEnum } from '../../../../utils/value-to-enum';
 import PostContent from '../../Components/Post/PostContent';
 import PostSkeleton from '../../Components/PostSkeleton/PostSkeleton';
+import { InfiniteScrollHeight } from '../../../../context/infinite-scroll-height';
 
 interface Props {
   readonly fetchPosts?: FetchPostsThunkAction<PostsFetchingRequest>;
@@ -50,6 +51,7 @@ const PostList: React.FC<Props> = ({
   const isGettingPage = useAppSelector((state) => state.post.isGettingPage);
   const searchTerm = useAppSelector((state) => state.post.searchTerm);
   const { tag, section } = useParams();
+  const infiniteScrollHeight = useContext(InfiniteScrollHeight);
   const sortType = tag === undefined ? tag : toEnum(tag!, SortType);
 
   useRemoveErrorWhenUnmount(setPostErrorMessage);
@@ -117,6 +119,7 @@ const PostList: React.FC<Props> = ({
       next={getNextPage}
       hasMore={isLast !== undefined && !isLast}
       loader={<PostSkeleton />}
+      height={infiniteScrollHeight}
     >
       <List
         id={Constant.PostScrollAreaId as string}

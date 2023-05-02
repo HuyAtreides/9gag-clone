@@ -4,6 +4,7 @@ import com.huyphan.events.AddPostEvent;
 import com.huyphan.events.DeletePostEvent;
 import com.huyphan.events.VotePostEvent;
 import com.huyphan.mediators.IMediator;
+import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
@@ -32,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Getter
 @Setter
-public class PostService {
+public class PostService implements MediatorComponent {
 
     @Autowired
     private PostRepository postRepository;

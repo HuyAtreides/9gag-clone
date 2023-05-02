@@ -19,13 +19,17 @@ public class FollowActionInvoker implements IFollowActionInvoker {
     }
 
     @Override
-    public void follow(Followable followable) {
-        User follower = UserService.getUser();
-
+    public void follow(User follower, Followable followable) {
         if (follower.equals(followable.getOwner())) {
             return;
         }
 
         followable.getFollowers().add(follower);
+    }
+
+    @Override
+    public void follow(Followable followable) {
+        User follower = UserService.getUser();
+        follow(follower,followable);
     }
 }

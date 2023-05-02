@@ -60,6 +60,19 @@ const userSummarySlice = createSlice({
       });
     },
 
+    setUserSummaryReceivedFollowRequest(
+      state,
+      action: PayloadAction<{ id: number; value: boolean }>,
+    ) {
+      const { id, value } = action.payload;
+      const index = state.users.findIndex((user) => user.id === id);
+      const currentUser = state.users[index];
+      state.users[index] = new User({
+        ...currentUser,
+        receivedFollowRequest: value,
+      });
+    },
+
     removeUser(state, action: PayloadAction<number>) {
       state.users = state.users.filter((user) => user.id !== action.payload);
     },
@@ -76,5 +89,6 @@ export const {
   setUserSummaryFollowed,
   removeUser,
   resetState,
+  setUserSummaryReceivedFollowRequest,
 } = userSummarySlice.actions;
 export const userSummaryReducers = userSummarySlice.reducer;

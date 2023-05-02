@@ -1,8 +1,22 @@
+import { message } from 'antd';
 import { AppThunk } from '..';
+import { Pagination } from '../../models/page';
 import { FetchUserCommentRequest } from '../../models/requests/fetch-user-comment-request';
-import { User } from '../../models/user';
-import { PageFetchingFunction } from '../../utils/types/page-fetching-function';
 import { FetchUserRequest } from '../../models/requests/fetch-user-request';
+import { User } from '../../models/user';
+import {
+  cancelFollowRequest,
+  sendFollowRequest,
+} from '../../services/follow-request-service';
+import {
+  followUser,
+  getUserFollowers,
+  getUserFollowing,
+  removeUserFollower,
+  unFollowUser,
+} from '../../services/user-service';
+import { handleError } from '../../utils/error-handler';
+import { PageFetchingFunction } from '../../utils/types/page-fetching-function';
 import {
   appendNewUsers,
   removeUser,
@@ -11,18 +25,9 @@ import {
   setPagination,
   setUserSummaryErrorMessage,
   setUserSummaryFollowed,
+  setUserSummaryReceivedFollowRequest,
   setUsers,
 } from './user-summary-slice';
-import { Pagination } from '../../models/page';
-import { handleError } from '../../utils/error-handler';
-import {
-  followUser,
-  getUserFollowers,
-  getUserFollowing,
-  removeUserFollower,
-  unFollowUser,
-} from '../../services/user-service';
-import { message } from 'antd';
 
 export const getSummaryUserList =
   (
@@ -122,6 +127,32 @@ export const removeFollower =
       dispatch(removeUser(id));
       await removeUserFollower(id);
     } catch (error: unknown) {
+      handleError(dispatch, error, setUserSummaryErrorMessage);
+    }
+  };
+
+export const sendRequest =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setUserSummaryReceivedFollowRequest({ id, value: true }));
+      message.success('Follow request sent!');
+      await sendFollowRequest(id);
+    } catch (error: unknown) {
+      dispatch(setUserSummaryReceivedFollowRequest({ id, value: false }));
+      handleError(dispatch, error, setUserSummaryErrorMessage);
+    }
+  };
+
+export const cancelRequest =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setUserSummaryReceivedFollowRequest({ id, value: false }));
+      message.info('Follow request canceled');
+      await cancelFollowRequest(id);
+    } catch (error: unknown) {
+      dispatch(setUserSummaryReceivedFollowRequest({ id, value: true }));
       handleError(dispatch, error, setUserSummaryErrorMessage);
     }
   };

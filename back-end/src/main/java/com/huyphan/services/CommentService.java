@@ -5,6 +5,7 @@ import com.huyphan.events.AppEvent;
 import com.huyphan.events.CreateCommentEvent;
 import com.huyphan.events.VoteCommentEvent;
 import com.huyphan.mediators.IMediator;
+import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewComment;
 import com.huyphan.models.PageOptions;
@@ -36,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Getter
 @Setter
-public class CommentService {
+public class CommentService implements MediatorComponent {
 
     @Autowired
     private CommentRepository commentRepository;

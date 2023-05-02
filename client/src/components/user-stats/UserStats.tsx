@@ -5,21 +5,21 @@ import { getStats } from '../../Store/user/user-dipatchers';
 import { setUserStats } from '../../Store/user/user-slice';
 import { formatNumber } from '../../utils/format-number';
 
-const UserStats: React.FC<{ id: number }> = ({ id }) => {
+const UserStats: React.FC<{ userId: number }> = ({ userId }) => {
   const dispatch = useAppDispatch();
   const isGettingUserStats = useAppSelector((state) => state.user.isGettingUserStats);
   const userStats = useAppSelector((state) => state.user.stats);
 
   useEffect(() => {
-    dispatch(getStats(id));
+    dispatch(getStats(userId));
 
     return () => {
       dispatch(setUserStats(null));
     };
-  }, [dispatch, id]);
+  }, [dispatch, userId]);
 
   return (
-    <Row gutter={15}>
+    <Row gutter={15} justify='center'>
       <Col span={12}>
         <Statistic
           title='Posts'
