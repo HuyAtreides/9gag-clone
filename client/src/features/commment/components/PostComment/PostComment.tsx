@@ -5,7 +5,7 @@ import {
   EditOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Comment, Modal, Popover, Typography } from 'antd';
+import { Avatar, Button, Comment, Modal, Typography } from 'antd';
 import React, { useContext, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
@@ -19,6 +19,7 @@ import {
   update,
 } from '../../../../Store/comment/comment-dispatchers';
 import {} from '../../../../Store/comment/comment-slice';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import FollowButton from '../../../../components/follow-button/FollowButton';
@@ -177,11 +178,9 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
           >
             Reply to
           </Button>,
-          <Popover
-            placement='bottom'
-            trigger='click'
+          <AutoClosePopover
             content={
-              <div className='more-action-box-container'>
+              <>
                 <OwnerGuard
                   component={
                     <Button
@@ -212,11 +211,11 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
                   }
                 />
                 {commentDeleteButton}
-              </div>
+              </>
             }
           >
             <Button icon={<MoreOutlined />} type='text'></Button>
-          </Popover>,
+          </AutoClosePopover>,
         ]}
         author={
           <Link className={styles.postCommentAuthor} to={`/user/${comment.user.id}`}>

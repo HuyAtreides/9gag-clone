@@ -14,7 +14,7 @@ import {
 import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
 import FollowRequest from '../../../../components/follow-request/FollowRequest';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import { Constant } from '../../../../models/enums/constant';
+import { Constant, ScreenBreakPoint } from '../../../../models/enums/constant';
 import { FollowRequestDirection } from '../../../../models/enums/follow-request-direction';
 import { FollowRequestStatus } from '../../../../models/enums/follow-request-status';
 import PageOptions from '../../../../models/page-options';
@@ -43,6 +43,8 @@ const FILTER_REQUEST_STATUS_TO_REQUEST_STATUS: Record<
   [RequestStatusFilter.ACCEPTED]: FollowRequestStatus.ACCEPTED,
   [RequestStatusFilter.PENDING]: FollowRequestStatus.PENDING,
 };
+
+const isSmallerThanMediumBreakPoint = window.innerWidth < ScreenBreakPoint.Medium;
 
 const UserFollowRequests: React.FC = () => {
   const requestStates = useAppSelector((state) => state.followRequest.requestStates);
@@ -135,6 +137,7 @@ const UserFollowRequests: React.FC = () => {
           loader={<CenterSpinner />}
         >
           <List
+            itemLayout={isSmallerThanMediumBreakPoint ? 'vertical' : 'horizontal'}
             dataSource={requestStates}
             renderItem={(requestState, index) => (
               <FollowRequest id={requestState.request.id} key={requestState.request.id} />

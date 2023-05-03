@@ -1,4 +1,4 @@
-import { FormOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FormOutlined, UploadOutlined } from '@ant-design/icons';
 import {
   Button,
   Checkbox,
@@ -6,17 +6,17 @@ import {
   Form,
   Image,
   Input,
-  Popover,
   Select,
   Typography,
   Upload,
 } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import { Option } from 'antd/lib/mentions';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { updateProfile } from '../../../../Store/user/user-dipatchers';
 import { setUserErrorMessage } from '../../../../Store/user/user-slice';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import useUploadFile from '../../../../custom-hooks/upload-file';
@@ -26,7 +26,6 @@ import { UpdateProfileFormData } from '../../../../models/update-profile-form-da
 import styles from './UserAccountSettings.module.scss';
 
 const UserAccountSettings: React.FC = () => {
-  const [showPopup, setShowPopup] = useState(false);
   const user = useAppSelector((state) => state.user.profile);
   const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(
     user?.getMediaLocation(),
@@ -63,7 +62,6 @@ const UserAccountSettings: React.FC = () => {
   }, [singleUploadFile, form]);
 
   const handleRemoveAvatar = () => {
-    setShowPopup(false);
     setUploadFile(undefined);
   };
 
@@ -86,13 +84,9 @@ const UserAccountSettings: React.FC = () => {
           alt='user avatar'
           className={styles.avatar}
         />
-        <Popover
-          visible={showPopup}
-          placement='right'
-          trigger='click'
-          onVisibleChange={setShowPopup}
+        <AutoClosePopover
           content={
-            <div className='more-action-box-container'>
+            <>
               <Upload
                 name='avatar'
                 maxCount={1}
@@ -100,21 +94,26 @@ const UserAccountSettings: React.FC = () => {
                 beforeUpload={() => false}
                 onChange={handleFileChange}
               >
-                <Button type='text' onClick={() => setShowPopup(false)}>
+                <Button type='text' icon={<UploadOutlined />}>
                   Upload Photo
                 </Button>
               </Upload>
 
-              <Button type='text' onClick={handleRemoveAvatar}>
+              <Button
+                type='text'
+                icon={<DeleteOutlined />}
+                onClick={handleRemoveAvatar}
+                danger
+              >
                 Remove Photo
               </Button>
-            </div>
+            </>
           }
         >
           <Button className={styles.editButton} icon={<FormOutlined />}>
             Edit
           </Button>
-        </Popover>
+        </AutoClosePopover>
       </Form.Item>
       <Form.Item
         name='username'

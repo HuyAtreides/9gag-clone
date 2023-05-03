@@ -8,7 +8,7 @@ import {
   MoreOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, List, Modal, Popover, Tag, Typography, message } from 'antd';
+import { Avatar, Button, List, Modal, Tag, Typography, message } from 'antd';
 import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../../../Store';
@@ -23,6 +23,7 @@ import {
   unFollow,
   unSave,
 } from '../../../../Store/post/post-dispatchers';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import FollowButton from '../../../../components/follow-button/FollowButton';
 import Media from '../../../../components/media/Media';
@@ -105,11 +106,9 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
       <div className={styles['list-item']}>
         <List.Item
           extra={[
-            <Popover
-              placement='bottom'
-              trigger='click'
+            <AutoClosePopover
               content={
-                <div className='more-action-box-container'>
+                <>
                   <Button
                     icon={<BookOutlined />}
                     onClick={protectAction(savePost)}
@@ -164,11 +163,11 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                       <FollowButton followed={post.followed} handleFollow={followPost} />
                     }
                   />
-                </div>
+                </>
               }
             >
               <Button icon={<MoreOutlined />} type='text' />
-            </Popover>,
+            </AutoClosePopover>,
           ]}
           actions={[
             <Button

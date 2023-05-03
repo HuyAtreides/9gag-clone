@@ -167,8 +167,14 @@ public class CommentService implements MediatorComponent {
         SortType sortType = options.getSortType();
         Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
+        User currentUser = UserService.getUser();
+        User user = userService.getUserById(userId);
 
-        return commentRepository.findUserComments(userService.getUserById(userId), pageable)
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        return commentRepository.findUserComments(user, pageable)
                 .map(CommentWithDerivedFields::toComment);
     }
 

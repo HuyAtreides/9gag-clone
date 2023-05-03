@@ -99,7 +99,7 @@ public class UserController {
 
     @GetMapping("{id}/followers")
     public SliceDto<UserDto> getUserFollowers(@PathVariable Long id, PageOptionsDto pageOptionsDto)
-            throws UserException {
+            throws AppException {
         PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
         Slice<User> users = userService.getUserFollowers(pageOptions, id);
 
@@ -108,7 +108,7 @@ public class UserController {
 
     @GetMapping("{id}/following")
     public SliceDto<UserDto> getUserFollowing(@PathVariable Long id, PageOptionsDto pageOptionsDto)
-            throws UserException {
+            throws AppException {
         PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
         Slice<User> users = userService.getUserFollowing(pageOptions, id);
 
@@ -136,9 +136,9 @@ public class UserController {
         userService.removeFollower(id);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(AppException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UserException handleExceptions(UserException exception) {
+    public AppException handleExceptions(AppException exception) {
         return exception;
     }
 }

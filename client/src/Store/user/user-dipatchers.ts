@@ -216,3 +216,19 @@ export const updatePassword =
       handleError(dispatch, err, setUserErrorMessage);
     }
   };
+
+export const initUserProfile = (): AppThunk => (dispatch, _) => {
+  try {
+    const token = LocalStorage.get(Constant.TokenKey);
+
+    if (token !== null) {
+      dispatch(getFavoriteSections());
+      dispatch(getUser());
+    } else {
+      dispatch(setIsLoading(false));
+    }
+  } catch (err: unknown) {
+    handleError(dispatch, err, setUserErrorMessage);
+    dispatch(setIsLoading(false));
+  }
+};

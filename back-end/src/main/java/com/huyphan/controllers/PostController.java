@@ -128,7 +128,7 @@ public class PostController {
     @GetMapping("following/{userId}")
     public SliceDto<PostDto> getFollowingPost(@PathVariable Long userId,
             PageOptionsDto pageOptionsDto)
-            throws UserException {
+            throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
         Slice<Post> page = postService.getFollowingPost(userId, pageOptions);
         return sliceMapper.toDto(page, postMapper);
@@ -149,7 +149,7 @@ public class PostController {
 
     @GetMapping("save/{userId}")
     public SliceDto<PostDto> getSavedPosts(@PathVariable Long userId,
-            PageOptionsDto pageOptionsDto) throws UserException {
+            PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
         Slice<Post> savedPosts = postService.getSavedPosts(userId, pageOptions);
 
@@ -158,7 +158,7 @@ public class PostController {
 
     @GetMapping("upvote/{userId}")
     public SliceDto<PostDto> getVotedPosts(@PathVariable Long userId,
-            PageOptionsDto pageOptionsDto) throws UserException {
+            PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
         Slice<Post> votedPosts = postService.getVotedPosts(userId, pageOptions);
 
@@ -167,7 +167,7 @@ public class PostController {
 
     @GetMapping("user/{userId}")
     public SliceDto<PostDto> getUserPosts(@PathVariable Long userId,
-            PageOptionsDto pageOptionsDto) throws UserException {
+            PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
         Slice<Post> votedPosts = postService.getUserPosts(userId, pageOptions);
 
@@ -186,9 +186,9 @@ public class PostController {
         postService.removeSavedPost(id);
     }
 
-    @ExceptionHandler(PostException.class)
+    @ExceptionHandler(AppException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public AppException handleExceptions(PostException exception) {
+    public AppException handleExceptions(AppException exception) {
         return exception;
     }
 }

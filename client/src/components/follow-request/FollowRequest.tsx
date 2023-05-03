@@ -150,8 +150,8 @@ const FollowRequest: React.FC<{ id: number }> = ({ id }) => {
         }
       >
         <OwnerGuard
-          component={<UserProfilePreview user={sender} />}
-          replace={<UserProfilePreview user={receiver} />}
+          component={<UserProfilePreview userId={sender.id} />}
+          replace={<UserProfilePreview userId={receiver.id} />}
           owner={receiver}
         />
       </Modal>

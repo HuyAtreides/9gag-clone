@@ -7,17 +7,10 @@ import {
   SendOutlined,
   UserAddOutlined,
 } from '@ant-design/icons';
-import { Button, List, Popover, Typography } from 'antd';
+import { Button, List, Typography } from 'antd';
 import React, { ReactElement, useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
-import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
-import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
-import useRenderErrorMessage from '../../../custom-hooks/render-error-message';
-import { Constant } from '../../../models/enums/constant';
-import { NotificationType } from '../../../models/enums/notification-type';
-import Notification from '../../../models/notification';
-import PageOptions from '../../../models/page-options';
 import { useAppDispatch, useAppSelector } from '../../../Store';
 import {
   addNotifications,
@@ -29,8 +22,16 @@ import {
   resetNotificationState,
   setNotificationErrorMessage,
 } from '../../../Store/notification/notification-slice';
+import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
+import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
+import useRenderErrorMessage from '../../../custom-hooks/render-error-message';
+import { Constant } from '../../../models/enums/constant';
+import { NotificationType } from '../../../models/enums/notification-type';
+import Notification from '../../../models/notification';
+import PageOptions from '../../../models/page-options';
 import { IntervalIdContext } from './notifications-container/NotificationContainer';
 
+import AutoClosePopover from '../../../components/auto-close-popover/AutoClosePopover';
 import styles from './Notifications.module.scss';
 
 const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
@@ -120,30 +121,20 @@ const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
     <div className={styles.notifyContainer}>
       <div className={styles.notificationHeader}>
         <Typography.Title level={3}>Notifications</Typography.Title>
-        <Popover
-          placement='bottom'
-          trigger='click'
+        <AutoClosePopover
           content={
-            <div className='more-action-box-container'>
-              <Button
-                type='text'
-                className='full-width-button'
-                onClick={clearNotifications}
-              >
+            <>
+              <Button type='text' block onClick={clearNotifications}>
                 Clear
               </Button>
-              <Button
-                type='text'
-                className='full-width-button'
-                onClick={viewAllNotification}
-              >
+              <Button type='text' block onClick={viewAllNotification}>
                 Read All
               </Button>
-            </div>
+            </>
           }
         >
           <Button type='text' icon={<MoreOutlined />} />
-        </Popover>
+        </AutoClosePopover>
       </div>
       <InfiniteScroll
         dataLength={notifications!.length}

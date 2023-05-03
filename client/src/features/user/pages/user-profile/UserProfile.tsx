@@ -4,7 +4,7 @@ import {
   SettingOutlined,
   StopOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Popover, Skeleton } from 'antd';
+import { Avatar, Button, Card, Empty, Skeleton, Typography } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -18,6 +18,7 @@ import {
 } from '../../../../Store/user/user-dipatchers';
 import { resetOtherProfileState } from '../../../../Store/user/user-slice';
 import UserFollowButton from '../../../../components/UserFollowButton/UserFollowButton';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import UserStats from '../../../../components/user-stats/UserStats';
@@ -32,6 +33,7 @@ import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
 import UserUpvotedPosts from '../../components/user-upvoted-posts/UserUpvotedPosts';
 import { UserProfileContext } from '../../context/context';
 import styles from './UserProfile.module.scss';
+import PrivateProfileGuard from '../../../../components/private-profile-guard/PrivateProfileGuard';
 
 const tabListNoTitle = [
   {
@@ -129,7 +131,7 @@ const UserProfile: React.FC = () => {
     return () => {
       dispatch(resetOtherProfileState());
     };
-  }, [dispatch]);
+  }, [dispatch, userId]);
 
   useEffect(() => {
     setSelectedTab(tabKey);
@@ -142,11 +144,10 @@ const UserProfile: React.FC = () => {
         loading={!user}
         extra={
           !user ? null : (
-            <Popover
+            <AutoClosePopover
               placement='left'
-              trigger='click'
               content={
-                <div className='more-action-box-container'>
+                <>
                   <OwnerGuard
                     component={
                       <Button
@@ -193,11 +194,11 @@ const UserProfile: React.FC = () => {
                     }
                     owner={user}
                   />
-                </div>
+                </>
               }
             >
               <Button icon={<MoreOutlined />} type='text' />
-            </Popover>
+            </AutoClosePopover>
           )
         }
         tabList={tabListNoTitle}
@@ -207,7 +208,7 @@ const UserProfile: React.FC = () => {
           <Skeleton loading={!user} avatar active>
             <Meta
               avatar={<Avatar src={user?.avatarUrl} size={70} />}
-              title={<strong>{user?.displayName}</strong>}
+              title={<strong title={user?.displayName}>{user?.displayName}</strong>}
               description={
                 <span className={styles.cardDescription}>
                   <NameWithCountryFlag
@@ -223,9 +224,21 @@ const UserProfile: React.FC = () => {
           </Skeleton>
         }
       >
-        {!userId
-          ? null
-          : React.createElement(tabKeyToTabContent[selectedTab], { userId })}
+        {!userId ? null : (
+          <PrivateProfileGuard
+            component={React.createElement(tabKeyToTabContent[selectedTab], { userId })}
+            user={user}
+            replace={
+              <Empty
+                description={
+                  <Typography.Text type='secondary' strong>
+                    This user profile is private. Follow to view the user profile.
+                  </Typography.Text>
+                }
+              />
+            }
+          />
+        )}
       </Card>
     </UserProfileContext.Provider>
   );

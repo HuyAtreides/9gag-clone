@@ -1,11 +1,11 @@
 import { Spin } from 'antd';
 import { useEffect } from 'react';
 import './App.less';
-import AuthContainer from './features/auth/AuthContainer';
-import RootRoutes from './routes/RootRouter';
 import { useAppDispatch, useAppSelector } from './Store';
 import { getAllSection } from './Store/section/section-dipatchers';
-import { getFavoriteSections, getUser } from './Store/user/user-dipatchers';
+import { initUserProfile } from './Store/user/user-dipatchers';
+import AuthContainer from './features/auth/AuthContainer';
+import RootRoutes from './routes/RootRouter';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -13,8 +13,7 @@ function App() {
 
   useEffect(() => {
     dispatch(getAllSection());
-    dispatch(getFavoriteSections());
-    dispatch(getUser());
+    dispatch(initUserProfile());
   }, [dispatch]);
 
   return (

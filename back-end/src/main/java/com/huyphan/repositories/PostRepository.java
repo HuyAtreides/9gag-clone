@@ -15,6 +15,12 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends CrudRepository<Post, Long> {
 
+    String PRIVATE_USER_POST_FILTER = """
+            (post.user.isPrivate = false or (
+                :user in elements(post.user.followers))
+            )
+            """;
+
     String SELECT_STATEMENT = """
                 select
                     post as post,
@@ -136,8 +142,8 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where post.id = :id
-            """)
+            where post.id = :id and 
+            """ + PRIVATE_USER_POST_FILTER)
     Optional<PostWithDerivedFields> findByPostId(@Param("user") User user, Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -152,8 +158,8 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or freetext(post.title, :searchTerm) = true
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
-            )
-            """)
+            ) and 
+            """ + PRIVATE_USER_POST_FILTER)
     Slice<PostWithDerivedFields> findBySectionName(
             @Param("user") User user,
             @Param("sectionName") String sectionName,
@@ -163,12 +169,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
             from Post post
-            where :searchTerm = '""'
+            where (:searchTerm = '""'
                 or freetext(post.tags, :searchTerm) = true
                 or freetext(post.title, :searchTerm) = true
                 or contains(post.tags, :searchTerm) = true
-                or contains(post.title, :searchTerm) = true
-            """
+                or contains(post.title, :searchTerm) = true)
+                and 
+            """ + PRIVATE_USER_POST_FILTER
     )
     Slice<PostWithDerivedFields> findAll(
             @Param("user") User user,

@@ -171,7 +171,7 @@ public class CommentController {
         commentService.toggleNotification(id, true);
     }
 
-    @ExceptionHandler({PostException.class, CommentException.class})
+    @ExceptionHandler({AppException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppException handleExceptions(AppException exception) {
         return exception;

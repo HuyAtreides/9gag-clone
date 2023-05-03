@@ -27,6 +27,7 @@ export const getCommentsOfUser =
       dispatch(setPagination(pagination));
       dispatch(setComments(commentPage.content));
     } catch (error: unknown) {
+      dispatch(setIsGettingComments(false));
       handleError(dispatch, error, setErrorMessage);
     }
   };
@@ -46,6 +47,7 @@ export const getNextCommentsOfUser =
       dispatch(setPagination(pagination));
       dispatch(appendComments(commentPage.content));
     } catch (error: unknown) {
+      dispatch(setIsGettingNextComments(false));
       handleError(dispatch, error, setErrorMessage);
     }
   };

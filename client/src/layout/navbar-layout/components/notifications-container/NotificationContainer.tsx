@@ -1,13 +1,13 @@
 import { BellFilled } from '@ant-design/icons';
 import { Badge, Button, Popover } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   countNotViewed,
   initialize,
 } from '../../../../Store/notification/notification-dispatchers';
 import { clearNotViewedCount } from '../../../../Store/notification/notification-slice';
+import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
 import { abbreviateNumber } from '../../../../utils/abbreviate-number';
 import styles from '../../Navbar.module.scss';
 import Notifications from '../Notifications';

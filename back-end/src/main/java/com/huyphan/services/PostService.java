@@ -101,11 +101,15 @@ public class PostService implements MediatorComponent {
         followActionInvoker.unFollow(post);
     }
 
-    public Slice<Post> getFollowingPost(Long userId, PageOptions options) throws UserException {
+    public Slice<Post> getFollowingPost(Long userId, PageOptions options) throws AppException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
         User user = userService.getUserById(userId);
         User currentUser = UserService.getUser();
         String searchTerm = getSearchTerm(options.getSearch());
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
 
         return postRepository.findFollowingPost(
                 user,
@@ -161,12 +165,16 @@ public class PostService implements MediatorComponent {
         toggleNotificationInvoker.toggle(post, value);
     }
 
-    public Slice<Post> getSavedPosts(Long userId, PageOptions options) throws UserException {
+    public Slice<Post> getSavedPosts(Long userId, PageOptions options) throws AppException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
         User user = userService.getUserById(userId);
         User currentUser = UserService.getUser();
-        String searchTerm = getSearchTerm(options.getSearch());
 
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        String searchTerm = getSearchTerm(options.getSearch());
         return postRepository.findSavedPost(
                         user,
                         currentUser,
@@ -176,11 +184,15 @@ public class PostService implements MediatorComponent {
                 .map(PostWithDerivedFields::toPost);
     }
 
-    public Slice<Post> getVotedPosts(Long userId, PageOptions options) throws UserException {
+    public Slice<Post> getVotedPosts(Long userId, PageOptions options) throws AppException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
         User user = userService.getUserById(userId);
         User currentUser = UserService.getUser();
         String searchTerm = getSearchTerm(options.getSearch());
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
 
         return postRepository.findVotedPost(
                         user,
@@ -191,11 +203,15 @@ public class PostService implements MediatorComponent {
                 .map(PostWithDerivedFields::toPost);
     }
 
-    public Slice<Post> getUserPosts(Long userId, PageOptions options) throws UserException {
+    public Slice<Post> getUserPosts(Long userId, PageOptions options) throws AppException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
         User user = userService.getUserById(userId);
         User currentUser = UserService.getUser();
         String searchTerm = getSearchTerm(options.getSearch());
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
 
         return postRepository.findUserPost(
                         user,

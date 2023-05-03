@@ -171,26 +171,38 @@ public class UserService implements UserDetailsService, MediatorComponent {
                 followerId));
     }
 
-    public Slice<User> getUserFollowers(PageOptions options, Long id) throws UserException {
+    public Slice<User> getUserFollowers(PageOptions options, Long id) throws AppException {
         User user = getUserById(id);
+        User currentUser = UserService.getUser();
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), JpaSort.unsafe(
                 Direction.DESC
                 ,
                 "(isFollowedByCurrentUser)"
         ));
-        return userRepo.getUserFollowers(user, UserService.getUser(), pageable).map(
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        return userRepo.getUserFollowers(user, currentUser, pageable).map(
                 UserWithDerivedFields::toUser
         );
     }
 
-    public Slice<User> getUserFollowing(PageOptions options, Long id) throws UserException {
+    public Slice<User> getUserFollowing(PageOptions options, Long id) throws AppException {
         User user = getUserById(id);
+        User currentUser = UserService.getUser();
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), JpaSort.unsafe(
                 Direction.DESC
                 ,
                 "(isFollowedByCurrentUser)"
         ));
-        return userRepo.getUserFollowing(user, UserService.getUser(), pageable).map(
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        return userRepo.getUserFollowing(user, currentUser, pageable).map(
                 UserWithDerivedFields::toUser
         );
     }
