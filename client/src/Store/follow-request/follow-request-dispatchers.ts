@@ -120,5 +120,4 @@ export const getPriorityFollowRequest =
     for (const id of priorityIds) {
       await dispatch(getSpecificRequest(id));
     }
-    dispatch(setIsLoading(false));
   };
