@@ -122,6 +122,11 @@ const UserAccountSettings: React.FC = () => {
             required: true,
             message: 'Please enter your username!',
           },
+          {
+            pattern: /^[a-zA-Z_0-9-]{1,20}$/,
+            message:
+              'Username should contain only numbers, alphabet letters, _, - and has at most 20 characters',
+          },
         ]}
         label={<strong>Username</strong>}
         extra='This is the name that will show up on your posts and comments'
