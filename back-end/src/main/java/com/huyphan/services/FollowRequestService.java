@@ -10,7 +10,6 @@ import com.huyphan.models.User;
 import com.huyphan.models.enums.FollowRequestDirection;
 import com.huyphan.models.enums.FollowRequestStatus;
 import com.huyphan.models.exceptions.AppException;
-import com.huyphan.models.exceptions.UserException;
 import com.huyphan.repositories.FollowRequestRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +35,33 @@ public class FollowRequestService implements MediatorComponent {
     @Transactional(rollbackFor = {AppException.class})
     public void sendFollowRequest(Long receiverId) throws AppException {
         User sender = UserService.getUser();
+        User receiver = userService.getUserById(receiverId);
+        validateFollowRequestReceiver(receiver);
 
-        if (receiverId.equals(sender.getId())) {
+        FollowRequest followRequest = new FollowRequest();
+        followRequest.setSender(sender);
+        followRequest.setReceiver(receiver);
+        followRequest.setStatus(FollowRequestStatus.PENDING);
+        FollowRequest savedFollowRequest = followRequestRepo.save(followRequest);
+        mediator.notify(new SendFollowRequestEvent(
+                receiver,
+                savedFollowRequest.getId()
+        ));
+    }
+
+    private void validateFollowRequestReceiver(User receiver) throws AppException {
+        User sender = UserService.getUser();
+
+        if (receiver.equals(sender)) {
             throw new AppException("Can't send follow request to yourself");
         }
 
-        User receiver = userService.getUserById(receiverId);
-
         if (receiver.isFollowed()) {
             throw new AppException("You already followed this user");
+        }
+
+        if (!receiver.getIsPrivate()) {
+            throw new AppException("User profile is not private");
         }
 
         FollowRequest existingRequest = followRequestRepo.findBySenderAndReceiverAndStatus(
@@ -56,16 +73,6 @@ public class FollowRequestService implements MediatorComponent {
         if (existingRequest != null && existingRequest.getStatus() == FollowRequestStatus.PENDING) {
             throw new AppException("There is already an pending request for this receiver");
         }
-
-        FollowRequest followRequest = new FollowRequest();
-        followRequest.setSender(sender);
-        followRequest.setReceiver(receiver);
-        followRequest.setStatus(FollowRequestStatus.PENDING);
-        FollowRequest savedFollowRequest = followRequestRepo.save(followRequest);
-        mediator.notify(new SendFollowRequestEvent(
-                receiver,
-                savedFollowRequest.getId()
-        ));
     }
 
     @Transactional(rollbackFor = {AppException.class})
