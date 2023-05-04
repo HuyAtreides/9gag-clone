@@ -1,25 +1,32 @@
+import { useCallback } from 'react';
 import { PostsFetchingRequest } from '../../../../models/requests/posts-fetching-request';
 import { addNewSavedPosts, getSavedPosts } from '../../../../Store/post/post-dispatchers';
 import PostList from '../../../Home/pages/post-list/PostList';
 
 const UserSavedPosts: React.FC<{ userId: number }> = ({ userId }) => {
-  const fetchPosts = (postFetchingRequest: PostsFetchingRequest) => {
-    const userSpecificPostsFetchingRequest = {
-      ...postFetchingRequest,
-      userId,
-    };
+  const fetchPosts = useCallback(
+    (postFetchingRequest: PostsFetchingRequest) => {
+      const userSpecificPostsFetchingRequest = {
+        ...postFetchingRequest,
+        userId,
+      };
 
-    return getSavedPosts(userSpecificPostsFetchingRequest);
-  };
+      return getSavedPosts(userSpecificPostsFetchingRequest);
+    },
+    [userId],
+  );
 
-  const addPosts = (postFetchingRequest: PostsFetchingRequest) => {
-    const userSpecificPostsFetchingRequest = {
-      ...postFetchingRequest,
-      userId,
-    };
+  const addPosts = useCallback(
+    (postFetchingRequest: PostsFetchingRequest) => {
+      const userSpecificPostsFetchingRequest = {
+        ...postFetchingRequest,
+        userId,
+      };
 
-    return addNewSavedPosts(userSpecificPostsFetchingRequest);
-  };
+      return addNewSavedPosts(userSpecificPostsFetchingRequest);
+    },
+    [userId],
+  );
 
   return <PostList fetchPosts={fetchPosts} addPosts={addPosts} />;
 };

@@ -114,6 +114,7 @@ const ParentComment: React.FC = () => {
           <>
             <br />
             <Skeleton avatar paragraph={{ rows: 4 }} active />
+            <br />
           </>
         }
       >

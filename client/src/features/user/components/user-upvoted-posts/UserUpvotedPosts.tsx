@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { PostsFetchingRequest } from '../../../../models/requests/posts-fetching-request';
 import {
   addNewUpvotedPosts,
@@ -6,23 +7,29 @@ import {
 import PostList from '../../../Home/pages/post-list/PostList';
 
 const UserUpvotedPosts: React.FC<{ userId: number }> = ({ userId }) => {
-  const fetchPosts = (postFetchingRequest: PostsFetchingRequest) => {
-    const userSpecificPostsFetchingRequest = {
-      ...postFetchingRequest,
-      userId,
-    };
+  const fetchPosts = useCallback(
+    (postFetchingRequest: PostsFetchingRequest) => {
+      const userSpecificPostsFetchingRequest = {
+        ...postFetchingRequest,
+        userId,
+      };
 
-    return getUpvotedPosts(userSpecificPostsFetchingRequest);
-  };
+      return getUpvotedPosts(userSpecificPostsFetchingRequest);
+    },
+    [userId],
+  );
 
-  const addPosts = (postFetchingRequest: PostsFetchingRequest) => {
-    const userSpecificPostsFetchingRequest = {
-      ...postFetchingRequest,
-      userId,
-    };
+  const addPosts = useCallback(
+    (postFetchingRequest: PostsFetchingRequest) => {
+      const userSpecificPostsFetchingRequest = {
+        ...postFetchingRequest,
+        userId,
+      };
 
-    return addNewUpvotedPosts(userSpecificPostsFetchingRequest);
-  };
+      return addNewUpvotedPosts(userSpecificPostsFetchingRequest);
+    },
+    [userId],
+  );
 
   return <PostList fetchPosts={fetchPosts} addPosts={addPosts} />;
 };
