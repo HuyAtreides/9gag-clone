@@ -84,4 +84,18 @@ public interface UserRepository extends CrudRepository<User, Long> {
             """)
     Slice<UserWithDerivedFields> getUserFollowing(@Param("user") User user, @Param("currentUser") User currentUser,
             Pageable pageable);
+
+    @Query("""
+            select user
+            from User user
+            where lower(user.username) like :searchTerm or lower(user.displayName) like :searchTerm
+            """)
+    Slice<User> searchUser(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    @Query("""
+            select elements(user.recentSearch)
+            from User user
+            where user = :currentUser
+            """)
+    Slice<User> getRecentSearch(@Param("currentUser") User user, Pageable pageable);
 }

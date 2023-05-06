@@ -1,6 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import { Constant } from '../models/enums/constant';
 import { FetchUserRequest } from '../models/requests/fetch-user-request';
+import { PageFetchingRequest } from '../models/requests/page-fetching-request';
 import UpdatePasswordData from '../models/update-password-data';
 import { UpdateProfileData } from '../models/update-profile-data';
 import { createAxiosInstance } from '../utils/create-axios-instance';
@@ -35,6 +36,40 @@ export async function getUserFavoriteSections() {
   const response = await axios.get<SectionDto[]>(url);
 
   return response.data.map((sectionDto) => SectionMapper.fromDto(sectionDto));
+}
+
+export async function searchUser({ pageOptions }: PageFetchingRequest) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.UserEndpoint}/search`;
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: PageOptionsMapper.toDto(pageOptions),
+  };
+
+  const response = await axios.get<SliceDto<UserDto>>(url, axiosRequestConfig);
+  return SliceMapper.fromDto(response.data, UserMapper.fromDto);
+}
+
+export async function getRecentSearchUser({ pageOptions }: PageFetchingRequest) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.UserEndpoint}/recent-search`;
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: PageOptionsMapper.toDto(pageOptions),
+  };
+
+  const response = await axios.get<SliceDto<UserDto>>(url, axiosRequestConfig);
+  return SliceMapper.fromDto(response.data, UserMapper.fromDto);
+}
+
+export async function addUserToRecentSearch(userId: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.UserEndpoint}/recent-search/${userId}`;
+  await axios.put<void>(url);
+}
+
+export async function removeUserFromRecentSearch(userId: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.UserEndpoint}/recent-search/${userId}`;
+  await axios.delete<void>(url);
 }
 
 export async function getSpecificUserInfo(id: number) {

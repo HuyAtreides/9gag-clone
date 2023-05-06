@@ -75,6 +75,13 @@ public class User implements UserDetails, Followable {
             joinColumns = @JoinColumn(name = "UserId"),
             inverseJoinColumns = @JoinColumn(name = "SectionId"))
     private Set<Section> favoriteSections = new LinkedHashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "RecentUserSearch",
+                joinColumns = @JoinColumn(name = "SearcherId"),
+                inverseJoinColumns = @JoinColumn(name = "SearchedId"))
+    private Set<User> recentSearch = new LinkedHashSet<>();
+
     @Column(name = "Created")
     private Instant created;
 

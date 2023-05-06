@@ -1,10 +1,25 @@
 .homeContent {
-  width: 70%;
+  width: 68%;
+}
+
+.userSearch {
+  position: fixed;
+  right: 3px;
+  width: calc(100vw - 77%);
+  padding: 0 10px 0 20px;
+}
+
+.container {
+  display: flex;
 }
 
 @media screen and (max-width: 992px) {
   .homeContent {
     width: 95%;
+  }
+
+  .userSearch {
+    display: none;
   }
 }
 

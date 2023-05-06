@@ -1,9 +1,10 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import UserSearch from '../../components/user-search/UserSearch';
 import SideBarLayout from '../../layout/sidebar-layout/SidebarLayout';
 import PostWithComment from './Components/post-with-comment/PostWithComment';
-import PostList from './pages/post-list/PostList';
 import styles from './Home.module.scss';
+import PostList from './pages/post-list/PostList';
 
 interface IHomeProp {
   readonly sideBarCollapse: boolean;
@@ -16,11 +17,16 @@ const Home: React.FC<IHomeProp> = ({ sideBarCollapse, setSideBarCollapse }) => {
       sideBarCollapse={sideBarCollapse}
       setSideBarCollapse={setSideBarCollapse}
     >
-      <div className={styles.homeContent}>
-        <Routes>
-          <Route path=':id' element={<PostWithComment />} />
-          <Route path='' element={<PostList />} />
-        </Routes>
+      <div className={styles.container}>
+        <div className={styles.homeContent}>
+          <Routes>
+            <Route path=':id' element={<PostWithComment />} />
+            <Route path='' element={<PostList />} />
+          </Routes>
+        </div>
+        <div className={styles.userSearch}>
+          <UserSearch />
+        </div>
       </div>
     </SideBarLayout>
   );

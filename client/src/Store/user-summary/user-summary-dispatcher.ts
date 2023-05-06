@@ -1,18 +1,22 @@
 import { message } from 'antd';
 import { AppThunk } from '..';
 import { Pagination } from '../../models/page';
-import { FetchUserCommentRequest } from '../../models/requests/fetch-user-comment-request';
 import { FetchUserRequest } from '../../models/requests/fetch-user-request';
+import { PageFetchingRequest } from '../../models/requests/page-fetching-request';
 import { User } from '../../models/user';
 import {
   cancelFollowRequest,
   sendFollowRequest,
 } from '../../services/follow-request-service';
 import {
+  addUserToRecentSearch,
   followUser,
+  getRecentSearchUser,
   getUserFollowers,
   getUserFollowing,
   removeUserFollower,
+  removeUserFromRecentSearch,
+  searchUser,
   unFollowUser,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
@@ -30,9 +34,9 @@ import {
 } from './user-summary-slice';
 
 export const getSummaryUserList =
-  (
-    request: FetchUserRequest,
-    fetchFunc: PageFetchingFunction<FetchUserCommentRequest, User>,
+  <T extends PageFetchingRequest>(
+    request: T,
+    fetchFunc: PageFetchingFunction<T, User>,
   ): AppThunk =>
   async (dispatch, getState) => {
     try {
@@ -54,9 +58,9 @@ export const getSummaryUserList =
   };
 
 export const appendUserSummary =
-  (
-    request: FetchUserRequest,
-    fetchFunc: PageFetchingFunction<FetchUserCommentRequest, User>,
+  <T extends PageFetchingRequest>(
+    request: T,
+    fetchFunc: PageFetchingFunction<T, User>,
   ): AppThunk =>
   async (dispatch, getState) => {
     try {
@@ -79,6 +83,43 @@ export const appendUserSummary =
 
 export const getFollowers = (request: FetchUserRequest) => {
   return getSummaryUserList(request, getUserFollowers);
+};
+
+export const addToRecentSearch =
+  (userId: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      await addUserToRecentSearch(userId);
+    } catch (err: unknown) {
+      console.log(err);
+    }
+  };
+
+export const removeRecentSearch =
+  (userId: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(removeUser(userId));
+      await removeUserFromRecentSearch(userId);
+    } catch (err: unknown) {
+      console.log(err);
+    }
+  };
+
+export const search = (request: PageFetchingRequest) => {
+  return getSummaryUserList(request, searchUser);
+};
+
+export const appendSearchResult = (request: PageFetchingRequest) => {
+  return appendUserSummary(request, searchUser);
+};
+
+export const getRecentSearch = (request: PageFetchingRequest) => {
+  return getSummaryUserList(request, getRecentSearchUser);
+};
+
+export const appendRecentSearch = (request: PageFetchingRequest) => {
+  return appendUserSummary(request, getRecentSearchUser);
 };
 
 export const appendFollowers = (request: FetchUserRequest) => {

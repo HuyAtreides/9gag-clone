@@ -118,6 +118,37 @@ public class UserService implements UserDetailsService, MediatorComponent {
         return new UserSecret(jwtUtil.generateToken(user));
     }
 
+    public Slice<User> searchUser(PageOptions pageOptions) {
+        String searchTerm = getSearchTerm(pageOptions.getSearch());
+        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
+
+        return userRepo.searchUser(searchTerm, pageable);
+    }
+
+    public Slice<User> getRecentSearch(PageOptions pageOptions) {
+        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
+
+        return userRepo.getRecentSearch(getUser(), pageable);
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void addToRecentSearch(Long userId) throws UserException {
+        User user = getCurrentUser();
+        User recentSearchUser = getUserWithoutDerivedFieldsById(userId);
+        user.getRecentSearch().add(recentSearchUser);
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void deleteRecentSearch(Long userId) throws UserException {
+        User user = getCurrentUser();
+        User recentSearchUser = getUserWithoutDerivedFieldsById(userId);
+        user.getRecentSearch().remove(recentSearchUser);
+    }
+
+    private String getSearchTerm(String search) {
+        return "%" + search.toLowerCase() + "%";
+    }
+
     @Transactional(rollbackFor = {UserException.class})
     public void updatePassword(UpdatePasswordData updatePasswordData) throws UserException {
         User user = getCurrentUser();

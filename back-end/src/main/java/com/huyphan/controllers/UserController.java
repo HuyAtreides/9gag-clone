@@ -115,6 +115,34 @@ public class UserController {
         return sliceMapper.toDto(users, userMapper);
     }
 
+    @GetMapping("search")
+    public SliceDto<UserDto> searchUser(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
+        Slice<User> users = userService.searchUser(pageOptions);
+
+        return sliceMapper.toDto(users, userMapper);
+    }
+
+    @PutMapping("recent-search/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addToRecentSearch(@PathVariable Long userId) throws UserException {
+        userService.addToRecentSearch(userId);
+    }
+
+    @GetMapping("recent-search")
+    public SliceDto<UserDto> getRecentSearch(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
+        Slice<User> users = userService.getRecentSearch(pageOptions);
+
+        return sliceMapper.toDto(users, userMapper);
+    }
+
+    @DeleteMapping("recent-search/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRecentSearch(@PathVariable Long userId) throws UserException {
+        userService.deleteRecentSearch(userId);
+    }
+
     @PutMapping("profile")
     public UserSecretDto updateProfile(@RequestBody UpdateProfileDataDto updateProfileDataDto)
             throws UserException {
@@ -127,7 +155,8 @@ public class UserController {
     @PutMapping("password")
     public void updatePassword(@RequestBody UpdatePasswordDataDto updatePasswordDataDto)
             throws AppException {
-        UpdatePasswordData updatePasswordData = updatePasswordDataMapper.fromDto(updatePasswordDataDto);
+        UpdatePasswordData updatePasswordData = updatePasswordDataMapper.fromDto(
+                updatePasswordDataDto);
         userService.updatePassword(updatePasswordData);
     }
 
