@@ -89,13 +89,13 @@ public class PostService implements MediatorComponent {
         return page.map(PostWithDerivedFields::toPost);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void followPost(Long id) throws AppException {
         Post post = getPostWithoutDerivedFields(id);
         followActionInvoker.follow(post);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void unFollowPost(Long id) throws AppException {
         Post post = getPostWithoutDerivedFields(id);
         followActionInvoker.unFollow(post);
@@ -154,12 +154,12 @@ public class PostService implements MediatorComponent {
         postRepository.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void addNewComment(Long postId, Comment comment) throws PostException {
         comment.setPost(getPostWithoutDerivedFields(postId));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void toggleNotification(Long id, boolean value) throws AppException {
         Post post = getPostWithoutDerivedFields(id);
         toggleNotificationInvoker.toggle(post, value);
@@ -274,22 +274,22 @@ public class PostService implements MediatorComponent {
     }
 
     public Post getPostWithoutDerivedFields(Long id) throws PostException {
-        return postRepository.findById(id)
+        return postRepository.findById(id, UserService.getUser())
                 .orElseThrow(() -> new PostException("Post not found"));
     }
 
     public Post getPostUsingLock(Long id) throws PostException {
-        return postRepository.findWithLockById(id)
+        return postRepository.findWithLockById(id, UserService.getUser())
                 .orElseThrow(() -> new PostException("Post not found"));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void savePost(Long id) throws PostException {
         Post post = getPost(id);
         post.getSaveUsers().add(UserService.getUser());
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void removeSavedPost(Long id) throws PostException {
         Post post = getPost(id);
         post.getSaveUsers().remove(UserService.getUser());

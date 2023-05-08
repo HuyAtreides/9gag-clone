@@ -252,7 +252,7 @@ public class CommentService implements MediatorComponent {
     }
 
     private Comment getCommentWithoutDerivedFields(Long id) throws CommentException {
-        return commentRepository.findById(id)
+        return commentRepository.findByIdWithoutDerivedFields(UserService.getUser(), id)
                 .orElseThrow(() -> new CommentException("Comment not found"));
     }
 
@@ -272,7 +272,7 @@ public class CommentService implements MediatorComponent {
      * Read comment using write lock.
      */
     private Comment getCommentUsingLock(Long id) throws CommentException {
-        return commentRepository.findWithLockById(id)
+        return commentRepository.findWithLockById(UserService.getUser(), id)
                 .orElseThrow(() -> new CommentException("Comment not found"));
 
     }

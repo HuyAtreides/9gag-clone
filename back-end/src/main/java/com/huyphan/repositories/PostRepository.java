@@ -16,7 +16,7 @@ import org.springframework.data.repository.query.Param;
 public interface PostRepository extends CrudRepository<Post, Long> {
 
     String PRIVATE_USER_POST_FILTER = """
-            (post.user.isPrivate = false or (
+            (post.user = :user or post.user.isPrivate = false or (
                 :user in elements(post.user.followers))
             )
             """;
@@ -66,6 +66,39 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                         )
                     ) as isInUserFavSections
                     """;
+    String BLOCKED_POST_OWNER_RESTRICTION = """
+            (
+                not exists (
+                                select userBlockRecord
+                                from UserBlockRecord userBlockRecord
+                                where (
+                                        userBlockRecord.blocked = post.user
+                                        and userBlockRecord.blocker = :user
+                                      ) or
+                                      (
+                                        userBlockRecord.blocked = :user
+                                        and userBlockRecord.blocker = post.user
+                                      )
+                           )
+            )
+            """;
+
+    String BLOCKED_USER_RESTRICTION = """
+            (
+                not exists (
+                                select userBlockRecord
+                                from UserBlockRecord userBlockRecord
+                                where (
+                                        userBlockRecord.blocked = :requestUser
+                                        and userBlockRecord.blocker = :user
+                                      ) or
+                                      (
+                                        userBlockRecord.blocked = :user
+                                        and userBlockRecord.blocker = :requestUser
+                                      )
+                           )
+            )
+            """;
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
@@ -76,8 +109,8 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or freetext(post.title, :searchTerm) = true
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
-            )
-            """)
+            ) and 
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Slice<PostWithDerivedFields> findSavedPost(
             @Param("requestUser") User requestUser,
             @Param("user") User user,
@@ -94,8 +127,8 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or freetext(post.title, :searchTerm) = true
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
-            )
-            """)
+            ) and 
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Slice<PostWithDerivedFields> findVotedPost(
             @Param("requestUser") User requestUser,
             @Param("user") User user,
@@ -112,8 +145,8 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or freetext(post.title, :searchTerm) = true
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
-            )
-            """)
+            ) and
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Slice<PostWithDerivedFields> findFollowingPost(
             @Param("requestUser") User requestUser,
             @Param("user") User user,
@@ -130,8 +163,8 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or freetext(post.title, :searchTerm) = true
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
-            )
-            """)
+            ) and
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Slice<PostWithDerivedFields> findUserPost(
             @Param("requestUser") User requestUser,
             @Param("user") User user,
@@ -143,11 +176,23 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @Query(SELECT_STATEMENT + """
             from Post post
             where post.id = :id and 
-            """ + PRIVATE_USER_POST_FILTER)
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Optional<PostWithDerivedFields> findByPostId(@Param("user") User user, Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Post> findWithLockById(Long id);
+    @Query("""
+            select post
+            from Post post
+            where post.id = :id and 
+            """ + BLOCKED_POST_OWNER_RESTRICTION + "and " + PRIVATE_USER_POST_FILTER)
+    Optional<Post> findWithLockById(Long id, @Param("user") User user);
+
+    @Query("""
+            select post
+            from Post post
+            where post.id = :id and 
+            """ + BLOCKED_POST_OWNER_RESTRICTION + "and " + PRIVATE_USER_POST_FILTER)
+    Optional<Post> findById(Long id, @Param("user") User user);
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
@@ -159,7 +204,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
             ) and 
-            """ + PRIVATE_USER_POST_FILTER)
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Slice<PostWithDerivedFields> findBySectionName(
             @Param("user") User user,
             @Param("sectionName") String sectionName,
@@ -175,7 +220,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true)
                 and 
-            """ + PRIVATE_USER_POST_FILTER
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION
     )
     Slice<PostWithDerivedFields> findAll(
             @Param("user") User user,

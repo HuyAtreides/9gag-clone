@@ -29,6 +29,10 @@ public class UserDto {
     private boolean receivedFollowRequest;
     private boolean isPrivate;
 
+    private boolean blocked;
+
+    private String blockedTime;
+
     public void setIsPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }

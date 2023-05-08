@@ -20,6 +20,10 @@ export interface UserConstructorArguments {
   readonly isPrivate: boolean;
 
   readonly receivedFollowRequest: boolean;
+
+  readonly blocked: boolean;
+
+  readonly blockedTime: Date | null;
 }
 
 export class User {
@@ -41,6 +45,10 @@ export class User {
 
   readonly receivedFollowRequest: boolean;
 
+  readonly blocked: boolean;
+
+  readonly blockedTime: Date | null;
+
   public constructor(constructorArguments: UserConstructorArguments) {
     this.id = constructorArguments.id;
     this.username = constructorArguments.username;
@@ -51,6 +59,8 @@ export class User {
     this.followed = constructorArguments.followed;
     this.isPrivate = constructorArguments.isPrivate;
     this.receivedFollowRequest = constructorArguments.receivedFollowRequest;
+    this.blocked = constructorArguments.blocked;
+    this.blockedTime = constructorArguments.blockedTime;
   }
 
   public getMediaLocation(): MediaLocation {

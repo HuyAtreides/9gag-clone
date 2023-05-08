@@ -48,12 +48,34 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
                         where followedComment.id = comment.id and :user in elements(followedComment.followers)
                     ) as followed
             """;
+    String BLOCKED_COMMENT_USER_FILTER = """
+            (
+                not exists (
+                                select userBlockRecord
+                                from UserBlockRecord userBlockRecord
+                                where (
+                                        userBlockRecord.blocked = comment.user
+                                        and userBlockRecord.blocker = :user
+                                      ) or
+                                      (
+                                        userBlockRecord.blocked = :user
+                                        and userBlockRecord.blocker = comment.user
+                                      )
+                           )
+            )
+            """;
+
+    String PRIVATE_USER_COMMENT_FILTER = """
+            (comment.user = :user or comment.user.isPrivate = false or (
+                :user in elements(comment.user.followers))
+            )
+            """;
 
     @EntityGraph("CommentEntityGraph")
     @Query(value = SELECT_STATEMENT + """
             from Comment comment
-            where comment.parent.id = :parentId
-            """, countQuery = """
+            where comment.parent.id = :parentId and
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER, countQuery = """
             select count(*)
             from Comment comment
             where comment.parent.id = :parentId
@@ -67,8 +89,8 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
     @EntityGraph("CommentEntityGraph")
     @Query(value = SELECT_STATEMENT + """
             from Comment comment
-            where comment.post.id = :postId and comment.parent is null
-            """, countQuery = """
+            where comment.post.id = :postId and comment.parent is null and
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER, countQuery = """
             select count(*)
             from Comment comment
             where comment.post.id = :postId and comment.parent is null
@@ -79,13 +101,26 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
     @EntityGraph("CommentEntityGraph")
     @Query(value = SELECT_STATEMENT + """
             from Comment comment
-            where comment.id = :id
-            """)
+            where comment.id = :id and
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER)
     Optional<CommentWithDerivedFields> findById(@Param("user") User user,
             @Param("id") Long id);
 
+    @Query("""
+            select comment
+            from Comment comment
+            where comment.id = :id and
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER)
+    Optional<Comment> findByIdWithoutDerivedFields(@Param("user") User user,
+            @Param("id") Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Comment> findWithLockById(Long id);
+    @Query("""
+            select comment
+            from Comment comment
+            where comment.id = :id and
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER)
+    Optional<Comment> findWithLockById(@Param("user") User user, Long id);
 
     @Query("""
             select leafComment.id
@@ -119,7 +154,7 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
     @EntityGraph("CommentEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Comment comment
-            where comment.user = :user
-            """)
+            where comment.user = :user and
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER)
     Slice<CommentWithDerivedFields> findUserComments(@Param("user") User user, Pageable pageable);
 }

@@ -16,4 +16,8 @@ export interface UserDto {
   readonly isPrivate: boolean;
 
   readonly receivedFollowRequest: boolean;
+
+  readonly blocked: boolean;
+
+  readonly blockedTime: string | null;
 }

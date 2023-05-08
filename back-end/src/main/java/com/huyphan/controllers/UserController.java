@@ -143,6 +143,25 @@ public class UserController {
         userService.deleteRecentSearch(userId);
     }
 
+    @GetMapping("blocking")
+    public SliceDto<UserDto> getBlockingUser(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
+        Slice<User> slice = userService.getBlockingUser(pageOptions);
+
+        return sliceMapper.toDto(slice, userMapper);
+    }
+
+    @PutMapping("block/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void block(@PathVariable Long userId) throws UserException {
+        userService.block(userId);
+    }
+
+    @PutMapping("unblock/{userId}")
+    public void unBlock(@PathVariable Long userId) throws UserException {
+        userService.unblock(userId);
+    }
+
     @PutMapping("profile")
     public UserSecretDto updateProfile(@RequestBody UpdateProfileDataDto updateProfileDataDto)
             throws UserException {

@@ -68,3 +68,10 @@
     margin-left: 10px;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .postContainer {
+    width: 95%;
+    padding: 40px 5px 40px 5px;
+  }
+}

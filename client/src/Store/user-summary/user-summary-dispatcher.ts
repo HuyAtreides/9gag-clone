@@ -10,14 +10,17 @@ import {
 } from '../../services/follow-request-service';
 import {
   addUserToRecentSearch,
+  blockUser,
   followUser,
   getRecentSearchUser,
+  getUserBlocking,
   getUserFollowers,
   getUserFollowing,
   removeUserFollower,
   removeUserFromRecentSearch,
   searchUser,
   unFollowUser,
+  unblockUser,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
 import { PageFetchingFunction } from '../../utils/types/page-fetching-function';
@@ -32,6 +35,7 @@ import {
   setUserSummaryReceivedFollowRequest,
   setUsers,
 } from './user-summary-slice';
+import { setUserSummaryBlocked } from './user-summary-slice';
 
 export const getSummaryUserList =
   <T extends PageFetchingRequest>(
@@ -112,6 +116,14 @@ export const search = (request: PageFetchingRequest) => {
 
 export const appendSearchResult = (request: PageFetchingRequest) => {
   return appendUserSummary(request, searchUser);
+};
+
+export const getBlocking = (request: PageFetchingRequest) => {
+  return getSummaryUserList(request, getUserBlocking);
+};
+
+export const appendBlocking = (request: PageFetchingRequest) => {
+  return appendUserSummary(request, getUserBlocking);
 };
 
 export const getRecentSearch = (request: PageFetchingRequest) => {
@@ -195,5 +207,27 @@ export const cancelRequest =
     } catch (error: unknown) {
       dispatch(setUserSummaryReceivedFollowRequest({ id, value: true }));
       handleError(dispatch, error, setUserSummaryErrorMessage);
+    }
+  };
+
+export const blockInSummaryList =
+  (userId: number): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      await blockUser(userId);
+      dispatch(setUserSummaryBlocked({ id: userId, value: true }));
+    } catch (err: unknown) {
+      handleError(dispatch, err, setUserSummaryErrorMessage);
+    }
+  };
+
+export const unblock =
+  (userId: number): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      await unblockUser(userId);
+      dispatch(setUserSummaryBlocked({ id: userId, value: false }));
+    } catch (err: unknown) {
+      handleError(dispatch, err, setUserSummaryErrorMessage);
     }
   };

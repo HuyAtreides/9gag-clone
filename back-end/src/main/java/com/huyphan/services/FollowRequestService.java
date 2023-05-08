@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -130,16 +132,20 @@ public class FollowRequestService implements MediatorComponent {
 
     public Slice<FollowRequest> getRequests(FollowRequestDirection direction,
             PageOptions pageOptions) {
-        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
+        Pageable pageable = PageRequest.of(
+                pageOptions.getPage(),
+                pageOptions.getSize(),
+                Sort.by(Direction.DESC, "id")
+        );
 
         if (direction == FollowRequestDirection.SENT) {
-            return followRequestRepo.findBySenderOrderByIdDesc(
+            return followRequestRepo.findBySender(
                     UserService.getUser(),
                     pageable
             );
         }
 
-        return followRequestRepo.findByReceiverOrderByIdDesc(
+        return followRequestRepo.findByReceiver(
                 UserService.getUser(),
                 pageable
         );
@@ -148,17 +154,21 @@ public class FollowRequestService implements MediatorComponent {
     public Slice<FollowRequest> getRequests(FollowRequestDirection direction,
             FollowRequestStatus status,
             PageOptions pageOptions) {
-        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
+        Pageable pageable = PageRequest.of(
+                pageOptions.getPage(),
+                pageOptions.getSize(),
+                Sort.by(Direction.DESC, "id")
+        );
 
         if (direction == FollowRequestDirection.SENT) {
-            return followRequestRepo.findBySenderAndStatusOrderByIdDesc(
+            return followRequestRepo.findBySenderAndStatus(
                     UserService.getUser(),
                     status,
                     pageable
             );
         }
 
-        return followRequestRepo.findByReceiverAndStatusOrderByIdDesc(
+        return followRequestRepo.findByReceiverAndStatus(
                 UserService.getUser(),
                 status,
                 pageable
@@ -170,7 +180,7 @@ public class FollowRequestService implements MediatorComponent {
     }
 
     private FollowRequest getById(Long requestId) throws AppException {
-        return followRequestRepo.findById(requestId)
+        return followRequestRepo.findById(requestId, UserService.getUser())
                 .orElseThrow(() -> new AppException(
                         "Follow request not found"
                 ));
@@ -182,17 +192,6 @@ public class FollowRequestService implements MediatorComponent {
         FollowRequest followRequest = getById(requestId);
 
         if (!followRequest.getReceiver().equals(currentUser)) {
-            throw new AppException("Follow request not found");
-        }
-
-        return followRequest;
-    }
-
-    private FollowRequest getSentRequest(Long requestId) throws AppException {
-        User currentUser = UserService.getUser();
-        FollowRequest followRequest = getById(requestId);
-
-        if (!followRequest.getSender().equals(currentUser)) {
             throw new AppException("Follow request not found");
         }
 

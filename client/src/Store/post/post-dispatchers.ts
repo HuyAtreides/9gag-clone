@@ -274,10 +274,11 @@ export const save =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      savePost(post.id);
       dispatch(setPostIsSaved(post));
       message.success('Post saved!');
+      await savePost(post.id);
     } catch (error: unknown) {
+      dispatch(setPostIsSaved(post));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
@@ -298,10 +299,11 @@ export const unSave =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      unSavePost(post.id);
       dispatch(setPostIsSaved(post));
       message.success('Post unsaved!');
+      await unSavePost(post.id);
     } catch (error: unknown) {
+      dispatch(setPostIsSaved(post));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
@@ -314,6 +316,7 @@ export const follow =
       message.success('Post followed!');
       await followPost(post.id);
     } catch (error: unknown) {
+      dispatch(setPostFollowed(post));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
@@ -326,6 +329,7 @@ export const unFollow =
       message.success('Post un followed!');
       await unFollowPost(post.id);
     } catch (error: unknown) {
+      dispatch(setPostFollowed(post));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };

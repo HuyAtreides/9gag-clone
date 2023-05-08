@@ -63,6 +63,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
             {user ? user.displayName : 'Sign up/Log in'}
           </Typography.Text>
           <Popover
+            getPopupContainer={(container) => container.parentElement!}
             placement='bottom'
             trigger='click'
             visible={showMenu}

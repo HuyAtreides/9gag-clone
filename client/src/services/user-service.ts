@@ -18,6 +18,7 @@ import { UpdateProfileDataMapper } from './mappers/update-profile-data-mapper';
 import { UserMapper } from './mappers/user-mapper';
 import { UserSecretMapper } from './mappers/user-secret-mapper';
 import { UserStatsMapper } from './mappers/user-stats-mapper';
+
 export function addSectionToUserFavoriteSections(id: number) {
   const axios = createAxiosInstance();
   const url = `${Constant.SectionEndpoint}/favorite/${id}`;
@@ -70,6 +71,31 @@ export async function removeUserFromRecentSearch(userId: number) {
   const axios = createAxiosInstance();
   const url = `${Constant.UserEndpoint}/recent-search/${userId}`;
   await axios.delete<void>(url);
+}
+
+export async function blockUser(userId: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.UserEndpoint}/block/${userId}`;
+  await axios.put<void>(url);
+}
+
+export async function unblockUser(userId: number) {
+  const axios = createAxiosInstance();
+  const url = `${Constant.UserEndpoint}/unblock/${userId}`;
+  await axios.put<void>(url);
+}
+
+export async function getUserBlocking(request: PageFetchingRequest) {
+  const { pageOptions } = request;
+  const axios = createAxiosInstance();
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const requestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.UserEndpoint}/blocking`;
+  const response = await axios.get<SliceDto<UserDto>>(url, requestConfig);
+
+  return SliceMapper.fromDto(response.data, UserMapper.fromDto);
 }
 
 export async function getSpecificUserInfo(id: number) {

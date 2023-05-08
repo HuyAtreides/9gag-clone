@@ -158,6 +158,7 @@ const Posts: React.FC = () => {
               htmlType='submit'
               className={styles.btnSubmit}
               loading={isLoading}
+              disabled={isLoading}
             >
               Submit post
             </Button>

@@ -46,6 +46,7 @@ const NotificationContainer: React.FC = () => {
       component={
         <Popover
           placement='bottom'
+          getPopupContainer={(container) => container.parentElement!}
           trigger='click'
           visible={showNotifications}
           onVisibleChange={setShowNotifications}

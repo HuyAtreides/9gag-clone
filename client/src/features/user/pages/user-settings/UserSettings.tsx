@@ -3,6 +3,7 @@ import {
   ImportOutlined,
   KeyOutlined,
   SendOutlined,
+  StopOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Col, Menu, MenuProps, Row } from 'antd';
@@ -12,18 +13,21 @@ import UserAccountSettings from '../../components/user-account-settings/UserAcco
 import UserFollowRequests from '../../components/user-follow-requests/UserFollowRequests';
 import UserPasswordSettings from '../../components/user-password-settings/UserPasswordSettings';
 import styles from './UserSettings.module.scss';
+import UserBlockingList from '../../components/user-blocking-list/UserBlockingList';
 
 type MenuItem = Required<MenuProps>['items'][number];
 type ItemKey =
   | 'account'
   | 'password'
   | 'received-follow-requests'
-  | 'sent-follow-requests';
+  | 'sent-follow-requests'
+  | 'blocking';
 const validItemKeys: ItemKey[] = [
   'account',
   'password',
   'received-follow-requests',
   'sent-follow-requests',
+  'blocking',
 ];
 
 const items: MenuItem[] = [
@@ -73,6 +77,15 @@ const items: MenuItem[] = [
       },
     ],
   },
+  {
+    key: 'blocking',
+    label: (
+      <Link to={`/user/settings/blocking`} className={styles.menuLink}>
+        Blocking
+      </Link>
+    ),
+    icon: <StopOutlined />,
+  },
 ];
 
 const MENU_ITEM_KEY_TO_CONTENT: Record<ItemKey, React.ReactNode> = {
@@ -80,6 +93,7 @@ const MENU_ITEM_KEY_TO_CONTENT: Record<ItemKey, React.ReactNode> = {
   password: <UserPasswordSettings />,
   'received-follow-requests': <UserFollowRequests />,
   'sent-follow-requests': <UserFollowRequests />,
+  blocking: <UserBlockingList />,
 };
 
 const UserSettings: React.FC = () => {

@@ -11,6 +11,6 @@ public class InstantToStringConverter implements Converter<Instant, String> {
     @Override
     public String convert(MappingContext<Instant, String> mappingContext) {
         Instant instant = mappingContext.getSource();
-        return instant.toString();
+        return instant == null ? null : instant.toString();
     }
 }

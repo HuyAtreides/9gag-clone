@@ -4,12 +4,13 @@ import {
   SettingOutlined,
   StopOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Empty, Skeleton, Typography } from 'antd';
+import { Avatar, Button, Card, Empty, Modal, Skeleton, Typography } from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
+  block,
   cancelRequest,
   follow,
   getSpecificUser,
@@ -88,6 +89,7 @@ const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
 
 const UserProfile: React.FC = () => {
   const user = useAppSelector((state) => state.user.otherProfile!);
+  const isLoading = useAppSelector((state) => state.user.isGettingOtherProfile);
   const currentUser = useAppSelector((state) => state.user.profile);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -127,6 +129,19 @@ const UserProfile: React.FC = () => {
     navigate(`/user/${userId}/${param}`);
   };
 
+  const handleBlock = () => {
+    if (!user) {
+      return;
+    }
+
+    Modal.confirm({
+      onOk: async () => {
+        await dispatch(block(user.id));
+      },
+      title: 'Do you want to block this user?',
+    });
+  };
+
   useEffect(() => {
     return () => {
       dispatch(resetOtherProfileState());
@@ -136,6 +151,18 @@ const UserProfile: React.FC = () => {
   useEffect(() => {
     setSelectedTab(tabKey);
   }, [tabKey]);
+
+  if (!isLoading && !user && currentUser) {
+    return (
+      <Empty
+        description={
+          <Typography.Title level={4} type='secondary'>
+            User Not Found
+          </Typography.Title>
+        }
+      />
+    );
+  }
 
   return (
     <UserProfileContext.Provider value={user}>
@@ -188,7 +215,12 @@ const UserProfile: React.FC = () => {
                   <OwnerGuard
                     component={<></>}
                     replace={
-                      <Button type='text' icon={<StopOutlined />} danger>
+                      <Button
+                        type='text'
+                        icon={<StopOutlined />}
+                        danger
+                        onClick={handleBlock}
+                      >
                         Block
                       </Button>
                     }

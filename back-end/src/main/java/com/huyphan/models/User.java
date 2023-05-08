@@ -5,7 +5,6 @@ import com.huyphan.models.converters.SocialProviderConverter;
 import com.huyphan.models.enums.Country;
 import com.huyphan.models.enums.Role;
 import com.huyphan.models.enums.SocialProvider;
-import com.huyphan.services.UserService;
 import com.huyphan.services.followactioninvoker.Followable;
 import java.time.Instant;
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -78,8 +76,8 @@ public class User implements UserDetails, Followable {
 
     @ManyToMany
     @JoinTable(name = "RecentUserSearch",
-                joinColumns = @JoinColumn(name = "SearcherId"),
-                inverseJoinColumns = @JoinColumn(name = "SearchedId"))
+            joinColumns = @JoinColumn(name = "SearcherId"),
+            inverseJoinColumns = @JoinColumn(name = "SearchedId"))
     private Set<User> recentSearch = new LinkedHashSet<>();
 
     @Column(name = "Created")
@@ -153,6 +151,21 @@ public class User implements UserDetails, Followable {
 
     @Transient
     private boolean receivedFollowRequest;
+
+    @ManyToMany(mappedBy = "blocking")
+    private Set<User> blockedBy;
+
+    @ManyToMany
+    @JoinTable(name = "UserBlock",
+            joinColumns = @JoinColumn(name = "BlockerId"),
+            inverseJoinColumns = @JoinColumn(name = "BlockedId"))
+    private Set<User> blocking;
+
+    @Transient
+    private boolean blocked;
+
+    @Transient
+    private Instant blockedTime;
 
     @Override
     public User getOwner() {

@@ -67,6 +67,7 @@ const userSlice = createSlice({
     resetOtherProfileState(state, _: PayloadAction<void>) {
       state.isGettingOtherProfile = false;
       state.otherProfile = null;
+      state.errorMessage = null;
     },
 
     setUserStats(state, action: PayloadAction<UserStats | null>) {

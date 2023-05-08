@@ -32,6 +32,7 @@ const AutoClosePopover: React.FC<Props> = ({
     <Popover
       trigger='click'
       placement={placement}
+      getPopupContainer={(container) => container.parentElement!}
       visible={open}
       onVisibleChange={setOpen}
       content={

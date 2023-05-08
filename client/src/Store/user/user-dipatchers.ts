@@ -12,6 +12,7 @@ import {
 import { LocalStorage } from '../../services/local-storage';
 import {
   addSectionToUserFavoriteSections,
+  blockUser,
   followUser,
   getSpecificUserInfo,
   getUserFavoriteSections,
@@ -26,6 +27,7 @@ import { getMediaLocationFromForm } from '../../utils/get-media-location-from-fo
 import {
   addSectionToFavorite,
   removeSectionFromFavorite,
+  resetOtherProfileState,
   setFavoriteSections,
   setIsGettingOtherProfile,
   setIsGettingUserStats,
@@ -232,3 +234,14 @@ export const initUserProfile = (): AppThunk => (dispatch, _) => {
     dispatch(setIsLoading(false));
   }
 };
+
+export const block =
+  (userId: number): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      await blockUser(userId);
+      dispatch(resetOtherProfileState());
+    } catch (err: unknown) {
+      handleError(dispatch, err, setUserErrorMessage);
+    }
+  };

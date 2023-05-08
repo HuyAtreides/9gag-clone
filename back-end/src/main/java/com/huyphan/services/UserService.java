@@ -90,7 +90,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
 
     public UserStats getUserStats(long userId) throws UserException {
         User user = getUserWithoutDerivedFieldsById(userId);
-        return userRepo.getUserStats(user);
+        return userRepo.getUserStats(user, getUser());
     }
 
     @Transactional(rollbackFor = {UserException.class})
@@ -122,7 +122,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         String searchTerm = getSearchTerm(pageOptions.getSearch());
         Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
 
-        return userRepo.searchUser(searchTerm, pageable);
+        return userRepo.searchUser(searchTerm, getUser(), pageable);
     }
 
     public Slice<User> getRecentSearch(PageOptions pageOptions) {
@@ -159,6 +159,38 @@ public class UserService implements UserDetailsService, MediatorComponent {
         }
 
         user.setPassword(passwordEncoder.encode(updatePasswordData.getNewPassword()));
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void block(Long userId) throws UserException {
+        User blockedUser = getUserWithoutDerivedFieldsById(userId);
+        User user = getCurrentUser();
+
+        if (blockedUser.equals(user)) {
+            throw new UserException("You can not block yourself");
+        }
+
+        user.getBlocking().add(blockedUser);
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void unblock(Long userId) throws UserException {
+        User user = getCurrentUser();
+        User blockedUser = userRepo.findById(userId)
+                .orElseThrow(() -> new UserException("User not found"));
+        user.getBlocking().remove(blockedUser);
+    }
+
+    public Slice<User> getBlockingUser(PageOptions pageOptions) {
+        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize(),
+                JpaSort.unsafe(
+                        Direction.DESC
+                        ,
+                        "(blockedTime)")
+        );
+        Slice<UserWithDerivedFields> slice = userRepo.getBlockedUsers(getUser(), pageable);
+
+        return slice.map(UserWithDerivedFields::toUser);
     }
 
     public User register(RegisterData registerData) throws UserAlreadyExistsException {
@@ -250,7 +282,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
     }
 
     public User getUserWithoutDerivedFieldsById(Long id) throws UserException {
-        return userRepo.findById(id)
+        return userRepo.findById(id, getUser())
                 .orElseThrow(() -> new UserException("User is not found"));
     }
 }
