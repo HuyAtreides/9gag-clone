@@ -285,7 +285,7 @@ public class PostService implements MediatorComponent {
 
     @Transactional(rollbackFor = {AppException.class})
     public void savePost(Long id) throws PostException {
-        Post post = getPost(id);
+        Post post = getPostWithoutDerivedFields(id);
         post.getSaveUsers().add(UserService.getUser());
     }
 

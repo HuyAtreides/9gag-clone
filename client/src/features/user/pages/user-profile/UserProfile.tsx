@@ -17,13 +17,18 @@ import {
   sendRequest,
   unFollow,
 } from '../../../../Store/user/user-dipatchers';
-import { resetOtherProfileState } from '../../../../Store/user/user-slice';
+import {
+  resetOtherProfileState,
+  setUserErrorMessage,
+} from '../../../../Store/user/user-slice';
 import UserFollowButton from '../../../../components/UserFollowButton/UserFollowButton';
 import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import PrivateProfileGuard from '../../../../components/private-profile-guard/PrivateProfileGuard';
 import UserStats from '../../../../components/user-stats/UserStats';
 import useFollow from '../../../../custom-hooks/follow';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import useSendFollowRequest from '../../../../custom-hooks/send-follow-request';
 import UserComments from '../../components/user-comments/UserComments';
 import UserFollowers from '../../components/user-followers/UserFollowers';
@@ -34,7 +39,6 @@ import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
 import UserUpvotedPosts from '../../components/user-upvoted-posts/UserUpvotedPosts';
 import { UserProfileContext } from '../../context/context';
 import styles from './UserProfile.module.scss';
-import PrivateProfileGuard from '../../../../components/private-profile-guard/PrivateProfileGuard';
 
 const tabListNoTitle = [
   {
@@ -107,6 +111,8 @@ const UserProfile: React.FC = () => {
     sendRequestThunkAction: sendRequest(user?.id || -1),
     cancelRequestThunkAction: cancelRequest(user?.id || -1),
   });
+  const errorMessage = useAppSelector((state) => state.user.errorMessage);
+  useRenderErrorMessage(errorMessage, setUserErrorMessage);
 
   useEffect(() => {
     if (!currentUser) {

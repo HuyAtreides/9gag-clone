@@ -9,3 +9,21 @@
   padding: 10px;
   margin-top: 10px;
 }
+
+.shareButtonContainer {
+  display: block;
+}
+
+.shareButtonContainerSmallBreakpoint {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .shareButtonContainer {
+    display: none;
+  }
+
+  .shareButtonContainerSmallBreakpoint {
+    display: block;
+  }
+}

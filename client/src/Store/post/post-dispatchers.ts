@@ -97,6 +97,7 @@ const addNewPostsDispatcher =
       dispatch(setPagination(pagination));
       dispatch(appendNewPosts(pageOfPosts.content));
     } catch (error: unknown) {
+      dispatch(setIsGettingPage(false));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };

@@ -27,6 +27,7 @@ import AutoClosePopover from '../../../../components/auto-close-popover/AutoClos
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import FollowButton from '../../../../components/follow-button/FollowButton';
 import Media from '../../../../components/media/Media';
+import ShareButton from '../../../../components/share-button/ShareButton';
 import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
 import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
 import useDownvote from '../../../../custom-hooks/downvote';
@@ -107,6 +108,7 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
         <List.Item
           extra={[
             <AutoClosePopover
+              closeAfterClicked={false}
               content={
                 <>
                   <Button
@@ -163,6 +165,9 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                       <FollowButton followed={post.followed} handleFollow={followPost} />
                     }
                   />
+                  <div className={styles.shareButtonContainerSmallBreakpoint}>
+                    <ShareButton post={post} />
+                  </div>
                 </>
               }
             >
@@ -190,6 +195,9 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             >
               {formatNumber(post.totalComments)}
             </Button>,
+            <div className={styles.shareButtonContainer}>
+              <ShareButton post={post} />
+            </div>,
           ]}
         >
           <List.Item.Meta

@@ -57,6 +57,7 @@ export const getSummaryUserList =
       dispatch(setPagination(pagination));
       dispatch(setUsers(pageOfUsers.content));
     } catch (error: unknown) {
+      dispatch(setIsLoading(false));
       handleError(dispatch, error, setUserSummaryErrorMessage);
     }
   };
@@ -81,6 +82,7 @@ export const appendUserSummary =
       dispatch(setPagination(pagination));
       dispatch(appendNewUsers(pageOfUsers.content));
     } catch (error: unknown) {
+      dispatch(setIsGettingPage(false));
       handleError(dispatch, error, setUserSummaryErrorMessage);
     }
   };

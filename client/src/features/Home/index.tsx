@@ -5,6 +5,7 @@ import SideBarLayout from '../../layout/sidebar-layout/SidebarLayout';
 import PostWithComment from './Components/post-with-comment/PostWithComment';
 import styles from './Home.module.scss';
 import PostList from './pages/post-list/PostList';
+import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
 
 interface IHomeProp {
   readonly sideBarCollapse: boolean;
@@ -24,9 +25,13 @@ const Home: React.FC<IHomeProp> = ({ sideBarCollapse, setSideBarCollapse }) => {
             <Route path='' element={<PostList />} />
           </Routes>
         </div>
-        <div className={styles.userSearch}>
-          <UserSearch />
-        </div>
+        <AuthenticatedGuard
+          component={
+            <div className={styles.userSearch}>
+              <UserSearch />
+            </div>
+          }
+        />
       </div>
     </SideBarLayout>
   );

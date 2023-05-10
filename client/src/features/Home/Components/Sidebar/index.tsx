@@ -152,29 +152,33 @@ const Sidebar = () => {
       <Typography.Title className={styles.title}>9GAG</Typography.Title>
       <Menu mode='inline' selectedKeys={selectedTags} items={items} />
 
-      <div className={styles.userSearch}>
-        <Typography.Title className={styles.title}>Search Users</Typography.Title>
-        <Menu
-          mode='inline'
-          selectable={false}
-          onClick={() => setOpen(true)}
-          items={[
-            getItem(
-              <span className={styles.section}>Search</span>,
-              'search',
-              <SearchOutlined />,
-            ),
-          ]}
-        />
-        <Drawer
-          placement='right'
-          visible={open}
-          closable={true}
-          onClose={() => setOpen(false)}
-        >
-          <UserSearch />
-        </Drawer>
-      </div>
+      <AuthenticatedGuard
+        component={
+          <div className={styles.userSearch}>
+            <Typography.Title className={styles.title}>Search Users</Typography.Title>
+            <Menu
+              mode='inline'
+              selectable={false}
+              onClick={() => setOpen(true)}
+              items={[
+                getItem(
+                  <span className={styles.section}>Search</span>,
+                  'search',
+                  <SearchOutlined />,
+                ),
+              ]}
+            />
+            <Drawer
+              placement='right'
+              visible={open}
+              closable={true}
+              onClose={() => setOpen(false)}
+            >
+              <UserSearch />
+            </Drawer>
+          </div>
+        }
+      />
 
       <AuthenticatedGuard
         component={

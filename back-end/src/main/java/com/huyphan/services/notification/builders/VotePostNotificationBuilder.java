@@ -25,7 +25,7 @@ public class VotePostNotificationBuilder implements
     public List<Notification> build(VotePostNotificationPayload votePostNotificationPayload) {
         List<User> receivers = receiverResolver.resolve(votePostNotificationPayload);
         String destUrl = buildDestUrl(votePostNotificationPayload);
-        String message = "Someone votes you post";
+        String message = "Someone votes your post";
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
             notification.setDestUrl(destUrl);

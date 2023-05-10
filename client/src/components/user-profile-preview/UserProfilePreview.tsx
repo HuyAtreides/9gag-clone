@@ -43,6 +43,7 @@ const tabKeyToTabContent: Record<string, React.FC<{ userId: number }>> = {
 const UserProfilePreview: React.FC<{ userId: number }> = ({ userId }) => {
   const [selectedTab, setSelectedTab] = useState<string>('Stats');
   const dispatch = useAppDispatch();
+  const isLoading = useAppSelector((state) => state.user.isGettingOtherProfile);
   const user = useAppSelector((state) => state.user.otherProfile);
 
   useEffect(() => {
@@ -52,6 +53,18 @@ const UserProfilePreview: React.FC<{ userId: number }> = ({ userId }) => {
       dispatch(resetOtherProfileState());
     };
   }, [dispatch, userId]);
+
+  if (!isLoading && !user) {
+    return (
+      <Empty
+        description={
+          <Typography.Title level={4} type='secondary'>
+            User Not Found
+          </Typography.Title>
+        }
+      />
+    );
+  }
 
   return (
     <Card
