@@ -27,13 +27,12 @@ import styles from './PostContent.module.css';
 
 interface Props {
   post: Post;
-  index: number;
 }
 
-const PostContent: React.FC<Props> = ({ post, index }: Props) => {
+const PostContent: React.FC<Props> = ({ post }: Props) => {
   const [upvoted, downvoted] = [post.isUpvoted, post.isDownvoted];
   const dispatch = useAppDispatch();
-  const votePostExecutorRef = useRef(new VotePostActionExecutor(dispatch, index));
+  const votePostExecutorRef = useRef(new VotePostActionExecutor(dispatch, post));
   const handleUpvote = useUpvote(post, votePostExecutorRef.current);
   const handleDownvote = useDownvote(post, votePostExecutorRef.current);
   const protectAction = useProtectedAction();
@@ -51,16 +50,19 @@ const PostContent: React.FC<Props> = ({ post, index }: Props) => {
 
   const savePost = () => {
     if (post.isSaved) {
-      dispatch(unSave(index));
+      dispatch(unSave(post));
       return;
     }
 
-    dispatch(save(index));
+    dispatch(save(post));
   };
 
   const deletePost = () => {
     Modal.confirm({
-      onOk: () => remove(index),
+      onOk: () => {
+        dispatch(remove(post));
+        return false;
+      },
       title: 'Do you want to delete this post?',
     });
   };

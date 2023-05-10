@@ -13,7 +13,6 @@ import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
-import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
@@ -53,7 +52,7 @@ public class PostController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePost(@PathVariable Long id) throws PostException {
+    public void deletePost(@PathVariable Long id) throws AppException {
         postService.deletePost(id);
     }
 
@@ -82,13 +81,13 @@ public class PostController {
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void upvotesPost(@PathVariable Long id)
-            throws PostException, VoteableObjectException {
+            throws AppException {
         postService.upvotesPost(id);
     }
 
     @PutMapping("downvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downvotesPost(@PathVariable Long id) throws PostException, VoteableObjectException {
+    public void downvotesPost(@PathVariable Long id) throws AppException {
         postService.downvotesPost(id);
     }
 

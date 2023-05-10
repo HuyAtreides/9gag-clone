@@ -1,7 +1,6 @@
 package com.huyphan.services;
 
 import com.huyphan.models.Post;
-import com.huyphan.models.exceptions.UserException;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,21 +13,11 @@ public class VoteablePostManager extends VoteableObjectManager<Post> {
 
     @Override
     Set<Post> getUpvotedObjects() {
-        try {
-            return userService.getUserById(UserService.getUser().getId()).getUpvotedPosts();
-        } catch (UserException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return userService.getCurrentUser().getUpvotedPosts();
     }
 
     @Override
     Set<Post> getDownvotedObjects() {
-        try {
-            return userService.getUserById(UserService.getUser().getId()).getDownvotedPosts();
-        } catch (UserException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return userService.getCurrentUser().getDownvotedPosts();
     }
 }

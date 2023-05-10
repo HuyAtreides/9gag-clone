@@ -78,16 +78,20 @@ const ParentComment: React.FC<Props> = ({ user }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, dispatch, sortType, searchParams]);
 
+  useEffect(() => {
+    document.getElementById(Constant.CommentScrollAreaId)?.scrollIntoView();
+  }, []);
+
   if (state.isLoading) {
     return (
-      <>
+      <div id={Constant.CommentScrollAreaId as string}>
         {Array.from(Array(5)).map((value, index) => (
           <>
             <Skeleton avatar paragraph={{ rows: 4 }} active />
             <br />
           </>
         ))}
-      </>
+      </div>
     );
   }
 

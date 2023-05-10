@@ -3,7 +3,7 @@ import { Button, List, Popover, Typography } from 'antd';
 import React, { ReactElement, useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
-import Loading from '../../../components/loading/Loading';
+import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
 import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
 import useRenderErrorMessage from '../../../custom-hooks/render-error-message';
 import { Constant } from '../../../models/enums/constant';
@@ -92,7 +92,7 @@ const Notifications: React.FC = () => {
         <div className={styles.notificationHeader}>
           <Typography.Title level={3}>Notifications</Typography.Title>
         </div>
-        <Loading />
+        <CenterSpinner />
       </div>
     );
   }
@@ -131,7 +131,8 @@ const Notifications: React.FC = () => {
         dataLength={notifications!.length}
         hasMore={!isLast}
         next={getNextPage}
-        loader={<Loading />}
+        loader={<CenterSpinner />}
+        height={window.innerHeight * 0.4}
       >
         <List
           className={styles.notifications}

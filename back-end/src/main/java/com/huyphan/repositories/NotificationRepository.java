@@ -1,6 +1,8 @@
 package com.huyphan.repositories;
 
+import com.huyphan.models.Comment;
 import com.huyphan.models.Notification;
+import com.huyphan.models.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,12 @@ public interface NotificationRepository extends CrudRepository<Notification, Lon
     @Modifying(clearAutomatically = true)
     @Query("delete from Notification notification where notification.user.id = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
+
+    @Query("""
+            select user
+            from User user
+            """)
+    List<User> findAllCommentFollowers(@Param("comment") Comment comment);
 
     Optional<Notification> findByIdAndUserId(Long id, Long userId);
 

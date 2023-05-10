@@ -47,28 +47,30 @@ const postSlice = createSlice({
       state.posts?.push(...action.payload);
     },
 
-    removePost(state, action: PayloadAction<number>) {
-      state.posts.splice(action.payload, 1);
+    removePost(state, action: PayloadAction<Post>) {
+      state.posts = state.posts.filter((post) => post.id !== action.payload.id);
     },
 
-    setPostUpvotes(state, action: PayloadAction<[number, 1 | -1]>) {
-      const index = action.payload[0];
+    setPostUpvotes(state, action: PayloadAction<[Post, 1 | -1]>) {
+      const updatedPost = action.payload[0];
       const amount = action.payload[1];
-      const post = state.posts![index];
+      const index = state.posts.findIndex((post) => post.id === updatedPost.id);
+      const post = state.posts[index];
       post.isUpvoted = !post.isUpvoted;
       post.upvotes += amount;
     },
 
-    setPostDownvotes(state, action: PayloadAction<[number, 1 | -1]>) {
-      const index = action.payload[0];
+    setPostDownvotes(state, action: PayloadAction<[Post, 1 | -1]>) {
+      const updatedPost = action.payload[0];
       const amount = action.payload[1];
+      const index = state.posts.findIndex((post) => post.id === updatedPost.id);
       const post = state.posts![index];
       post.isDownvoted = !post.isDownvoted;
       post.downvotes += amount;
     },
 
-    setPostIsSaved(state, action: PayloadAction<number>) {
-      const index = action.payload;
+    setPostIsSaved(state, action: PayloadAction<Post>) {
+      const index = state.posts.findIndex((post) => post.id === action.payload.id);
       const currentIsSavedState = state.posts[index].isSaved;
       state.posts[index].isSaved = !currentIsSavedState;
     },

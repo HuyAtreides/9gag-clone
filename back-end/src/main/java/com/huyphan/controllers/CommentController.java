@@ -65,14 +65,14 @@ public class CommentController {
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void upvotesComment(@PathVariable Long id)
-            throws PostException, CommentException, VoteableObjectException {
+            throws AppException {
         commentService.upvotesComment(id);
     }
 
     @PutMapping("downvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void downvotesComment(@PathVariable Long id)
-            throws PostException, CommentException, VoteableObjectException {
+            throws AppException {
         commentService.downvotesComment(id);
     }
 
@@ -122,7 +122,7 @@ public class CommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long addComment(@PathVariable Long postId,
             @RequestBody NewCommentDto newCommentDto)
-            throws PostException, CommentException {
+            throws AppException {
         NewComment newComment = newCommentMapper.fromDto(newCommentDto);
         Comment savedComment = commentService.addComment(postId, newComment);
 
@@ -133,7 +133,7 @@ public class CommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long addReply(@PathVariable Long id,
             @RequestBody NewCommentDto newReplyDto)
-            throws CommentException {
+            throws AppException {
         NewComment newReply = newCommentMapper.fromDto(newReplyDto);
         Comment savedReply = commentService.addReply(newReply, id);
 

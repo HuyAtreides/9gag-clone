@@ -9,7 +9,7 @@ import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.exceptions.AppException;
-import com.huyphan.services.NotificationService;
+import com.huyphan.services.notification.NotificationService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -16,13 +16,13 @@ export enum Constant {
   DebounceTimeInMiliSeconds = 700,
 }
 
+export enum ScreenBreakPoint {
+  Large = 992,
+  Medium = 768,
+}
+
 export enum MediaType {
   Video = 'video',
   Image = 'image',
   Gif = 'gif',
-}
-
-export enum ComputedConstants {
-  ScreenHeight = window.innerHeight,
-  ScreenWidth = window.innerWidth,
 }
