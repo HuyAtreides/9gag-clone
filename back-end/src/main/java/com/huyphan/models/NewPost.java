@@ -19,4 +19,6 @@ public class NewPost {
     private Section section;
 
     private String tags;
+
+    private boolean anonymous;
 }

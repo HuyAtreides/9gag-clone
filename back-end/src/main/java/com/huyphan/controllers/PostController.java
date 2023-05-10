@@ -13,6 +13,7 @@ import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
@@ -45,9 +46,21 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addNewPost(@RequestBody NewPostDto newPostDto) {
+    public void addNewPost(@RequestBody NewPostDto newPostDto) throws AppException {
         NewPost newPost = newPostMapper.fromDto(newPostDto);
         postService.addNewPost(newPost);
+    }
+
+    @PutMapping("turn-off-notifications/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void turnOffNotifications(@PathVariable Long id) throws AppException {
+        postService.toggleNotification(id, false);
+    }
+
+    @PutMapping("turn-on-notifications/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void turnOnNotifications(@PathVariable Long id) throws AppException {
+        postService.toggleNotification(id, true);
     }
 
     @DeleteMapping("{id}")
@@ -78,6 +91,15 @@ public class PostController {
         return postMapper.toDto(post);
     }
 
+    @PutMapping("enable-anonymous/{id}")
+    public void enableAnonymous(@PathVariable Long id) throws PostException {
+        postService.setAnonymous(id , true);
+    }
+
+    @PutMapping("disable-anonymous/{id}")
+    public void disableAnonymous(@PathVariable Long id) throws PostException {
+        postService.setAnonymous(id, false);
+    }
     @PutMapping("upvotes/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void upvotesPost(@PathVariable Long id)
@@ -89,6 +111,27 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void downvotesPost(@PathVariable Long id) throws AppException {
         postService.downvotesPost(id);
+    }
+
+    @PutMapping("follow/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void followPost(@PathVariable Long id) throws AppException {
+        postService.followPost(id);
+    }
+
+    @PutMapping("unfollow/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unFollowPost(@PathVariable Long id) throws AppException {
+        postService.unFollowPost(id);
+    }
+
+    @GetMapping("following/{userId}")
+    public SliceDto<PostDto> getFollowingPost(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto)
+            throws AppException {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> page = postService.getFollowingPost(userId, pageOptions);
+        return sliceMapper.toDto(page, postMapper);
     }
 
     @PutMapping("unupvotes/{id}")
@@ -104,18 +147,29 @@ public class PostController {
         postService.unDownvotesPost(id);
     }
 
-    @GetMapping("save")
-    public SliceDto<PostDto> getSavedPosts(PageOptionsDto pageOptionsDto) {
+    @GetMapping("save/{userId}")
+    public SliceDto<PostDto> getSavedPosts(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Slice<Post> savedPosts = postService.getSavedPosts(pageOptions);
+        Slice<Post> savedPosts = postService.getSavedPosts(userId, pageOptions);
 
         return sliceMapper.toDto(savedPosts, postMapper);
     }
 
-    @GetMapping("vote")
-    public SliceDto<PostDto> getVotedPosts(PageOptionsDto pageOptionsDto) {
+    @GetMapping("upvote/{userId}")
+    public SliceDto<PostDto> getVotedPosts(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Slice<Post> votedPosts = postService.getVotedPosts(pageOptions);
+        Slice<Post> votedPosts = postService.getVotedPosts(userId, pageOptions);
+
+        return sliceMapper.toDto(votedPosts, postMapper);
+    }
+
+    @GetMapping("user/{userId}")
+    public SliceDto<PostDto> getUserPosts(@PathVariable Long userId,
+            PageOptionsDto pageOptionsDto) throws AppException {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<Post> votedPosts = postService.getUserPosts(userId, pageOptions);
 
         return sliceMapper.toDto(votedPosts, postMapper);
     }
@@ -132,9 +186,9 @@ public class PostController {
         postService.removeSavedPost(id);
     }
 
-    @ExceptionHandler(PostException.class)
+    @ExceptionHandler(AppException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public AppException handleExceptions(PostException exception) {
+    public AppException handleExceptions(AppException exception) {
         return exception;
     }
 }

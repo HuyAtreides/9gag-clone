@@ -12,10 +12,11 @@ import styles from './GifSelect.module.css';
 const giphyFetch = new GiphyFetch(process.env.REACT_APP_GIFPHY_API_KEY as string);
 
 interface Props {
-  setGif: (gif: MediaLocation) => void;
+  readonly setGif: (gif: MediaLocation) => void;
+  readonly disabled: boolean;
 }
 
-const GifSelect: React.FC<Props> = ({ setGif }: Props) => {
+const GifSelect: React.FC<Props> = ({ setGif, disabled }: Props) => {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -50,7 +51,12 @@ const GifSelect: React.FC<Props> = ({ setGif }: Props) => {
 
   return (
     <>
-      <Button icon={<GifOutlined />} shape='default' onClick={() => setOpen(true)} />
+      <Button
+        icon={<GifOutlined />}
+        shape='default'
+        onClick={() => setOpen(true)}
+        disabled={disabled}
+      />
       <Modal
         title='Select a GIF!'
         visible={open}

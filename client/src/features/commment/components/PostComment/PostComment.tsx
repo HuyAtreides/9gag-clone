@@ -5,31 +5,38 @@ import {
   EditOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Comment, Modal, Popover, Typography } from 'antd';
-import React, { useContext, useReducer, useRef, useState } from 'react';
+import { Avatar, Button, Comment, Modal, Typography } from 'antd';
+import React, { useContext, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import CommentEditor from '../../../../components/comment-editor/CommentEditor';
-import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
-import Media from '../../../../components/media/Media';
-import useDownvote from '../../../../custom-hooks/downvote';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import useUpvote from '../../../../custom-hooks/upvote';
-import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-comment-action-executor';
-import AppComment from '../../../../models/comment';
-import { Constant } from '../../../../models/enums/constant';
-import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   deleteAppComment,
-  errorMessageActionCreator,
+  follow,
   reply,
+  turnOffNotification,
+  turnOnNotification,
+  unFollow,
   update,
 } from '../../../../Store/comment/comment-dispatchers';
-import {
-  commentReducer,
-  getCommentInitialState,
-} from '../../../../Store/comment/comment-slice';
+import {} from '../../../../Store/comment/comment-slice';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
+import CommentEditor from '../../../../components/comment-editor/CommentEditor';
+import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
+import FollowButton from '../../../../components/follow-button/FollowButton';
+import Media from '../../../../components/media/Media';
+import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
+import useDownvote from '../../../../custom-hooks/downvote';
+import useFollow from '../../../../custom-hooks/follow';
+import useToggleNotification from '../../../../custom-hooks/toggle-notification';
+import useUpvote from '../../../../custom-hooks/upvote';
+import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
+import VoteCommentActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-comment-action-executor';
+import AppComment from '../../../../models/comment';
+import { Constant, ScreenBreakPoint } from '../../../../models/enums/constant';
+import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
 import { formatNumber } from '../../../../utils/format-number';
-import { CommentContext } from '../../context/comment-context';
+import { PostContext } from '../../../Home/Components/post-with-comment/PostWithComment';
 import ChildComment from '../ChildComment/ChildComment';
 import styles from './PostComment.module.scss';
 
@@ -37,70 +44,99 @@ interface Props {
   readonly comment: AppComment;
 }
 
-const getChildCommentInitialState = () => {
-  return {
-    ...getCommentInitialState(),
-    isLoading: false,
-  };
-};
-
-const FIFTY_PERCENT_SCREEN_HEIGHT = window.innerHeight * 0.5;
+const isSmallerThanLargeBreakPoint = window.innerWidth < ScreenBreakPoint.Large;
+const mediaWidth = isSmallerThanLargeBreakPoint
+  ? window.innerWidth * 0.5
+  : window.innerWidth * 0.3;
 
 const PostComment: React.FC<Props> = ({ comment }: Props) => {
-  const [childrenState, childrenDispatch] = useReducer(
-    commentReducer,
-    getChildCommentInitialState(),
-  );
-  useRenderErrorMessage(
-    childrenState.errorMessage,
-    errorMessageActionCreator,
-    childrenDispatch,
-  );
+  const dispatch = useAppDispatch();
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [showCommentEditor, setShowCommentEditor] = useState(false);
-  const { user, dispatch, state, sortType } = useContext(CommentContext)!;
+  const postId = useContext(PostContext);
+  const post = useAppSelector((state) =>
+    state.post.posts.find((post) => {
+      return post.id === postId;
+    }),
+  )!;
   const voteCommentExecutorRef = useRef(
-    new VoteCommentActionExecutor(dispatch, comment.id, state),
+    new VoteCommentActionExecutor(dispatch, comment.id),
   );
+  const followComment = useFollow({
+    isFollowed: comment.followed,
+    followThunkAction: follow(comment.id),
+    unFollowThunkAction: unFollow(comment.id),
+  });
+  const toggleSendNotifications = useToggleNotification({
+    notificationEnabled: comment.notificationEnabled,
+    turnOnNotificationThunkAction: turnOnNotification(comment.id),
+    turnOffNotificationThunkAction: turnOffNotification(comment.id),
+  });
   const handleUpvote = useUpvote(comment, voteCommentExecutorRef.current);
   const handleDownvote = useDownvote(comment, voteCommentExecutorRef.current);
+  const commentDateDiff = useTimeDiffFromToday(comment.date);
 
   const addReply = async (values: CommentUploadFormData) => {
-    await reply(values, comment.id)(state, dispatch);
+    await dispatch(reply(values, comment.id));
   };
 
   const deleteComment = () => {
     Modal.confirm({
       onOk: () => {
-        deleteAppComment(comment.id)(state, dispatch);
+        dispatch(deleteAppComment(comment.id));
         return false;
       },
       title: 'Do you want to delete this comment?',
     });
   };
 
-  const children = comment.isParent ? (
-    <CommentContext.Provider
-      value={{ user: user, state: childrenState, dispatch: childrenDispatch, sortType }}
-    >
-      <ChildComment
-        showEditor={showReplyEditor && comment.isParent}
-        handleCancel={() => setShowReplyEditor(false)}
-        parent={comment}
-      />
-    </CommentContext.Provider>
-  ) : undefined;
+  const children = comment.isParent ? <ChildComment parent={comment} /> : undefined;
 
   const mention = comment.replyTo ? (
     <Typography.Link
-      href=''
+      href={`/user/${comment.replyTo.id}`}
       target='_blank'
     >{`@${comment.replyTo.username}`}</Typography.Link>
   ) : null;
 
+  const commentDeleteButton = post ? (
+    <OwnerGuard
+      component={
+        <Button
+          className={`${styles.commentAction} ${styles.actionBtn}`}
+          block
+          type='text'
+          icon={<DeleteOutlined />}
+          danger
+          onClick={deleteComment}
+        >
+          Delete
+        </Button>
+      }
+      replace={
+        <OwnerGuard
+          component={
+            <Button
+              className={`${styles.commentAction} ${styles.actionBtn}`}
+              block
+              type='text'
+              icon={<DeleteOutlined />}
+              danger
+              onClick={deleteComment}
+            >
+              Delete
+            </Button>
+          }
+          owner={post.user}
+        />
+      }
+      owner={comment.user}
+    />
+  ) : null;
+
   if (showCommentEditor) {
     const updateComment = async (values: CommentUploadFormData) => {
-      await update(comment.id, values)(state, dispatch);
+      await dispatch(update(comment.id, values));
     };
 
     return (
@@ -142,11 +178,9 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
           >
             Reply to
           </Button>,
-          <Popover
-            placement='bottom'
-            trigger='click'
+          <AutoClosePopover
             content={
-              <div className='more-action-box-container'>
+              <>
                 <OwnerGuard
                   component={
                     <Button
@@ -162,32 +196,36 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
                   owner={comment.user}
                 />
                 <OwnerGuard
-                  component={
-                    <Button
-                      className={`${styles.commentAction} ${styles.actionBtn}`}
-                      block
-                      type='text'
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={deleteComment}
-                    >
-                      Delete
-                    </Button>
-                  }
                   owner={comment.user}
+                  component={
+                    <ToggleNotificationButton
+                      notificationEnabled={comment.notificationEnabled}
+                      handleToggle={toggleSendNotifications}
+                    />
+                  }
+                  replace={
+                    <FollowButton
+                      followed={comment.followed}
+                      handleFollow={followComment}
+                    />
+                  }
                 />
-              </div>
+                {commentDeleteButton}
+              </>
             }
           >
             <Button icon={<MoreOutlined />} type='text'></Button>
-          </Popover>,
+          </AutoClosePopover>,
         ]}
         author={
-          <Link className={styles.postCommentAuthor} to='/'>
-            {comment.user.usernameWithFlag}
+          <Link className={styles.postCommentAuthor} to={`/user/${comment.user.id}`}>
+            <NameWithCountryFlag
+              country={comment.user.country || undefined}
+              name={comment.user.username}
+            />
           </Link>
         }
-        avatar={<Avatar src={user.avatarUrl} alt='User avatar' />}
+        avatar={<Avatar src={comment.user.avatarUrl} alt='User avatar' />}
         content={
           <>
             <Typography.Paragraph className={styles.postCommentText}>
@@ -197,15 +235,15 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
               <Media
                 url={comment.mediaUrl}
                 type={comment.mediaType}
-                height={FIFTY_PERCENT_SCREEN_HEIGHT}
+                width={mediaWidth}
                 scrollAreaId={Constant.CommentScrollAreaId as string}
               />
             ) : null}
           </>
         }
-        datetime={comment.date.toLocaleDateString()}
+        datetime={<span>&#8226; {commentDateDiff}</span>}
       >
-        {showReplyEditor && !comment.isParent ? (
+        {showReplyEditor ? (
           <CommentEditor
             handleCancel={() => setShowReplyEditor(false)}
             handleSubmit={addReply}

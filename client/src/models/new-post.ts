@@ -9,5 +9,7 @@ export default interface NewPost {
 
   readonly section: Section;
 
-  readonly tags: String;
+  readonly tags: string;
+
+  readonly anonymous: boolean;
 }

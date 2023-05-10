@@ -80,6 +80,7 @@ export const removeNotifications = (): AppThunk => async (dispatch, getState) =>
     await removeAllNotifications();
     dispatch(setIsLoading(false));
     dispatch(setNotifications([]));
+    dispatch(setPagination(null));
   } catch (error: unknown) {
     dispatch(setIsLoading(false));
     handleError(
@@ -124,7 +125,10 @@ export const addLatestNotifications = (): AppThunk => async (dispatch, getState)
       (notification) => !notification.isViewed,
     );
     dispatch(appendLatestNotifications(latestNotifications));
-    dispatch(setNotViewedCount(notViewedNotifications.length + notViewedCount));
+
+    if (notViewedNotifications.length > 0) {
+      dispatch(setNotViewedCount(notViewedNotifications.length + notViewedCount));
+    }
   } catch (error: unknown) {
     console.log(error);
   }
@@ -141,16 +145,16 @@ export const countNotViewed = (): AppThunk => async (dispatch, getState) => {
 
 export const initialize = (): AppThunk => async (dispatch, getState) => {
   try {
-    const INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS = 20000;
+    const INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS = 5000;
     const pageOptions: PageOptions = {
       size: Constant.PageSize as number,
       page: 0,
     };
 
     await dispatch(getNotifications(pageOptions));
-    return setInterval(() => {
-      dispatch(addLatestNotifications());
-    }, INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS);
+    // return setInterval(() => {
+    //   dispatch(addLatestNotifications());
+    // }, INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS);
   } catch (error: unknown) {
     console.log(error);
   }

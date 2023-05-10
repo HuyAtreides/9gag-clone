@@ -16,8 +16,9 @@
   --border-radius-base: @border-radius-base;
   --overlay-background-color: rgba(0, 0, 0, 0.5);
   --contrast-background-color: black;
-  --post-width: 50vw;
-  --post-width-on-small-screen: 95vw;
+  --google-logo-color: #ea4335;
+  --facebook-logo-color: #1877f2;
+  --search-result-background-color: rgb(36, 37, 39);
 }
 
 html {
@@ -35,7 +36,7 @@ html {
   display: none;
 }
 
-@media screen and (max-width: 819px) {
+@media screen and (max-width: 992px) {
   .overlay-background {
     display: block;
   }
@@ -70,4 +71,10 @@ html {
 
 .ant-list-item-extra {
   margin: 0 !important;
+}
+
+@media screen and (max-width: 768px) {
+  .ant-card-body {
+    padding: 5px;
+  }
 }

@@ -1,5 +1,6 @@
 package com.huyphan.services.notification.receiverresolver;
 
+import com.huyphan.models.Comment;
 import com.huyphan.models.User;
 import com.huyphan.services.UserService;
 import com.huyphan.services.notification.payload.CommentNotificationPayload;
@@ -16,8 +17,9 @@ public class VoteCommentNotificationReceiverResolver implements
     @Override
     public List<User> resolve(CommentNotificationPayload notificationPayload) {
         List<User> users = new ArrayList<>();
+        Comment comment = notificationPayload.getComment();
         User commentUser = notificationPayload.getComment().getUser();
-        if (commentUser.equals(UserService.getUser())) {
+        if (commentUser.equals(UserService.getUser()) || !comment.isNotificationEnabled()) {
             return users;
         }
 

@@ -2,12 +2,15 @@ package com.huyphan.controllers;
 
 import com.huyphan.dtos.LoginDataDto;
 import com.huyphan.dtos.RegisterDataDto;
+import com.huyphan.dtos.SocialLoginDataDto;
 import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.mappers.LoginDataMapper;
 import com.huyphan.mappers.RegisterDataMapper;
+import com.huyphan.mappers.SocialLoginDataMapper;
 import com.huyphan.mappers.UserSecretMapper;
 import com.huyphan.models.LoginData;
 import com.huyphan.models.RegisterData;
+import com.huyphan.models.SocialLoginData;
 import com.huyphan.models.UserSecret;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.AuthException;
@@ -34,6 +37,9 @@ public class AuthController {
     private LoginDataMapper loginDataMapper;
 
     @Autowired
+    private SocialLoginDataMapper socialLoginDataMapper;
+
+    @Autowired
     private RegisterDataMapper registerDataMapper;
 
     @Autowired
@@ -43,6 +49,14 @@ public class AuthController {
     public UserSecretDto login(@RequestBody LoginDataDto loginDataDto) throws AuthException {
         LoginData loginData = loginDataMapper.fromDto(loginDataDto);
         UserSecret userSecret = authService.login(loginData);
+        return userSecretMapper.toDto(userSecret);
+    }
+
+    @PostMapping("social-login")
+    public UserSecretDto login(@RequestBody SocialLoginDataDto socialLoginDataDto) {
+        SocialLoginData loginData = socialLoginDataMapper.fromDto(socialLoginDataDto);
+        UserSecret userSecret = authService.login(loginData);
+
         return userSecretMapper.toDto(userSecret);
     }
 

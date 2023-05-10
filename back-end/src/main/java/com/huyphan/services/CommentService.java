@@ -5,6 +5,7 @@ import com.huyphan.events.AppEvent;
 import com.huyphan.events.CreateCommentEvent;
 import com.huyphan.events.VoteCommentEvent;
 import com.huyphan.mediators.IMediator;
+import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewComment;
 import com.huyphan.models.PageOptions;
@@ -15,8 +16,12 @@ import com.huyphan.models.exceptions.CommentException;
 import com.huyphan.models.exceptions.VoteableObjectException;
 import com.huyphan.models.projections.CommentWithDerivedFields;
 import com.huyphan.repositories.CommentRepository;
+import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
+import com.huyphan.services.togglenotificationinvoker.IToggleNotificationInvoker;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Getter
 @Setter
-public class CommentService {
+public class CommentService implements MediatorComponent {
 
     @Autowired
     private CommentRepository commentRepository;
@@ -47,11 +53,23 @@ public class CommentService {
     private VoteableObjectManager<Comment> voteableCommentManager;
 
     @Autowired
+    private IFollowActionInvoker followActionInvoker;
+
+    @Autowired
+    private IToggleNotificationInvoker toggleSendNotificationsInvoker;
+
+    @Autowired
     private AWSS3Util awss3Util;
 
-    @Transactional(rollbackFor = {AppException.class})
-    public Comment addComment(Long postId, NewComment newComment)
+    @Transactional
+    public void toggleNotification(Long id, boolean value)
             throws AppException {
+        Comment comment = getCommentWithoutDerivedFields(id);
+        toggleSendNotificationsInvoker.toggle(comment, value);
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public Comment addComment(Long postId, NewComment newComment) throws AppException {
         Comment comment = commentRepository.save(createNewCommentEntity(newComment));
         AppEvent createCommentEvent = new CreateCommentEvent(comment, postId);
         mediator.notify(createCommentEvent);
@@ -59,33 +77,44 @@ public class CommentService {
     }
 
     @Transactional(rollbackFor = {AppException.class})
-    public void deleteComment(Long id) throws CommentException {
+    public void deleteCommentInBatch(Long id) throws CommentException {
         User currentUser = UserService.getUser();
         Comment comment = getCommentWithoutDerivedFields(id);
+        User commentOwner = comment.getOwner();
+        User commentPostOwner = comment.getPost().getOwner();
 
-        if (!comment.getUser().getUsername().equals(currentUser.getUsername())) {
+        if (!commentOwner.equals(currentUser) && !commentPostOwner.equals(currentUser)) {
             throw new CommentException("Comment not found");
         }
+        deleteCommentInBatch(Set.of(id));
+    }
 
-        awss3Util.deleteObject(comment.getMediaUrl());
-        Set<Long> leafCommentIds = commentRepository.getLeafReplyIdsOfComment(id);
-
-        while (!leafCommentIds.isEmpty()) {
-            commentRepository.deleteComments(leafCommentIds);
-            leafCommentIds = commentRepository.getLeafReplyIdsOfComment(id);
+    @Transactional
+    private void deleteCommentInBatch(Set<Long> ids) {
+        if (ids.isEmpty()) {
+            return;
         }
 
-        commentRepository.deleteById(id);
+        Set<Long> leafComments = commentRepository.getLeafReplyIdsOfComment(ids);
+        deleteCommentInBatch(leafComments);
+        List<String> mediaUrls = commentRepository.getMediaUrlByIdIn(ids);
+        commentRepository.deleteComments(ids);
+        mediaUrls.forEach(mediaUrl -> awss3Util.deleteObject(mediaUrl));
     }
 
     @Transactional(rollbackFor = {AppException.class})
     public void deleteCommentOfPosts(Long postId) {
         Set<Long> leafPostCommentIds = commentRepository.getLeafCommentIdsOfPost(postId);
+        Set<Long> allPostCommentIds = new LinkedHashSet<>();
 
         while (!leafPostCommentIds.isEmpty()) {
             commentRepository.deleteComments(leafPostCommentIds);
+            allPostCommentIds.addAll(leafPostCommentIds);
             leafPostCommentIds = commentRepository.getLeafCommentIdsOfPost(postId);
         }
+
+        List<String> mediaUrls = commentRepository.getMediaUrlByIdIn(allPostCommentIds);
+        mediaUrls.forEach(mediaUrl -> awss3Util.deleteObject(mediaUrl));
     }
 
     @Transactional(rollbackFor = {AppException.class})
@@ -134,6 +163,21 @@ public class CommentService {
         }
     }
 
+    public Slice<Comment> getUserComments(Long userId, PageOptions options) throws AppException {
+        SortType sortType = options.getSortType();
+        Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
+        User currentUser = UserService.getUser();
+        User user = userService.getUserById(userId);
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        return commentRepository.findUserComments(user, pageable)
+                .map(CommentWithDerivedFields::toComment);
+    }
+
     @Transactional(rollbackFor = {AppException.class})
     public void updateComment(Long id, NewComment updatedCommentFields) throws CommentException {
         Comment comment = getCommentUsingLock(id);
@@ -150,8 +194,7 @@ public class CommentService {
     }
 
     @Transactional(rollbackFor = {AppException.class})
-    public Comment addReply(NewComment newReply, Long replyToId)
-            throws AppException {
+    public Comment addReply(NewComment newReply, Long replyToId) throws AppException {
         Comment replyTo = getCommentWithoutDerivedFields(replyToId);
         Comment reply = createNewCommentEntity(newReply);
         Comment parent = replyTo.getParent() == null ? replyTo : replyTo.getParent();
@@ -163,8 +206,7 @@ public class CommentService {
         return savedReply;
     }
 
-    private Comment createNewCommentEntity(NewComment newComment)
-            throws CommentException {
+    private Comment createNewCommentEntity(NewComment newComment) throws CommentException {
         Comment comment = new Comment();
         validateNewComment(newComment);
 
@@ -172,6 +214,7 @@ public class CommentService {
         comment.setText(newComment.getText());
         comment.setMediaUrl(newComment.getMediaUrl());
         comment.setMediaType(newComment.getMediaType());
+        comment.setNotificationEnabled(true);
         return comment;
     }
 
@@ -190,24 +233,17 @@ public class CommentService {
         Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findChildrenComments(
-                UserService.getUser(),
-                parentId,
-                pageable
-        ).map(CommentWithDerivedFields::toComment);
+        return commentRepository.findChildrenComments(UserService.getUser(), parentId, pageable)
+                .map(CommentWithDerivedFields::toComment);
     }
 
-    public Page<Comment> getPostComments(Long postId, PageOptions options)
-            throws AppException {
+    public Page<Comment> getPostComments(Long postId, PageOptions options) throws AppException {
         SortType sortType = options.getSortType();
         Sort sortOptions = commentSortTypeToSortOptionBuilder.toSortOption(sortType);
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
-        return commentRepository.findParentComments(
-                UserService.getUser(),
-                postId,
-                pageable
-        ).map(CommentWithDerivedFields::toComment);
+        return commentRepository.findParentComments(UserService.getUser(), postId, pageable)
+                .map(CommentWithDerivedFields::toComment);
     }
 
     public Comment getComment(Long id) throws CommentException {
@@ -216,15 +252,27 @@ public class CommentService {
     }
 
     private Comment getCommentWithoutDerivedFields(Long id) throws CommentException {
-        return commentRepository.findById(id)
+        return commentRepository.findByIdWithoutDerivedFields(UserService.getUser(), id)
                 .orElseThrow(() -> new CommentException("Comment not found"));
+    }
+
+    @Transactional
+    public void followComment(Long id) throws CommentException {
+        Comment comment = getCommentWithoutDerivedFields(id);
+        followActionInvoker.follow(comment);
+    }
+
+    @Transactional
+    public void unfollowComment(Long id) throws CommentException {
+        Comment comment = getCommentWithoutDerivedFields(id);
+        followActionInvoker.unFollow(comment);
     }
 
     /**
      * Read comment using write lock.
      */
     private Comment getCommentUsingLock(Long id) throws CommentException {
-        return commentRepository.findWithLockById(id)
+        return commentRepository.findWithLockById(UserService.getUser(), id)
                 .orElseThrow(() -> new CommentException("Comment not found"));
 
     }

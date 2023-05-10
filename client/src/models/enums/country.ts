@@ -1,5 +1,3 @@
-import { getFlagEmoji } from '../../utils/get-flag-emoji';
-
 /** Country Codes ISO 3166. From https://gist.github.com/evolkmann/740d24889c509c08484a8ff72af5dd64. */
 export enum Country {
   AF = 'Afghanistan',
@@ -60,7 +58,7 @@ export enum Country {
   CU = 'Cuba',
   CW = 'Curaçao',
   CY = 'Cyprus',
-  CZ = 'CzechRepublic',
+  CZ = 'Czech Republic',
   DK = 'Denmark',
   DJ = 'Djibouti',
   DM = 'Dominica',
@@ -181,7 +179,7 @@ export enum Country {
   PR = 'Puerto Rico',
   QA = 'Qatar',
   RE = 'Reunion',
-  MKD = 'Republic of North Macedonia',
+  MK = 'Republic of North Macedonia',
   RO = 'Romania',
   RU = 'Russian Federation',
   RW = 'Rwanda',
@@ -258,7 +256,15 @@ export function getCountryListOptions() {
 
     return {
       value: Country[code],
-      label: `${Country[code]} ${getFlagEmoji(countryCode)}`,
+      label: Country[code],
     };
+  });
+}
+
+export function getCountryCodeFromCountry(country?: string) {
+  return Object.keys(Country).find((countryCode) => {
+    const code = countryCode as keyof typeof Country;
+
+    return Country[code] === country;
   });
 }

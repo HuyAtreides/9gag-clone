@@ -1,0 +1,24 @@
+.editButton {
+  margin-left: 10px;
+}
+
+.avatar {
+  border-radius: 100%;
+  object-fit: cover;
+  width: 9vw;
+  height: 9vw;
+}
+
+@media screen and (max-width: 992px) {
+  .avatar {
+    width: 15vw;
+    height: 15vw;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .avatar {
+    width: 25vw;
+    height: 25vw;
+  }
+}

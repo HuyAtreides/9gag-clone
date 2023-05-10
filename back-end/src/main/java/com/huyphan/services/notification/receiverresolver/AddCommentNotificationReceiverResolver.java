@@ -1,5 +1,6 @@
 package com.huyphan.services.notification.receiverresolver;
 
+import com.huyphan.models.Post;
 import com.huyphan.models.User;
 import com.huyphan.services.UserService;
 import com.huyphan.services.notification.payload.CommentNotificationPayload;
@@ -16,12 +17,13 @@ public class AddCommentNotificationReceiverResolver implements NotificationRecei
     @Override
     public List<User> resolve(CommentNotificationPayload notificationPayload) {
         List<User> users = new ArrayList<>();
-        User postUser = notificationPayload.getComment().getPost().getUser();
-        if (postUser.equals(UserService.getUser())) {
+        Post post = notificationPayload.getComment().getPost();
+        User postOwner = post.getUser();
+        if (postOwner.equals(UserService.getUser()) || !post.isNotificationEnabled()) {
             return users;
         }
 
-        users.add(postUser);
+        users.add(postOwner);
         return users;
     }
 }

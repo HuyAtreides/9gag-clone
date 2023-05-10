@@ -24,7 +24,17 @@ interface AppCommentConstructorArguments {
 
   readonly isUpvoted: boolean;
 
+  readonly parentId: number | null;
+
   readonly isDownvoted: boolean;
+
+  readonly postId: number;
+
+  readonly replyToId: number | null;
+
+  readonly notificationEnabled: boolean;
+
+  readonly followed: boolean;
 }
 
 export default class AppComment {
@@ -46,11 +56,21 @@ export default class AppComment {
 
   readonly user: User;
 
+  readonly notificationEnabled: boolean;
+
   readonly totalChildren: number;
 
   readonly isUpvoted: boolean;
 
   readonly isDownvoted: boolean;
+
+  readonly parentId: number | null;
+
+  readonly postId: number;
+
+  readonly replyToId: number | null;
+
+  readonly followed: boolean;
 
   constructor(comment: AppCommentConstructorArguments) {
     this.id = comment.id;
@@ -72,11 +92,18 @@ export default class AppComment {
 
     this.user = comment.user;
 
+    this.parentId = comment.parentId;
+
     this.totalChildren = comment.totalChildren;
 
     this.isUpvoted = comment.isUpvoted;
 
+    this.followed = comment.followed;
+
     this.isDownvoted = comment.isDownvoted;
+    this.postId = comment.postId;
+    this.replyToId = comment.replyToId;
+    this.notificationEnabled = comment.notificationEnabled;
   }
 
   public getMediaLocation(): MediaLocation | undefined {

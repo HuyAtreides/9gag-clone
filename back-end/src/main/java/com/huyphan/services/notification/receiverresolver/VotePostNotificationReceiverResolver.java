@@ -1,5 +1,6 @@
 package com.huyphan.services.notification.receiverresolver;
 
+import com.huyphan.models.Post;
 import com.huyphan.models.User;
 import com.huyphan.services.UserService;
 import com.huyphan.services.notification.payload.VotePostNotificationPayload;
@@ -14,12 +15,13 @@ public class VotePostNotificationReceiverResolver implements
     @Override
     public List<User> resolve(VotePostNotificationPayload notificationPayload) {
         List<User> users = new ArrayList<>();
-        User postUser = notificationPayload.getPost().getUser();
-        if (postUser.equals(UserService.getUser())) {
+        Post post = notificationPayload.getPost();
+        User postOwner = post.getUser();
+        if (postOwner.equals(UserService.getUser()) || !post.isNotificationEnabled()) {
             return users;
         }
 
-        users.add(postUser);
+        users.add(postOwner);
         return users;
     }
 }

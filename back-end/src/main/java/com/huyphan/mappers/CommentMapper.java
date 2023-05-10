@@ -3,6 +3,7 @@ package com.huyphan.mappers;
 import com.huyphan.dtos.CommentDto;
 import com.huyphan.dtos.UserDto;
 import com.huyphan.models.Comment;
+import com.huyphan.models.Post;
 import java.time.Instant;
 import org.modelmapper.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +30,34 @@ public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto,
             return reply == null ? null : modelMapper.map(reply.getUser(), UserDto.class);
         };
 
+        Converter<Comment, Long> commentToIdConverter = (context) -> {
+            Comment comment = context.getSource();
+
+            return comment != null ? comment.getId() : null;
+        };
+
+        Converter<Post, Long> postToIdConverter = (context) -> {
+            Post post = context.getSource();
+
+            return post.getId();
+        };
+
         modelMapper.typeMap(Comment.class, CommentDto.class)
                 .addMappings(
                         mapper -> mapper.using(instantToStringConverter)
                                 .map(Comment::getDate, CommentDto::setDate))
                 .addMappings(
                         mapper -> mapper.using(replyToReplyDtoConverter)
-                                .map(Comment::getReplyTo, CommentDto::setReplyTo));
+                                .map(Comment::getReplyTo, CommentDto::setReplyTo))
+                .addMappings(
+                        mapper -> mapper.using(commentToIdConverter)
+                                .map(Comment::getParent, CommentDto::setParentId))
+                .addMappings(
+                        mapper -> mapper.using(commentToIdConverter)
+                                .map(Comment::getReplyTo, CommentDto::setReplyToId))
+                .addMappings(
+                        mapper -> mapper.using(postToIdConverter)
+                                .map(Comment::getPost, CommentDto::setPostId));
 
         modelMapper.typeMap(CommentDto.class, Comment.class).addMappings(
                 mapper -> mapper.using(stringToInstantConverter)

@@ -1,15 +1,16 @@
-import { CommentOutlined, LikeOutlined, MoreOutlined } from '@ant-design/icons';
-import { Button, List, Popover, Typography } from 'antd';
+import {
+  CheckSquareOutlined,
+  CommentOutlined,
+  LikeOutlined,
+  MoreOutlined,
+  PlusSquareOutlined,
+  SendOutlined,
+  UserAddOutlined,
+} from '@ant-design/icons';
+import { Button, List, Typography } from 'antd';
 import React, { ReactElement, useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
-import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
-import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
-import useRenderErrorMessage from '../../../custom-hooks/render-error-message';
-import { Constant } from '../../../models/enums/constant';
-import { NotificationType } from '../../../models/enums/notification-type';
-import Notification from '../../../models/notification';
-import PageOptions from '../../../models/page-options';
 import { useAppDispatch, useAppSelector } from '../../../Store';
 import {
   addNotifications,
@@ -21,8 +22,16 @@ import {
   resetNotificationState,
   setNotificationErrorMessage,
 } from '../../../Store/notification/notification-slice';
+import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
+import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
+import useRenderErrorMessage from '../../../custom-hooks/render-error-message';
+import { Constant } from '../../../models/enums/constant';
+import { NotificationType } from '../../../models/enums/notification-type';
+import Notification from '../../../models/notification';
+import PageOptions from '../../../models/page-options';
 import { IntervalIdContext } from './notifications-container/NotificationContainer';
 
+import AutoClosePopover from '../../../components/auto-close-popover/AutoClosePopover';
 import styles from './Notifications.module.scss';
 
 const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
@@ -30,13 +39,23 @@ const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
   [NotificationType.ADD_REPLY]: <CommentOutlined />,
   [NotificationType.VOTE_COMMENT]: <LikeOutlined />,
   [NotificationType.VOTE_POST]: <LikeOutlined />,
+  [NotificationType.FOLLOWING_POST_HAS_NEW_COMMENT]: <CommentOutlined />,
+  [NotificationType.ADD_POST]: <PlusSquareOutlined />,
+  [NotificationType.FOLLOW_USER]: <UserAddOutlined />,
+  [NotificationType.SEND_FOLLOW_REQUEST]: <SendOutlined />,
+  [NotificationType.FOLLOW_REQUEST_ACCEPTED]: <CheckSquareOutlined />,
 };
 
-const Notifications: React.FC = () => {
+interface Props {
+  setShowNotifications: (showNotifications: boolean) => void;
+}
+
+const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
   const dispatch = useAppDispatch();
   const notifications = useAppSelector((state) => state.notification.notifications);
   const page = useAppSelector((state) => state.notification.pagination?.page);
-  const isLast = useAppSelector((state) => state.notification.pagination?.isLast);
+  const pagination = useAppSelector((state) => state.notification.pagination);
+  const isLast = !pagination || pagination.isLast;
   const isLoading = useAppSelector((state) => state.notification.isLoading);
   const errorMessage = useAppSelector((state) => state.notification.errorMessage);
   const isGettingPage = useAppSelector((state) => state.notification.isGettingPage);
@@ -75,10 +94,11 @@ const Notifications: React.FC = () => {
   };
 
   const viewNotification = (notification: Notification, index: number) => {
+    setShowNotifications(false);
+    window.scrollTo(0, 0);
     if (notification.isViewed) {
       return;
     }
-
     dispatch(markAsViewed(index));
   };
 
@@ -101,31 +121,20 @@ const Notifications: React.FC = () => {
     <div className={styles.notifyContainer}>
       <div className={styles.notificationHeader}>
         <Typography.Title level={3}>Notifications</Typography.Title>
-        <Popover
-          placement='bottom'
-          trigger='click'
-          color='var(--overlay-background-color)'
+        <AutoClosePopover
           content={
-            <div className='more-action-box-container'>
-              <Button
-                type='text'
-                className='full-width-button'
-                onClick={clearNotifications}
-              >
+            <>
+              <Button type='text' block onClick={clearNotifications}>
                 Clear
               </Button>
-              <Button
-                type='text'
-                className='full-width-button'
-                onClick={viewAllNotification}
-              >
+              <Button type='text' block onClick={viewAllNotification}>
                 Read All
               </Button>
-            </div>
+            </>
           }
         >
           <Button type='text' icon={<MoreOutlined />} />
-        </Popover>
+        </AutoClosePopover>
       </div>
       <InfiniteScroll
         dataLength={notifications!.length}
@@ -145,11 +154,7 @@ const Notifications: React.FC = () => {
                 }`}
                 key={item.id}
               >
-                <Link
-                  reloadDocument
-                  to={item.destUrl}
-                  onClick={() => viewNotification(item, index)}
-                >
+                <Link to={item.destUrl} onClick={() => viewNotification(item, index)}>
                   <div className={styles.notificationDescriptionContainer}>
                     {NOTIFICATION_TYPE_TO_ICON_MAP[item.type]}
                     <Typography.Paragraph className={styles.notificationDescription}>

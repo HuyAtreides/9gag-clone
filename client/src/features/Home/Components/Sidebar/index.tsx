@@ -1,19 +1,25 @@
-import { BarChartOutlined, ClockCircleOutlined, StarFilled } from '@ant-design/icons';
-import { Menu, MenuProps, Typography } from 'antd';
-import { SyntheticEvent, useEffect, useMemo } from 'react';
+import {
+  BarChartOutlined,
+  ClockCircleOutlined,
+  SearchOutlined,
+  StarFilled,
+} from '@ant-design/icons';
+import { Drawer, Menu, MenuProps, Typography } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
-import useProtectedAction from '../../../../custom-hooks/protected-action';
-import { SortType } from '../../../../models/enums/sort-type';
-import Section from '../../../../models/section';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   addSectionToUserFavorite,
   getFavoriteSections,
   removeSectionFromUserFavorite,
 } from '../../../../Store/user/user-dipatchers';
+import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
+import useProtectedAction from '../../../../custom-hooks/protected-action';
+import { SortType } from '../../../../models/enums/sort-type';
+import Section from '../../../../models/section';
 import isInEnum from '../../../../utils/is-in-enum';
 import styles from './Sidebar.module.scss';
+import UserSearch from '../../../../components/user-search/UserSearch';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -43,11 +49,12 @@ const Sidebar = () => {
   const selectedTags = tag ? [tag] : undefined;
   const selectedSections = section ? [section] : undefined;
   const navTag = tag ? tag : SortType.FRESH;
-
-  const preventNavigate = (event: SyntheticEvent) => {};
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(getFavoriteSections());
+    if (user) {
+      dispatch(getFavoriteSections());
+    }
   }, [user, dispatch]);
 
   const items = useMemo<MenuItem[]>(() => {
@@ -84,7 +91,6 @@ const Sidebar = () => {
           <Link
             to={`/tag/${navTag}/${section.name}`}
             className={styles.text}
-            onClick={preventNavigate}
             title={section.displayName}
           >
             {section.displayName}
@@ -117,7 +123,6 @@ const Sidebar = () => {
             <Link
               to={`/tag/${navTag}/${section.name}`}
               className={styles.text}
-              onClick={preventNavigate}
               title={section.displayName}
             >
               {section.displayName}
@@ -146,6 +151,35 @@ const Sidebar = () => {
     <div className={styles.sidebar}>
       <Typography.Title className={styles.title}>9GAG</Typography.Title>
       <Menu mode='inline' selectedKeys={selectedTags} items={items} />
+
+      <AuthenticatedGuard
+        component={
+          <div className={styles.userSearch}>
+            <Typography.Title className={styles.title}>Search Users</Typography.Title>
+            <Menu
+              mode='inline'
+              selectable={false}
+              onClick={() => setOpen(true)}
+              items={[
+                getItem(
+                  <span className={styles.section}>Search</span>,
+                  'search',
+                  <SearchOutlined />,
+                ),
+              ]}
+            />
+            <Drawer
+              placement='right'
+              visible={open}
+              closable={true}
+              onClose={() => setOpen(false)}
+            >
+              <UserSearch />
+            </Drawer>
+          </div>
+        }
+      />
+
       <AuthenticatedGuard
         component={
           <>

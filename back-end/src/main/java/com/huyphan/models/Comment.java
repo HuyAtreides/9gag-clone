@@ -1,5 +1,7 @@
 package com.huyphan.models;
 
+import com.huyphan.services.followactioninvoker.Followable;
+import com.huyphan.services.togglenotificationinvoker.Notifiable;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -24,6 +26,7 @@ import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Fetch;
@@ -36,6 +39,8 @@ import org.hibernate.annotations.Nationalized;
 @Entity
 @NamedEntityGraphs({
         @NamedEntityGraph(name = "CommentEntityGraph", attributeNodes = {
+                @NamedAttributeNode(value = "parent"),
+                @NamedAttributeNode(value = "post"),
                 @NamedAttributeNode(value = "replyTo", subgraph = "CommentEntityGraph"),
                 @NamedAttributeNode(value = "user")
         }, subgraphs = {
@@ -46,7 +51,7 @@ import org.hibernate.annotations.Nationalized;
 })
 @DynamicInsert
 @DynamicUpdate
-public class Comment {
+public class Comment implements Followable, Notifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,42 +83,52 @@ public class Comment {
     private String mediaType;
     @Column(name = "CommentDate")
     private Instant date;
+    @Column(name = "NotificationEnabled")
+    private boolean notificationEnabled;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ParentId")
     private Comment parent;
     @OneToMany(mappedBy = "parent")
     @Fetch(FetchMode.SUBSELECT)
     private Set<Comment> children = new LinkedHashSet<>();
-
     @ManyToMany
     @JoinTable(name = "UpvotedComment",
             joinColumns = @JoinColumn(name = "CommentId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     @Fetch(FetchMode.SUBSELECT)
     private Set<User> usersUpvote = new LinkedHashSet<>();
-
     @ManyToMany
     @JoinTable(name = "DownvotedComment",
             joinColumns = @JoinColumn(name = "CommentId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     @Fetch(FetchMode.SUBSELECT)
     private Set<User> usersDownvote = new LinkedHashSet<>();
-
+    @ManyToMany
+    @JoinTable(name = "CommentFollower",
+            joinColumns = @JoinColumn(name = "CommentId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
+    private Set<User> followers = new LinkedHashSet<>();
     @Transient
     private boolean isUpvoted;
-
     @Transient
     private boolean isDownvoted;
-
     @Transient
     private int totalChildren;
+    @Transient
+    private boolean followed;
+
+    @Override
+    public User getOwner() {
+        return user;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(
+                o)) {
             return false;
         }
         Comment comment = (Comment) o;

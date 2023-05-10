@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MediaLocation from '../models/media-location';
+import { MediaType } from '../models/enums/constant';
 
 const useUploadGif = (
   initialGifLocation: MediaLocation | undefined,
@@ -8,7 +9,7 @@ const useUploadGif = (
   React.Dispatch<React.SetStateAction<MediaLocation | undefined>>,
 ] => {
   const [gifLocation, setGifLocation] = useState<MediaLocation | undefined>(
-    initialGifLocation,
+    initialGifLocation?.type !== MediaType.Gif ? undefined : initialGifLocation,
   );
 
   return [gifLocation, setGifLocation];

@@ -1,47 +1,39 @@
-import { Layout } from 'antd';
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import UserSearch from '../../components/user-search/UserSearch';
+import SideBarLayout from '../../layout/sidebar-layout/SidebarLayout';
 import PostWithComment from './Components/post-with-comment/PostWithComment';
-import Sidebar from './Components/Sidebar';
 import styles from './Home.module.scss';
 import PostList from './pages/post-list/PostList';
-
-const { Sider, Content } = Layout;
+import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
 
 interface IHomeProp {
-  sideBarCollapse: boolean;
+  readonly sideBarCollapse: boolean;
+  readonly setSideBarCollapse: (collapse: boolean) => void;
 }
 
-const Home: React.FC<IHomeProp> = ({ sideBarCollapse }) => {
+const Home: React.FC<IHomeProp> = ({ sideBarCollapse, setSideBarCollapse }) => {
   return (
-    <Layout className={styles.home}>
-      <Sider
-        breakpoint='lg'
-        collapsed={sideBarCollapse}
-        collapsedWidth={0}
-        className={styles.sidebar}
-      >
-        <Sidebar />
-      </Sider>
-
-      {sideBarCollapse ? (
-        <div className={styles['collapsed-spacer']}></div>
-      ) : (
-        <>
-          <div className={styles.spacer}></div>
-          <div className='overlay-background'></div>
-        </>
-      )}
-
-      <Content className={styles.content}>
-        <Routes>
-          <Route path=':id' element={<PostWithComment />} />
-          <Route path='' element={<PostList />} />
-        </Routes>
-      </Content>
-
-      <div className={styles.rightSpacer}></div>
-    </Layout>
+    <SideBarLayout
+      sideBarCollapse={sideBarCollapse}
+      setSideBarCollapse={setSideBarCollapse}
+    >
+      <div className={styles.container}>
+        <div className={styles.homeContent}>
+          <Routes>
+            <Route path=':id' element={<PostWithComment />} />
+            <Route path='' element={<PostList />} />
+          </Routes>
+        </div>
+        <AuthenticatedGuard
+          component={
+            <div className={styles.userSearch}>
+              <UserSearch />
+            </div>
+          }
+        />
+      </div>
+    </SideBarLayout>
   );
 };
 

@@ -85,7 +85,7 @@ public class AWSS3Util {
     private String generateObjectKey(MultipartFile multipartFile) {
         Instant instant = Instant.now();
         String fileName = multipartFile.getOriginalFilename().replace(" ", "_");
-        return instant.getNano() + "-" + fileName;
+        return instant.getEpochSecond() + "-" + fileName;
     }
 
     private String getObjectKeyFromUrl(String url) {

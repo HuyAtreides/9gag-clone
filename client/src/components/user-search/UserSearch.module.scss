@@ -1,0 +1,17 @@
+.searchBox {
+  margin-top: 10px;
+}
+
+.searchContainer {
+  position: relative;
+}
+
+.searchResult {
+  position: absolute;
+  width: 100%;
+  top: 100%;
+  margin-top: 5px;
+  padding: 10px 10px 3px 10px;
+  border-radius: var(--border-radius-base);
+  background-color: var(--search-result-background-color);
+}

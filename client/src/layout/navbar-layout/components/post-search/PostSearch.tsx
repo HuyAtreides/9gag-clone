@@ -1,32 +1,28 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Button, Input, Popover } from 'antd';
+import { Button, Input } from 'antd';
 import { debounce } from 'lodash';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
-import { Constant } from '../../../../models/enums/constant';
 import { useAppDispatch } from '../../../../Store';
 import { setSearchTerm } from '../../../../Store/post/post-slice';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
+import { Constant } from '../../../../models/enums/constant';
 import styles from './PostSearch.module.scss';
 
 const PostSearch: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [showSearch, setShowSearch] = useState(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSearch = useCallback(
     debounce((e: React.ChangeEvent<HTMLInputElement>) => {
       dispatch(setSearchTerm(e.target.value));
-      setShowSearch(false);
     }, Constant.DebounceTimeInMiliSeconds),
     [],
   );
 
   return (
-    <Popover
-      placement='bottom'
-      trigger='click'
-      onVisibleChange={(visible) => setShowSearch(visible)}
-      visible={showSearch}
+    <AutoClosePopover
+      closeAfterClicked={false}
       content={
         <div className={styles.searchContainer}>
           <Input
@@ -41,7 +37,7 @@ const PostSearch: React.FC = () => {
       }
     >
       <Button shape='circle' icon={<SearchOutlined />} className={styles.iconCollapse} />
-    </Popover>
+    </AutoClosePopover>
   );
 };
 

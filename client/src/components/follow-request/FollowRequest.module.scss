@@ -1,0 +1,25 @@
+.followRequestButton {
+  height: auto;
+  display: block;
+  width: 100%;
+  text-align: inherit;
+  margin-bottom: 15px;
+}
+
+.modal {
+  width: 65vw !important;
+}
+
+@media screen and (max-width: 992px) {
+  .modal {
+    margin: auto;
+    width: 90vw !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .modal {
+    margin: auto;
+    width: 100vw !important;
+  }
+}

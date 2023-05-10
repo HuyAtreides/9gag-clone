@@ -1,39 +1,35 @@
 import { Button } from 'antd';
 import React, { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import {
+  getChildrenComment,
+  getPriorityComments,
+} from '../../../../Store/comment/comment-dispatchers';
 import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
-import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import AppComment from '../../../../models/comment';
 import { Constant } from '../../../../models/enums/constant';
-import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
 import { CommentQueryParamMapper } from '../../../../services/mappers/comment-query-param-mapper';
-import {
-  appendSingleComment,
-  getChildrenComment,
-  reply,
-} from '../../../../Store/comment/comment-dispatchers';
-import { CommentContext } from '../../context/comment-context';
+import { CommentSortTypeContext } from '../ParentComment/ParentComment';
+
 import PostComment from '../PostComment/PostComment';
 
 interface Props {
-  readonly showEditor: boolean;
   readonly parent: AppComment;
-  readonly handleCancel: () => void;
 }
 
-const ChildComment: React.FC<Props> = ({ showEditor, parent, handleCancel }: Props) => {
-  const { state, dispatch, sortType } = useContext(CommentContext)!;
-  const { pagination } = state;
-  const currentChildren = (pagination?.size || 0) * ((pagination?.page || 0) + 1);
+const ChildComment: React.FC<Props> = ({ parent }: Props) => {
+  const dispatch = useAppDispatch();
+  const sortType = useContext(CommentSortTypeContext);
+  const commentState = useAppSelector((state) => state.comment[parent.id]);
+  const commentRecord = useAppSelector((state) => state.comment);
+  const { pagination } = commentState;
+  const currentChildren = commentState.childrenId.length;
   const totalChildrenLeft = parent.totalChildren - currentChildren;
   const hasMoreReplies = totalChildrenLeft > 0 || (pagination && !pagination.isLast);
   const [searchParams] = useSearchParams();
   const { commentId, parentId, replyToId } =
     CommentQueryParamMapper.fromDto(searchParams);
-
-  const handleReply = async (values: CommentUploadFormData) => {
-    await reply(values, parent.id)(state, dispatch);
-  };
 
   const getComments = () => {
     const pageOptions = {
@@ -41,7 +37,12 @@ const ChildComment: React.FC<Props> = ({ showEditor, parent, handleCancel }: Pro
       size: pagination ? pagination.size : Constant.PageSize,
       sortType,
     };
-    getChildrenComment(parent.id, pageOptions)(state, dispatch);
+    dispatch(
+      getChildrenComment({
+        pageOptions,
+        parentId: parent.id,
+      }),
+    );
   };
 
   useEffect(() => {
@@ -49,29 +50,27 @@ const ChildComment: React.FC<Props> = ({ showEditor, parent, handleCancel }: Pro
       return;
     }
 
-    (async () => {
-      if (replyToId && replyToId !== parentId) {
-        await appendSingleComment(replyToId)(state, dispatch);
-      }
+    const priorityIds = [];
+    if (replyToId && replyToId !== parentId) {
+      priorityIds.push(replyToId);
+    }
 
-      if (commentId) {
-        appendSingleComment(commentId)(state, dispatch);
-      }
-    })();
+    if (commentId) {
+      priorityIds.push(commentId);
+    }
+
+    dispatch(getPriorityComments(parent.id, priorityIds));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [commentId, parentId, replyToId]);
 
   return (
     <>
-      {showEditor ? (
-        <CommentEditor handleSubmit={handleReply} handleCancel={handleCancel} />
-      ) : null}
-
-      {state.comments.map((comment, _) => (
-        <PostComment comment={comment} key={comment.id} />
+      {commentState.childrenId.map((id, _) => (
+        <PostComment comment={commentRecord[id].comment!} key={id} />
       ))}
 
-      {state.isLoading ? <CenterSpinner /> : null}
+      {commentState.isLoading ? <CenterSpinner /> : null}
 
       {hasMoreReplies ? (
         <Button

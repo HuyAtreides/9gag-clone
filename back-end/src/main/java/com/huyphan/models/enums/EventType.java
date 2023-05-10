@@ -1,5 +1,6 @@
 package com.huyphan.models.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -11,4 +12,8 @@ public enum EventType {
     VOTE_COMMENT,
     CREATE_COMMENT,
     ADD_REPLY,
+    ADD_POST,
+    FOLLOW_USER,
+    SEND_FOLLOW_REQUEST,
+    FOLLOW_REQUEST_ACCEPTED;
 }

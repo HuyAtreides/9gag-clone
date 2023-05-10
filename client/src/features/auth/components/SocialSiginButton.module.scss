@@ -1,0 +1,17 @@
+.socialSignInButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 25px !important;
+}
+
+.googleSocialIcon {
+  font-size: 2rem;
+  color: var(--google-logo-color);
+}
+
+.facebookSocialIcon {
+  font-size: 2rem;
+  color: var(--facebook-logo-color);
+}

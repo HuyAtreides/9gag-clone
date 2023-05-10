@@ -1,13 +1,14 @@
 import { BellFilled } from '@ant-design/icons';
 import { Badge, Button, Popover } from 'antd';
-import React, { useEffect, useRef } from 'react';
-import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   countNotViewed,
   initialize,
 } from '../../../../Store/notification/notification-dispatchers';
 import { clearNotViewedCount } from '../../../../Store/notification/notification-slice';
+import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
+import { abbreviateNumber } from '../../../../utils/abbreviate-number';
 import styles from '../../Navbar.module.scss';
 import Notifications from '../Notifications';
 
@@ -23,6 +24,7 @@ const NotificationContainer: React.FC = () => {
   const intervalRef = useRef<Promise<undefined | NodeJS.Timer>>(
     promiseWithUndefinedValue,
   );
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const clearNotViewedNotificationsCount = () => {
     dispatch(clearNotViewedCount());
@@ -44,14 +46,17 @@ const NotificationContainer: React.FC = () => {
       component={
         <Popover
           placement='bottom'
+          getPopupContainer={(container) => container.parentElement!}
           trigger='click'
+          visible={showNotifications}
+          onVisibleChange={setShowNotifications}
           content={
             <IntervalIdContext.Provider value={intervalRef.current}>
-              <Notifications />
+              <Notifications setShowNotifications={setShowNotifications} />
             </IntervalIdContext.Provider>
           }
         >
-          <Badge count={notViewedCount}>
+          <Badge count={abbreviateNumber(notViewedCount)}>
             <Button
               shape='circle'
               icon={<BellFilled />}

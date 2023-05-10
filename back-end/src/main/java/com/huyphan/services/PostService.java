@@ -1,8 +1,10 @@
 package com.huyphan.services;
 
+import com.huyphan.events.AddPostEvent;
 import com.huyphan.events.DeletePostEvent;
 import com.huyphan.events.VotePostEvent;
 import com.huyphan.mediators.IMediator;
+import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
@@ -11,8 +13,11 @@ import com.huyphan.models.User;
 import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UserException;
 import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
+import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
+import com.huyphan.services.togglenotificationinvoker.IToggleNotificationInvoker;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import lombok.Getter;
@@ -28,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Getter
 @Setter
-public class PostService {
+public class PostService implements MediatorComponent {
 
     @Autowired
     private PostRepository postRepository;
@@ -40,18 +45,37 @@ public class PostService {
     private VoteableObjectManager<Post> voteablePostManager;
     @Autowired
     private UserService userService;
+    @Autowired
+    private IFollowActionInvoker followActionInvoker;
+    @Autowired
+    private IToggleNotificationInvoker toggleNotificationInvoker;
 
     private IMediator mediator;
 
-    public void addNewPost(NewPost newPost) {
+    @Transactional(rollbackFor = {AppException.class})
+    public void addNewPost(NewPost newPost) throws AppException {
         Post post = new Post();
-        post.setUser(UserService.getUser());
+        post.setUser(userService.getCurrentUser());
         post.setSection(newPost.getSection());
         post.setMediaUrl(newPost.getMediaUrl());
         post.setMediaType(newPost.getMediaType());
         post.setTitle(newPost.getTitle());
         post.setTags(newPost.getTags());
-        postRepository.save(post);
+        post.setNotificationEnabled(true);
+        post.setAnonymous(newPost.isAnonymous());
+        Post savedPost = postRepository.save(post);
+        mediator.notify(new AddPostEvent(savedPost));
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void setAnonymous(Long id, boolean value) throws PostException {
+        Post post = getPostWithoutDerivedFields(id);
+
+        if (!post.getOwner().equals(UserService.getUser())) {
+            throw  new PostException("Post not found");
+        }
+
+        post.setAnonymous(value);
     }
 
     public Slice<Post> getAllPost(PageOptions options) throws AppException {
@@ -65,11 +89,40 @@ public class PostService {
         return page.map(PostWithDerivedFields::toPost);
     }
 
+    @Transactional(rollbackFor = {AppException.class})
+    public void followPost(Long id) throws AppException {
+        Post post = getPostWithoutDerivedFields(id);
+        followActionInvoker.follow(post);
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void unFollowPost(Long id) throws AppException {
+        Post post = getPostWithoutDerivedFields(id);
+        followActionInvoker.unFollow(post);
+    }
+
+    public Slice<Post> getFollowingPost(Long userId, PageOptions options) throws AppException {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
+        String searchTerm = getSearchTerm(options.getSearch());
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        return postRepository.findFollowingPost(
+                user,
+                currentUser,
+                searchTerm,
+                pageable
+        ).map(PostWithDerivedFields::toPost);
+    }
+
     public Slice<Post> getAllPostsWithinSection(PageOptions options, String sectionName)
             throws AppException {
         SortType sortType = options.getSortType();
         Sort sortOptions = postSortTypeToSortOptionBuilder.toSortOption(sortType);
-
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
 
         return postRepository.findBySectionName(
@@ -84,7 +137,7 @@ public class PostService {
             return "\"\"";
         }
 
-        return search;
+        return "\"" + "*" + search + "*" + "\"";
     }
 
     @Transactional(rollbackFor = {AppException.class})
@@ -101,22 +154,71 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = {AppException.class})
     public void addNewComment(Long postId, Comment comment) throws PostException {
         comment.setPost(getPostWithoutDerivedFields(postId));
     }
 
-    public Slice<Post> getSavedPosts(PageOptions options) {
-        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+    @Transactional(rollbackFor = {AppException.class})
+    public void toggleNotification(Long id, boolean value) throws AppException {
+        Post post = getPostWithoutDerivedFields(id);
+        toggleNotificationInvoker.toggle(post, value);
+    }
 
-        return postRepository.findSavedPost(UserService.getUser(), pageable)
+    public Slice<Post> getSavedPosts(Long userId, PageOptions options) throws AppException {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        String searchTerm = getSearchTerm(options.getSearch());
+        return postRepository.findSavedPost(
+                        user,
+                        currentUser,
+                        searchTerm,
+                        pageable
+                )
                 .map(PostWithDerivedFields::toPost);
     }
 
-    public Slice<Post> getVotedPosts(PageOptions options) {
+    public Slice<Post> getVotedPosts(Long userId, PageOptions options) throws AppException {
         Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
+        String searchTerm = getSearchTerm(options.getSearch());
 
-        return postRepository.findVotedPost(UserService.getUser(), pageable)
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        return postRepository.findVotedPost(
+                        user,
+                        currentUser,
+                        searchTerm,
+                        pageable
+                )
+                .map(PostWithDerivedFields::toPost);
+    }
+
+    public Slice<Post> getUserPosts(Long userId, PageOptions options) throws AppException {
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        User user = userService.getUserById(userId);
+        User currentUser = UserService.getUser();
+        String searchTerm = getSearchTerm(options.getSearch());
+
+        if (!user.equals(currentUser) && user.getIsPrivate() && !user.isFollowed()) {
+            throw new AppException("User profile is private. Follow to view this user profile!");
+        }
+
+        return postRepository.findUserPost(
+                        user,
+                        currentUser,
+                        searchTerm,
+                        pageable
+                )
                 .map(PostWithDerivedFields::toPost);
     }
 
@@ -172,22 +274,24 @@ public class PostService {
     }
 
     public Post getPostWithoutDerivedFields(Long id) throws PostException {
-        return postRepository.findById(id)
+        return postRepository.findById(id, UserService.getUser())
                 .orElseThrow(() -> new PostException("Post not found"));
     }
 
     public Post getPostUsingLock(Long id) throws PostException {
-        return postRepository.findWithLockById(id)
+        return postRepository.findWithLockById(id, UserService.getUser())
                 .orElseThrow(() -> new PostException("Post not found"));
     }
 
+    @Transactional(rollbackFor = {AppException.class})
     public void savePost(Long id) throws PostException {
-        Post post = getPost(id);
-        userService.savePost(post);
+        Post post = getPostWithoutDerivedFields(id);
+        post.getSaveUsers().add(UserService.getUser());
     }
 
+    @Transactional(rollbackFor = {AppException.class})
     public void removeSavedPost(Long id) throws PostException {
         Post post = getPost(id);
-        userService.removeSavedPost(post);
+        post.getSaveUsers().remove(UserService.getUser());
     }
 }

@@ -24,4 +24,14 @@ export default interface CommentDto {
   readonly isUpvoted: boolean;
 
   readonly isDownvoted: boolean;
+
+  readonly parentId: number | null;
+
+  readonly postId: number;
+
+  readonly replyToId: number | null;
+
+  readonly notificationEnabled: boolean;
+
+  readonly followed: boolean;
 }

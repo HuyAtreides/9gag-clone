@@ -1,17 +1,29 @@
 import { message } from 'antd';
 import { AppThunk } from '..';
 import { Pagination } from '../../models/page';
-import PageOptions from '../../models/page-options';
 import Post from '../../models/post';
+import { PostsFetchingRequest } from '../../models/requests/posts-fetching-request';
+import { UserSpecificPostFetchingRequest } from '../../models/requests/user-specific-posts-fetching-request';
 import { UploadPostFormData } from '../../models/upload-post-form-data';
 import {
   addNewPost,
   deletePost,
+  disablePostAnonymous,
   downvote,
+  enablePostAnonymous,
+  followPost,
+  getFollowingPostList,
   getPostList,
+  getSavedPostList,
   getSpecificPost,
+  getUpvotedPostList,
+  getUserPostList,
+  PostFetchingFunc,
   savePost,
+  turnOffPostNotifications,
+  turnOnPostNotifications,
   unDownvote,
+  unFollowPost,
   unSavePost,
   unUpvote,
   upvote,
@@ -24,20 +36,30 @@ import {
   setIsGettingPage,
   setIsLoading,
   setPagination,
+  setPostAnonymous,
   setPostDownvotes,
   setPostErrorMessage,
+  setPostFollowed,
   setPostIsSaved,
   setPosts,
   setPostUpvotes,
+  setSendNotifications,
 } from './post-slice';
 
-export const getPosts =
-  (pageOptions: PageOptions, section?: string): AppThunk =>
+export type FetchPostsThunkAction<T extends PostsFetchingRequest> = (
+  postsFetchingRequest: T,
+) => AppThunk;
+
+const getPostsDispatcher =
+  <T extends PostsFetchingRequest>(
+    postsFetchingRequest: T,
+    fetchPost: PostFetchingFunc<T>,
+  ): AppThunk =>
   async (dispatch, getState) => {
     try {
       dispatch(setIsLoading(true));
 
-      const pageOfPosts = await getPostList(pageOptions, section);
+      const pageOfPosts = await fetchPost(postsFetchingRequest);
 
       const pagination: Pagination = {
         size: pageOfPosts.size,
@@ -54,28 +76,16 @@ export const getPosts =
     }
   };
 
-export const getPost =
-  (id: number): AppThunk =>
-  async (dispatch, getState) => {
-    try {
-      dispatch(setIsLoading(true));
-      const post = await getSpecificPost(id);
-      dispatch(setPosts([post]));
-      dispatch(setIsLoading(false));
-    } catch (error: unknown) {
-      dispatch(setIsLoading(false));
-      dispatch(setPosts([]));
-      handleError(dispatch, error, setPostErrorMessage);
-    }
-  };
-
-export const addNewPosts =
-  (pageOptions: PageOptions, section?: string): AppThunk =>
+const addNewPostsDispatcher =
+  <T extends PostsFetchingRequest>(
+    postsFetchingRequest: T,
+    fetchPost: PostFetchingFunc<T>,
+  ): AppThunk =>
   async (dispatch, getState) => {
     try {
       dispatch(setIsGettingPage(true));
 
-      const pageOfPosts = await getPostList(pageOptions, section);
+      const pageOfPosts = await fetchPost(postsFetchingRequest);
 
       const pagination: Pagination = {
         size: pageOfPosts.size,
@@ -87,6 +97,66 @@ export const addNewPosts =
       dispatch(setPagination(pagination));
       dispatch(appendNewPosts(pageOfPosts.content));
     } catch (error: unknown) {
+      dispatch(setIsGettingPage(false));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const getPosts = (postsFetchingRequest: PostsFetchingRequest): AppThunk => {
+  return getPostsDispatcher(postsFetchingRequest, getPostList);
+};
+
+export const getSavedPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+): AppThunk => {
+  return getPostsDispatcher(postsFetchingRequest, getSavedPostList);
+};
+
+export const getUpvotedPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+): AppThunk => {
+  return getPostsDispatcher(postsFetchingRequest, getUpvotedPostList);
+};
+
+export const getUserPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+): AppThunk => {
+  return getPostsDispatcher(postsFetchingRequest, getUserPostList);
+};
+
+export const addNewPosts = (postsFetchingRequest: PostsFetchingRequest) => {
+  return addNewPostsDispatcher(postsFetchingRequest, getPostList);
+};
+
+export const addNewSavedPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+) => {
+  return addNewPostsDispatcher(postsFetchingRequest, getSavedPostList);
+};
+
+export const addNewUpvotedPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+) => {
+  return addNewPostsDispatcher(postsFetchingRequest, getUpvotedPostList);
+};
+
+export const addNewUserPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+) => {
+  return addNewPostsDispatcher(postsFetchingRequest, getUserPostList);
+};
+
+export const getPost =
+  (id: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsLoading(true));
+      const post = await getSpecificPost(id);
+      dispatch(setPosts([post]));
+      dispatch(setIsLoading(false));
+    } catch (error: unknown) {
+      dispatch(setIsLoading(false));
+      dispatch(setPosts([]));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
@@ -167,6 +237,7 @@ export const uploadNewPost =
         mediaType: mediaLocation.type,
         mediaUrl: mediaLocation.url,
         tags: newPostFormData.tags,
+        anonymous: newPostFormData.anonymous,
       });
       dispatch(setIsLoading(false));
       message.success('Add new post successfully');
@@ -176,14 +247,39 @@ export const uploadNewPost =
     }
   };
 
+export const enableAnonymous =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPostAnonymous(post));
+      message.success('Post is now anonymous!');
+      await enablePostAnonymous(post.id);
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const disableAnonymous =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPostAnonymous(post));
+      message.success('Post is no longer anonymous!');
+      await disablePostAnonymous(post.id);
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
 export const save =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      savePost(post.id);
       dispatch(setPostIsSaved(post));
       message.success('Post saved!');
+      await savePost(post.id);
     } catch (error: unknown) {
+      dispatch(setPostIsSaved(post));
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
@@ -204,10 +300,73 @@ export const unSave =
   (post: Post): AppThunk =>
   async (dispatch, getState) => {
     try {
-      unSavePost(post.id);
       dispatch(setPostIsSaved(post));
       message.success('Post unsaved!');
+      await unSavePost(post.id);
+    } catch (error: unknown) {
+      dispatch(setPostIsSaved(post));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const follow =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPostFollowed(post));
+      message.success('Post followed!');
+      await followPost(post.id);
+    } catch (error: unknown) {
+      dispatch(setPostFollowed(post));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const unFollow =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPostFollowed(post));
+      message.success('Post un followed!');
+      await unFollowPost(post.id);
+    } catch (error: unknown) {
+      dispatch(setPostFollowed(post));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const turnOnNotification =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      turnOnPostNotifications(post.id);
+      dispatch(setSendNotifications(post));
+      message.success('You will now receive notifications from this post!');
     } catch (error: unknown) {
       handleError(dispatch, error, setPostErrorMessage);
     }
   };
+
+export const turnOffNotification =
+  (post: Post): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      turnOffPostNotifications(post.id);
+      dispatch(setSendNotifications(post));
+      message.success("You won't receive notifications from this post!");
+    } catch (error: unknown) {
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const getFollowingPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+): AppThunk => {
+  return getPostsDispatcher(postsFetchingRequest, getFollowingPostList);
+};
+
+export const addNewFollowingPosts = (
+  postsFetchingRequest: UserSpecificPostFetchingRequest,
+) => {
+  return addNewPostsDispatcher(postsFetchingRequest, getFollowingPostList);
+};

@@ -1,40 +1,30 @@
-.home {
+.homeContent {
+  width: 68%;
+}
+
+.userSearch {
+  position: fixed;
+  right: 3px;
+  width: calc(100vw - 77%);
+  padding: 0 10px 0 20px;
+}
+
+.container {
   display: flex;
-  justify-content: center;
-  position: relative;
+}
 
-  .sidebar {
-    overflow: auto;
-    height: 100vh;
-    position: fixed;
-    z-index: 2;
-    padding-bottom: 50px;
-
-    top: 50px;
-    left: 0;
-    bottom: 0;
-  }
-  .content {
-    margin-top: 20px;
+@media screen and (max-width: 992px) {
+  .homeContent {
+    width: 95%;
   }
 
-  .spacer {
-    width: 20%;
+  .userSearch {
+    display: none;
   }
+}
 
-  .rightSpacer {
-    width: 25%;
-  }
-
-  .collapsed-spacer {
-    width: 10%;
-  }
-
-  @media screen and (max-width: 768px) {
-    .collapsed-spacer,
-    .spacer,
-    .rightSpacer {
-      display: none;
-    }
+@media screen and (max-width: 768px) {
+  .homeContent {
+    width: 100%;
   }
 }

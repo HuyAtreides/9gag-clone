@@ -15,6 +15,12 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends CrudRepository<Post, Long> {
 
+    String PRIVATE_USER_POST_FILTER = """
+            (post.user = :user or post.user.isPrivate = false or (
+                :user in elements(post.user.followers))
+            )
+            """;
+
     String SELECT_STATEMENT = """
                 select
                     post as post,
@@ -41,7 +47,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                         select count(*)
                         from Comment comment
                         where comment.post = post
-                    ) as totalComments
+                    ) as totalComments,
+                    
+                    (
+                        select case when (count(*) > 0) then true else false end
+                        from Post followedPost
+                        where followedPost.id = post.id and :user in elements(followedPost.followers)
+                    ) as followed
             """;
 
     String SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD =
@@ -54,38 +66,145 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                         )
                     ) as isInUserFavSections
                     """;
+    String BLOCKED_POST_OWNER_RESTRICTION = """
+            (
+                not exists (
+                                select userBlockRecord
+                                from UserBlockRecord userBlockRecord
+                                where (
+                                        userBlockRecord.blocked = post.user
+                                        and userBlockRecord.blocker = :user
+                                      ) or
+                                      (
+                                        userBlockRecord.blocked = :user
+                                        and userBlockRecord.blocker = post.user
+                                      )
+                           )
+            )
+            """;
+
+    String BLOCKED_USER_RESTRICTION = """
+            (
+                not exists (
+                                select userBlockRecord
+                                from UserBlockRecord userBlockRecord
+                                where (
+                                        userBlockRecord.blocked = :requestUser
+                                        and userBlockRecord.blocker = :user
+                                      ) or
+                                      (
+                                        userBlockRecord.blocked = :user
+                                        and userBlockRecord.blocker = :requestUser
+                                      )
+                           )
+            )
+            """;
+
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT + """
+            from Post post inner join post.saveUsers saveUser
+            where :requestUser = saveUser and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
+                or freetext(post.title, :searchTerm) = true
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            ) and 
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
+    Slice<PostWithDerivedFields> findSavedPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where :user in elements(post.saveUsers)
-            """)
-    Slice<PostWithDerivedFields> findSavedPost(@Param("user") User user, Pageable pageable);
+            where :requestUser in elements(post.upvoteUsers) and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
+                or freetext(post.title, :searchTerm) = true
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            ) and 
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
+    Slice<PostWithDerivedFields> findVotedPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
+
+    @EntityGraph("PostEntityGraph")
+    @Query(SELECT_STATEMENT + """
+            from Post post inner join post.followers follower
+            where :requestUser = follower and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
+                or freetext(post.title, :searchTerm) = true
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            ) and
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
+    Slice<PostWithDerivedFields> findFollowingPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where :user in elements(post.upvoteUsers)
-            """)
-    Slice<PostWithDerivedFields> findVotedPost(@Param("user") User user, Pageable pageable);
+            where :requestUser = post.user and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
+                or freetext(post.title, :searchTerm) = true
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            ) and
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
+    Slice<PostWithDerivedFields> findUserPost(
+            @Param("requestUser") User requestUser,
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT + """
             from Post post
-            where post.id = :id
-            """)
+            where post.id = :id and 
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Optional<PostWithDerivedFields> findByPostId(@Param("user") User user, Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Post> findWithLockById(Long id);
+    @Query("""
+            select post
+            from Post post
+            where post.id = :id and 
+            """ + BLOCKED_POST_OWNER_RESTRICTION + "and " + PRIVATE_USER_POST_FILTER)
+    Optional<Post> findWithLockById(Long id, @Param("user") User user);
+
+    @Query("""
+            select post
+            from Post post
+            where post.id = :id and 
+            """ + BLOCKED_POST_OWNER_RESTRICTION + "and " + PRIVATE_USER_POST_FILTER)
+    Optional<Post> findById(Long id, @Param("user") User user);
 
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
             from Post post
-            where post.section.name = :sectionName and (:searchTerm = '""'
+            where post.section.name = :sectionName and (
+                :searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
                 or freetext(post.title, :searchTerm) = true
-                or freetext(post.tags, :searchTerm) = true)
-            """)
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true
+            ) and 
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION)
     Slice<PostWithDerivedFields> findBySectionName(
             @Param("user") User user,
             @Param("sectionName") String sectionName,
@@ -95,9 +214,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @EntityGraph("PostEntityGraph")
     @Query(SELECT_STATEMENT_WITH_IS_IN_USER_FAV_SECTION_FIELD + """
             from Post post
-            where :searchTerm = '""' or freetext(post.title, :searchTerm) = true 
-            or freetext(post.tags, :searchTerm) = true
-            """
+            where (:searchTerm = '""'
+                or freetext(post.tags, :searchTerm) = true
+                or freetext(post.title, :searchTerm) = true
+                or contains(post.tags, :searchTerm) = true
+                or contains(post.title, :searchTerm) = true)
+                and 
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION
     )
     Slice<PostWithDerivedFields> findAll(
             @Param("user") User user,

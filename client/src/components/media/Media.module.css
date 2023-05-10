@@ -9,9 +9,15 @@
   height: 80vh !important;
 }
 
+@media screen and (max-width: 992px) {
+  .media-size {
+    width: 70vw;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .media-size {
-    width: 90vw;
+    width: 85vw;
   }
 }
 

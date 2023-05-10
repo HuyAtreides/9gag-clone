@@ -27,7 +27,11 @@ public class UserMapper extends BaseMapper implements ToDtoMapper<UserDto, User>
     @Override
     public void createTypeMap() {
         modelMapper.typeMap(User.class, UserDto.class).addMappings(
-                mapper -> mapper.using(converter).map(User::getCreated, UserDto::setCreated)
+                mapper -> {
+                    mapper.using(converter).map(User::getCreated, UserDto::setCreated);
+                    mapper.using(converter).map(User::getBlockedTime, UserDto::setBlockedTime);
+                }
+
         );
     }
 }

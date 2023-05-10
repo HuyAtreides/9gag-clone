@@ -1,25 +1,29 @@
-.virtual-post {
-  height: 100vh;
-}
-
 .list-item {
   padding-bottom: 15px;
   margin-bottom: 15px;
   border-bottom: 1px solid var(--border-color-base);
+  margin-left: 10px;
 }
 
-@media screen and (max-width: 992px) {
-  .virtual-post {
-    height: 80vh;
-  }
-
-  .list-item {
-    margin-left: 5px;
-  }
+.tag {
+  padding: 10px;
+  margin-top: 10px;
 }
 
-@media screen and (min-height: 705px) {
-  .virtual-post {
-    height: 65vh;
+.shareButtonContainer {
+  display: block;
+}
+
+.shareButtonContainerSmallBreakpoint {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .shareButtonContainer {
+    display: none;
+  }
+
+  .shareButtonContainerSmallBreakpoint {
+    display: block;
   }
 }

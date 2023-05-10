@@ -1,5 +1,8 @@
 package com.huyphan.models;
 
+import com.huyphan.services.UserService;
+import com.huyphan.services.followactioninvoker.Followable;
+import com.huyphan.services.togglenotificationinvoker.Notifiable;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -22,7 +25,9 @@ import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Nationalized;
 
 @NoArgsConstructor
@@ -34,7 +39,8 @@ import org.hibernate.annotations.Nationalized;
         @NamedAttributeNode("user")
 })
 @DynamicInsert
-public class Post {
+@DynamicUpdate
+public class Post implements Followable, Notifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,19 +66,21 @@ public class Post {
     private Section section;
     @Column(name = "UploadTime")
     private Instant uploadTime;
+    @Column(name = "NotificationEnabled")
+    private boolean notificationEnabled;
+    @Column(name = "Anonymous")
+    private boolean anonymous;
     @Lob
     @Column(name = "Tags")
     @Nationalized
     private String tags;
     @OneToMany(mappedBy = "post")
     private Set<Comment> comments = new LinkedHashSet<>();
-
     @ManyToMany
     @JoinTable(name = "SavedPost",
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> saveUsers = new LinkedHashSet<>();
-
     @ManyToMany
     @JoinTable(name = "UpvotedPost",
             joinColumns = @JoinColumn(name = "PostId"),
@@ -83,21 +91,28 @@ public class Post {
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> downvoteUsers = new LinkedHashSet<>();
-
+    @ManyToMany
+    @JoinTable(name = "PostFollower",
+            joinColumns = @JoinColumn(name = "PostId"),
+            inverseJoinColumns = @JoinColumn(name = "UserId"))
+    private Set<User> followers = new LinkedHashSet<>();
     @Transient
     private int totalComments;
-
     @Transient
     private boolean isUpvoted;
-
     @Transient
     private boolean isDownvoted;
-
     @Transient
     private boolean isInUserFavSections;
-
+    @Transient
+    private boolean followed;
     @Transient
     private boolean isSaved;
+
+    @Override
+    public User getOwner() {
+        return user;
+    }
 
     public boolean getIsSaved() {
         return isSaved;
@@ -128,7 +143,8 @@ public class Post {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(
+                o)) {
             return false;
         }
         Post post = (Post) o;

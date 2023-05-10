@@ -2,6 +2,7 @@ package com.huyphan.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
@@ -28,6 +29,8 @@ public class PostDto {
      */
     private String uploadTime;
 
+    private boolean notificationEnabled;
+
     private String tags;
 
     private Long totalComments;
@@ -37,4 +40,7 @@ public class PostDto {
     private Boolean isDownvoted;
 
     private Boolean isSaved;
+
+    private boolean followed;
+    private boolean anonymous;
 }

@@ -1,53 +1,45 @@
 import { List, Select, Skeleton } from 'antd';
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useSearchParams } from 'react-router-dom';
-import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import {
+  appendParentComments,
+  getParentComments,
+  uploadComment,
+} from '../../../../Store/comment/comment-dispatchers';
+import { resetState, setErrorMessage } from '../../../../Store/comment/comment-slice';
 import CommentEditor from '../../../../components/comment-editor/CommentEditor';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import { Constant } from '../../../../models/enums/constant';
 import { SortType } from '../../../../models/enums/sort-type';
 import { CommentUploadFormData } from '../../../../models/upload-comment-form-data';
-import { User } from '../../../../models/user';
 import { CommentQueryParamMapper } from '../../../../services/mappers/comment-query-param-mapper';
-import {
-  appendSingleComment,
-  errorMessageActionCreator,
-  getNextParentComment,
-  getParentComment,
-  uploadComment,
-} from '../../../../Store/comment/comment-dispatchers';
-import {
-  CommentActionType,
-  commentReducer,
-  getCommentInitialState,
-} from '../../../../Store/comment/comment-slice';
 import { PostContext } from '../../../Home/Components/post-with-comment/PostWithComment';
-import { CommentContext } from '../../context/comment-context';
 import PostComment from '../PostComment/PostComment';
 import styles from './ParentComment.module.css';
 
-interface Props {
-  readonly user: User;
-}
+export const CommentSortTypeContext = React.createContext(SortType.FRESH);
 
-const ParentComment: React.FC<Props> = ({ user }: Props) => {
-  const [state, dispatch] = useReducer(commentReducer, getCommentInitialState());
+const ParentComment: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const commentRecord = useAppSelector((state) => state.comment);
+  const commentState = useAppSelector((state) => state.comment[0]);
   const postId = useContext(PostContext);
   const [sortType, setSortType] = useState(SortType.TOP);
-  const { pagination } = state;
+  const { pagination } = commentState;
   const hasMoreComments = !pagination || !pagination.isLast;
   const [searchParams] = useSearchParams();
   const { commentId, parentId } = CommentQueryParamMapper.fromDto(searchParams);
 
   const handleUploadNewComment = async (values: CommentUploadFormData) => {
-    await uploadComment(values, postId)(state, dispatch);
+    await dispatch(uploadComment(values, postId));
   };
 
-  useRenderErrorMessage(state.errorMessage, errorMessageActionCreator, dispatch);
+  useRenderErrorMessage(commentState.errorMessage, setErrorMessage, dispatch);
 
   const handleGetNextComments = () => {
-    if (state.isGettingNextPage || state.isLoading) {
+    if (commentState.isGettingNextPage || commentState.isLoading) {
       return;
     }
 
@@ -58,34 +50,40 @@ const ParentComment: React.FC<Props> = ({ user }: Props) => {
       size: size,
       sortType,
     };
-    getNextParentComment(postId, pageOptions)(state, dispatch);
+    dispatch(
+      appendParentComments({
+        postId,
+        pageOptions,
+      }),
+    );
   };
 
   useEffect(() => {
-    (async () => {
-      if (commentId) {
-        const id = parentId ? parentId : commentId;
-        await appendSingleComment(id)(state, dispatch);
-      }
-      getParentComment(postId, {
-        page: 0,
-        size: Constant.PageSize as number,
-        sortType,
-      })(state, dispatch);
-    })();
+    const priorityIds = commentId ? [parentId ? parentId : commentId] : undefined;
+    const pageOptions = {
+      page: 0,
+      size: Constant.PageSize as number,
+      sortType,
+    };
+    dispatch(
+      getParentComments({
+        postId,
+        pageOptions,
+        priorityIds,
+      }),
+    );
 
-    return () => dispatch({ type: CommentActionType.RESET_STATE });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId, dispatch, sortType, searchParams]);
-
-  useEffect(() => {
     document.getElementById(Constant.CommentScrollAreaId)?.scrollIntoView();
-  }, []);
+    return () => {
+      dispatch(resetState());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId, dispatch, sortType, parentId, commentId]);
 
-  if (state.isLoading) {
+  if (commentState.isLoading) {
     return (
       <div id={Constant.CommentScrollAreaId as string}>
-        {Array.from(Array(5)).map((value, index) => (
+        {Array.from(Array(5)).map((_, __) => (
           <>
             <Skeleton avatar paragraph={{ rows: 4 }} active />
             <br />
@@ -96,9 +94,7 @@ const ParentComment: React.FC<Props> = ({ user }: Props) => {
   }
 
   return (
-    <CommentContext.Provider
-      value={{ user: user, state: state, dispatch, sortType: sortType }}
-    >
+    <CommentSortTypeContext.Provider value={sortType}>
       <CommentEditor handleSubmit={handleUploadNewComment} />
 
       <Select
@@ -111,27 +107,34 @@ const ParentComment: React.FC<Props> = ({ user }: Props) => {
         onChange={setSortType}
       />
       <InfiniteScroll
-        dataLength={state.comments.length}
+        dataLength={commentState.childrenId.length}
         next={handleGetNextComments}
         hasMore={hasMoreComments}
-        loader={<CenterSpinner />}
+        loader={
+          <>
+            <br />
+            <Skeleton avatar paragraph={{ rows: 4 }} active />
+            <br />
+          </>
+        }
       >
         <List
           id={Constant.CommentScrollAreaId as string}
-          dataSource={state.comments}
-          renderItem={(comment, index) => {
-            const isHighlightComment = [parentId, commentId].includes(comment.id);
+          dataSource={commentState.childrenId}
+          renderItem={(id, index) => {
+            const isHighlightComment = [parentId, commentId].includes(id);
+            const { comment } = commentRecord[id];
 
             return (
               <div className={isHighlightComment ? styles['highlight-comment'] : ''}>
-                <PostComment comment={comment} key={comment.id} />
+                <PostComment comment={comment!} key={id} />
               </div>
             );
           }}
           itemLayout='vertical'
         />
       </InfiniteScroll>
-    </CommentContext.Provider>
+    </CommentSortTypeContext.Provider>
   );
 };
 

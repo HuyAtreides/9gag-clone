@@ -9,6 +9,7 @@ export namespace UserMapper {
       ...user,
       country: user.country ? toEnum(user.country, Country) : null,
       created: new Date(user.created),
+      blockedTime: user.blockedTime ? new Date(user.blockedTime) : null,
     });
   }
 }

@@ -18,7 +18,9 @@ export default interface Post {
 
   readonly uploadTime: Date;
 
-  readonly tags: String;
+  readonly followed: boolean;
+
+  readonly tags: string[];
 
   readonly isUpvoted: boolean;
 
@@ -26,7 +28,11 @@ export default interface Post {
 
   readonly totalComments: number;
 
-  readonly user: User;
+  readonly user?: User;
 
   readonly isSaved: boolean;
+
+  readonly notificationEnabled: boolean;
+
+  readonly anonymous: boolean;
 }

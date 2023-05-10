@@ -1,6 +1,7 @@
 package com.huyphan.dtos;
 
 import com.huyphan.models.enums.Country;
+import javax.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,4 +23,21 @@ public class UserDto {
     private Country country;
 
     private String created;
+
+    private boolean followed;
+
+    private boolean receivedFollowRequest;
+    private boolean isPrivate;
+
+    private boolean blocked;
+
+    private String blockedTime;
+
+    public void setIsPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
+    }
+
+    public boolean getIsPrivate() {
+        return isPrivate;
+    }
 }
