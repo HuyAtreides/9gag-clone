@@ -172,6 +172,7 @@ const Sidebar = () => {
               placement='right'
               visible={open}
               closable={true}
+              width='90vw'
               onClose={() => setOpen(false)}
             >
               <UserSearch />
