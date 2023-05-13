@@ -24,7 +24,7 @@ const UserFollowButton: React.FC<Props> = ({
         icon={hasIcon ? <SendOutlined /> : null}
         onClick={sendRequest}
       >
-        {receivedFollowRequest ? 'Cancel Request' : 'Send Follow Request'}
+        {receivedFollowRequest ? 'Cancel Request' : 'Send Request'}
       </Button>
     );
   }
