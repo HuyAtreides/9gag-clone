@@ -152,9 +152,9 @@ export const initialize = (): AppThunk => async (dispatch, getState) => {
     };
 
     await dispatch(getNotifications(pageOptions));
-    // return setInterval(() => {
-    //   dispatch(addLatestNotifications());
-    // }, INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS);
+    return setInterval(() => {
+      dispatch(addLatestNotifications());
+    }, INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS);
   } catch (error: unknown) {
     console.log(error);
   }
