@@ -1,7 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { Divider, Input, Typography } from 'antd';
 import { debounce } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../Store';
 import {
@@ -17,12 +17,15 @@ import UserSummaryList from '../user-summary-list/UserSummaryList';
 import UserSummary from '../user-summary/UserSummary';
 import RecentUserSearch from './RecentUserSearch';
 import styles from './UserSearch.module.scss';
+import { UserSearchDrawerContext } from '../../features/Home/Components/Sidebar';
 
 const UserSearchResult: React.FC<{ user: User }> = ({ user }) => {
   const dispatch = useAppDispatch();
+  const closeDrawer = useContext(UserSearchDrawerContext);
 
   const handleAddToRecentSearch = () => {
     dispatch(addToRecentSearch(user.id));
+    closeDrawer();
   };
 
   return (

@@ -5,7 +5,7 @@ import {
   StarFilled,
 } from '@ant-design/icons';
 import { Drawer, Menu, MenuProps, Typography } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
@@ -20,8 +20,11 @@ import Section from '../../../../models/section';
 import isInEnum from '../../../../utils/is-in-enum';
 import styles from './Sidebar.module.scss';
 import UserSearch from '../../../../components/user-search/UserSearch';
+import { ScreenBreakPoint } from '../../../../models/enums/constant';
 
 type MenuItem = Required<MenuProps>['items'][number];
+const isSmallerThanMediumBreakPoint = window.innerWidth < ScreenBreakPoint.Medium;
+export const UserSearchDrawerContext = React.createContext<() => void>(() => void 0);
 
 function getItem(
   label: React.ReactNode,
@@ -172,10 +175,12 @@ const Sidebar = () => {
               placement='right'
               visible={open}
               closable={true}
-              width='90vw'
+              width={isSmallerThanMediumBreakPoint ? '85vw' : '25vw'}
               onClose={() => setOpen(false)}
             >
-              <UserSearch />
+              <UserSearchDrawerContext.Provider value={() => setOpen(false)}>
+                <UserSearch />
+              </UserSearchDrawerContext.Provider>
             </Drawer>
           </div>
         }
