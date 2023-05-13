@@ -29,7 +29,7 @@ const UserSearchResult: React.FC<{ user: User }> = ({ user }) => {
   };
 
   return (
-    <Link to={`/user/${user.id}`} onClick={handleAddToRecentSearch} reloadDocument>
+    <Link to={`/user/${user.id}`} onClick={handleAddToRecentSearch}>
       <UserSummary actions={[]} user={user} />
     </Link>
   );
