@@ -72,7 +72,7 @@ public class PostService implements MediatorComponent {
         Post post = getPostWithoutDerivedFields(id);
 
         if (!post.getOwner().equals(UserService.getUser())) {
-            throw  new PostException("Post not found");
+            throw new PostException("Post not found");
         }
 
         post.setAnonymous(value);
@@ -204,7 +204,8 @@ public class PostService implements MediatorComponent {
     }
 
     public Slice<Post> getUserPosts(Long userId, PageOptions options) throws AppException {
-        Pageable pageable = PageRequest.of(options.getPage(), options.getSize());
+        Sort sortOptions = postSortTypeToSortOptionBuilder.toSortOption(SortType.FRESH);
+        Pageable pageable = PageRequest.of(options.getPage(), options.getSize(), sortOptions);
         User user = userService.getUserById(userId);
         User currentUser = UserService.getUser();
         String searchTerm = getSearchTerm(options.getSearch());
