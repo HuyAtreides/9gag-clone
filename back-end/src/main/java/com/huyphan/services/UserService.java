@@ -98,6 +98,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
             throws UserException {
         User user = getCurrentUser();
         String updatedUsername = updateProfileData.getUsername();
+        String updatedAvatarUrl = updateProfileData.getAvatarUrl();
 
         if (!Objects.equals(user.getUsername(), updatedUsername) && userRepo.existsByUsername(
                 updatedUsername)) {
@@ -111,7 +112,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         user.setCountry(updateProfileData.getCountry());
         user.setPrivate(updateProfileData.isPrivate());
 
-        if (!Objects.equals(oldAvatarUrl, defaultAvatarUrl)) {
+        if (!updatedAvatarUrl.equals(oldAvatarUrl) && !Objects.equals(oldAvatarUrl, defaultAvatarUrl)) {
             awss3Util.deleteObject(oldAvatarUrl);
         }
 
