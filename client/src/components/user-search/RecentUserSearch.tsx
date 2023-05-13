@@ -1,5 +1,8 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
+import React, { useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { useAppDispatch } from '../../Store';
 import {
   appendRecentSearch,
   getRecentSearch,
@@ -9,12 +12,8 @@ import { PageFetchingRequest } from '../../models/requests/page-fetching-request
 import { User } from '../../models/user';
 import UserSummaryList from '../user-summary-list/UserSummaryList';
 import UserSummary from '../user-summary/UserSummary';
-import { Link, useNavigate } from 'react-router-dom';
-import React, { useCallback } from 'react';
-import { useAppDispatch } from '../../Store';
 
 const RecentUserSearchSummary: React.FC<{ user: User }> = ({ user }) => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const remove = (event: React.MouseEvent) => {
@@ -29,7 +28,7 @@ const RecentUserSearchSummary: React.FC<{ user: User }> = ({ user }) => {
       onClick={(event) => {
         event.stopPropagation();
         event.preventDefault();
-        navigate(`/user/${user.id}`);
+        window.open(`/user/${user.id}`, '_self');
       }}
     >
       <UserSummary
