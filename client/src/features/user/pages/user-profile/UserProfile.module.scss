@@ -13,3 +13,10 @@
     width: 95%;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .userProfile {
+    border: none;
+    width: 100%;
+  }
+}
