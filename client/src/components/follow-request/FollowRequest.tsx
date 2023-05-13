@@ -124,6 +124,7 @@ const FollowRequest: React.FC<{ id: number }> = ({ id }) => {
         className={styles.modal}
         visible={openPreview}
         onCancel={() => setOpenPreview(false)}
+        destroyOnClose
         footer={
           <>
             <OwnerGuard
