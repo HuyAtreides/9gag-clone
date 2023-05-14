@@ -13,18 +13,34 @@ interface Props {
 const CommentContent: React.FC<{ comment: AppComment }> = ({ comment }) => {
   if (!comment.text && comment.mediaType) {
     return (
-      <Typography.Text ellipsis strong italic>
+      <Typography.Paragraph
+        ellipsis={{
+          rows: 17,
+          expandable: false,
+        }}
+        strong
+        italic
+      >
         {`Comment with ${comment.mediaType === MediaType.Video ? 'a video' : 'an image'}`}{' '}
         {comment.mediaType === MediaType.Video ? (
           <VideoCameraFilled />
         ) : (
           <FileImageFilled />
         )}
-      </Typography.Text>
+      </Typography.Paragraph>
     );
   }
 
-  return <Typography.Text ellipsis>{comment.text}</Typography.Text>;
+  return (
+    <Typography.Paragraph
+      ellipsis={{
+        rows: 17,
+        expandable: false,
+      }}
+    >
+      {comment.text}
+    </Typography.Paragraph>
+  );
 };
 
 const getCommentUrl = (comment: AppComment) => {

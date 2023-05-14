@@ -6,6 +6,12 @@
   min-width: 340px;
 }
 
+.postText {
+  height: 50vh;
+  max-height: 100vh;
+  overflow: auto;
+}
+
 .tag {
   padding: 10px;
   margin-top: 10px;

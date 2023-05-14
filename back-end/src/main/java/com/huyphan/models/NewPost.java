@@ -1,5 +1,6 @@
 package com.huyphan.models;
 
+import com.huyphan.models.enums.PostContentType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,5 +21,11 @@ public class NewPost {
 
     private String tags;
 
+    private String text;
+
+    private PostContentType contentType;
+
     private boolean anonymous;
+
+    private boolean notificationEnabled;
 }

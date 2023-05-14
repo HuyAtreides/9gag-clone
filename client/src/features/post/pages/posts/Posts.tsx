@@ -1,4 +1,10 @@
-import { CaretDownOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  CaretDownOutlined,
+  FileImageOutlined,
+  FileTextOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   AutoComplete,
   Avatar,
@@ -9,6 +15,7 @@ import {
   Input,
   List,
   Row,
+  Tabs,
   Typography,
   Upload,
 } from 'antd';
@@ -21,6 +28,7 @@ import useRenderErrorMessage from '../../../../custom-hooks/render-error-message
 import useUploadFile from '../../../../custom-hooks/upload-file';
 import Section from '../../../../models/section';
 import styles from './Post.module.scss';
+import { PostContentType } from '../../../../models/enums/post-content-type';
 
 const renderItem = (section: Section) => ({
   value: section.displayName,
@@ -53,23 +61,26 @@ const Posts: React.FC = () => {
   const errorMessage = useAppSelector((state) => state.post.errorMessage);
   const isLoading = useAppSelector((state) => state.post.isLoading);
   const [uploadFile, handleFileChange] = useUploadFile();
+  const [contentType, setContentType] = useState(PostContentType.MEDIA);
   const dispatch = useAppDispatch();
 
   useRenderErrorMessage(errorMessage, setPostErrorMessage);
 
   const onFinish = (value: any) => {
     if (selectedSection === undefined) {
-      dispatch(setPostErrorMessage('Please select post section'));
       return;
     }
 
     dispatch(
       uploadNewPost({
-        media: value.media.file,
+        media: value.media?.file,
         section: selectedSection,
         tags: value.tags,
         title: value.title,
+        text: value.text,
+        contentType: contentType,
         anonymous: value.anonymous,
+        notificationEnabled: value.notificationEnabled,
       }),
     );
   };
@@ -81,9 +92,17 @@ const Posts: React.FC = () => {
   return (
     <Row gutter={[0, 16]} className={styles.postContainer} justify='space-around'>
       <Col lg={12} xs={24}>
-        <Form name='postForm' layout='vertical' onFinish={onFinish}>
+        <Form name='postForm' layout='vertical' onFinish={onFinish} disabled={isLoading}>
           <Typography.Title className={styles.title}>Upload a post</Typography.Title>
-          <Form.Item name='section' noStyle>
+          <Form.Item
+            name='section'
+            rules={[
+              {
+                required: true,
+                message: 'Please select post section',
+              },
+            ]}
+          >
             <AutoComplete
               className={styles.sectionInput}
               options={options}
@@ -115,34 +134,67 @@ const Posts: React.FC = () => {
                 className={styles.searchInput}
                 size='large'
                 placeholder='Title'
-                maxLength={280}
+                maxLength={500}
               />
             </Form.Item>
-            <div className={styles.mediaContainer}>
-              <Form.Item
-                name='media'
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please provide post media',
-                  },
-                ]}
+            <Tabs
+              size='large'
+              type='card'
+              activeKey={contentType}
+              onChange={(key) => setContentType(key as PostContentType)}
+            >
+              <Tabs.TabPane
+                key={PostContentType.MEDIA}
+                tab={
+                  <>
+                    <FileImageOutlined />
+                    Image & Video
+                  </>
+                }
               >
-                <Upload
-                  beforeUpload={() => false}
-                  className={styles.upload}
-                  maxCount={1}
-                  fileList={uploadFile}
-                  onChange={handleFileChange}
-                  listType='picture-card'
-                >
-                  <div>
-                    <PlusOutlined />
-                    <p>Upload</p>
-                  </div>
-                </Upload>
-              </Form.Item>
-            </div>
+                <div className={styles.mediaContainer}>
+                  {contentType === PostContentType.MEDIA && (
+                    <Form.Item
+                      name='media'
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please provide post media',
+                        },
+                      ]}
+                    >
+                      <Upload
+                        beforeUpload={() => false}
+                        className={styles.upload}
+                        maxCount={1}
+                        fileList={uploadFile}
+                        onChange={handleFileChange}
+                        listType='picture-card'
+                      >
+                        <div>
+                          <PlusOutlined />
+                          <p>Upload</p>
+                        </div>
+                      </Upload>
+                    </Form.Item>
+                  )}
+                </div>
+              </Tabs.TabPane>
+              <Tabs.TabPane
+                key={PostContentType.TEXT}
+                tab={
+                  <>
+                    <FileTextOutlined />
+                    Text
+                  </>
+                }
+              >
+                <Form.Item name='text'>
+                  <Input.TextArea placeholder='Text (Optional)' allowClear rows={6} />
+                </Form.Item>
+              </Tabs.TabPane>
+            </Tabs>
+
             <Form.Item name='tags'>
               <DynamicTagList />
             </Form.Item>
@@ -152,6 +204,14 @@ const Posts: React.FC = () => {
               extra='When you enable anonymous posting, people will not see who is the owner of this post.'
             >
               <Checkbox>Enable anonymous posting</Checkbox>
+            </Form.Item>
+            <Form.Item
+              name='notificationEnabled'
+              valuePropName='checked'
+              initialValue={true}
+              extra='When you enable notifications, you will receive notifications when someone votes or comments to this post.'
+            >
+              <Checkbox>Enable notifications</Checkbox>
             </Form.Item>
             <Button
               type='primary'

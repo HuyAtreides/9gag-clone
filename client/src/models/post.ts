@@ -1,3 +1,4 @@
+import { PostContentType } from './enums/post-content-type';
 import Section from './section';
 import { User } from './user';
 
@@ -23,6 +24,10 @@ export default interface Post {
   readonly tags: string[];
 
   readonly isUpvoted: boolean;
+
+  readonly text: string | null;
+
+  readonly contentType: PostContentType;
 
   readonly isDownvoted: boolean;
 
