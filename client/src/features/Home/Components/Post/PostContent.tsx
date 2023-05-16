@@ -38,6 +38,7 @@ import useUpvote from '../../../../custom-hooks/upvote';
 import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
 import VotePostActionExecutor from '../../../../custom-hooks/vote-action-executor/vote-post-action-executor';
 import { Constant } from '../../../../models/enums/constant';
+import { PostContentType } from '../../../../models/enums/post-content-type';
 import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { formatNumber } from '../../../../utils/format-number';
@@ -46,6 +47,36 @@ import styles from './PostContent.module.css';
 interface Props {
   post: Post;
 }
+const PostMedia: React.FC<{ post: Post }> = ({ post }) => {
+  return (
+    <Media
+      type={post.mediaType}
+      url={post.mediaUrl}
+      scrollAreaId={Constant.PostScrollAreaId as string}
+    />
+  );
+};
+
+const PostText: React.FC<{ post: Post }> = ({ post }) => {
+  return (
+    <Typography.Paragraph
+      ellipsis={{
+        rows: 7,
+        expandable: true,
+      }}
+      className={styles.postText}
+    >
+      {post.text}
+    </Typography.Paragraph>
+  );
+};
+
+const POST_CONTENT_TYPE_TO_CONTENT_MAP: Readonly<
+  Record<PostContentType, React.FC<{ post: Post; reserveState?: any }>>
+> = {
+  [PostContentType.MEDIA]: PostMedia,
+  [PostContentType.TEXT]: PostText,
+};
 
 const PostContent: React.FC<Props> = ({ post }: Props) => {
   const [upvoted, downvoted] = [post.isUpvoted, post.isDownvoted];
@@ -220,11 +251,9 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             }
           />
           <Typography.Title level={4}>{post.title}</Typography.Title>
-          <Media
-            type={post.mediaType}
-            url={post.mediaUrl}
-            scrollAreaId={Constant.PostScrollAreaId as string}
-          />
+          {React.createElement(POST_CONTENT_TYPE_TO_CONTENT_MAP[post.contentType], {
+            post,
+          })}
           <div>
             {post.tags.map((tag) => (
               <Tag className={styles.tag}>{tag}</Tag>

@@ -1,5 +1,10 @@
 package com.huyphan.dtos;
 
+import com.huyphan.models.converters.PostContentTypeConverter;
+import com.huyphan.models.enums.PostContentType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Lob;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -15,6 +20,9 @@ public class PostDto {
     private String mediaUrl;
 
     private String mediaType;
+    private String text;
+
+    private PostContentType contentType;
 
     private int downvotes;
 

@@ -1,5 +1,8 @@
 package com.huyphan.models;
 
+import com.huyphan.models.converters.CountryConverter;
+import com.huyphan.models.converters.PostContentTypeConverter;
+import com.huyphan.models.enums.PostContentType;
 import com.huyphan.services.UserService;
 import com.huyphan.services.followactioninvoker.Followable;
 import com.huyphan.services.togglenotificationinvoker.Notifiable;
@@ -8,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -50,10 +54,19 @@ public class Post implements Followable, Notifiable {
     @Nationalized
     private String title;
     @Lob
-    @Column(name = "MediaUrl", nullable = false)
+    @Column(name = "MediaUrl")
     private String mediaUrl;
-    @Column(name = "MediaType", nullable = false, length = 70)
+    @Column(name = "MediaType", length = 70)
     private String mediaType;
+
+    @Lob
+    @Column(name = "Text")
+    private String text;
+
+    @Column(name = "ContentType")
+    @Convert(converter = PostContentTypeConverter.class)
+    private PostContentType contentType;
+
     @Column(name = "Upvotes")
     private Integer upvotes;
     @Column(name = "Downvotes")

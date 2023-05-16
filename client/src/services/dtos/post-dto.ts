@@ -1,3 +1,4 @@
+import { PostContentType } from '../../models/enums/post-content-type';
 import SectionDto from './section-dto';
 import { UserDto } from './user-dto';
 
@@ -22,6 +23,10 @@ export default interface PostDto {
   readonly uploadTime: string;
 
   readonly tags: string;
+
+  readonly text: string | null;
+
+  readonly contentType: PostContentType;
 
   readonly isUpvoted: boolean;
 

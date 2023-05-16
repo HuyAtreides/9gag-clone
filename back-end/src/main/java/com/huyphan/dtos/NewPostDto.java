@@ -1,5 +1,6 @@
 package com.huyphan.dtos;
 
+import com.huyphan.models.enums.PostContentType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +18,11 @@ public class NewPostDto {
 
     private String tags;
 
+    private String text;
+
+    private PostContentType contentType;
+
     private boolean anonymous;
+
+    private boolean notificationEnabled;
 }

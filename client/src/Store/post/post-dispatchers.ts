@@ -230,14 +230,22 @@ export const uploadNewPost =
   async (dispatch, getState) => {
     try {
       dispatch(setIsLoading(true));
-      const mediaLocation = await upload(newPostFormData.media);
+      const mediaLocation = newPostFormData.media
+        ? await upload(newPostFormData.media)
+        : {
+            type: null,
+            url: null,
+          };
       await addNewPost({
         title: newPostFormData.title,
         section: newPostFormData.section,
         mediaType: mediaLocation.type,
         mediaUrl: mediaLocation.url,
         tags: newPostFormData.tags,
+        contentType: newPostFormData.contentType,
+        text: newPostFormData.text || null,
         anonymous: newPostFormData.anonymous,
+        notificationEnabled: newPostFormData.notificationEnabled,
       });
       dispatch(setIsLoading(false));
       message.success('Add new post successfully');

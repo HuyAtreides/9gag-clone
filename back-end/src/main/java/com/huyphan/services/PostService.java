@@ -10,6 +10,7 @@ import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
+import com.huyphan.models.enums.PostContentType;
 import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
@@ -55,13 +56,24 @@ public class PostService implements MediatorComponent {
     @Transactional(rollbackFor = {AppException.class})
     public void addNewPost(NewPost newPost) throws AppException {
         Post post = new Post();
+        PostContentType contentType = newPost.getContentType();
+        String mediaUrl = newPost.getMediaUrl();
+        String mediaType = newPost.getMediaType();
+
+        if (contentType == PostContentType.MEDIA && (mediaType == null || mediaUrl == null)) {
+            throw new PostException(
+                    "Media type and media url must be present when post content type is MEDIA");
+        }
+
         post.setUser(userService.getCurrentUser());
         post.setSection(newPost.getSection());
-        post.setMediaUrl(newPost.getMediaUrl());
-        post.setMediaType(newPost.getMediaType());
+        post.setMediaUrl(mediaUrl);
+        post.setMediaType(mediaType);
         post.setTitle(newPost.getTitle());
         post.setTags(newPost.getTags());
-        post.setNotificationEnabled(true);
+        post.setContentType(contentType);
+        post.setText(newPost.getText());
+        post.setNotificationEnabled(newPost.isNotificationEnabled());
         post.setAnonymous(newPost.isAnonymous());
         Post savedPost = postRepository.save(post);
         mediator.notify(new AddPostEvent(savedPost));
