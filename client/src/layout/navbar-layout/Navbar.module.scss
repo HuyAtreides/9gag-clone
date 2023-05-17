@@ -59,7 +59,8 @@
       .text {
         color: $textColorDarkTheme;
         font-size: 1.6rem;
-        max-width: 110px;
+        max-width: 20vw;
+        white-space: nowrap;
 
         @media screen and (max-width: 500px) {
           & {
