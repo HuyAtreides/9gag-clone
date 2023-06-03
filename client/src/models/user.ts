@@ -15,6 +15,8 @@ export interface UserConstructorArguments {
 
   readonly created: Date;
 
+  readonly coverImageUrl: string;
+
   readonly followed: boolean;
 
   readonly isPrivate: boolean;
@@ -49,6 +51,8 @@ export class User {
 
   readonly blockedTime: Date | null;
 
+  readonly coverImageUrl: string;
+
   public constructor(constructorArguments: UserConstructorArguments) {
     this.id = constructorArguments.id;
     this.username = constructorArguments.username;
@@ -61,11 +65,19 @@ export class User {
     this.receivedFollowRequest = constructorArguments.receivedFollowRequest;
     this.blocked = constructorArguments.blocked;
     this.blockedTime = constructorArguments.blockedTime;
+    this.coverImageUrl = constructorArguments.coverImageUrl;
   }
 
-  public getMediaLocation(): MediaLocation {
+  public getAvatarLocation(): MediaLocation {
     return {
       url: this.avatarUrl,
+      type: MediaType.Image,
+    };
+  }
+
+  public getCoverImgLocation(): MediaLocation {
+    return {
+      url: this.coverImageUrl,
       type: MediaType.Image,
     };
   }

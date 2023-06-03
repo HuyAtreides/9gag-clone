@@ -1,9 +1,8 @@
 import { Button, Divider, Form, Input, Typography } from 'antd';
-import styles from './UserPasswordSettings.module.scss';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import { setUserErrorMessage } from '../../../../Store/user/user-slice';
 import { updatePassword } from '../../../../Store/user/user-dipatchers';
+import { setUserErrorMessage } from '../../../../Store/user/user-slice';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 
 const UserPasswordSettings: React.FC = () => {
   const dispatch = useAppDispatch();

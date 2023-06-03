@@ -189,10 +189,16 @@ export const updateProfile =
   async (dispatch, getState) => {
     try {
       dispatch(setIsUpdating(true));
-      const mediaLocation = await getMediaLocationFromForm(updateProfileFormData.avatar);
+      const avatarLocation = await getMediaLocationFromForm(updateProfileFormData.avatar);
+      const coverImgLocation = await getMediaLocationFromForm(
+        updateProfileFormData.coverImg,
+      );
       const userSecret = await updateUserProfile({
         ...updateProfileFormData,
-        avatarUrl: mediaLocation.url || Constant.DefaultUserAvatarUrl,
+        avatarUrl:
+          avatarLocation.url || (process.env.REACT_APP_DEFAULT_AVATAR_URL as string),
+        coverImgUrl:
+          coverImgLocation.url || (process.env.REACT_APP_DEFAULT_COVER_IMG_URL as string),
         country: updateProfileFormData.country || undefined,
       });
       LocalStorage.save(Constant.TokenKey, userSecret.token);

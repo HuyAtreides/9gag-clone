@@ -14,7 +14,6 @@ export enum Constant {
   FollowRequestEndPoint = 'follow-request',
   CommentState = 'commentState',
   PageSize = 15,
-  DefaultUserAvatarUrl = 'https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp',
   DebounceTimeInMiliSeconds = 700,
 }
 

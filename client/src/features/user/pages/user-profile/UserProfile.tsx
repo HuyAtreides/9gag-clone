@@ -4,7 +4,17 @@ import {
   SettingOutlined,
   StopOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Empty, Modal, Skeleton, Typography } from 'antd';
+import {
+  Avatar,
+  Button,
+  Card,
+  Empty,
+  Image,
+  Modal,
+  Skeleton,
+  Tabs,
+  Typography,
+} from 'antd';
 import Meta from 'antd/lib/card/Meta';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -175,75 +185,10 @@ const UserProfile: React.FC = () => {
       <Card
         className={styles.userProfile}
         loading={!user}
-        extra={
-          !user ? null : (
-            <AutoClosePopover
-              placement='left'
-              content={
-                <>
-                  <OwnerGuard
-                    component={
-                      <Button
-                        icon={<SettingOutlined />}
-                        type='text'
-                        onClick={() => navigate('/user/settings')}
-                      >
-                        Settings
-                      </Button>
-                    }
-                    owner={user}
-                  />
-                  <OwnerGuard
-                    component={
-                      <Button
-                        type='text'
-                        icon={<EditOutlined />}
-                        onClick={() => navigate('/user/settings')}
-                      >
-                        Edit
-                      </Button>
-                    }
-                    owner={user}
-                  />
-                  <OwnerGuard
-                    component={<></>}
-                    replace={
-                      <UserFollowButton
-                        hasIcon={true}
-                        followUser={followUser}
-                        sendRequest={sendFollowRequest}
-                        user={user}
-                      />
-                    }
-                    owner={user}
-                  />
-
-                  <OwnerGuard
-                    component={<></>}
-                    replace={
-                      <Button
-                        type='text'
-                        icon={<StopOutlined />}
-                        danger
-                        onClick={handleBlock}
-                      >
-                        Block
-                      </Button>
-                    }
-                    owner={user}
-                  />
-                </>
-              }
-            >
-              <Button icon={<MoreOutlined />} type='text' />
-            </AutoClosePopover>
-          )
-        }
-        tabList={tabListNoTitle}
-        activeTabKey={selectedTab}
-        onTabChange={handleTabChange}
-        title={
-          <Skeleton loading={!user} avatar active>
+        cover={<Image src={user?.coverImageUrl} />}
+      >
+        <Skeleton loading={!user} avatar active>
+          <div className={styles.userMeta}>
             <Meta
               avatar={<Avatar src={user?.avatarUrl} size={70} />}
               title={<strong title={user?.displayName}>{user?.displayName}</strong>}
@@ -257,25 +202,106 @@ const UserProfile: React.FC = () => {
                 </span>
               }
             />
-            <br></br>
-            {userId && <UserStats userId={userId} />}
-          </Skeleton>
-        }
-      >
-        {!userId ? null : (
-          <PrivateProfileGuard
-            component={React.createElement(tabKeyToTabContent[selectedTab], { userId })}
-            user={user}
-            replace={
-              <Empty
-                description={
-                  <Typography.Text type='secondary' strong>
-                    This user profile is private. Follow to view the user profile.
-                  </Typography.Text>
+
+            {!user ? null : (
+              <AutoClosePopover
+                placement='left'
+                content={
+                  <>
+                    <OwnerGuard
+                      component={
+                        <Button
+                          icon={<SettingOutlined />}
+                          type='text'
+                          onClick={() => navigate('/user/settings')}
+                        >
+                          Settings
+                        </Button>
+                      }
+                      owner={user}
+                    />
+                    <OwnerGuard
+                      component={
+                        <Button
+                          type='text'
+                          icon={<EditOutlined />}
+                          onClick={() => navigate('/user/settings')}
+                        >
+                          Edit
+                        </Button>
+                      }
+                      owner={user}
+                    />
+                    <OwnerGuard
+                      component={<></>}
+                      replace={
+                        <UserFollowButton
+                          hasIcon={true}
+                          followUser={followUser}
+                          sendRequest={sendFollowRequest}
+                          user={user}
+                        />
+                      }
+                      owner={user}
+                    />
+
+                    <OwnerGuard
+                      component={<></>}
+                      replace={
+                        <Button
+                          type='text'
+                          icon={<StopOutlined />}
+                          danger
+                          onClick={handleBlock}
+                        >
+                          Block
+                        </Button>
+                      }
+                      owner={user}
+                    />
+                  </>
                 }
-              />
-            }
-          />
+              >
+                <Button icon={<MoreOutlined />} type='text' />
+              </AutoClosePopover>
+            )}
+          </div>
+
+          <br></br>
+          {userId && <UserStats userId={userId} />}
+        </Skeleton>
+
+        {!userId ? null : (
+          <Tabs
+            size='large'
+            activeKey={selectedTab}
+            onChange={handleTabChange}
+            destroyInactiveTabPane
+          >
+            {tabListNoTitle.map((tab) => (
+              <Tabs.TabPane tab={tab.tab} key={tab.key}>
+                <PrivateProfileGuard
+                  component={
+                    tab.key === selectedTab
+                      ? React.createElement(tabKeyToTabContent[tab.key], {
+                          userId,
+                        })
+                      : null
+                  }
+                  user={user}
+                  replace={
+                    <Empty
+                      description={
+                        <Typography.Text type='secondary' strong>
+                          This user profile is private. Follow to view the user profile.
+                        </Typography.Text>
+                      }
+                    />
+                  }
+                />
+              </Tabs.TabPane>
+            ))}
+          </Tabs>
         )}
       </Card>
     </UserProfileContext.Provider>

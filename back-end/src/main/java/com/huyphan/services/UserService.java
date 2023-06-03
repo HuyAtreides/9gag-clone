@@ -47,6 +47,9 @@ public class UserService implements UserDetailsService, MediatorComponent {
     @Value("${app.default-avatar-url}")
     private String defaultAvatarUrl;
 
+    @Value("${app.default-cover-image-url}")
+    private String defaultCoverImgUrl;
+
     @Autowired
     private IFollowActionInvoker followActionInvoker;
 
@@ -99,6 +102,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         User user = getCurrentUser();
         String updatedUsername = updateProfileData.getUsername();
         String updatedAvatarUrl = updateProfileData.getAvatarUrl();
+        String updatedCoverImgUrl = updateProfileData.getCoverImgUrl();
 
         if (!Objects.equals(user.getUsername(), updatedUsername) && userRepo.existsByUsername(
                 updatedUsername)) {
@@ -106,14 +110,20 @@ public class UserService implements UserDetailsService, MediatorComponent {
         }
 
         String oldAvatarUrl = user.getAvatarUrl();
+        String oldCoverImgUrl = user.getCoverImageUrl();
         user.setUsername(updateProfileData.getUsername());
         user.setDisplayName(updateProfileData.getDisplayName());
         user.setAvatarUrl(updateProfileData.getAvatarUrl());
         user.setCountry(updateProfileData.getCountry());
+        user.setCoverImageUrl(updatedCoverImgUrl);
         user.setPrivate(updateProfileData.isPrivate());
 
         if (!updatedAvatarUrl.equals(oldAvatarUrl) && !Objects.equals(oldAvatarUrl, defaultAvatarUrl)) {
             awss3Util.deleteObject(oldAvatarUrl);
+        }
+
+        if (!updatedCoverImgUrl.equals(oldCoverImgUrl) && !Objects.equals(oldCoverImgUrl, defaultCoverImgUrl)) {
+            awss3Util.deleteObject(oldCoverImgUrl);
         }
 
         return new UserSecret(jwtUtil.generateToken(user));

@@ -11,6 +11,8 @@ public class UpdateProfileDataDto extends RegisterDataDto {
 
     private boolean isPrivate;
 
+    private String coverImgUrl;
+
     public void setIsPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }
