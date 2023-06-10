@@ -31,7 +31,9 @@ const UserUpvotedPosts: React.FC<{ userId: number }> = ({ userId }) => {
     [userId],
   );
 
-  return <PostList fetchPosts={fetchPosts} addPosts={addPosts} />;
+  return (
+    <PostList fetchPosts={fetchPosts} addPosts={addPosts} shouldScrollToTop={false} />
+  );
 };
 
 export default UserUpvotedPosts;

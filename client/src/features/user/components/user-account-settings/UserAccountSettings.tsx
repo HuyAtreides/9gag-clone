@@ -1,4 +1,9 @@
-import { DeleteOutlined, FormOutlined, UploadOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  FormOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 import {
   Button,
   Checkbox,
@@ -20,18 +25,21 @@ import AutoClosePopover from '../../../../components/auto-close-popover/AutoClos
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import useUploadFile from '../../../../custom-hooks/upload-file';
-import { Constant } from '../../../../models/enums/constant';
 import { getCountryListOptions } from '../../../../models/enums/country';
 import { UpdateProfileFormData } from '../../../../models/update-profile-form-data';
 import styles from './UserAccountSettings.module.scss';
 
 const UserAccountSettings: React.FC = () => {
   const user = useAppSelector((state) => state.user.profile);
-  const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(
-    user?.getMediaLocation(),
+  const [uploadAvatar, handleAvatarChange, setUploadAvatar] = useUploadFile(
+    user?.getAvatarLocation(),
+  );
+  const [uploadCoverImg, handleCoverImgChange, setUploadCoverImg] = useUploadFile(
+    user?.getCoverImgLocation(),
   );
   const dispatch = useAppDispatch();
-  const singleUploadFile = uploadFile && uploadFile[0];
+  const avatar = uploadAvatar && uploadAvatar[0];
+  const coverImg = uploadCoverImg && uploadCoverImg[0];
   const isUpdating = useAppSelector((state) => state.user.isUpdating);
   const [form] = useForm<UpdateProfileFormData>();
   const errorMessage = useAppSelector((state) => state.user.errorMessage);
@@ -46,23 +54,31 @@ const UserAccountSettings: React.FC = () => {
         country: user.country,
         isPrivate: user.isPrivate,
       });
-      setUploadFile([
+      setUploadAvatar([
         {
           uid: '0',
           name: '',
-          url: user.getMediaLocation().url,
-          type: user.getMediaLocation().type,
+          url: user.getAvatarLocation().url,
+          type: user.getAvatarLocation().type,
+        },
+      ]);
+      setUploadCoverImg([
+        {
+          uid: '1',
+          name: '',
+          url: user.getCoverImgLocation().url,
         },
       ]);
     }
-  }, [form, setUploadFile, user]);
+  }, [form, setUploadAvatar, user, setUploadCoverImg]);
 
   useEffect(() => {
-    form.setFieldValue('avatar', singleUploadFile);
-  }, [singleUploadFile, form]);
+    form.setFieldValue('avatar', avatar);
+    form.setFieldValue('coverImg', coverImg);
+  }, [avatar, form, coverImg]);
 
   const handleRemoveAvatar = () => {
-    setUploadFile(undefined);
+    setUploadAvatar(undefined);
   };
 
   const handleUpdateProfile = (values: UpdateProfileFormData) => {
@@ -80,7 +96,7 @@ const UserAccountSettings: React.FC = () => {
       <Divider />
       <Form.Item name='avatar' label={<strong>Avatar</strong>}>
         <Image
-          src={singleUploadFile ? singleUploadFile.url : Constant.DefaultUserAvatarUrl}
+          src={avatar ? avatar.url : (process.env.REACT_APP_DEFAULT_AVATAR_URL as string)}
           alt='user avatar'
           className={styles.avatar}
         />
@@ -92,7 +108,7 @@ const UserAccountSettings: React.FC = () => {
                 maxCount={1}
                 showUploadList={false}
                 beforeUpload={() => false}
-                onChange={handleFileChange}
+                onChange={handleAvatarChange}
               >
                 <Button type='text' icon={<UploadOutlined />}>
                   Upload Photo
@@ -155,6 +171,22 @@ const UserAccountSettings: React.FC = () => {
           ))}
         </Select>
       </Form.Item>
+
+      <Form.Item name='coverImg' label={<strong>Cover Image</strong>}>
+        <Upload
+          beforeUpload={() => false}
+          maxCount={1}
+          fileList={uploadCoverImg}
+          onChange={handleCoverImgChange}
+          listType='picture-card'
+        >
+          <div>
+            <PlusOutlined />
+            <p>Upload</p>
+          </div>
+        </Upload>
+      </Form.Item>
+
       <Form.Item
         name='isPrivate'
         valuePropName='checked'

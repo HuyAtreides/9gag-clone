@@ -20,6 +20,8 @@ public class UserDto {
 
     private String displayName;
 
+    private String coverImageUrl;
+
     private Country country;
 
     private String created;

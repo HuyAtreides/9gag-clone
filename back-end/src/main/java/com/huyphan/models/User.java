@@ -52,6 +52,10 @@ public class User implements UserDetails, Followable {
     private String username;
     @Column(name = "AvatarUrl")
     private String avatarUrl;
+
+    @Column(name = "CoverImageUrl")
+    private String coverImageUrl;
+
     @Column(name = "DisplayName", nullable = false, length = 30)
     @Nationalized
     private String displayName;

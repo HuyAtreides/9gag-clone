@@ -8,5 +8,7 @@ import lombok.Setter;
 public class UpdateProfileData extends RegisterData {
     private String avatarUrl;
 
+    private String coverImgUrl;
+
     private boolean isPrivate;
 }

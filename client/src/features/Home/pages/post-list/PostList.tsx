@@ -27,6 +27,7 @@ import { InfiniteScrollHeight } from '../../../../context/infinite-scroll-height
 interface Props {
   readonly fetchPosts?: FetchPostsThunkAction<PostsFetchingRequest>;
   readonly addPosts?: FetchPostsThunkAction<PostsFetchingRequest>;
+  readonly shouldScrollToTop?: boolean;
 }
 
 const defaultFetchPostsThunkAction = (postFetchRequest: PostsFetchingRequest) => {
@@ -40,6 +41,7 @@ const defaultAddPostsThunkAction = (postFetchRequest: PostsFetchingRequest) => {
 const PostList: React.FC<Props> = ({
   fetchPosts = defaultFetchPostsThunkAction,
   addPosts = defaultAddPostsThunkAction,
+  shouldScrollToTop = true,
 }) => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector((state) => state.post.isLoading);
@@ -89,7 +91,10 @@ const PostList: React.FC<Props> = ({
     };
 
     dispatch(fetchPosts(fetchPostRequest));
-    window.scrollTo(0, 0);
+
+    if (shouldScrollToTop) {
+      window.scrollTo(0, 0);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, tag, section, user, searchTerm, fetchPosts]);
 

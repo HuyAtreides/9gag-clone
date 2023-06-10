@@ -7,6 +7,12 @@
   white-space: break-spaces;
 }
 
+.userMeta {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
 @media screen and (max-width: 992px) {
   .userProfile {
     margin: auto;
