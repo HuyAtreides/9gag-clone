@@ -28,6 +28,7 @@ import useUploadFile from '../../../../custom-hooks/upload-file';
 import { getCountryListOptions } from '../../../../models/enums/country';
 import { UpdateProfileFormData } from '../../../../models/update-profile-form-data';
 import styles from './UserAccountSettings.module.scss';
+import TextArea from 'antd/lib/input/TextArea';
 
 const UserAccountSettings: React.FC = () => {
   const user = useAppSelector((state) => state.user.profile);
@@ -53,6 +54,7 @@ const UserAccountSettings: React.FC = () => {
         displayName: user.displayName,
         country: user.country,
         isPrivate: user.isPrivate,
+        about: user.about,
       });
       setUploadAvatar([
         {
@@ -163,13 +165,21 @@ const UserAccountSettings: React.FC = () => {
         <Input />
       </Form.Item>
       <Form.Item label={<strong>Country</strong>} name='country'>
-        <Select placeholder='Select your country'>
+        <Select placeholder='Select your country' allowClear>
           {getCountryListOptions().map((option) => (
             <Option value={option.value}>
               <NameWithCountryFlag name={option.label} country={option.value} />
             </Option>
           ))}
         </Select>
+      </Form.Item>
+
+      <Form.Item
+        label={<strong>About (Optional)</strong>}
+        name='about'
+        extra='A brief description of yourself shown on your profile.'
+      >
+        <TextArea allowClear />
       </Form.Item>
 
       <Form.Item name='coverImg' label={<strong>Cover Image</strong>}>

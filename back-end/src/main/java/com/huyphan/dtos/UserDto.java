@@ -22,6 +22,8 @@ public class UserDto {
 
     private String coverImageUrl;
 
+    private String about;
+
     private Country country;
 
     private String created;

@@ -26,6 +26,8 @@ export interface UserConstructorArguments {
   readonly blocked: boolean;
 
   readonly blockedTime: Date | null;
+
+  readonly about: string;
 }
 
 export class User {
@@ -36,6 +38,8 @@ export class User {
   readonly avatarUrl: string;
 
   readonly displayName: string;
+
+  readonly about: string;
 
   readonly country: Country | null;
 
@@ -66,6 +70,7 @@ export class User {
     this.blocked = constructorArguments.blocked;
     this.blockedTime = constructorArguments.blockedTime;
     this.coverImageUrl = constructorArguments.coverImageUrl;
+    this.about = constructorArguments.about;
   }
 
   public getAvatarLocation(): MediaLocation {

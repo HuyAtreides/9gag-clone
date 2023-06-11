@@ -269,9 +269,7 @@ const UserProfile: React.FC = () => {
 
           <br></br>
           <Typography.Paragraph className={styles.about}>
-            We are things that labor under the illusion of having a self; an accretion of
-            sensory, experience and feeling, programmed with total assurance that we are
-            each somebody, when in fact everybody is nobody.
+            {user?.about}
           </Typography.Paragraph>
           {userId && <UserStats userId={userId} />}
         </Skeleton>

@@ -8,4 +8,5 @@ export interface UpdateProfileFormData {
   readonly displayName: string;
   readonly country: Country | null;
   readonly isPrivate: boolean;
+  readonly about: string;
 }

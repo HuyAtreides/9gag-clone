@@ -20,6 +20,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -59,6 +60,11 @@ public class User implements UserDetails, Followable {
     @Column(name = "DisplayName", nullable = false, length = 30)
     @Nationalized
     private String displayName;
+
+    @Column(name = "About")
+    @Lob
+    @Nationalized
+    private String about;
     @Column(name = "Country", length = 70)
     @Convert(converter = CountryConverter.class)
     private Country country;
