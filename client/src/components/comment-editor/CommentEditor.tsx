@@ -2,7 +2,6 @@ import { CameraOutlined, DeleteFilled } from '@ant-design/icons';
 import { Button, Col, Comment, Form, Row, Upload } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import Avatar from 'antd/lib/avatar/avatar';
-import TextArea from 'antd/lib/input/TextArea';
 import React, { ReactNode, useEffect, useState } from 'react';
 import useUploadGif from '../../custom-hooks/gif-location';
 import useUploadFile from '../../custom-hooks/upload-file';
@@ -14,6 +13,7 @@ import GifSelect from '../gif-select/GifSelect';
 import GifWrapper from '../gif-wrapper/GifWrapper';
 
 import styles from './CommentEditor.module.scss';
+import WYSIWYGEditor from '../wysiwyg-editor/WYSIWYGEditor';
 
 interface Props {
   readonly children?: ReactNode;
@@ -76,12 +76,7 @@ const CommentEditor: React.FC<Props> = ({
           }}
         >
           <Form.Item name='text'>
-            <TextArea
-              disabled={isUploading}
-              className={styles.textArea}
-              placeholder='Leave a comment...'
-              allowClear={true}
-            />
+            <WYSIWYGEditor height='35vh' />
           </Form.Item>
           <Form.Item>
             <Row>

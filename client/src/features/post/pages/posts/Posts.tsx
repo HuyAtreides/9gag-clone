@@ -29,6 +29,7 @@ import useUploadFile from '../../../../custom-hooks/upload-file';
 import Section from '../../../../models/section';
 import styles from './Post.module.scss';
 import { PostContentType } from '../../../../models/enums/post-content-type';
+import WYSIWYGEditor from '../../../../components/wysiwyg-editor/WYSIWYGEditor';
 
 const renderItem = (section: Section) => ({
   value: section.displayName,
@@ -91,7 +92,7 @@ const Posts: React.FC = () => {
 
   return (
     <Row gutter={[0, 16]} className={styles.postContainer} justify='space-around'>
-      <Col lg={12} xs={24}>
+      <Col lg={14} xs={24}>
         <Form name='postForm' layout='vertical' onFinish={onFinish} disabled={isLoading}>
           <Typography.Title className={styles.title}>Upload a post</Typography.Title>
           <Form.Item
@@ -190,7 +191,7 @@ const Posts: React.FC = () => {
                 }
               >
                 <Form.Item name='text'>
-                  <Input.TextArea placeholder='Text (Optional)' allowClear rows={6} />
+                  <WYSIWYGEditor />
                 </Form.Item>
               </Tabs.TabPane>
             </Tabs>

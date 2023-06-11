@@ -6,15 +6,23 @@ import { getAllSection } from './Store/section/section-dipatchers';
 import { initUserProfile } from './Store/user/user-dipatchers';
 import AuthContainer from './features/auth/AuthContainer';
 import RootRoutes from './routes/RootRouter';
+import { WebSocketUtils } from './utils/web-socket-utils';
 
 function App() {
   const dispatch = useAppDispatch();
   const isGettingUser = useAppSelector((state) => state.user.isLoading);
+  const user = useAppSelector((state) => state.user.profile);
 
   useEffect(() => {
     dispatch(getAllSection());
     dispatch(initUserProfile());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user) {
+      WebSocketUtils.connect(user.id);
+    }
+  }, [user]);
 
   return (
     <div className='dark'>

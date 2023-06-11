@@ -10,6 +10,7 @@ import {
   removeAllNotifications,
 } from '../../services/notification-service';
 import { handleError } from '../../utils/error-handler';
+import { WebSocketUtils } from '../../utils/web-socket-utils';
 import {
   appendLatestNotifications,
   appendNewNotifications,
@@ -145,16 +146,14 @@ export const countNotViewed = (): AppThunk => async (dispatch, getState) => {
 
 export const initialize = (): AppThunk => async (dispatch, getState) => {
   try {
-    const INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS = 5000;
     const pageOptions: PageOptions = {
       size: Constant.PageSize as number,
       page: 0,
     };
-
-    await dispatch(getNotifications(pageOptions));
-    return setInterval(() => {
+    WebSocketUtils.registerOnMessageHandler(() => {
       dispatch(addLatestNotifications());
-    }, INTERVAL_TO_FETCH_NOTIFICATIONS_IN_MILI_SECONDS);
+    });
+    await dispatch(getNotifications(pageOptions));
   } catch (error: unknown) {
     console.log(error);
   }
