@@ -18,6 +18,7 @@ const ShareButton: React.FC<{ post: Post }> = ({ post }) => {
     <Popover
       getPopupContainer={(container) => container.parentElement!}
       trigger='click'
+      showArrow={false}
       content={
         <div className='more-action-box-container'>
           <FacebookShareButton

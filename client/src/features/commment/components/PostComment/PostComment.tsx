@@ -39,6 +39,7 @@ import { formatNumber } from '../../../../utils/format-number';
 import { PostContext } from '../../../Home/Components/post-with-comment/PostWithComment';
 import ChildComment from '../ChildComment/ChildComment';
 import styles from './PostComment.module.scss';
+import WYSIWYGView from '../../../../components/wysiwyg-view/WYSIWYGView';
 
 interface Props {
   readonly comment: AppComment;
@@ -228,9 +229,8 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
         avatar={<Avatar src={comment.user.avatarUrl} alt='User avatar' />}
         content={
           <>
-            <Typography.Paragraph className={styles.postCommentText}>
-              {mention} {comment.text}
-            </Typography.Paragraph>
+            {mention}
+            <WYSIWYGView content={comment.text} />
             {comment.mediaUrl && comment.mediaType ? (
               <Media
                 url={comment.mediaUrl}

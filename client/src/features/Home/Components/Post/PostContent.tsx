@@ -43,6 +43,7 @@ import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
+import WYSIWYGView from '../../../../components/wysiwyg-view/WYSIWYGView';
 
 interface Props {
   post: Post;
@@ -58,17 +59,7 @@ const PostMedia: React.FC<{ post: Post }> = ({ post }) => {
 };
 
 const PostText: React.FC<{ post: Post }> = ({ post }) => {
-  return (
-    <Typography.Paragraph
-      ellipsis={{
-        rows: 7,
-        expandable: true,
-      }}
-      className={styles.postText}
-    >
-      {post.text}
-    </Typography.Paragraph>
-  );
+  return <WYSIWYGView content={post.text} />;
 };
 
 const POST_CONTENT_TYPE_TO_CONTENT_MAP: Readonly<
@@ -251,6 +242,7 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             }
           />
           <Typography.Title level={4}>{post.title}</Typography.Title>
+          <br />
           {React.createElement(POST_CONTENT_TYPE_TO_CONTENT_MAP[post.contentType], {
             post,
           })}

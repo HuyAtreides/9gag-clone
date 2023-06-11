@@ -5,6 +5,7 @@ import AppComment from '../../models/comment';
 import { MediaType } from '../../models/enums/constant';
 import NameWithCountryFlag from '../name-with-country-flag/NameWithCountryFlag';
 import useTimeDiffFromToday from '../../custom-hooks/use-time-diff-from-today';
+import WYSIWYGView from '../wysiwyg-view/WYSIWYGView';
 
 interface Props {
   readonly comment: AppComment;
@@ -31,16 +32,7 @@ const CommentContent: React.FC<{ comment: AppComment }> = ({ comment }) => {
     );
   }
 
-  return (
-    <Typography.Paragraph
-      ellipsis={{
-        rows: 17,
-        expandable: false,
-      }}
-    >
-      {comment.text}
-    </Typography.Paragraph>
-  );
+  return <WYSIWYGView content={comment.text} />;
 };
 
 const getCommentUrl = (comment: AppComment) => {
