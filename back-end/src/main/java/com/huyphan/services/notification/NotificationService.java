@@ -1,8 +1,10 @@
 package com.huyphan.services.notification;
 
+import com.huyphan.controllers.eventemitter.EventEmitter;
 import com.huyphan.models.Notification;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.User;
+import com.huyphan.models.enums.WebSocketEvent;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.repositories.NotificationRepository;
 import com.huyphan.services.UserService;
@@ -27,6 +29,9 @@ public class NotificationService implements NotificationSender {
     private UserService userService;
     @Autowired
     private List<NotificationBuilder> notificationBuilders;
+
+    @Autowired
+    private EventEmitter eventEmitter;
 
     public Slice<Notification> getNotifications(PageOptions options) {
         Sort sort = Sort.by(Order.desc("id"));
@@ -70,6 +75,7 @@ public class NotificationService implements NotificationSender {
     }
 
     @Override
+    @Transactional
     public void send(NotificationPayload notificationPayload) throws AppException {
         NotificationBuilder<NotificationPayload> notificationBuilder = notificationBuilders.stream()
                 .filter(
@@ -78,6 +84,7 @@ public class NotificationService implements NotificationSender {
                 ).findFirst().orElseThrow(() -> new AppException("Invalid notification type"));
         notificationBuilder.build(notificationPayload).forEach(notification -> {
             notificationRepository.save(notification);
+            eventEmitter.emitEventTo(WebSocketEvent.RECEIVE_NEW_NOTIFICATION, notification.getUser());
         });
     }
 }
