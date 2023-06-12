@@ -103,6 +103,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         String updatedUsername = updateProfileData.getUsername();
         String updatedAvatarUrl = updateProfileData.getAvatarUrl();
         String updatedCoverImgUrl = updateProfileData.getCoverImgUrl();
+        String updatedAbout = updateProfileData.getAbout();
 
         if (!Objects.equals(user.getUsername(), updatedUsername) && userRepo.existsByUsername(
                 updatedUsername)) {
@@ -116,13 +117,16 @@ public class UserService implements UserDetailsService, MediatorComponent {
         user.setAvatarUrl(updateProfileData.getAvatarUrl());
         user.setCountry(updateProfileData.getCountry());
         user.setCoverImageUrl(updatedCoverImgUrl);
+        user.setAbout(updatedAbout == null ? "" : updatedAbout);
         user.setPrivate(updateProfileData.isPrivate());
 
-        if (!updatedAvatarUrl.equals(oldAvatarUrl) && !Objects.equals(oldAvatarUrl, defaultAvatarUrl)) {
+        if (!updatedAvatarUrl.equals(oldAvatarUrl) && !Objects.equals(oldAvatarUrl,
+                defaultAvatarUrl)) {
             awss3Util.deleteObject(oldAvatarUrl);
         }
 
-        if (!updatedCoverImgUrl.equals(oldCoverImgUrl) && !Objects.equals(oldCoverImgUrl, defaultCoverImgUrl)) {
+        if (!updatedCoverImgUrl.equals(oldCoverImgUrl) && !Objects.equals(oldCoverImgUrl,
+                defaultCoverImgUrl)) {
             awss3Util.deleteObject(oldCoverImgUrl);
         }
 

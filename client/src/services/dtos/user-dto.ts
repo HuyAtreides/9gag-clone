@@ -22,4 +22,6 @@ export interface UserDto {
   readonly blockedTime: string | null;
 
   readonly coverImageUrl: string;
+
+  readonly about: string;
 }

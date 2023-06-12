@@ -6,4 +6,6 @@ export default interface UpdateProfileDataDto extends Omit<RegisterDataDto, 'pas
   readonly coverImgUrl: string;
 
   readonly isPrivate: boolean;
+
+  readonly about: string;
 }

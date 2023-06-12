@@ -11,4 +11,6 @@ public class UpdateProfileData extends RegisterData {
     private String coverImgUrl;
 
     private boolean isPrivate;
+
+    private String about;
 }

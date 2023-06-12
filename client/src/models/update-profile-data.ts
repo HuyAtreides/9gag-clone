@@ -6,4 +6,6 @@ export interface UpdateProfileData extends Omit<RegisterData, 'password'> {
   readonly coverImgUrl: string;
 
   readonly isPrivate: boolean;
+
+  readonly about: string;
 }
