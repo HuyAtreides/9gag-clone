@@ -1,5 +1,6 @@
 export namespace WebSocketUtils {
   let socket: WebSocket | null = null;
+  let messageHandler = () => void 0;
 
   export function connect(userId: number) {
     socket = new WebSocket(
@@ -10,6 +11,8 @@ export namespace WebSocketUtils {
     socket.onclose = function () {
       connect(userId);
     };
+
+    socket.onmessage = messageHandler;
   }
 
   export function reconnect(userId: number) {
@@ -19,9 +22,8 @@ export namespace WebSocketUtils {
     }
   }
 
-  export function registerOnMessageHandler(
-    handler: (this: WebSocket, ev: MessageEvent) => any,
-  ) {
+  export function registerOnMessageHandler(handler: () => any) {
+    messageHandler = handler;
     if (!socket) {
       return;
     }

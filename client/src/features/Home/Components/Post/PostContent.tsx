@@ -30,6 +30,7 @@ import Media from '../../../../components/media/Media';
 import ShareButton from '../../../../components/share-button/ShareButton';
 import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
 import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
+import WYSIWYGView from '../../../../components/wysiwyg-view/WYSIWYGView';
 import useDownvote from '../../../../custom-hooks/downvote';
 import useFollow from '../../../../custom-hooks/follow';
 import useProtectedAction from '../../../../custom-hooks/protected-action';
@@ -43,7 +44,8 @@ import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
-import WYSIWYGView from '../../../../components/wysiwyg-view/WYSIWYGView';
+import SharedPostContainer from '../../../../components/shared-post/SharedPostContainer';
+import PostTitle from '../../../../components/post-title/PostTitle';
 
 interface Props {
   post: Post;
@@ -67,6 +69,7 @@ const POST_CONTENT_TYPE_TO_CONTENT_MAP: Readonly<
 > = {
   [PostContentType.MEDIA]: PostMedia,
   [PostContentType.TEXT]: PostText,
+  [PostContentType.SHARED_POST]: SharedPostContainer,
 };
 
 const PostContent: React.FC<Props> = ({ post }: Props) => {
@@ -123,6 +126,8 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
       title: 'Do you want to delete this post?',
     });
   };
+
+  const postCreatorAction = post.sharedPostId !== null ? 'Shared By' : 'Uploaded By';
 
   return (
     <VirtualComponent scrollAreaId={Constant.PostScrollAreaId as string}>
@@ -231,9 +236,9 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             }
             description={
               <>
-                {`Uploaded by `}{' '}
-                {post.user ? (
-                  <Link to={`/user/${post.user.id}`}>{post.user.username}</Link>
+                {postCreatorAction}{' '}
+                {!post.anonymous ? (
+                  <Link to={`/user/${post.user!.id}`}>{post.user!.username}</Link>
                 ) : (
                   'an anonymous user'
                 )}{' '}
@@ -241,8 +246,7 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
               </>
             }
           />
-          <Typography.Title level={4}>{post.title}</Typography.Title>
-          <br />
+          <PostTitle title={post.title} />
           {React.createElement(POST_CONTENT_TYPE_TO_CONTENT_MAP[post.contentType], {
             post,
           })}

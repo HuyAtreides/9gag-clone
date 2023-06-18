@@ -1,7 +1,9 @@
 package com.huyphan.mappers;
 
 import com.huyphan.dtos.PostDto;
+import com.huyphan.dtos.UserDto;
 import com.huyphan.models.Post;
+import com.huyphan.models.User;
 import java.time.Instant;
 import org.modelmapper.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,19 @@ public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>
 
     @Override
     public PostDto toDto(Post data) {
+        Converter<User, UserDto> converter = context -> {
+            if (data.isAnonymous()) {
+                return null;
+            }
+
+            return modelMapper.map(context.getSource(), UserDto.class);
+        };
+
+        modelMapper.typeMap(Post.class, PostDto.class).addMappings(mapper ->
+                mapper.using(converter).map(
+                        Post::getUser,
+                        PostDto::setUser)
+        );
         return modelMapper.map(data, PostDto.class);
     }
 

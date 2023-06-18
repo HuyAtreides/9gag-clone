@@ -7,7 +7,6 @@ import {
 } from '@ant-design/icons';
 import {
   AutoComplete,
-  Avatar,
   Button,
   Checkbox,
   Col,
@@ -19,28 +18,23 @@ import {
   Typography,
   Upload,
 } from 'antd';
+import TextArea from 'antd/lib/input/TextArea';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { uploadNewPost } from '../../../../Store/post/post-dispatchers';
 import { setPostErrorMessage } from '../../../../Store/post/post-slice';
 import DynamicTagList from '../../../../components/dynamic-tag-list/DynamicTagList';
+import PostSection from '../../../../components/post-section/PostSection';
+import WYSIWYGEditor from '../../../../components/wysiwyg-editor/WYSIWYGEditor';
 import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import useUploadFile from '../../../../custom-hooks/upload-file';
+import { PostContentType } from '../../../../models/enums/post-content-type';
 import Section from '../../../../models/section';
 import styles from './Post.module.scss';
-import { PostContentType } from '../../../../models/enums/post-content-type';
-import WYSIWYGEditor from '../../../../components/wysiwyg-editor/WYSIWYGEditor';
 
 const renderItem = (section: Section) => ({
   value: section.displayName,
-  label: (
-    <div className={styles.sectionItem} key={section.id}>
-      <Avatar shape='square' src={section.imgUrl} />
-      <Typography.Text className={styles.sectionName}>
-        {section.displayName}
-      </Typography.Text>
-    </div>
-  ),
+  label: <PostSection section={section} key={section.id} />,
   id: section.id,
 });
 
@@ -122,20 +116,12 @@ const Posts: React.FC = () => {
             </AutoComplete>
           </Form.Item>
           <div className={styles.formContainer}>
-            <Form.Item
-              name='title'
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter post title',
-                },
-              ]}
-            >
-              <Input
+            <Form.Item name='title'>
+              <TextArea
                 className={styles.searchInput}
                 size='large'
-                placeholder='Title'
-                maxLength={500}
+                placeholder='Enter your post title (optional)'
+                autoSize
               />
             </Form.Item>
             <Tabs

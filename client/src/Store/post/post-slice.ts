@@ -1,11 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Pagination } from '../../models/page';
 import Post from '../../models/post';
+import { SharedPost } from '../../models/shared-post';
+
+interface SharedPostState {
+  readonly sharedPost: SharedPost | null;
+  readonly isLoading: boolean;
+  readonly hasError: boolean;
+}
 
 interface PostState {
   readonly isLoading: boolean;
   readonly isGettingPage: boolean;
+  readonly isSharingPost: boolean;
   readonly posts: Post[];
+  readonly sharedPosts: Readonly<Record<number, SharedPostState>>;
   readonly pagination: Pagination | null;
   readonly errorMessage: string | null;
   readonly searchTerm?: string;
@@ -15,6 +24,8 @@ const initialState: PostState = {
   isGettingPage: false,
   isLoading: false,
   posts: [],
+  sharedPosts: {},
+  isSharingPost: false,
   pagination: null,
   errorMessage: null,
 };
@@ -41,6 +52,33 @@ const postSlice = createSlice({
 
     setPosts(state, action: PayloadAction<readonly Post[]>) {
       state.posts = action.payload ? action.payload.map((post) => post) : action.payload;
+    },
+
+    initSharedPostState(state, action: PayloadAction<number>) {
+      const sharedPostContainerId = action.payload;
+      state.sharedPosts[sharedPostContainerId] = {
+        isLoading: true,
+        sharedPost: null,
+        hasError: false,
+      };
+    },
+
+    setSharedPostIsLoading(state, action: PayloadAction<{ id: number; value: boolean }>) {
+      const { id, value } = action.payload;
+      state.sharedPosts[id].isLoading = value;
+    },
+
+    setSharedPostContent(
+      state,
+      action: PayloadAction<{ id: number; value: SharedPost }>,
+    ) {
+      const { id, value } = action.payload;
+      state.sharedPosts[id].sharedPost = value;
+    },
+
+    setSharedPostError(state, action: PayloadAction<{ id: number; value: boolean }>) {
+      const { id, value } = action.payload;
+      state.sharedPosts[id].hasError = value;
     },
 
     appendNewPosts(state, action: PayloadAction<readonly Post[]>) {
@@ -97,6 +135,10 @@ const postSlice = createSlice({
       state.searchTerm = action.payload.length ? action.payload : undefined;
     },
 
+    setIsSharingPost(state, action: PayloadAction<boolean>) {
+      state.isSharingPost = action.payload;
+    },
+
     resetState(state) {
       return initialState;
     },
@@ -107,13 +149,18 @@ export const {
   setIsLoading,
   setIsGettingPage,
   setPostErrorMessage,
+  setIsSharingPost,
   setPosts,
+  setSharedPostError,
   setPagination,
+  setSharedPostIsLoading,
+  setSharedPostContent,
   appendNewPosts,
   setPostDownvotes,
   setPostUpvotes,
   setSearchTerm,
   resetState,
+  initSharedPostState,
   removePost,
   setPostIsSaved,
   setPostFollowed,

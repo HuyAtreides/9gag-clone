@@ -5,7 +5,7 @@ import { UserDto } from './user-dto';
 export default interface PostDto {
   readonly id: number;
 
-  readonly title: string;
+  readonly title?: string;
 
   readonly mediaUrl: string;
 
@@ -43,4 +43,6 @@ export default interface PostDto {
   readonly notificationEnabled: boolean;
 
   readonly anonymous: boolean;
+
+  readonly sharedPostId: number | null;
 }

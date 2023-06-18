@@ -12,6 +12,10 @@ import { NewPostMapper } from './mappers/new-post-mapper';
 import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { PostMapper } from './mappers/post-mapper';
 import { SliceMapper } from './mappers/slice-mapper';
+import { SharePostRequest } from '../models/share-post-request';
+import { SharePostRequestMapper } from './mappers/share-post-request-mapper';
+import { SharedPostDto } from './dtos/shared-post-dto';
+import { SharedPostMapper } from './mappers/shared-post-mapper';
 
 const GET_POSTS_END_POINT = `${Constant.PostEndPoint}`;
 const UPVOTE_POST_END_POINT = `${Constant.PostEndPoint}/upvotes`;
@@ -187,4 +191,19 @@ export const enablePostAnonymous = async (id: number) => {
 export const disablePostAnonymous = async (id: number) => {
   const axios = createAxiosInstance();
   await axios.put<void>(`${Constant.PostEndPoint}/disable-anonymous/${id}`);
+};
+
+export const sharePost = async (request: SharePostRequest) => {
+  const axios = createAxiosInstance();
+  const requestDto = SharePostRequestMapper.toDto(request);
+  await axios.post<void>(`${Constant.PostEndPoint}/share`, requestDto);
+};
+
+export const fetchSharedPost = async (sharedPostContainerId: number) => {
+  const axios = createAxiosInstance();
+  const response = await axios.get<SharedPostDto>(
+    `${Constant.PostEndPoint}/shared/${sharedPostContainerId}`,
+  );
+
+  return SharedPostMapper.fromDto(response.data);
 };

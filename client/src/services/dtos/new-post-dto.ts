@@ -1,14 +1,15 @@
 import { PostContentType } from '../../models/enums/post-content-type';
-import Section from '../../models/section';
+
+import SectionDto from './section-dto';
 
 export default interface NewPostDto {
-  readonly title: string;
+  readonly title?: string;
 
   readonly mediaUrl: string | null;
 
   readonly mediaType: string | null;
 
-  readonly section: Section;
+  readonly section: SectionDto;
 
   readonly tags: string;
 

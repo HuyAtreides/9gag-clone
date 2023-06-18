@@ -1,0 +1,10 @@
+.sectionName {
+  margin-left: 10px;
+  width: 150px;
+  white-space: nowrap;
+}
+
+.sectionItem {
+  display: flex;
+  align-items: center;
+}

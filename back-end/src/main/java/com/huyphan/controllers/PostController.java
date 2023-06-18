@@ -3,14 +3,20 @@ package com.huyphan.controllers;
 import com.huyphan.dtos.NewPostDto;
 import com.huyphan.dtos.PageOptionsDto;
 import com.huyphan.dtos.PostDto;
+import com.huyphan.dtos.SharePostRequestDto;
+import com.huyphan.dtos.SharedPostDto;
 import com.huyphan.dtos.SliceDto;
 import com.huyphan.mappers.NewPostMapper;
 import com.huyphan.mappers.PageOptionMapper;
 import com.huyphan.mappers.PostMapper;
+import com.huyphan.mappers.SharePostRequestMapper;
+import com.huyphan.mappers.SharedPostMapper;
 import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
+import com.huyphan.models.SharePostRequest;
+import com.huyphan.models.SharedPost;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
 import com.huyphan.models.exceptions.UserException;
@@ -43,6 +49,12 @@ public class PostController {
     private NewPostMapper newPostMapper;
     @Autowired
     private SliceMapper<PostDto, Post> sliceMapper;
+
+    @Autowired
+    private SharePostRequestMapper sharePostRequestMapper;
+
+    @Autowired
+    private SharedPostMapper sharedPostMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -123,6 +135,19 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unFollowPost(@PathVariable Long id) throws AppException {
         postService.unFollowPost(id);
+    }
+
+    @PostMapping("share")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void sharePost(@RequestBody SharePostRequestDto requestDto) throws PostException {
+        SharePostRequest request = sharePostRequestMapper.fromDto(requestDto);
+        postService.sharePost(request);
+    }
+
+    @GetMapping("shared/{sharedPostContainerId}")
+    public SharedPostDto getSharedPost(@PathVariable Long sharedPostContainerId) throws PostException {
+        SharedPost sharedPost = postService.findSharedPost(sharedPostContainerId);
+        return sharedPostMapper.toDto(sharedPost) ;
     }
 
     @GetMapping("following/{userId}")

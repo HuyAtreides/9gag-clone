@@ -8,7 +8,8 @@ import java.util.Arrays;
 
 public enum PostContentType {
     MEDIA("MEDIA"),
-    TEXT("TEXT");
+    TEXT("TEXT"),
+    SHARED_POST("SHARED_POST");
 
     private final String value;
 
@@ -17,7 +18,8 @@ public enum PostContentType {
     }
 
     static public PostContentType toPostContentType(String value) throws ValueToEnumException {
-        return Arrays.stream(PostContentType.values()).filter(c -> c.getValue().equals(value)).findFirst()
+        return Arrays.stream(PostContentType.values()).filter(c -> c.getValue().equals(value))
+                .findFirst()
                 .orElseThrow(() -> new ValueToEnumException("Post content type doesn't exist."));
     }
 
