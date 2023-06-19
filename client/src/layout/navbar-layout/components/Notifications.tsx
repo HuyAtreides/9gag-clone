@@ -1,6 +1,7 @@
 import {
   CheckSquareOutlined,
   CommentOutlined,
+  FormOutlined,
   LikeOutlined,
   MoreOutlined,
   PlusSquareOutlined,
@@ -44,6 +45,7 @@ const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
   [NotificationType.FOLLOW_USER]: <UserAddOutlined />,
   [NotificationType.SEND_FOLLOW_REQUEST]: <SendOutlined />,
   [NotificationType.FOLLOW_REQUEST_ACCEPTED]: <CheckSquareOutlined />,
+  [NotificationType.SHARE_POST]: <FormOutlined />,
 };
 
 interface Props {

@@ -8,6 +8,7 @@ import com.huyphan.events.DeletePostEvent;
 import com.huyphan.events.FollowEvent;
 import com.huyphan.events.FollowRequestAcceptedEvent;
 import com.huyphan.events.SendFollowRequestEvent;
+import com.huyphan.events.SharePostEvent;
 import com.huyphan.events.VoteCommentEvent;
 import com.huyphan.events.VotePostEvent;
 import com.huyphan.models.Comment;
@@ -29,6 +30,7 @@ import com.huyphan.services.notification.payload.FollowUserNotificationPayload;
 import com.huyphan.services.notification.payload.FollowingCommentHasNewReplyNotificationPayload;
 import com.huyphan.services.notification.payload.FollowingPostHasNewCommentNotificationPayload;
 import com.huyphan.services.notification.payload.SendFollowRequestNotificationPayload;
+import com.huyphan.services.notification.payload.SharePostNotificationPayload;
 import com.huyphan.services.notification.payload.VoteCommentNotificationPayload;
 import com.huyphan.services.notification.payload.VotePostNotificationPayload;
 import javax.annotation.PostConstruct;
@@ -123,6 +125,17 @@ public class Mediator implements IMediator {
                 FollowRequestAcceptedEvent sendFollowRequestEvent = (FollowRequestAcceptedEvent) event;
                 User sender = sendFollowRequestEvent.getRequestSender();
                 notificationSender.send(new FollowRequestAcceptedNotificationPayload(sender));
+            }
+
+            if (event.getEventType() == EventType.SHARE_POST) {
+                assert event instanceof SharePostEvent;
+                SharePostEvent sharePostEvent = (SharePostEvent) event;
+                notificationSender.send(
+                        new SharePostNotificationPayload(
+                                sharePostEvent.getSharedPostContainerId(),
+                                sharePostEvent.getSharedPostOwner()
+                        )
+                );
             }
 
         } catch (Exception exception) {

@@ -2,6 +2,7 @@ package com.huyphan.services;
 
 import com.huyphan.events.AddPostEvent;
 import com.huyphan.events.DeletePostEvent;
+import com.huyphan.events.SharePostEvent;
 import com.huyphan.events.VotePostEvent;
 import com.huyphan.mediators.IMediator;
 import com.huyphan.mediators.MediatorComponent;
@@ -81,7 +82,7 @@ public class PostService implements MediatorComponent {
     }
 
     @Transactional(rollbackFor = {AppException.class})
-    public void sharePost(SharePostRequest request) throws PostException {
+    public void sharePost(SharePostRequest request) throws AppException {
         Long sharedPostId = request.getSharedPostId();
         Post sharedPost = getPostWithoutDerivedFields(sharedPostId);
         boolean sharedPostContainsAnotherSharedPost = sharedPost.getSharedPostId() != null;
@@ -98,7 +99,13 @@ public class PostService implements MediatorComponent {
         post.setSharedPostId(sharedPostId);
         post.setTitle(request.getTitle());
         post.setSection(request.getSection());
-        postRepository.save(post);
+        Post sharedPostContainer = postRepository.save(post);
+        mediator.notify(
+                new SharePostEvent(
+                        sharedPostContainer.getId(),
+                        sharedPost.getOwner()
+                )
+        );
 
     }
 

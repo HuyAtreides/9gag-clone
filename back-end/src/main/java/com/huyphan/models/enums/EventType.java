@@ -15,5 +15,7 @@ public enum EventType {
     ADD_POST,
     FOLLOW_USER,
     SEND_FOLLOW_REQUEST,
+
+    SHARE_POST,
     FOLLOW_REQUEST_ACCEPTED;
 }

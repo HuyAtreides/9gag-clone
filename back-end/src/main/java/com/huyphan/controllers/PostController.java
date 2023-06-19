@@ -139,7 +139,7 @@ public class PostController {
 
     @PostMapping("share")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void sharePost(@RequestBody SharePostRequestDto requestDto) throws PostException {
+    public void sharePost(@RequestBody SharePostRequestDto requestDto) throws AppException {
         SharePostRequest request = sharePostRequestMapper.fromDto(requestDto);
         postService.sharePost(request);
     }
