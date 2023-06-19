@@ -34,6 +34,7 @@ const AutoClosePopover: React.FC<Props> = ({
       placement={placement}
       getPopupContainer={(container) => container.parentElement!}
       visible={open}
+      zIndex={6}
       onVisibleChange={setOpen}
       content={
         <div className='more-action-box-container' onClick={handlePopoverClicked}>
