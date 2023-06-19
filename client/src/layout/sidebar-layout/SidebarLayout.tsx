@@ -23,6 +23,7 @@ const SideBarLayout: React.FC<Props> = ({
         collapsed={sideBarCollapse}
         collapsedWidth={0}
         className={styles.sidebar}
+        width={230}
       >
         <Sidebar />
       </Sider>
