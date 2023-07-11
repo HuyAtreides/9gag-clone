@@ -44,7 +44,7 @@ import org.hibernate.annotations.Nationalized;
 })
 @DynamicInsert
 @DynamicUpdate
-public class Post implements Followable, Notifiable {
+public class Post implements Followable, Notifiable, SharedPost {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,6 +83,10 @@ public class Post implements Followable, Notifiable {
     private boolean notificationEnabled;
     @Column(name = "Anonymous")
     private boolean anonymous;
+
+    @Column(name = "SharedPostId")
+    private Long sharedPostId;
+
     @Lob
     @Column(name = "Tags")
     @Nationalized
@@ -109,6 +113,7 @@ public class Post implements Followable, Notifiable {
             joinColumns = @JoinColumn(name = "PostId"),
             inverseJoinColumns = @JoinColumn(name = "UserId"))
     private Set<User> followers = new LinkedHashSet<>();
+
     @Transient
     private int totalComments;
     @Transient
@@ -167,5 +172,10 @@ public class Post implements Followable, Notifiable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public User getOriginalPoster() {
+        return isAnonymous() ? null : getOwner();
     }
 }

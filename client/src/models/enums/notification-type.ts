@@ -8,4 +8,5 @@ export enum NotificationType {
   FOLLOW_USER = 'FollowUser',
   FOLLOW_REQUEST_ACCEPTED = 'FollowRequestAccepted',
   SEND_FOLLOW_REQUEST = 'SendFollowRequest',
+  SHARE_POST = 'SharePost',
 }

@@ -1,0 +1,14 @@
+.sharedPostContent {
+  width: fit-content;
+  max-width: 55vw;
+}
+
+@media screen and (max-width: 992px) {
+  .sharedPostContent {
+    max-width: 95vw;
+  }
+}
+
+.sharedPostMeta {
+  margin-bottom: 15px;
+}

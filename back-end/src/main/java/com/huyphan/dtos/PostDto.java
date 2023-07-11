@@ -37,6 +37,8 @@ public class PostDto {
      */
     private String uploadTime;
 
+    private Long sharedPostId;
+
     private boolean notificationEnabled;
 
     private String tags;

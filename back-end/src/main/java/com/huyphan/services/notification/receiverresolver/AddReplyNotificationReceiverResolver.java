@@ -18,8 +18,9 @@ public class AddReplyNotificationReceiverResolver implements NotificationReceive
     public List<User> resolve(CommentNotificationPayload notificationPayload) {
         List<User> users = new ArrayList<>();
         Comment comment = notificationPayload.getComment();
-        User replyToCommentUser = notificationPayload.getComment().getReplyTo().getUser();
-        if (replyToCommentUser.equals(UserService.getUser()) || !comment.isNotificationEnabled()) {
+        Comment replyTo = comment.getReplyTo();
+        User replyToCommentUser = replyTo.getUser();
+        if (replyToCommentUser.equals(UserService.getUser()) || !replyTo.isNotificationEnabled()) {
             return users;
         }
 

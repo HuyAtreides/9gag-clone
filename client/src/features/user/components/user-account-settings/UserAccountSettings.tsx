@@ -179,7 +179,7 @@ const UserAccountSettings: React.FC = () => {
         name='about'
         extra='A brief description of yourself shown on your profile.'
       >
-        <TextArea allowClear />
+        <TextArea allowClear autoSize />
       </Form.Item>
 
       <Form.Item name='coverImg' label={<strong>Cover Image</strong>}>

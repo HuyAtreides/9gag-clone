@@ -5,7 +5,7 @@ import { User } from './user';
 export default interface Post {
   readonly id: number;
 
-  readonly title: string;
+  readonly title?: string;
 
   readonly mediaUrl: string;
 
@@ -40,4 +40,6 @@ export default interface Post {
   readonly notificationEnabled: boolean;
 
   readonly anonymous: boolean;
+
+  readonly sharedPostId: number | null;
 }

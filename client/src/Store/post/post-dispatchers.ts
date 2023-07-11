@@ -11,6 +11,7 @@ import {
   disablePostAnonymous,
   downvote,
   enablePostAnonymous,
+  fetchSharedPost,
   followPost,
   getFollowingPostList,
   getPostList,
@@ -20,6 +21,7 @@ import {
   getUserPostList,
   PostFetchingFunc,
   savePost,
+  sharePost,
   turnOffPostNotifications,
   turnOnPostNotifications,
   unDownvote,
@@ -32,9 +34,11 @@ import { upload } from '../../services/upload-service';
 import { handleError } from '../../utils/error-handler';
 import {
   appendNewPosts,
+  initSharedPostState,
   removePost,
   setIsGettingPage,
   setIsLoading,
+  setIsSharingPost,
   setPagination,
   setPostAnonymous,
   setPostDownvotes,
@@ -44,7 +48,11 @@ import {
   setPosts,
   setPostUpvotes,
   setSendNotifications,
+  setSharedPostContent,
+  setSharedPostError,
+  setSharedPostIsLoading,
 } from './post-slice';
+import { SharePostRequest } from '../../models/share-post-request';
 
 export type FetchPostsThunkAction<T extends PostsFetchingRequest> = (
   postsFetchingRequest: T,
@@ -70,9 +78,48 @@ const getPostsDispatcher =
       dispatch(setIsLoading(false));
       dispatch(setPagination(pagination));
       dispatch(setPosts(pageOfPosts.content));
+      dispatch(initSharedPostsState(pageOfPosts.content));
     } catch (error: unknown) {
       dispatch(setIsLoading(false));
       handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+const initSharedPostsState =
+  (posts: readonly Post[]): AppThunk =>
+  (dispatch, _) => {
+    posts
+      .filter((post) => post.sharedPostId !== null)
+      .forEach((post) => {
+        dispatch(initSharedPostState(post.id));
+      });
+  };
+
+export const share =
+  (request: SharePostRequest): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsSharingPost(true));
+      await sharePost(request);
+      message.success('Post shared successfully!');
+      dispatch(setIsSharingPost(false));
+    } catch (error: unknown) {
+      dispatch(setIsSharingPost(false));
+      handleError(dispatch, error, setPostErrorMessage);
+    }
+  };
+
+export const getSharedPost =
+  (sharedPostContainerId: number): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      dispatch(setSharedPostIsLoading({ id: sharedPostContainerId, value: true }));
+      const sharedPost = await fetchSharedPost(sharedPostContainerId);
+      dispatch(setSharedPostIsLoading({ id: sharedPostContainerId, value: false }));
+      dispatch(setSharedPostContent({ id: sharedPostContainerId, value: sharedPost }));
+    } catch (error: unknown) {
+      dispatch(setSharedPostIsLoading({ id: sharedPostContainerId, value: false }));
+      dispatch(setSharedPostError({ id: sharedPostContainerId, value: true }));
     }
   };
 
@@ -96,6 +143,7 @@ const addNewPostsDispatcher =
       dispatch(setIsGettingPage(false));
       dispatch(setPagination(pagination));
       dispatch(appendNewPosts(pageOfPosts.content));
+      dispatch(initSharedPostsState(pageOfPosts.content));
     } catch (error: unknown) {
       dispatch(setIsGettingPage(false));
       handleError(dispatch, error, setPostErrorMessage);
@@ -153,6 +201,7 @@ export const getPost =
       dispatch(setIsLoading(true));
       const post = await getSpecificPost(id);
       dispatch(setPosts([post]));
+      dispatch(initSharedPostsState([post]));
       dispatch(setIsLoading(false));
     } catch (error: unknown) {
       dispatch(setIsLoading(false));

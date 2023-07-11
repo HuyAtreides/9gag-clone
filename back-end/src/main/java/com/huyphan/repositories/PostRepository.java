@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends CrudRepository<Post, Long> {
@@ -227,4 +228,13 @@ public interface PostRepository extends CrudRepository<Post, Long> {
             @Param("searchTerm") String search,
             Pageable pageable
     );
+
+    @Query(
+            """
+              select case when (count(*) > 0) then true else false end
+              from Post post
+              where post.id = :postId and
+             """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION
+    )
+    boolean canUserAccessPost(@Param("user") User user, @Param("postId") Long postId);
 }

@@ -2,7 +2,7 @@ import { PostContentType } from './enums/post-content-type';
 import Section from './section';
 
 export default interface NewPost {
-  readonly title: string;
+  readonly title?: string;
 
   readonly mediaUrl: string | null;
 

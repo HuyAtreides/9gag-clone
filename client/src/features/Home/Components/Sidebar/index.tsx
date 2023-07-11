@@ -21,6 +21,7 @@ import isInEnum from '../../../../utils/is-in-enum';
 import styles from './Sidebar.module.scss';
 import UserSearch from '../../../../components/user-search/UserSearch';
 import { ScreenBreakPoint } from '../../../../models/enums/constant';
+import PostSection from '../../../../components/post-section/PostSection';
 
 type MenuItem = Required<MenuProps>['items'][number];
 const isSmallerThanMediumBreakPoint = window.innerWidth < ScreenBreakPoint.Medium;
@@ -96,7 +97,7 @@ const Sidebar = () => {
             className={styles.text}
             title={section.displayName}
           >
-            {section.displayName}
+            <PostSection section={section} />
           </Link>
 
           <StarFilled
@@ -128,7 +129,7 @@ const Sidebar = () => {
               className={styles.text}
               title={section.displayName}
             >
-              {section.displayName}
+              <PostSection section={section} />
             </Link>
 
             <StarFilled

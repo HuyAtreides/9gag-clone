@@ -2,6 +2,7 @@ package com.huyphan.services;
 
 import com.huyphan.events.AddPostEvent;
 import com.huyphan.events.DeletePostEvent;
+import com.huyphan.events.SharePostEvent;
 import com.huyphan.events.VotePostEvent;
 import com.huyphan.mediators.IMediator;
 import com.huyphan.mediators.MediatorComponent;
@@ -9,12 +10,13 @@ import com.huyphan.models.Comment;
 import com.huyphan.models.NewPost;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.Post;
+import com.huyphan.models.SharePostRequest;
+import com.huyphan.models.SharedPost;
 import com.huyphan.models.User;
 import com.huyphan.models.enums.PostContentType;
 import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
-import com.huyphan.models.exceptions.UserException;
 import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
@@ -77,6 +79,56 @@ public class PostService implements MediatorComponent {
         post.setAnonymous(newPost.isAnonymous());
         Post savedPost = postRepository.save(post);
         mediator.notify(new AddPostEvent(savedPost));
+    }
+
+    @Transactional(rollbackFor = {AppException.class})
+    public void sharePost(SharePostRequest request) throws AppException {
+        Long sharedPostId = request.getSharedPostId();
+        Post sharedPost = getPostWithoutDerivedFields(sharedPostId);
+        boolean sharedPostContainsAnotherSharedPost = sharedPost.getSharedPostId() != null;
+
+        if (sharedPostContainsAnotherSharedPost) {
+            sharedPostId = sharedPost.getSharedPostId();
+        }
+
+        Post post = new Post();
+        post.setUser(userService.getCurrentUser());
+        post.setContentType(PostContentType.SHARED_POST);
+        post.setAnonymous(false);
+        post.setNotificationEnabled(true);
+        post.setSharedPostId(sharedPostId);
+        post.setTitle(request.getTitle());
+        post.setSection(request.getSection());
+        Post sharedPostContainer = postRepository.save(post);
+        mediator.notify(
+                new SharePostEvent(
+                        sharedPostContainer.getId(),
+                        sharedPost.getOwner()
+                )
+        );
+
+    }
+
+    public SharedPost findSharedPost(long postIdContainsSharedPost) throws PostException {
+        Post postContainsSharedPost = getPostWithoutDerivedFields(postIdContainsSharedPost);
+        Long sharedPostId = postContainsSharedPost.getSharedPostId();
+
+        if (sharedPostId == null) {
+            throw new PostException("Shared post not found");
+        }
+
+        User sharingUser = postContainsSharedPost.getOwner();
+
+        boolean sharingUserCanAccessSharedPost = postRepository.canUserAccessPost(
+                sharingUser,
+                sharedPostId
+        );
+
+        if (!sharingUserCanAccessSharedPost) {
+            throw new PostException("Shared post not found");
+        }
+
+        return getPostWithoutDerivedFields(sharedPostId);
     }
 
     @Transactional(rollbackFor = {AppException.class})
@@ -161,9 +213,9 @@ public class PostService implements MediatorComponent {
             throw new PostException("Post not found");
         }
 
-        awss3Util.deleteObject(post.getMediaUrl());
         mediator.notify(new DeletePostEvent(id));
         postRepository.deleteById(id);
+        awss3Util.deleteObject(post.getMediaUrl());
     }
 
     @Transactional(rollbackFor = {AppException.class})

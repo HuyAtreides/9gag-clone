@@ -10,14 +10,16 @@ import {
   TwitterIcon,
   TwitterShareButton,
 } from 'react-share';
-import styles from './ShareButton.module.scss';
 import Post from '../../models/post';
+import styles from './ShareButton.module.scss';
+import ShareToProfileButton from './share-to-profile-button/ShareToProfileButton';
 
 const ShareButton: React.FC<{ post: Post }> = ({ post }) => {
   return (
     <Popover
       getPopupContainer={(container) => container.parentElement!}
       trigger='click'
+      zIndex={7}
       showArrow={false}
       content={
         <div className='more-action-box-container'>
@@ -28,21 +30,21 @@ const ShareButton: React.FC<{ post: Post }> = ({ post }) => {
                 type='text'
                 block
                 className={styles.iconContainer}
-                icon={<FacebookIcon size={20} round />}
+                icon={<FacebookIcon size={20} className='anticon' />}
               >
-                &nbsp; Facebook
+                Facebook
               </Button>
             }
           />
           <RedditShareButton
             children={
               <Button
-                icon={<RedditIcon size={20} round />}
+                icon={<RedditIcon size={20} className='anticon' />}
                 type='text'
                 block
                 className={styles.iconContainer}
               >
-                &nbsp; Reddit
+                Reddit
               </Button>
             }
             url={`${process.env.REACT_APP_APP_URL}/post/${post.id}`}
@@ -50,12 +52,12 @@ const ShareButton: React.FC<{ post: Post }> = ({ post }) => {
           <FacebookMessengerShareButton
             children={
               <Button
-                icon={<FacebookMessengerIcon size={20} round />}
+                icon={<FacebookMessengerIcon size={20} className='anticon' />}
                 type='text'
                 block
                 className={styles.iconContainer}
               >
-                &nbsp; Messenger
+                Messenger
               </Button>
             }
             appId={process.env.REACT_APP_FACEBOOK_API_ID as string}
@@ -64,16 +66,17 @@ const ShareButton: React.FC<{ post: Post }> = ({ post }) => {
           <TwitterShareButton
             children={
               <Button
-                icon={<TwitterIcon size={20} round />}
+                icon={<TwitterIcon size={20} className='anticon' />}
                 type='text'
                 block
                 className={styles.iconContainer}
               >
-                &nbsp; Twitter
+                Twitter
               </Button>
             }
             url={`${process.env.REACT_APP_APP_URL}/post/${post.id}`}
           />
+          <ShareToProfileButton post={post} />
         </div>
       }
     >
