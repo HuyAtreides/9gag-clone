@@ -213,9 +213,9 @@ public class PostService implements MediatorComponent {
             throw new PostException("Post not found");
         }
 
-        awss3Util.deleteObject(post.getMediaUrl());
         mediator.notify(new DeletePostEvent(id));
         postRepository.deleteById(id);
+        awss3Util.deleteObject(post.getMediaUrl());
     }
 
     @Transactional(rollbackFor = {AppException.class})
