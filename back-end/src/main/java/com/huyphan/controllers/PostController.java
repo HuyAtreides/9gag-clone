@@ -172,8 +172,8 @@ public class PostController {
         postService.unDownvotesPost(id);
     }
 
-    @GetMapping("save/{userId}")
-    public SliceDto<PostDto> getSavedPosts(@PathVariable Long userId,
+    @GetMapping("save/{id}")
+    public SliceDto<PostDto> getSavedPosts(@PathVariable("id") Long userId,
             PageOptionsDto pageOptionsDto) throws AppException {
         PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
         Slice<Post> savedPosts = postService.getSavedPosts(userId, pageOptions);
