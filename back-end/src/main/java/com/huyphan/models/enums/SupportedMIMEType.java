@@ -1,5 +1,8 @@
 package com.huyphan.models.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.huyphan.models.exceptions.ValueToEnumException;
+import java.util.Arrays;
 import lombok.Getter;
 
 @Getter
@@ -16,5 +19,15 @@ public enum SupportedMIMEType {
 
     SupportedMIMEType(String value) {
         this.value = value;
+    }
+
+    static public SupportedMIMEType toSupportedMIMEType(String value) {
+        return Arrays.stream(SupportedMIMEType.values()).filter(c -> c.getValue().equals(value)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("MIME type doesn't exist."));
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 }

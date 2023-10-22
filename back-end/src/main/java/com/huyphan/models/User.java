@@ -43,7 +43,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "[User]")
 @DynamicInsert
 @DynamicUpdate
-public class User implements UserDetails, Followable {
+public class User implements UserDetails, Followable, ChatParticipant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -228,4 +228,8 @@ public class User implements UserDetails, Followable {
         return true;
     }
 
+    @Override
+    public boolean canSendMessageTo(ChatParticipant receiver) {
+        return true;
+    }
 }

@@ -11,6 +11,7 @@ export enum Constant {
   PostScrollAreaId = '#post-scroll-area-id',
   CommentScrollAreaId = '#comment-scroll-area-id',
   CommentEndPoint = 'comment',
+  ChatEndPoint = 'chat',
   FollowRequestEndPoint = 'follow-request',
   CommentState = 'commentState',
   PageSize = 15,
