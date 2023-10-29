@@ -115,10 +115,7 @@ public class ChatMessage {
     }
 
     public void update(MessageContent newContent, ChatParticipant chatParticipant) {
-        if (!owner.equals(chatParticipant)) {
-            throw new IllegalArgumentException("You can't update other message");
-        }
-
+        assert owner.equals(chatParticipant);
         this.content = newContent;
         this.lastEditDate = Instant.now();
         this.edited = true;

@@ -15,9 +15,11 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
 
@@ -46,12 +48,16 @@ public class ChatConversation {
 
     @Column(name = "Created", nullable = false)
     private Instant created;
+    @Transient
+    @Setter
+    private Long latestChatMessageId;
 
-    public ChatConversation(Set<ChatParticipant> participants, Set<ChatMessage> messages,
-            boolean read) {
-        if (participants.size() > 2) {
-            throw new IllegalArgumentException("Unsupported for more than 2 participants");
-        }
+    public ChatConversation(
+            Set<ChatParticipant> participants,
+            Set<ChatMessage> messages,
+            boolean read
+    ) {
+        assert participants.size() > 2;
 
         this.participants = participants;
         this.messages = messages;
@@ -60,16 +66,15 @@ public class ChatConversation {
     }
 
     public ChatConversation(Set<ChatParticipant> participants) {
-        if (participants.size() > 2) {
-            throw new IllegalArgumentException("Unsupported for more than 2 participants");
-        }
+        assert participants.size() > 2;
 
         this.participants = participants;
         this.read = false;
         this.created = Instant.now();
     }
 
-    public void markConversationAsRead() {
+    public void markConversationAsRead(User currentUser) {
+        assert participants.contains(currentUser);
         this.read = true;
     }
 

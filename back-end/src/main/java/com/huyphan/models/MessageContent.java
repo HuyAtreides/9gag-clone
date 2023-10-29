@@ -36,7 +36,10 @@ public class MessageContent {
     private String text;
 
     public MessageContent withNewMedia(String mediaUrl, SupportedMIMEType mediaType) {
+        return new MessageContent(mediaUrl, mediaType, text);
+    }
 
+    public MessageContent withNewContent(String mediaUrl, SupportedMIMEType mediaType, String text) {
         return new MessageContent(mediaUrl, mediaType, text);
     }
 

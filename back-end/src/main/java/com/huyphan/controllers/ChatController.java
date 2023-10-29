@@ -3,19 +3,20 @@ package com.huyphan.controllers;
 import com.huyphan.dtos.ChatConversationDto;
 import com.huyphan.dtos.ChatMessageDto;
 import com.huyphan.dtos.MessageContentDto;
+import com.huyphan.dtos.PageOptionsDto;
 import com.huyphan.dtos.SliceDto;
 import com.huyphan.mappers.ChatMessageMapper;
 import com.huyphan.mappers.ConversationMapper;
 import com.huyphan.mappers.MessageContentMapper;
+import com.huyphan.mappers.PageOptionMapper;
 import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.ChatConversation;
 import com.huyphan.models.ChatMessage;
 import com.huyphan.models.MessageContent;
-import com.huyphan.models.User;
+import com.huyphan.models.PageOptions;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.ChatService;
-import java.time.Instant;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
@@ -48,7 +49,13 @@ public class ChatController {
     private ChatMessageMapper chatMessageMapper;
 
     @Autowired
-    private SliceMapper<ChatMessageDto, ChatMessage> sliceMapper;
+    private PageOptionMapper pageOptionMapper;
+
+    @Autowired
+    private SliceMapper<ChatMessageDto, ChatMessage> messageSliceMapper;
+
+    @Autowired
+    private SliceMapper<ChatConversationDto, ChatConversation> conversationSliceMapper;
 
     @PostMapping("add-message/{conversationId}")
     public ChatMessageDto sendMessage(@PathVariable Long conversationId,
@@ -60,52 +67,80 @@ public class ChatController {
     }
 
     @GetMapping("conversation-messages/{conversationId}")
-    public SliceDto<ChatMessageDto> getConversationChatMessages(@PathVariable Long conversationId) {
-        Slice<ChatMessage> chatMessages = chatService.getConversationChatMessages(conversationId);
+    public SliceDto<ChatMessageDto> getConversationChatMessages(
+            @PathVariable Long conversationId,
+            PageOptionsDto pageOptionsDto
+    ) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<ChatMessage> chatMessages = chatService.getConversationChatMessages(
+                conversationId,
+                pageOptions
+        );
 
-        return sliceMapper.toDto(chatMessages, chatMessageMapper);
+        return messageSliceMapper.toDto(chatMessages, chatMessageMapper);
     }
 
-    @GetMapping("conversation/{id}")
-    public ChatConversationDto getConversation(@PathVariable Long id) {
-        ChatConversation conversation = chatService.getConversation(id);
+    @GetMapping("conversations")
+    public SliceDto<ChatConversationDto> getAllConversationsOfCurrentUser(
+            PageOptionsDto pageOptionsDto
+    ) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<ChatConversation> chatConversations = chatService.getAllConversationsOfCurrentUser(
+                pageOptions
+        );
 
-        return conversationMapper.toDto(conversation);
+        return conversationSliceMapper.toDto(chatConversations, conversationMapper);
     }
 
     @PutMapping("edit-message/{messageId}")
-    public void editMessage(@PathVariable Long messageId) {
-
+    public void editMessage(
+            @PathVariable Long messageId,
+            @RequestBody MessageContentDto newMessageContentDto
+    ) {
+        MessageContent messageContent = messageContentMapper.fromDto(newMessageContentDto);
+        chatService.editMessage(messageId, messageContent);
     }
 
-    @GetMapping("latest-message/:latestId")
-    public List<ChatMessageDto> getLatestChatMessage(@PathVariable Long latestId) {
-        return null;
+    @GetMapping("conversations-with-newest-messages/:latestMessageId")
+    public List<ChatConversationDto> getAllConversationWithNewestMessage(
+            @PathVariable Long latestMessageId
+    ) {
+        List<ChatConversation> chatConversations = chatService.findAllConversationWithNewestMessage(
+                latestMessageId
+        );
+
+        return chatConversations.stream().map(chatConversation ->
+                conversationMapper.toDto(chatConversation)
+        ).toList();
     }
 
-    @PutMapping("pin-message")
-    public void pinMessage() {
-
+    @PutMapping("pin-message/:messageId")
+    public void pinMessage(@PathVariable Long messageId) {
+        chatService.pinMessage(messageId);
     }
 
-    @PutMapping("mark-as-read")
-    public void markConversationAsRead() {
-
+    @PutMapping("mark-as-read/:conversationId")
+    public void markConversationAsRead(@PathVariable Long conversationId) {
+        chatService.markConversationAsRead(conversationId);
     }
 
-    @DeleteMapping("message")
-    public void removeMessage() {
-
+    @DeleteMapping("message/:messageId")
+    public void removeMessage(@PathVariable Long messageId) {
+        chatService.removeMessage(messageId);
     }
 
-    @GetMapping("messages")
-    public void getConversationMessages() {
+    @GetMapping("messages/:conversationId")
+    public SliceDto<ChatMessageDto> getConversationMessages(
+            @PathVariable Long conversationId,
+            PageOptionsDto pageOptionsDto
+    ) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<ChatMessage> chatMessages = chatService.getConversationChatMessages(
+                conversationId,
+                pageOptions
+        );
 
-    }
-
-    @GetMapping
-    public void getConversation() {
-
+        return messageSliceMapper.toDto(chatMessages, chatMessageMapper);
     }
 
     @PutMapping("create/{userId}")
