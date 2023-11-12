@@ -9,4 +9,6 @@ export default interface ChatMessageDto {
   readonly pinned: boolean;
   readonly edited: boolean;
   readonly owner: UserDto;
+  readonly deleted: boolean;
+  readonly conversationId: number;
 }

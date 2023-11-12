@@ -1,5 +1,6 @@
 import { AppThunk } from '..';
 import { Constant } from '../../models/enums/constant';
+import { WebSocketEvent } from '../../models/enums/web-socket-event';
 import PageOptions from '../../models/page-options';
 import {
   countNotViewedNotifications,
@@ -150,7 +151,7 @@ export const initialize = (): AppThunk => async (dispatch, getState) => {
       size: Constant.PageSize as number,
       page: 0,
     };
-    WebSocketUtils.registerOnMessageHandler(() => {
+    WebSocketUtils.registerEventHandler(WebSocketEvent.RECEIVE_NEW_NOTIFICATION, () => {
       dispatch(addLatestNotifications());
     });
     await dispatch(getNotifications(pageOptions));

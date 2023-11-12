@@ -53,6 +53,14 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
     );
 
     @Query(SELECT_STATEMENT + """
+            from ChatConversation conversation
+            where conversation.id = :id
+            """)
+    ChatConversationWithDerivedFields findConversationWithDerivedFieldsById(
+            @Param("id") Long id
+    );
+
+    @Query(SELECT_STATEMENT + """
             from ChatConversation conversation inner join conversation.participants participant
             where :user in elements(conversation.participants) and exists (
                 select message

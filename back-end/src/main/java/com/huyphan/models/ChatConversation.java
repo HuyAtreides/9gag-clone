@@ -5,7 +5,10 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -43,8 +46,11 @@ public class ChatConversation {
     @OneToMany(mappedBy = "conversation")
     private Set<ChatMessage> messages;
 
-    @Column(name = "IsRead", nullable = false)
-    private boolean read;
+    @ElementCollection
+    @CollectionTable(name = "ConversationReadStatus", joinColumns = {
+            @JoinColumn(name = "ConversationId")
+    })
+    private Set<ConversationReadStatus> readStatuses;
 
     @Column(name = "Created", nullable = false)
     private Instant created;
@@ -54,38 +60,30 @@ public class ChatConversation {
 
     public ChatConversation(
             Set<ChatParticipant> participants,
-            Set<ChatMessage> messages,
-            boolean read
+            Set<ChatMessage> messages
     ) {
-        assert participants.size() > 2;
-
+        validateNumberOfParticipants(participants);
+        this.readStatuses = participants.stream().map(
+                ConversationReadStatus::new
+        ).collect(Collectors.toSet());
         this.participants = participants;
         this.messages = messages;
-        this.read = read;
         this.created = Instant.now();
     }
 
-    public ChatConversation(Set<ChatParticipant> participants) {
-        assert participants.size() > 2;
-
-        this.participants = participants;
-        this.read = false;
-        this.created = Instant.now();
-    }
-
-    public void markConversationAsRead(User currentUser) {
-        assert participants.contains(currentUser);
-        this.read = true;
-    }
-
-    public void addMessage(ChatMessage newMessage) {
-        ChatParticipant messageSender = newMessage.getOwner();
-
-        if (!hasParticipant(messageSender)) {
-            throw new IllegalArgumentException(
-                    "The sender doesn't belong to current chat conversation");
+    private void validateNumberOfParticipants(Set<ChatParticipant> participants) {
+        if (participants.size() != 2) {
+            throw new IllegalArgumentException("Number of participants should be 2");
         }
+    }
 
+    private void validateParticipantInConversation(ChatParticipant participant) {
+        if (!hasParticipant(participant)) {
+            throw new IllegalArgumentException("Participant is not in this conversation");
+        }
+    }
+
+    private void validateMessageCanBeSent(ChatParticipant messageSender) {
         Optional<ChatParticipant> otherParticipant = participants.stream()
                 .filter(participant -> !participant.equals(messageSender))
                 .findFirst();
@@ -98,6 +96,43 @@ public class ChatConversation {
             throw new IllegalArgumentException(
                     "Can not send message to other participant in this chat");
         }
+    }
+
+    private void validateLatestMessageIdIsValid() {
+        if (latestChatMessageId == null || latestChatMessageId <= 0) {
+            throw new IllegalArgumentException("Invalid latest message ID");
+        }
+    }
+
+    public ChatConversation(Set<ChatParticipant> participants) {
+        validateNumberOfParticipants(participants);
+        this.participants = participants;
+        this.readStatuses = participants.stream().map(
+                ConversationReadStatus::new
+        ).collect(Collectors.toSet());
+        this.created = Instant.now();
+    }
+
+    public void markConversationAsReadByUser(User user) {
+        validateParticipantInConversation(user);
+        validateLatestMessageIdIsValid();
+
+        this.readStatuses = this.readStatuses.stream().map(status -> {
+                    if (status.getReadBy().equals(user)) {
+                        return status.withNewReadAt(
+                                Instant.now()
+                        ).withNewLatestReadMessageId(this.latestChatMessageId);
+                    }
+                    return status;
+                }
+        ).collect(Collectors.toSet());
+    }
+
+    public void addMessage(ChatMessage newMessage) {
+        ChatParticipant messageSender = newMessage.getOwner();
+        validateParticipantInConversation(messageSender);
+
+        validateMessageCanBeSent(messageSender);
 
         newMessage.associateWithConversation(this);
     }
@@ -108,13 +143,8 @@ public class ChatConversation {
 
     public void removeMessage(ChatMessage chatMessage) {
         ChatParticipant participant = chatMessage.getOwner();
-
-        if (!hasParticipant(participant)) {
-            throw new IllegalArgumentException(
-                    "The participant doesn't belong to current chat conversation");
-        }
-
-        chatMessage.removeFromConversation(participant);
+        validateParticipantInConversation(participant);
+        chatMessage.markAsDeleted(participant);
     }
 
     @Override

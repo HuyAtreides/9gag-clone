@@ -1,10 +1,12 @@
 package com.huyphan.mappers;
 
 import com.huyphan.dtos.ChatMessageDto;
+import com.huyphan.dtos.MessageContentDto;
 import com.huyphan.dtos.UserDto;
 import com.huyphan.models.ChatConversation;
 import com.huyphan.models.ChatMessage;
 import com.huyphan.models.ChatParticipant;
+import com.huyphan.models.MessageContent;
 import com.huyphan.models.User;
 import java.time.Instant;
 import org.modelmapper.Converter;
@@ -40,6 +42,9 @@ public class ChatMessageMapper extends BaseMapper implements
             return modelMapper.map(participant, UserDto.class);
         };
 
+        Converter<MessageContent, MessageContentDto> messageContentConverter = (context) ->
+                modelMapper.map(context.getSource(), MessageContentDto.class);
+
         modelMapper.createTypeMap(ChatMessage.class, ChatMessageDto.class)
                 .addMappings(
                         mapper -> mapper.using(instantToStringConverter)
@@ -52,9 +57,12 @@ public class ChatMessageMapper extends BaseMapper implements
 
                 )
                 .addMappings(
+                        mapper -> mapper.using(messageContentConverter)
+                                .map(ChatMessage::getContent, ChatMessageDto::setContent)
+                )
+                .addMappings(
                         mapper -> mapper.using(userConverter)
                                 .map(ChatMessage::getOwner, ChatMessageDto::setOwner)
-
 
                 )
                 .addMappings(

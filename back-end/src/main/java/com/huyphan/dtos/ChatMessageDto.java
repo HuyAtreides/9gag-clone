@@ -10,7 +10,7 @@ import lombok.Setter;
 public class ChatMessageDto {
     private long id;
 
-    private MessageContent content;
+    private MessageContentDto content;
 
     private Long conversationId;
 
@@ -20,5 +20,7 @@ public class ChatMessageDto {
     private boolean pinned;
 
     private boolean edited;
+
+    private boolean deleted;
     private UserDto owner;
 }

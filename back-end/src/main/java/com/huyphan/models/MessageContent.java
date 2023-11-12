@@ -15,6 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.aspectj.bridge.Message;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,13 +40,27 @@ public class MessageContent {
         return new MessageContent(mediaUrl, mediaType, text);
     }
 
-    public MessageContent withNewContent(String mediaUrl, SupportedMIMEType mediaType, String text) {
+    public MessageContent withNewContent(String mediaUrl, SupportedMIMEType mediaType,
+            String text) {
         return new MessageContent(mediaUrl, mediaType, text);
     }
 
+    public static MessageContent empty() {
+        return new MessageContent(
+                null,
+                null,
+                ""
+        );
+    }
+
     public MessageContent(String mediaUrl, SupportedMIMEType mediaType, String text) {
-        if (mediaUrl == null || mediaType == null || text == null) {
-            throw new IllegalArgumentException();
+        if (mediaUrl == null && mediaType == null && text == null) {
+            throw new IllegalArgumentException("Invalid Message Content");
+        }
+
+        if (text == null && (mediaUrl == null || mediaType == null)) {
+            throw new IllegalArgumentException(
+                    "Media type and media URL must be non-null together");
         }
 
         this.mediaType = mediaType;

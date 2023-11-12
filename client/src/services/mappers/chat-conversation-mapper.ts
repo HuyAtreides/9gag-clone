@@ -9,6 +9,11 @@ export namespace ChatConversationMapper {
       participants: data.participants.map((participant) =>
         UserMapper.fromDto(participant),
       ),
+      readStatuses: data.readStatuses.map((status) => ({
+        ...status,
+        readBy: UserMapper.fromDto(status.readBy),
+        readAt: new Date(status.readAt),
+      })),
     };
   }
 }

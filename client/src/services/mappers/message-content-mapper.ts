@@ -5,4 +5,8 @@ export namespace MessageContentMapper {
   export function fromDto(data: MessageContentDto): MessageContent {
     return data;
   }
+
+  export function toDto(data: MessageContent): MessageContentDto {
+    return data;
+  }
 }

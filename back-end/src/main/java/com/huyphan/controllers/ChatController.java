@@ -66,20 +66,6 @@ public class ChatController {
         return chatMessageMapper.toDto(chatMessage);
     }
 
-    @GetMapping("conversation-messages/{conversationId}")
-    public SliceDto<ChatMessageDto> getConversationChatMessages(
-            @PathVariable Long conversationId,
-            PageOptionsDto pageOptionsDto
-    ) {
-        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
-        Slice<ChatMessage> chatMessages = chatService.getConversationChatMessages(
-                conversationId,
-                pageOptions
-        );
-
-        return messageSliceMapper.toDto(chatMessages, chatMessageMapper);
-    }
-
     @GetMapping("conversations")
     public SliceDto<ChatConversationDto> getAllConversationsOfCurrentUser(
             PageOptionsDto pageOptionsDto
@@ -101,7 +87,7 @@ public class ChatController {
         chatService.editMessage(messageId, messageContent);
     }
 
-    @GetMapping("conversations-with-newest-messages/:latestMessageId")
+    @GetMapping("conversations-with-newest-messages/{latestMessageId}")
     public List<ChatConversationDto> getAllConversationWithNewestMessage(
             @PathVariable Long latestMessageId
     ) {
@@ -114,22 +100,22 @@ public class ChatController {
         ).toList();
     }
 
-    @PutMapping("pin-message/:messageId")
+    @PutMapping("pin-message/{messageId}")
     public void pinMessage(@PathVariable Long messageId) {
         chatService.pinMessage(messageId);
     }
 
-    @PutMapping("mark-as-read/:conversationId")
+    @PutMapping("mark-as-read/{conversationId}")
     public void markConversationAsRead(@PathVariable Long conversationId) {
         chatService.markConversationAsRead(conversationId);
     }
 
-    @DeleteMapping("message/:messageId")
+    @DeleteMapping("message/{messageId}")
     public void removeMessage(@PathVariable Long messageId) {
         chatService.removeMessage(messageId);
     }
 
-    @GetMapping("messages/:conversationId")
+    @GetMapping("messages/{conversationId}")
     public SliceDto<ChatMessageDto> getConversationMessages(
             @PathVariable Long conversationId,
             PageOptionsDto pageOptionsDto

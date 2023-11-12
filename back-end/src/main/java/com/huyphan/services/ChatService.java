@@ -161,10 +161,10 @@ public class ChatService implements MediatorComponent {
 
     @Transactional
     public void markConversationAsRead(Long conversationId) {
-        ChatConversation conversation = findConversationById(conversationId);
+        ChatConversation conversation = findConversationWithDerivedFieldsById(conversationId);
         User currentUser = UserService.getUser();
         User otherUser = getOtherParticipantInConversation(conversation);
-        conversation.markConversationAsRead(currentUser);
+        conversation.markConversationAsReadByUser(currentUser);
 
         eventEmitter.emitEventTo(WebSocketEvent.MARK_AS_READ, otherUser);
     }
@@ -195,5 +195,9 @@ public class ChatService implements MediatorComponent {
 
     private ChatConversation findConversationById(Long id) {
         return chatConversationRepo.findById(id).orElseThrow();
+    }
+
+    private ChatConversation findConversationWithDerivedFieldsById(Long id) {
+        return chatConversationRepo.findConversationWithDerivedFieldsById(id).toChatConversation();
     }
 }

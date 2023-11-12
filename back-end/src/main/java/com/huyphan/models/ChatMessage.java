@@ -20,7 +20,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.jpa.repository.EntityGraph;
 
 @Entity
 @Table(name = "ChatMessage")
@@ -53,6 +52,9 @@ public class ChatMessage {
     @Column(name = "Edited")
     private boolean edited;
 
+    @Column(name = "Deleted")
+    private boolean deleted;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ChatConversationId")
     private ChatConversation conversation;
@@ -62,10 +64,18 @@ public class ChatMessage {
     private ChatParticipant owner;
 
     public ChatMessage(MessageContent content, ChatParticipant owner) {
-        this.content = content;
+        validateContentNotNull(content);
+        this.content = new MessageContent(
+                content.getMediaUrl(),
+                content.getMediaType(),
+                content.getText()
+        );
         this.owner = owner;
         this.sentDate = Instant.now();
         this.lastEditDate = Instant.now();
+        this.deleted = false;
+        this.pinned = false;
+        this.edited = false;
     }
 
     @Override
@@ -97,6 +107,7 @@ public class ChatMessage {
     }
 
     public void pinMessage() {
+        validateIsNotDeleted();
         this.pinned = true;
     }
 
@@ -104,19 +115,52 @@ public class ChatMessage {
         this.conversation = conversation;
     }
 
-    public void removeFromConversation(ChatParticipant participant) {
-        if (!owner.equals(participant)) {
-            throw new IllegalArgumentException(
-                    "Deleting message isn't owned by the participant"
-            );
-        }
+    public void markAsDeleted(ChatParticipant participant) {
+        validateIsNotDeleted();
+        validateIsOwnedByParticipant(participant);
 
-        this.conversation = null;
+        this.deleted = true;
+    }
+
+    public MessageContent getContent() {
+        return deleted ? MessageContent.empty() : content;
+    }
+
+    public boolean isPinned() {
+        return !deleted && pinned;
+    }
+
+    public boolean isEdited() {
+        return !deleted && edited;
+    }
+
+    private void validateIsOwnedByParticipant(ChatParticipant chatParticipant) {
+        if (!owner.equals(chatParticipant)) {
+            throw new IllegalArgumentException("Participant is not the owner of this message");
+        }
+    }
+
+    private void validateIsNotDeleted() {
+        if (deleted) {
+            throw new IllegalArgumentException("This message is deleted");
+        }
+    }
+
+    private void validateContentNotNull(MessageContent content) {
+        if (content == null) {
+            throw new IllegalArgumentException("New content should not be null");
+        }
     }
 
     public void update(MessageContent newContent, ChatParticipant chatParticipant) {
-        assert owner.equals(chatParticipant);
-        this.content = newContent;
+        validateIsNotDeleted();
+        validateIsOwnedByParticipant(chatParticipant);
+        validateContentNotNull(newContent);
+        this.content = this.content.withNewContent(
+                newContent.getMediaUrl(),
+                newContent.getMediaType(),
+                newContent.getText()
+        );
         this.lastEditDate = Instant.now();
         this.edited = true;
     }

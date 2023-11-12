@@ -11,7 +11,9 @@ public class ChatConversationDto {
 
     private List<UserDto> participants;
 
+    private List<ConversationReadStatusDto> readStatuses;
+
     private Long latestChatMessageId;
 
-    private boolean read;
+    private String created;
 }
