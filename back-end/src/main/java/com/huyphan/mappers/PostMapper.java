@@ -2,9 +2,11 @@ package com.huyphan.mappers;
 
 import com.huyphan.dtos.PostDto;
 import com.huyphan.dtos.UserDto;
+import com.huyphan.mappers.converters.S3URLToCloudFrontURLConverter;
 import com.huyphan.models.Post;
 import com.huyphan.models.User;
 import com.huyphan.services.UserService;
+import com.huyphan.utils.AWSS3Util;
 import java.time.Instant;
 import org.modelmapper.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>
 
     @Autowired
     private Converter<Instant, String> instantToStringConverter;
+
+    @Autowired
+    private S3URLToCloudFrontURLConverter s3URLToCloudFrontURLConverter;
 
     @Override
     public void createTypeMap() {
@@ -50,7 +55,11 @@ public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>
                 mapper.using(converter).map(
                         Post::getUser,
                         PostDto::setUser)
-        );
+        ).addMappings(mapper -> mapper.using(s3URLToCloudFrontURLConverter).map(
+                Post::getMediaUrl,
+                PostDto::setMediaUrl
+        ));
+
         return modelMapper.map(data, PostDto.class);
     }
 
