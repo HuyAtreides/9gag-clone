@@ -2,8 +2,10 @@ package com.huyphan.mappers;
 
 import com.huyphan.dtos.CommentDto;
 import com.huyphan.dtos.UserDto;
+import com.huyphan.mappers.converters.S3URLToCloudFrontURLConverter;
 import com.huyphan.models.Comment;
 import com.huyphan.models.Post;
+import com.huyphan.utils.AWSS3Util;
 import java.time.Instant;
 import org.modelmapper.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto,
 
     @Autowired
     private Converter<String, Instant> stringToInstantConverter;
+
+    @Autowired
+    private S3URLToCloudFrontURLConverter s3URLToCloudFrontURLConverter;
 
     @Override
     public void createTypeMap() {
@@ -57,7 +62,12 @@ public class CommentMapper extends BaseMapper implements ToDtoMapper<CommentDto,
                                 .map(Comment::getReplyTo, CommentDto::setReplyToId))
                 .addMappings(
                         mapper -> mapper.using(postToIdConverter)
-                                .map(Comment::getPost, CommentDto::setPostId));
+                                .map(Comment::getPost, CommentDto::setPostId))
+                .addMappings(
+                        mapper -> mapper.using(s3URLToCloudFrontURLConverter).map(
+                                Comment::getMediaUrl,
+                                CommentDto::setMediaUrl
+                        ));
 
         modelMapper.typeMap(CommentDto.class, Comment.class).addMappings(
                 mapper -> mapper.using(stringToInstantConverter)

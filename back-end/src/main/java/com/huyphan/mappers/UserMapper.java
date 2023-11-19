@@ -1,6 +1,7 @@
 package com.huyphan.mappers;
 
 import com.huyphan.dtos.UserDto;
+import com.huyphan.mappers.converters.S3URLToCloudFrontURLConverter;
 import com.huyphan.models.User;
 import java.time.Instant;
 import org.modelmapper.Converter;
@@ -19,6 +20,9 @@ public class UserMapper extends BaseMapper implements ToDtoMapper<UserDto, User>
     @Autowired
     private Converter<Instant, String> converter;
 
+    @Autowired
+    private S3URLToCloudFrontURLConverter s3URLToCloudFrontURLConverter;
+
     @Override
     public UserDto toDto(User data) {
         return modelMapper.map(data, UserDto.class);
@@ -30,6 +34,10 @@ public class UserMapper extends BaseMapper implements ToDtoMapper<UserDto, User>
                 mapper -> {
                     mapper.using(converter).map(User::getCreated, UserDto::setCreated);
                     mapper.using(converter).map(User::getBlockedTime, UserDto::setBlockedTime);
+                    mapper.using(s3URLToCloudFrontURLConverter)
+                            .map(User::getAvatarUrl, UserDto::setAvatarUrl);
+                    mapper.using(s3URLToCloudFrontURLConverter)
+                            .map(User::getCoverImageUrl, UserDto::setCoverImageUrl);
                 }
 
         );
