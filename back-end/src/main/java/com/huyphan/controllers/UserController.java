@@ -157,6 +157,14 @@ public class UserController {
         userService.block(userId);
     }
 
+    @GetMapping("all")
+    public SliceDto<UserDto> getAllUser(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
+        Slice<User> users = userService.getAllUsers(pageOptions);
+
+        return sliceMapper.toDto(users, userMapper);
+    }
+
     @PutMapping("unblock/{userId}")
     public void unBlock(@PathVariable Long userId) throws UserException {
         userService.unblock(userId);

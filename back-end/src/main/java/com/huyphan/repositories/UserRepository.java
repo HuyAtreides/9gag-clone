@@ -67,6 +67,20 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
+    @Query("""
+            select user
+            from User user
+            where :searchTerm = '""'
+                or
+                lower(user.username) like :searchTerm
+                or
+                lower(user.displayName) like :searchTerm
+            """)
+    Slice<User> findAll(
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
+
     @Query(SELECT_STATEMENT + """
             from User user
             where user.id = :id and
@@ -131,14 +145,16 @@ public interface UserRepository extends CrudRepository<User, Long> {
             From User user
             where :currentUser in elements(user.blockedBy)
             """)
-    Slice<UserWithDerivedFields> getBlockedUsers(@Param("currentUser") User currentUser, Pageable pageable);
+    Slice<UserWithDerivedFields> getBlockedUsers(@Param("currentUser") User currentUser,
+            Pageable pageable);
 
     @Query("""
             select user
             from User user
             where (lower(user.username) like :searchTerm or lower(user.displayName) like :searchTerm) and
             """ + BLOCKED_USER_RESTRICTION)
-    Slice<User> searchUser(@Param("searchTerm") String searchTerm, @Param("currentUser") User currentUser, Pageable pageable);
+    Slice<User> searchUser(@Param("searchTerm") String searchTerm,
+            @Param("currentUser") User currentUser, Pageable pageable);
 
     @Query("""
             select user

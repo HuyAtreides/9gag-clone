@@ -47,6 +47,10 @@ public class SecurityConfig {
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/user/{id:[0-9]+}")
                 .permitAll()
+                .antMatchers(HttpMethod.GET, "/user/all")
+                .permitAll()// TODO: Use appropriate role
+                /*.antMatchers(HttpMethod.GET, "/v3/api-docs")
+                .permitAll()*/
                 .antMatchers(HttpMethod.GET, "/section")
                 .permitAll()
                 .anyRequest().authenticated();
@@ -61,7 +65,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of(url, "https://localhost:3000"));
+        corsConfiguration.setAllowedOrigins(List.of(url, "http://localhost:3000"));
         corsConfiguration.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addAllowedHeader("*");
