@@ -160,7 +160,18 @@ public class UserService implements UserDetailsService, MediatorComponent {
         user.getRecentSearch().remove(recentSearchUser);
     }
 
+    public Slice<User> getAllUsers(PageOptions pageOptions) {
+        String searchTerm = getSearchTerm(pageOptions.getSearch());
+        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
+
+        return userRepo.findAll(searchTerm, pageable);
+    }
+
     private String getSearchTerm(String search) {
+        if (search == null || search.isBlank()) {
+            return "\"\"";
+        }
+
         return "%" + search.toLowerCase() + "%";
     }
 
