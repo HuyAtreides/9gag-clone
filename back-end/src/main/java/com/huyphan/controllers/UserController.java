@@ -1,5 +1,6 @@
 package com.huyphan.controllers;
 
+import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
 import com.huyphan.dtos.SliceDto;
 import com.huyphan.dtos.UpdatePasswordDataDto;
@@ -25,6 +26,7 @@ import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,6 +66,9 @@ public class UserController {
 
     @Autowired
     private UserSecretMapper userSecretMapper;
+
+    @Autowired
+    private PageMapper<UserDto, User> pageMapper;
 
     /**
      * Get current authenticated user profile.
@@ -158,11 +163,11 @@ public class UserController {
     }
 
     @GetMapping("all")
-    public SliceDto<UserDto> getAllUser(PageOptionsDto pageOptionsDto) {
+    public PageDto<UserDto> getAllUser(PageOptionsDto pageOptionsDto) {
         PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
-        Slice<User> users = userService.getAllUsers(pageOptions);
+        Page<User> users = userService.getAllUsers(pageOptions);
 
-        return sliceMapper.toDto(users, userMapper);
+        return pageMapper.toDto(users, userMapper);
     }
 
     @PutMapping("unblock/{userId}")

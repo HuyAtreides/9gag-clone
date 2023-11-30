@@ -67,7 +67,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
-    @Query("""
+    @Query(value = """
             select user
             from User user
             where :searchTerm = '""'
@@ -76,7 +76,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
                 or
                 lower(user.displayName) like :searchTerm
             """)
-    Slice<User> findAll(
+    Page<User> findAll(
             @Param("searchTerm") String searchTerm,
             Pageable pageable
     );

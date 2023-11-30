@@ -21,6 +21,7 @@ import com.huyphan.utils.JwtUtil;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -160,7 +161,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         user.getRecentSearch().remove(recentSearchUser);
     }
 
-    public Slice<User> getAllUsers(PageOptions pageOptions) {
+    public Page<User> getAllUsers(PageOptions pageOptions) {
         String searchTerm = getSearchTerm(pageOptions.getSearch());
         Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
 
