@@ -66,6 +66,13 @@ public class ChatController {
         return chatMessageMapper.toDto(chatMessage);
     }
 
+    @GetMapping("message/{messageId}")
+    public ChatMessageDto getMessage(@PathVariable Long messageId) {
+        ChatMessage chatMessage = chatService.getMessage(messageId);
+
+        return chatMessageMapper.toDto(chatMessage);
+    }
+
     @GetMapping("conversations")
     public SliceDto<ChatConversationDto> getAllConversationsOfCurrentUser(
             PageOptionsDto pageOptionsDto

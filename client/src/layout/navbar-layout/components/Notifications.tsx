@@ -9,7 +9,7 @@ import {
   UserAddOutlined,
 } from '@ant-design/icons';
 import { Button, List, Typography } from 'antd';
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../Store';
@@ -23,6 +23,7 @@ import {
   resetNotificationState,
   setNotificationErrorMessage,
 } from '../../../Store/notification/notification-slice';
+import AutoClosePopover from '../../../components/auto-close-popover/AutoClosePopover';
 import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
 import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
 import useRenderErrorMessage from '../../../custom-hooks/render-error-message';
@@ -30,9 +31,6 @@ import { Constant } from '../../../models/enums/constant';
 import { NotificationType } from '../../../models/enums/notification-type';
 import Notification from '../../../models/notification';
 import PageOptions from '../../../models/page-options';
-import { IntervalIdContext } from './notifications-container/NotificationContainer';
-
-import AutoClosePopover from '../../../components/auto-close-popover/AutoClosePopover';
 import styles from './Notifications.module.scss';
 
 const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
@@ -61,18 +59,14 @@ const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
   const isLoading = useAppSelector((state) => state.notification.isLoading);
   const errorMessage = useAppSelector((state) => state.notification.errorMessage);
   const isGettingPage = useAppSelector((state) => state.notification.isGettingPage);
-  const context = useContext(IntervalIdContext);
   useRemoveErrorWhenUnmount(setNotificationErrorMessage);
   useRenderErrorMessage(errorMessage, setNotificationErrorMessage);
 
   useEffect(() => {
     return () => {
       dispatch(resetNotificationState());
-      (async function () {
-        clearInterval(await context);
-      })();
     };
-  }, [context, dispatch]);
+  }, [dispatch]);
 
   const getNextPage = () => {
     if (isGettingPage) {

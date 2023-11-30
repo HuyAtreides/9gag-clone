@@ -10,6 +10,7 @@ import NotificationContainer from './components/notifications-container/Notifica
 import PostSearch from './components/post-search/PostSearch';
 import styles from './Navbar.module.scss';
 import DropdownMenu from './components/DropdownMenu';
+import Chat from './components/chat/Chat';
 
 const { Header } = Layout;
 
@@ -53,6 +54,7 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
         </div>
         <div className={styles.itemContainer}>
           <PostSearch />
+          <Chat />
           <NotificationContainer />
           <Typography.Text
             className={styles.text}

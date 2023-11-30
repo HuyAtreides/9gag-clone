@@ -19,22 +19,24 @@ interface ConversationState {
   readonly isLoading: boolean;
   readonly openConversations: readonly ChatConversation[];
   readonly pagination: Pagination;
-  readonly error: string | null;
   readonly conversations: readonly ChatConversation[];
+  readonly error: string | null;
 }
 
 interface ChatState {
   readonly messageState: Readonly<Record<number, MessageState>>;
+  readonly conversationError: Readonly<Record<number, string | null>>;
   readonly conversationState: ConversationState;
 }
 
 const initialState: ChatState = {
   messageState: {},
+  conversationError: {},
   conversationState: {
+    error: null,
     isGettingConversations: false,
     isLoading: false,
     openConversations: [],
-    error: null,
     pagination: {
       page: -1,
       size: Constant.PageSize as number,
@@ -84,12 +86,35 @@ const slice = createSlice({
       delete state.messageState[id];
     },
 
+    setConversationError(
+      state,
+      action: PayloadAction<{ conversationId: number; error: string | null }>,
+    ) {
+      const { conversationId, error } = action.payload;
+      state.conversationError[conversationId] = error;
+    },
+
+    setConversationLoadingError(state, action: PayloadAction<string | null>) {
+      state.conversationState.error = action.payload;
+    },
+
     addMessage(
       state,
       action: PayloadAction<{ message: ChatMessage; conversationId: number }>,
     ) {
       const { message, conversationId } = action.payload;
       state.messageState[conversationId].messages.unshift(message);
+    },
+
+    removeMessage(
+      state,
+      action: PayloadAction<{ conversationId: number; messageId: number }>,
+    ) {
+      const { conversationId, messageId } = action.payload;
+      const messages = state.messageState[conversationId].messages;
+      state.messageState[conversationId].messages = messages.filter(
+        (message) => message.id !== messageId,
+      );
     },
 
     setConversationIsLoading(state, action: PayloadAction<boolean>) {
@@ -153,4 +178,5 @@ export const {
   addConversationPage,
   addMessage,
   addMessagePage,
+  setConversationLoadingError,
 } = slice.actions;

@@ -1,6 +1,6 @@
 import { BellFilled } from '@ant-design/icons';
 import { Badge, Button, Popover } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   countNotViewed,
@@ -12,18 +12,10 @@ import { abbreviateNumber } from '../../../../utils/abbreviate-number';
 import styles from '../../Navbar.module.scss';
 import Notifications from '../Notifications';
 
-const promiseWithUndefinedValue = Promise.resolve(undefined);
-export const IntervalIdContext = React.createContext<Promise<undefined | NodeJS.Timer>>(
-  promiseWithUndefinedValue,
-);
-
 const NotificationContainer: React.FC = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.profile);
   const notViewedCount = useAppSelector((state) => state.notification.notViewedCount);
-  const intervalRef = useRef<Promise<undefined | NodeJS.Timer>>(
-    promiseWithUndefinedValue,
-  );
   const [showNotifications, setShowNotifications] = useState(false);
 
   const clearNotViewedNotificationsCount = () => {
@@ -31,14 +23,11 @@ const NotificationContainer: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(countNotViewed());
-
     if (user) {
-      intervalRef.current = (async () => {
-        const intervalId = await dispatch(initialize());
-        return intervalId as unknown as undefined | NodeJS.Timer;
-      })();
+      dispatch(countNotViewed());
     }
+
+    dispatch(initialize());
   }, [dispatch, user]);
 
   return (
@@ -50,11 +39,7 @@ const NotificationContainer: React.FC = () => {
           trigger='click'
           visible={showNotifications}
           onVisibleChange={setShowNotifications}
-          content={
-            <IntervalIdContext.Provider value={intervalRef.current}>
-              <Notifications setShowNotifications={setShowNotifications} />
-            </IntervalIdContext.Provider>
-          }
+          content={<Notifications setShowNotifications={setShowNotifications} />}
         >
           <Badge count={abbreviateNumber(notViewedCount)}>
             <Button

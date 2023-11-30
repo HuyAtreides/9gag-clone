@@ -6,6 +6,8 @@ import PostWithComment from './Components/post-with-comment/PostWithComment';
 import styles from './Home.module.scss';
 import PostList from './pages/post-list/PostList';
 import AuthenticatedGuard from '../../components/component-guard/AuthenticatedGuard';
+import ChatConversations from '../../components/chat-conversations/ChatConversations';
+import { Divider } from 'antd';
 
 interface IHomeProp {
   readonly sideBarCollapse: boolean;
@@ -25,13 +27,11 @@ const Home: React.FC<IHomeProp> = ({ sideBarCollapse, setSideBarCollapse }) => {
             <Route path='' element={<PostList />} />
           </Routes>
         </div>
-        <AuthenticatedGuard
-          component={
-            <div className={styles.userSearch}>
-              <UserSearch />
-            </div>
-          }
-        />
+        <div className={styles.rightHandSideContent}>
+          <AuthenticatedGuard component={<UserSearch />} />
+          <Divider />
+          <AuthenticatedGuard component={<ChatConversations />} />
+        </div>
       </div>
     </SideBarLayout>
   );

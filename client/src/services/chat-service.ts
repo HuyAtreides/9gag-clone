@@ -13,6 +13,17 @@ import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { SliceMapper } from './mappers/slice-mapper';
 import MessageContentDto from './dtos/message-content-dto';
 import { ConversationMessagesFetchingRequest } from '../models/requests/conversation-messages-fetching-request';
+import ChatMessage from '../models/chat-message';
+import ChatConversation from '../models/chat-conversation';
+import Slice from '../models/slice';
+
+export type FetchChatMessagesPageFunc<T extends PageFetchingRequest> = (
+  request: T,
+) => Promise<Slice<ChatMessage>>;
+
+export type FetchChatConversationFunc<T extends PageFetchingRequest> = (
+  request: T,
+) => Promise<Slice<ChatConversation>>;
 
 export async function createConversationWithUser(userId: number) {
   const axios = createAxiosInstance();
@@ -21,6 +32,15 @@ export async function createConversationWithUser(userId: number) {
   );
 
   return ChatConversationMapper.fromDto(response.data);
+}
+
+export async function getMessage(messageId: number) {
+  const axios = createAxiosInstance();
+  const response = await axios.get<ChatMessageDto>(
+    `${Constant.ChatEndPoint}/message/${messageId}`,
+  );
+
+  return ChatMessageMapper.fromDto(response.data);
 }
 
 export async function sendMessage(conversationId: number, content: MessageContent) {

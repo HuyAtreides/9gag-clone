@@ -51,11 +51,12 @@ export namespace WebSocketUtils {
   }
 
   export function registerEventHandler(event: WebSocketEvent, handler: EventHandler) {
+    SOCKET_EVENT_TO_HANDLER_MAP[event] = handler;
+
     if (!socket) {
       return;
     }
 
-    SOCKET_EVENT_TO_HANDLER_MAP[event] = handler;
     socket.onmessage = messageHandler;
   }
 }

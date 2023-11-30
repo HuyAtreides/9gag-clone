@@ -1,0 +1,50 @@
+.conversationsPreviewContainer {
+  min-width: 400px;
+  padding: 15px;
+  background-color: #141414;
+  border-radius: 8px;
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.searchConversation {
+  border-radius: var(--border-radius-base);
+  margin-bottom: 15px;
+}
+
+.conversationPreview {
+  cursor: pointer;
+}
+
+.latestMessagePreview {
+  align-items: center;
+  display: flex;
+  font-weight: bold;
+}
+
+.messageContentPreview {
+  color: var(--secondary-text-color);
+  max-width: 200px;
+}
+
+.messageContentDate {
+  color: var(--secondary-text-color);
+  margin-left: 5px;
+}
+
+.markAsReadButton {
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.markAsReadButtonContainer {
+  text-align: right;
+}
+
+.unreadMark {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  margin-right: 3px;
+  background-color: var(--primary-color);
+}
