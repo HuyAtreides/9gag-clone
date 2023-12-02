@@ -1,7 +1,5 @@
 .chatBoxQueue {
   position: fixed;
   bottom: 0px;
-  right: 10px;
-  z-index: 3;
-  width: 80%;
+  right: 50px;
 }

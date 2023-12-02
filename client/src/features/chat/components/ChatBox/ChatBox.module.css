@@ -1,7 +1,7 @@
 .chatBox {
   min-width: 350px;
+  position: relative;
   border: 1px solid var(--border-color-base);
-  /* background-color: var(--body-background-dark-theme); */
 }
 
 .chatInput {
@@ -15,7 +15,8 @@
 }
 
 .chatBoxHeader {
-  margin: 0;
+  margin-top: -10px;
+  margin-bottom: -10px;
 }
 
 .chatBoxContent {
@@ -32,5 +33,40 @@
 }
 
 .chatInputFormItem {
+  margin-left: 5px;
   margin-bottom: 0;
+}
+
+.currentUserMessagesGroup {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.otherUserMessagesGroup {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.message {
+  background-color: var(--primary-color);
+  border-radius: 15px;
+  padding: 5px;
+  text-wrap: wrap;
+  max-width: 200px;
+  margin: 3px;
+  margin-right: 10px;
+}
+
+.otherMessage {
+  background-color: var(--secondary-text-color);
+  border-radius: 15px;
+  padding: 5px;
+  text-wrap: wrap;
+  max-width: 200px;
+  margin: 3px;
+  margin-right: 10px;
 }

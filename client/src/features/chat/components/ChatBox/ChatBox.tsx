@@ -16,6 +16,7 @@ import styles from './ChatBox.module.css';
 import {
   CameraOutlined,
   CloseOutlined,
+  DeleteFilled,
   GifOutlined,
   MoreOutlined,
   SendOutlined,
@@ -25,6 +26,9 @@ import NameWithCountryFlag from '../../../../components/name-with-country-flag/N
 import GifSelect from '../../../../components/gif-select/GifSelect';
 import FormItem from 'antd/es/form/FormItem';
 import useUploadFile from '../../../../custom-hooks/upload-file';
+import useUploadGif from '../../../../custom-hooks/gif-location';
+import { MediaType } from '../../../../models/enums/constant';
+import GifWrapper from '../../../../components/gif-wrapper/GifWrapper';
 
 interface Props {
   readonly user: User;
@@ -32,6 +36,7 @@ interface Props {
 
 const ChatBox = () => {
   const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(undefined);
+
   return (
     <Card
       title={
@@ -54,7 +59,7 @@ const ChatBox = () => {
       ]}
       actions={[
         <Form>
-          <Row align='middle' justify='space-around'>
+          <Row align='middle' justify='space-between'>
             <Col span={uploadFile ? 4 : 3}>
               <Form.Item name='file' className={styles.chatInputFormItem}>
                 <Upload
@@ -74,7 +79,7 @@ const ChatBox = () => {
             {uploadFile ? null : (
               <Col span={3}>
                 <Form.Item className={styles.chatInputFormItem}>
-                  <GifSelect setGif={() => {}} disabled={false} />
+                  <GifSelect setGif={() => null} disabled={false} />
                 </Form.Item>
               </Col>
             )}
@@ -94,6 +99,23 @@ const ChatBox = () => {
       ]}
     >
       <div className={styles.chatBoxContent}>
+        <div className={styles.currentUserMessagesGroup}>
+          <Typography.Text className={styles.message}>Hello</Typography.Text>
+          <Typography.Text className={styles.message}>Hello</Typography.Text>
+          <Typography.Text className={styles.message}>Hello</Typography.Text>
+          <Typography.Text className={styles.message}>
+            HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello
+          </Typography.Text>
+        </div>
+
+        <div className={styles.otherUserMessagesGroup}>
+          <Typography.Text className={styles.otherMessage}>Hello</Typography.Text>
+          <Typography.Text className={styles.otherMessage}>Hello</Typography.Text>
+          <Typography.Text className={styles.otherMessage}>Hello</Typography.Text>
+          <Typography.Text className={styles.otherMessage}>
+            HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello
+          </Typography.Text>
+        </div>
         <div className={styles.chatParticipantInfo}>
           <Avatar
             size={100}
