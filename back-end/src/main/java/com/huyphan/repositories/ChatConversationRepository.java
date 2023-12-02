@@ -66,7 +66,7 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                 select message
                 from ChatMessage message
                 where message.conversation.id = conversation.id
-            ) and lower(participant.username) like :searchTerm
+            ) and lower(participant.username) like :searchTerm and participant != :user
             """)
     Slice<ChatConversationWithDerivedFields> searchConversationsOfCurrentUser(
             @Param("user") User currentUser,

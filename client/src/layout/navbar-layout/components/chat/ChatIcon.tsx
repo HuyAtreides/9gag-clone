@@ -1,11 +1,11 @@
 import { CommentOutlined } from '@ant-design/icons';
 import { Badge, Button, Popover } from 'antd';
-import styles from './Chat.module.css';
-import ConversationsPreview from './ConversationsPreview';
+import styles from './ChatIcon.module.css';
+import EmbeddedConversationPreview from './EmbeddedConversationsPreview';
 
-const Chat = () => {
+const ChatIcon = () => {
   return (
-    <Popover content={<ConversationsPreview />} trigger='click'>
+    <Popover content={<EmbeddedConversationPreview />} trigger='click'>
       <Badge>
         <Button shape='circle' icon={<CommentOutlined />} className={styles.chatIcon} />
       </Badge>
@@ -13,4 +13,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default ChatIcon;

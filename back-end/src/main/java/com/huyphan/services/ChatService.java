@@ -112,10 +112,20 @@ public class ChatService implements MediatorComponent {
     @Transactional(readOnly = true)
     public Slice<ChatConversation> getAllConversationsOfCurrentUser(PageOptions pageOptions) {
         User currentUser = UserService.getUser();
-        Slice<ChatConversationWithDerivedFields> conversationWithDerivedFields = chatConversationRepo.getAllConversationsOfCurrentUser(
-                currentUser,
-                createChatConversationPageable(pageOptions)
-        );
+        Slice<ChatConversationWithDerivedFields> conversationWithDerivedFields;
+
+        if (pageOptions.getSearch() != null) {
+            conversationWithDerivedFields = chatConversationRepo.searchConversationsOfCurrentUser(
+                    currentUser,
+                    pageOptions.getSearch(),
+                    createChatConversationPageable(pageOptions)
+            );
+        } else {
+            conversationWithDerivedFields = chatConversationRepo.getAllConversationsOfCurrentUser(
+                    currentUser,
+                    createChatConversationPageable(pageOptions)
+            );
+        }
 
         return conversationWithDerivedFields.map(
                 ChatConversationWithDerivedFields::toChatConversation

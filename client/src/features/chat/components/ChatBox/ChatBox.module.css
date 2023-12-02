@@ -1,0 +1,36 @@
+.chatBox {
+  min-width: 350px;
+  border: 1px solid var(--border-color-base);
+  /* background-color: var(--body-background-dark-theme); */
+}
+
+.chatInput {
+  border-radius: 30px;
+}
+
+.chatInputContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.chatBoxHeader {
+  margin: 0;
+}
+
+.chatBoxContent {
+  display: flex;
+  height: 40vh;
+  overflow: auto;
+  flex-direction: column-reverse;
+}
+
+.chatParticipantInfo {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.chatInputFormItem {
+  margin-bottom: 0;
+}

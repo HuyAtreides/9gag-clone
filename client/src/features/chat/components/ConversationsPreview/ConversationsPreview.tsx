@@ -9,7 +9,7 @@ const ConversationsPreview = () => {
   const commentDateDiff = useTimeDiffFromToday(new Date());
 
   return (
-    <div className={styles.conversationsPreviewContainer}>
+    <>
       <Typography.Title level={3}>Chats</Typography.Title>
       <Input
         className={styles.searchConversation}
@@ -39,7 +39,9 @@ const ConversationsPreview = () => {
               extra={<span className={styles.unreadMark}></span>}
             >
               <List.Item.Meta
-                avatar={<Avatar src='https://joeschmoe.io/api/v1/random' />}
+                avatar={
+                  <Avatar src='https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp' />
+                }
                 title={<Link to='/'>Name</Link>}
                 description={
                   <span className={styles.latestMessagePreview}>
@@ -73,7 +75,7 @@ const ConversationsPreview = () => {
           )}
         />
       </InfiniteScroll>
-    </div>
+    </>
   );
 };
 
