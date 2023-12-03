@@ -1,41 +1,39 @@
 import {
+  CameraOutlined,
+  CloseOutlined,
+  MoreOutlined,
+  SendOutlined,
+} from '@ant-design/icons';
+import {
   Avatar,
   Button,
   Card,
   Col,
   Form,
-  Image,
   Input,
   List,
   Row,
   Typography,
   Upload,
 } from 'antd';
+import FormItem from 'antd/es/form/FormItem';
+import { Link } from 'react-router-dom';
+import { useAppSelector } from '../../../../Store';
+import GifSelect from '../../../../components/gif-select/GifSelect';
+import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import useUploadFile from '../../../../custom-hooks/upload-file';
 import { User } from '../../../../models/user';
 import styles from './ChatBox.module.css';
-import {
-  CameraOutlined,
-  CloseOutlined,
-  DeleteFilled,
-  GifOutlined,
-  MoreOutlined,
-  SendOutlined,
-} from '@ant-design/icons';
-import { Link } from 'react-router-dom';
-import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
-import GifSelect from '../../../../components/gif-select/GifSelect';
-import FormItem from 'antd/es/form/FormItem';
-import useUploadFile from '../../../../custom-hooks/upload-file';
-import useUploadGif from '../../../../custom-hooks/gif-location';
-import { MediaType } from '../../../../models/enums/constant';
-import GifWrapper from '../../../../components/gif-wrapper/GifWrapper';
+import MessageGroup from './MessageGroup';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 interface Props {
   readonly user: User;
 }
 
 const ChatBox = () => {
-  const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(undefined);
+  const [uploadFile, handleFileChange] = useUploadFile(undefined);
+  const currentUser = useAppSelector((state) => state.user.profile);
 
   return (
     <Card
@@ -98,24 +96,16 @@ const ChatBox = () => {
         </Form>,
       ]}
     >
-      <div className={styles.chatBoxContent}>
-        <div className={styles.currentUserMessagesGroup}>
-          <Typography.Text className={styles.message}>Hello</Typography.Text>
-          <Typography.Text className={styles.message}>Hello</Typography.Text>
-          <Typography.Text className={styles.message}>Hello</Typography.Text>
-          <Typography.Text className={styles.message}>
-            HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello
-          </Typography.Text>
-        </div>
-
-        <div className={styles.otherUserMessagesGroup}>
-          <Typography.Text className={styles.otherMessage}>Hello</Typography.Text>
-          <Typography.Text className={styles.otherMessage}>Hello</Typography.Text>
-          <Typography.Text className={styles.otherMessage}>Hello</Typography.Text>
-          <Typography.Text className={styles.otherMessage}>
-            HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello
-          </Typography.Text>
-        </div>
+      <InfiniteScroll
+        hasMore={false}
+        next={() => {}}
+        dataLength={4}
+        loader
+        height={window.innerHeight * 0.45}
+        className={styles.chatBoxContent}
+      >
+        <MessageGroup sender={currentUser || undefined} />
+        <MessageGroup />
         <div className={styles.chatParticipantInfo}>
           <Avatar
             size={100}
@@ -127,7 +117,7 @@ const ChatBox = () => {
           </Typography.Title>
           <Typography.Text type='secondary'>Joined in 18/03/2024</Typography.Text>
         </div>
-      </div>
+      </InfiniteScroll>
     </Card>
   );
 };

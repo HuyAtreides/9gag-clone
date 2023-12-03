@@ -1,16 +1,17 @@
-import { List, Select, Skeleton } from 'antd';
+import { List, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import AbbreviateComment from '../../../../components/abbreviate-comment/AbbreviateComment';
-import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
-import { Constant } from '../../../../models/enums/constant';
-import { SortType } from '../../../../models/enums/sort-type';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   getCommentsOfUser,
   getNextCommentsOfUser,
 } from '../../../../Store/abbreviate-comment/abbreviate-comment-dispatchers';
 import { resetState } from '../../../../Store/abbreviate-comment/abbreviate-comment-slice';
+import AbbreviateComment from '../../../../components/abbreviate-comment/AbbreviateComment';
+import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
+import UserSummaryListSkeleton from '../../../../components/user-summary-list-skeleton/UserSummaryListSkeleton';
+import { Constant } from '../../../../models/enums/constant';
+import { SortType } from '../../../../models/enums/sort-type';
 
 interface Props {
   readonly userId: number;
@@ -63,16 +64,7 @@ const UserComments: React.FC<Props> = ({ userId }) => {
   }, [dispatch, userId, sortType]);
 
   if (isLoading) {
-    return (
-      <>
-        {Array.from(Array(3)).map((_, __) => (
-          <>
-            <Skeleton avatar paragraph={{ rows: 2 }} active />
-            <br />
-          </>
-        ))}
-      </>
-    );
+    return <UserSummaryListSkeleton />;
   }
 
   return (

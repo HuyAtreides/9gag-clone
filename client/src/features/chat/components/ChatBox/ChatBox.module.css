@@ -21,9 +21,9 @@
 
 .chatBoxContent {
   display: flex;
-  height: 40vh;
   overflow: auto;
   flex-direction: column-reverse;
+  margin: -15px;
 }
 
 .chatParticipantInfo {
@@ -67,6 +67,15 @@
   padding: 5px;
   text-wrap: wrap;
   max-width: 200px;
-  margin: 3px;
+  margin-left: 5px;
+}
+
+.otherMessageContainer {
+  margin-top: 3px;
+}
+
+.messageStatus {
   margin-right: 10px;
+  /* margin-top: -3px; */
+  /* font-size: 1rem; */
 }
