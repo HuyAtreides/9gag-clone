@@ -4,7 +4,7 @@ import { User } from '../../../../models/user';
 import { useAppSelector } from '../../../../Store';
 
 interface Props {
-  readonly sender?: User;
+  readonly sender: User;
 }
 
 const CurrentUserMessage = () => {
@@ -27,7 +27,7 @@ const OtherUserMessage = () => {
 const MessageGroup = ({ sender }: Props) => {
   const currentUser = useAppSelector((state) => state.user.profile);
 
-  if (currentUser === sender) {
+  if (currentUser?.id === sender?.id) {
     return (
       <div className={styles.currentUserMessagesGroup}>
         <CurrentUserMessage />

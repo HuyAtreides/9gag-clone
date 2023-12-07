@@ -18,7 +18,7 @@ import {
 } from 'antd';
 import FormItem from 'antd/es/form/FormItem';
 import { Link } from 'react-router-dom';
-import { useAppSelector } from '../../../../Store';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
 import GifSelect from '../../../../components/gif-select/GifSelect';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
 import useUploadFile from '../../../../custom-hooks/upload-file';
@@ -26,34 +26,52 @@ import { User } from '../../../../models/user';
 import styles from './ChatBox.module.css';
 import MessageGroup from './MessageGroup';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import ChatBoxSkeleton from './ChatBoxSkeleton';
+import { closeConversation } from '../../../../Store/chat/chat-slice';
 
 interface Props {
-  readonly user: User;
+  readonly index: number;
 }
 
-const ChatBox = () => {
+const ChatBox = ({ index }: Props) => {
   const [uploadFile, handleFileChange] = useUploadFile(undefined);
+  const dispatch = useAppDispatch();
+  const openConversation = useAppSelector(
+    (state) => state.chat.conversationState.openConversations[index],
+  );
   const currentUser = useAppSelector((state) => state.user.profile);
+
+  if (openConversation.isLoading) {
+    return <ChatBoxSkeleton />;
+  }
+
+  const close = () => {
+    dispatch(closeConversation(index));
+  };
+
+  const chatParticipants = openConversation.conversation?.participants;
+  const chatParticipant = chatParticipants?.find(
+    (participant) => participant.id !== currentUser?.id,
+  );
 
   return (
     <Card
       title={
         <List.Item.Meta
-          avatar={
-            <Avatar
-              src='https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp'
-              size={35}
-            />
-          }
+          avatar={<Avatar src={chatParticipant?.avatarUrl} size={35} />}
           className={styles.chatBoxHeader}
-          title={<Link to=''>Huy Phan</Link>}
-          description={'huyPhan'}
+          title={
+            <Link to={`/user/${chatParticipant?.id}`}>
+              {chatParticipant?.displayName}
+            </Link>
+          }
+          description={chatParticipant?.username}
         />
       }
       className={styles.chatBox}
       extra={[
         <Button icon={<MoreOutlined />} type='text' />,
-        <Button icon={<CloseOutlined />} type='text' />,
+        <Button icon={<CloseOutlined />} type='text' onClick={close} />,
       ]}
       actions={[
         <Form>
@@ -84,7 +102,10 @@ const ChatBox = () => {
             {uploadFile ? <Col span={2}></Col> : null}
             <Col span={15}>
               <FormItem className={styles.chatInputFormItem}>
-                <Input className={styles.chatInput} placeholder='Message to Huy Phan' />
+                <Input
+                  className={styles.chatInput}
+                  placeholder={`Message to ${chatParticipant?.displayName}`}
+                />
               </FormItem>
             </Col>
             <Col span={3}>
@@ -104,18 +125,17 @@ const ChatBox = () => {
         height={window.innerHeight * 0.45}
         className={styles.chatBoxContent}
       >
-        <MessageGroup sender={currentUser || undefined} />
-        <MessageGroup />
+        <MessageGroup sender={chatParticipant!} />
+        <MessageGroup sender={currentUser!} />
         <div className={styles.chatParticipantInfo}>
-          <Avatar
-            size={100}
-            shape='circle'
-            src='https://9gag-media-files.s3.ap-east-1.amazonaws.com/default-avatar.webp'
-          />
+          <Avatar size={100} shape='circle' src={chatParticipant?.avatarUrl} />
           <Typography.Title level={5}>
-            <NameWithCountryFlag country={'Viet Nam'} name={'Huy Phan'} />
+            <NameWithCountryFlag
+              country={chatParticipant?.country || ''}
+              name={chatParticipant?.displayName || ''}
+            />
           </Typography.Title>
-          <Typography.Text type='secondary'>Joined in 18/03/2024</Typography.Text>
+          <Typography.Text type='secondary'>{`Joined in ${chatParticipant?.created.toLocaleDateString()}`}</Typography.Text>
         </div>
       </InfiniteScroll>
     </Card>

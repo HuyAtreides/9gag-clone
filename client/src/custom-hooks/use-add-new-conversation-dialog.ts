@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAppDispatch } from '../Store';
+import { createNewConversation } from '../Store/chat/chat-dispatchers';
 
 type StateUpdateFunction = () => void;
 
@@ -6,8 +8,9 @@ const useAddNewConversationDialog = (): [
   boolean,
   StateUpdateFunction,
   StateUpdateFunction,
-  StateUpdateFunction,
+  (userId: number) => void,
 ] => {
+  const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
 
   const openDialog = () => {
@@ -18,7 +21,10 @@ const useAddNewConversationDialog = (): [
     setOpen(false);
   };
 
-  const createConversation = () => {};
+  const createConversation = (userId: number) => {
+    dispatch(createNewConversation(userId));
+    setOpen(false);
+  };
 
   return [open, openDialog, closeDialog, createConversation];
 };

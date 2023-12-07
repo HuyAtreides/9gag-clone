@@ -1,9 +1,14 @@
 import { AppThunk } from '..';
 import { PageFetchingRequest } from '../../models/requests/page-fetching-request';
-import { FetchChatConversationFunc } from '../../services/chat-service';
-import { handleError } from '../../utils/error-handler';
+import {
+  FetchChatConversationFunc,
+  createConversationWithUser,
+} from '../../services/chat-service';
+import { extractErrorMessage, handleError } from '../../utils/error-handler';
 import {
   addConversationPage,
+  openConversation,
+  setConversation,
   setConversationIsGettingPage,
   setConversationIsLoading,
   setConversationLoadingError,
@@ -42,5 +47,38 @@ export const appendConversationsPageDispatcher =
     } catch (error: unknown) {
       dispatch(setConversationIsGettingPage(false));
       handleError(dispatch, error, setConversationLoadingError);
+    }
+  };
+
+export const createNewConversation =
+  (userId: number): AppThunk =>
+  async (dispatch, getState) => {
+    const openConversations = getState().chat.conversationState.openConversations;
+    const length = openConversations.length;
+    const index = length % 3;
+    try {
+      dispatch(openConversation(index));
+      const conversation = await createConversationWithUser(userId);
+      dispatch(
+        setConversation({
+          index,
+          conversationState: {
+            error: null,
+            isLoading: false,
+            conversation: conversation,
+          },
+        }),
+      );
+    } catch (error: unknown) {
+      dispatch(
+        setConversation({
+          index,
+          conversationState: {
+            error: extractErrorMessage(error),
+            isLoading: false,
+            conversation: null,
+          },
+        }),
+      );
     }
   };

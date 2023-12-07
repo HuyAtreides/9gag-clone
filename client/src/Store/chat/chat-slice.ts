@@ -14,10 +14,16 @@ interface MessageState {
   readonly messages: readonly ChatMessage[];
 }
 
+interface OpenChatConversationState {
+  readonly conversation: ChatConversation | null;
+  readonly isLoading: boolean;
+  readonly error: string | null;
+}
+
 interface ConversationState {
   readonly isGettingConversations: boolean;
   readonly isLoading: boolean;
-  readonly openConversations: readonly ChatConversation[];
+  readonly openConversations: readonly OpenChatConversationState[];
   readonly pagination: Pagination;
   readonly conversations: readonly ChatConversation[];
   readonly error: string | null;
@@ -66,24 +72,53 @@ const slice = createSlice({
   initialState,
   reducers: {
     openConversation(state, action: PayloadAction<number>) {
-      const id = action.payload;
-      const conversation = state.conversationState.conversations.find(
-        (conversation) => conversation.id === id,
-      )!;
+      const index = action.payload;
+      state.conversationState.openConversations[index] = {
+        error: null,
+        isLoading: true,
+        conversation: null,
+      };
+    },
 
-      state.conversationState.openConversations.push(conversation);
-      state.messageState[id] = getInitialMessageState();
+    setConversation(
+      state,
+      action: PayloadAction<{
+        index: number;
+        conversationState: OpenChatConversationState;
+      }>,
+    ) {
+      const { index, conversationState } = action.payload;
+      const conversationId = conversationState.conversation?.id;
+      state.conversationState.openConversations[index] = conversationState;
+      const duplicateIndex = state.conversationState.openConversations.findIndex(
+        (openConversation) =>
+          openConversation.conversation?.id === conversationId && conversationId !== null,
+      );
+
+      if (duplicateIndex !== index) {
+        state.conversationState.openConversations.splice(index, 1);
+      }
+
+      if (conversationId != null) {
+        state.messageState[conversationId] = getInitialMessageState();
+      }
     },
 
     closeConversation(state, action: PayloadAction<number>) {
-      const id = action.payload;
+      const index = action.payload;
+      const length = state.conversationState.openConversations.length;
 
-      state.conversationState.openConversations =
-        state.conversationState.openConversations.filter(
-          (conversation) => conversation.id !== id,
-        );
+      if (index >= length || index < 0) {
+        return;
+      }
 
-      delete state.messageState[id];
+      const openConversationState = state.conversationState.openConversations[index];
+      const conversationId = openConversationState.conversation?.id;
+      state.conversationState.openConversations.splice(index, 1);
+
+      if (conversationId != null) {
+        delete state.messageState[conversationId];
+      }
     },
 
     setConversationError(
@@ -179,4 +214,5 @@ export const {
   addMessage,
   addMessagePage,
   setConversationLoadingError,
+  setConversation,
 } = slice.actions;
