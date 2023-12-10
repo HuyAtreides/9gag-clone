@@ -9,7 +9,6 @@ const ChatBoxQueue = () => {
   const openConversations = useAppSelector(
     (state) => state.chat.conversationState.openConversations,
   );
-  console.log(openConversations.length);
 
   if (openConversations.length === 0) {
     return null;

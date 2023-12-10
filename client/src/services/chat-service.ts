@@ -55,7 +55,7 @@ export async function sendMessage(conversationId: number, content: MessageConten
   return ChatMessageMapper.fromDto(response.data);
 }
 
-export async function getConversations(pageRequest: PageFetchingRequest) {
+async function getConversations(pageRequest: PageFetchingRequest, endPoint: string) {
   const axios = createAxiosInstance();
   const pageOptionsDto = PageOptionsMapper.toDto(pageRequest.pageOptions);
   const axiosRequestConfig: AxiosRequestConfig = {
@@ -63,11 +63,23 @@ export async function getConversations(pageRequest: PageFetchingRequest) {
   };
 
   const response = await axios.get<SliceDto<ChatConversationDto>>(
-    `${Constant.ChatEndPoint}/conversations`,
+    `${Constant.ChatEndPoint}/${endPoint}`,
     axiosRequestConfig,
   );
 
   return SliceMapper.fromDto(response.data, ChatConversationMapper.fromDto);
+}
+
+export async function getAllConversations(pageRequest: PageFetchingRequest) {
+  const conversations = await getConversations(pageRequest, 'conversations');
+
+  return conversations;
+}
+
+export async function getNonEmptyConversations(pageRequest: PageFetchingRequest) {
+  const conversations = await getConversations(pageRequest, 'non-empty-conversations');
+
+  return conversations;
 }
 
 export async function editMessage(messageId: number, newContent: MessageContentDto) {

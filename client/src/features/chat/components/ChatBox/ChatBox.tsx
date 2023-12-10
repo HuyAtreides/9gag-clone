@@ -4,30 +4,17 @@ import {
   MoreOutlined,
   SendOutlined,
 } from '@ant-design/icons';
-import {
-  Avatar,
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  List,
-  Row,
-  Typography,
-  Upload,
-} from 'antd';
+import { Avatar, Button, Card, Col, Form, Input, List, Row, Upload } from 'antd';
 import FormItem from 'antd/es/form/FormItem';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import GifSelect from '../../../../components/gif-select/GifSelect';
-import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
-import useUploadFile from '../../../../custom-hooks/upload-file';
-import { User } from '../../../../models/user';
-import styles from './ChatBox.module.css';
-import MessageGroup from './MessageGroup';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import ChatBoxSkeleton from './ChatBoxSkeleton';
 import { closeConversation } from '../../../../Store/chat/chat-slice';
+import GifSelect from '../../../../components/gif-select/GifSelect';
+import useUploadFile from '../../../../custom-hooks/upload-file';
+import styles from './ChatBox.module.css';
+import ChatBoxSkeleton from './ChatBoxSkeleton';
+import ChatBoxWithError from './ChatBoxWithError';
+import ChatMessageList from './ChatMessagesList';
 
 interface Props {
   readonly index: number;
@@ -39,20 +26,21 @@ const ChatBox = ({ index }: Props) => {
   const openConversation = useAppSelector(
     (state) => state.chat.conversationState.openConversations[index],
   );
-  const currentUser = useAppSelector((state) => state.user.profile);
+  const currentUser = useAppSelector((state) => state.user.profile!);
 
   if (openConversation.isLoading) {
     return <ChatBoxSkeleton />;
+  }
+
+  if (openConversation.error) {
+    return <ChatBoxWithError index={index} errorMessage={openConversation.error} />;
   }
 
   const close = () => {
     dispatch(closeConversation(index));
   };
 
-  const chatParticipants = openConversation.conversation?.participants;
-  const chatParticipant = chatParticipants?.find(
-    (participant) => participant.id !== currentUser?.id,
-  );
+  const chatParticipant = openConversation.conversation?.getOtherParticipant(currentUser);
 
   return (
     <Card
@@ -75,7 +63,7 @@ const ChatBox = ({ index }: Props) => {
       ]}
       actions={[
         <Form>
-          <Row align='middle' justify='space-between'>
+          <Row align='bottom' justify='space-between'>
             <Col span={uploadFile ? 4 : 3}>
               <Form.Item name='file' className={styles.chatInputFormItem}>
                 <Upload
@@ -102,9 +90,10 @@ const ChatBox = ({ index }: Props) => {
             {uploadFile ? <Col span={2}></Col> : null}
             <Col span={15}>
               <FormItem className={styles.chatInputFormItem}>
-                <Input
+                <Input.TextArea
+                  autoSize={{ maxRows: 3, minRows: 1 }}
                   className={styles.chatInput}
-                  placeholder={`Message to ${chatParticipant?.displayName}`}
+                  placeholder='Send message'
                 />
               </FormItem>
             </Col>
@@ -117,27 +106,7 @@ const ChatBox = ({ index }: Props) => {
         </Form>,
       ]}
     >
-      <InfiniteScroll
-        hasMore={false}
-        next={() => {}}
-        dataLength={4}
-        loader
-        height={window.innerHeight * 0.45}
-        className={styles.chatBoxContent}
-      >
-        <MessageGroup sender={chatParticipant!} />
-        <MessageGroup sender={currentUser!} />
-        <div className={styles.chatParticipantInfo}>
-          <Avatar size={100} shape='circle' src={chatParticipant?.avatarUrl} />
-          <Typography.Title level={5}>
-            <NameWithCountryFlag
-              country={chatParticipant?.country || ''}
-              name={chatParticipant?.displayName || ''}
-            />
-          </Typography.Title>
-          <Typography.Text type='secondary'>{`Joined in ${chatParticipant?.created.toLocaleDateString()}`}</Typography.Text>
-        </div>
-      </InfiniteScroll>
+      <ChatMessageList openConversationIndex={index} />
     </Card>
   );
 };

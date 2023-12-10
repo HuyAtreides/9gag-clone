@@ -41,13 +41,22 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
 
     @Query(SELECT_STATEMENT + """
             from ChatConversation conversation
+            where :user in elements(conversation.participants)
+            """)
+    Slice<ChatConversationWithDerivedFields> getAllConversationsOfCurrentUser(
+            @Param("user") User currentUser,
+            Pageable pageable
+    );
+
+    @Query(SELECT_STATEMENT + """
+            from ChatConversation conversation
             where :user in elements(conversation.participants) and exists (
                 select message
                 from ChatMessage message
                 where message.conversation.id = conversation.id
             )
             """)
-    Slice<ChatConversationWithDerivedFields> getAllConversationsOfCurrentUser(
+    Slice<ChatConversationWithDerivedFields> getCurrentUserNonEmptyConversations(
             @Param("user") User currentUser,
             Pageable pageable
     );

@@ -1,9 +1,10 @@
 import MessageContentDto from '../services/dtos/message-content-dto';
+import { MessageContent } from './message-content';
 import { User } from './user';
 
 export default interface ChatMessage {
   readonly id: number;
-  readonly content: MessageContentDto;
+  readonly content: MessageContent;
   readonly lastEditDate: Date;
   readonly sentDate: Date;
   readonly pinned: boolean;

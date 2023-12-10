@@ -112,22 +112,22 @@ public class ChatService implements MediatorComponent {
     @Transactional(readOnly = true)
     public Slice<ChatConversation> getAllConversationsOfCurrentUser(PageOptions pageOptions) {
         User currentUser = UserService.getUser();
-        Slice<ChatConversationWithDerivedFields> conversationWithDerivedFields;
 
-        if (pageOptions.getSearch() != null) {
-            conversationWithDerivedFields = chatConversationRepo.searchConversationsOfCurrentUser(
-                    currentUser,
-                    pageOptions.getSearch(),
-                    createChatConversationPageable(pageOptions)
-            );
-        } else {
-            conversationWithDerivedFields = chatConversationRepo.getAllConversationsOfCurrentUser(
-                    currentUser,
-                    createChatConversationPageable(pageOptions)
-            );
-        }
+        return chatConversationRepo.getAllConversationsOfCurrentUser(
+                currentUser,
+                createChatConversationPageable(pageOptions)
+        ).map(ChatConversationWithDerivedFields::toChatConversation);
+    }
 
-        return conversationWithDerivedFields.map(
+    @Transactional(readOnly = true)
+    public Slice<ChatConversation> getCurrentUserNonEmptyConversations(PageOptions pageOptions) {
+        User currentUser = UserService.getUser();
+        Slice<ChatConversationWithDerivedFields> conversations = chatConversationRepo.getCurrentUserNonEmptyConversations(
+                currentUser,
+                createChatConversationPageable(pageOptions)
+        );
+
+        return conversations.map(
                 ChatConversationWithDerivedFields::toChatConversation
         );
     }
@@ -140,6 +140,11 @@ public class ChatService implements MediatorComponent {
         chatMessage.update(messageContent, UserService.getUser());
 
         eventEmitter.emitEventTo(WebSocketEvent.EDIT_MESSAGE, otherUser);
+    }
+
+    @Transactional
+    public void deleteConversation(Long conversationId) {
+
     }
 
     private User getOtherParticipantInConversation(ChatConversation conversation) {

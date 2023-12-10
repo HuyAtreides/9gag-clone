@@ -1,17 +1,28 @@
 .chatBox {
   min-width: 350px;
+  max-width: 370px;
   position: relative;
   border: 1px solid var(--border-color-base);
 }
 
 .chatInput {
-  border-radius: 30px;
+  border-radius: var(--border-radius-base);
 }
 
 .chatInputContainer {
   display: flex;
   align-items: center;
   justify-content: space-around;
+}
+
+.chatBoxMessageError {
+  text-align: center;
+}
+
+.chatBoxMessageLoading {
+  display: flex;
+  align-items: center;
+  margin: -15px;
 }
 
 .chatBoxHeader {
@@ -24,6 +35,16 @@
   overflow: auto;
   flex-direction: column-reverse;
   margin: -15px;
+}
+
+.chatBoxContentError {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatBoxErrorMessage {
+  text-align: center;
 }
 
 .chatParticipantInfo {

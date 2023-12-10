@@ -85,6 +85,18 @@ public class ChatController {
         return conversationSliceMapper.toDto(chatConversations, conversationMapper);
     }
 
+    @GetMapping("non-empty-conversations")
+    public SliceDto<ChatConversationDto> getCurrentUserNonEmptyConversations(
+            PageOptionsDto pageOptionsDto
+    ) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<ChatConversation> chatConversations = chatService.getCurrentUserNonEmptyConversations(
+                pageOptions
+        );
+
+        return conversationSliceMapper.toDto(chatConversations, conversationMapper);
+    }
+
     @PutMapping("edit-message/{messageId}")
     public void editMessage(
             @PathVariable Long messageId,
@@ -120,6 +132,11 @@ public class ChatController {
     @DeleteMapping("message/{messageId}")
     public void removeMessage(@PathVariable Long messageId) {
         chatService.removeMessage(messageId);
+    }
+
+    @DeleteMapping("conversation/{conversationId}")
+    public void deleteConversation(@PathVariable Long conversationId) {
+        //TODO
     }
 
     @GetMapping("messages/{conversationId}")

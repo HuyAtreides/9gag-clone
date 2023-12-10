@@ -94,4 +94,12 @@ export class User {
 
     return countryCode;
   }
+
+  public equals(otherUser: User | null) {
+    if (otherUser == null) {
+      return false;
+    }
+
+    return otherUser.id === this.id;
+  }
 }

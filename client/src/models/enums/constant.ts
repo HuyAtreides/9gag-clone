@@ -10,6 +10,8 @@ export enum Constant {
   NotificationEndPoint = 'notification',
   PostScrollAreaId = '#post-scroll-area-id',
   CommentScrollAreaId = '#comment-scroll-area-id',
+  ChatMessageScrollAreaId = '#chat-message-scroll-area-id',
+  ChatConversationScrollAreaId = '#chat-conversation-scroll-area-id',
   CommentEndPoint = 'comment',
   ChatEndPoint = 'chat',
   FollowRequestEndPoint = 'follow-request',

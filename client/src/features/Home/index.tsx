@@ -31,8 +31,14 @@ const Home: React.FC<IHomeProp> = ({ sideBarCollapse, setSideBarCollapse }) => {
         </div>
         <div className={styles.rightHandSideContent}>
           <AuthenticatedGuard component={<UserSearch />} />
-          <Divider />
-          <AuthenticatedGuard component={<ChatConversations />} />
+          <AuthenticatedGuard
+            component={
+              <>
+                <Divider />
+                <ChatConversations />
+              </>
+            }
+          />
         </div>
       </div>
       <AffixAddConversationButton />

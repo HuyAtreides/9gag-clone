@@ -4,7 +4,7 @@ import { UserMapper } from './user-mapper';
 
 export namespace ChatConversationMapper {
   export function fromDto(data: ChatConversationDto): ChatConversation {
-    return {
+    return new ChatConversation({
       ...data,
       participants: data.participants.map((participant) =>
         UserMapper.fromDto(participant),
@@ -14,6 +14,6 @@ export namespace ChatConversationMapper {
         readBy: UserMapper.fromDto(status.readBy),
         readAt: new Date(status.readAt),
       })),
-    };
+    });
   }
 }
