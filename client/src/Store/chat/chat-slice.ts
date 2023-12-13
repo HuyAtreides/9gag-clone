@@ -9,10 +9,10 @@ interface MessageState {
   readonly isGettingPage: boolean;
   readonly isLoading: boolean;
   readonly pagination: Pagination;
-  readonly sending: boolean;
+  readonly sendingIds: number[];
   readonly sent: boolean;
   readonly gettingPageError: string | null;
-  readonly sendingError: string | null;
+  readonly sendingError: Readonly<Record<number, string | null>>;
   readonly messages: ChatMessage[];
 }
 
@@ -78,14 +78,14 @@ function getInitialMessageState() {
     isGettingPage: false,
     isLoading: false,
     messages: [],
+    sent: true,
     pagination: {
       page: -1,
       size: Constant.PageSize as number,
       isLast: false,
     },
-    sending: false,
-    sent: false,
-    sendingError: null,
+    sendingIds: [],
+    sendingError: {},
     gettingPageError: null,
   };
 }
@@ -194,7 +194,7 @@ const slice = createSlice({
       action: PayloadAction<{ message: ChatMessage; conversationId: number }>,
     ) {
       const { message, conversationId } = action.payload;
-      state.messageState[conversationId].messages.unshift(message);
+      state.messageState[conversationId].messages.push(message);
     },
 
     removeMessage(
@@ -203,9 +203,11 @@ const slice = createSlice({
     ) {
       const { conversationId, messageId } = action.payload;
       const messages = state.messageState[conversationId].messages;
-      state.messageState[conversationId].messages = messages.filter(
-        (message) => message.id !== messageId,
-      );
+      const deletedMessage = messages.find((message) => message.id === messageId);
+
+      if (deletedMessage) {
+        deletedMessage.deleted = true;
+      }
     },
 
     setMessageIsLoading(
@@ -260,12 +262,55 @@ const slice = createSlice({
       state.messageState[conversationId].gettingPageError = error;
     },
 
+    addIsSendingId(state, action: PayloadAction<{ conversationId: number; id: number }>) {
+      const { conversationId, id } = action.payload;
+      state.messageState[conversationId].sendingIds.push(id);
+      state.messageState[conversationId].sent = false;
+    },
+
+    removeIsSendingId(
+      state,
+      action: PayloadAction<{ conversationId: number; id: number }>,
+    ) {
+      const { conversationId, id } = action.payload;
+      const sendingIds = state.messageState[conversationId].sendingIds;
+      const index = sendingIds.findIndex((sendingId) => sendingId === id);
+      sendingIds.splice(index, 1);
+
+      if (sendingIds.length === 0) {
+        state.messageState[conversationId].sent = true;
+      }
+    },
+
+    resetIsSendingIds(state, action: PayloadAction<number>) {
+      const conversationId = action.payload;
+      state.messageState[conversationId].sendingIds = [];
+    },
+
+    setPersistedMessage(
+      state,
+      action: PayloadAction<{
+        conversationId: number;
+        transientId: number;
+        chatMessage: ChatMessage;
+      }>,
+    ) {
+      const { conversationId, transientId, chatMessage } = action.payload;
+      const messages = state.messageState[conversationId].messages;
+      const transientIndex = messages.findIndex((message) => message.id === transientId);
+      messages[transientIndex] = chatMessage;
+    },
+
     setSendingMessageError(
       state,
-      action: PayloadAction<{ conversationId: number; error: string | null }>,
+      action: PayloadAction<{
+        conversationId: number;
+        messageId: number;
+        error: string | null;
+      }>,
     ) {
-      const { conversationId, error } = action.payload;
-      state.messageState[conversationId].sendingError = error;
+      const { conversationId, error, messageId } = action.payload;
+      state.messageState[conversationId].sendingError[messageId] = error;
     },
 
     setConversations(state, action: PayloadAction<Slice<ChatConversation>>) {
@@ -304,6 +349,7 @@ export const {
   setConversations,
   setConversationLoadingError,
   setConversation,
+  removeIsSendingId,
   setPreviewConversationGettingPage,
   setPreviewConversationLoading,
   setPreviewConversations,
@@ -313,4 +359,7 @@ export const {
   setGetMessagePageError,
   setMessagePage,
   setSendingMessageError,
+  addIsSendingId,
+  resetIsSendingIds,
+  setPersistedMessage,
 } = slice.actions;

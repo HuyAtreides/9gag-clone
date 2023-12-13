@@ -26,16 +26,16 @@ const groupMessages = (messages: ChatMessage[]) => {
     const currentMessage = messages[i];
     const nextMessage = messages[Math.min(messages.length - 1, i + 1)];
 
-    messagesInSameGroup.push(currentMessage);
+    messagesInSameGroup.unshift(currentMessage);
 
     if (!currentMessage.owner.equals(nextMessage.owner)) {
-      chatMessageGroups.push(<MessageGroup messages={messagesInSameGroup} />);
+      chatMessageGroups.unshift(<MessageGroup messages={messagesInSameGroup} />);
       messagesInSameGroup = [];
     }
   }
 
   if (messagesInSameGroup.length > 0) {
-    chatMessageGroups.push(<MessageGroup messages={messagesInSameGroup} />);
+    chatMessageGroups.unshift(<MessageGroup messages={messagesInSameGroup} />);
   }
 
   return chatMessageGroups;
@@ -99,16 +99,21 @@ const ChatMessageList = ({ openConversationIndex }: Props) => {
     );
   }
 
+  const sortedMessages = [...messages].sort(
+    (a, b) => a.sentDate.getTime() - b.sentDate.getTime(),
+  );
+
   return (
     <InfiniteScroll
       hasMore={!pagination.isLast}
       next={getNextPage}
-      dataLength={messages.length}
+      dataLength={sortedMessages.length}
       loader={<CenterSpinner />}
+      inverse
       height={window.innerHeight * 0.45}
       className={styles.chatBoxContent}
     >
-      {groupMessages(messages)}
+      {groupMessages(sortedMessages)}
 
       {pagination.isLast && !gettingPageError ? (
         <div className={styles.chatParticipantInfo}>

@@ -6,8 +6,10 @@ import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.ChatConversation;
 import com.huyphan.models.ChatConversation_;
 import com.huyphan.models.ChatMessage;
+import com.huyphan.models.ChatMessage_;
 import com.huyphan.models.ChatParticipant;
 import com.huyphan.models.MessageContent;
+import com.huyphan.models.NewChatMessageData;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.User;
 import com.huyphan.models.enums.ChatConversationSortField.Constants;
@@ -17,6 +19,7 @@ import com.huyphan.models.projections.ChatConversationWithDerivedFields;
 import com.huyphan.repositories.ChatConversationRepository;
 import com.huyphan.repositories.ChatMessageRepository;
 import com.huyphan.services.notification.NotificationService;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -59,11 +62,18 @@ public class ChatService implements MediatorComponent {
     }
 
     @Transactional
-    public ChatMessage addMessage(Long conversationId, MessageContent messageContent) {
+    public ChatMessage addMessage(Long conversationId, NewChatMessageData newChatMessageData) {
         User currentUser = UserService.getUser();
         ChatConversation chatConversation = findConversationById(conversationId);
         User otherUser = getOtherParticipantInConversation(chatConversation);
-        ChatMessage chatMessage = new ChatMessage(messageContent, currentUser);
+        Instant sentDate = newChatMessageData.getSentDate();
+        MessageContent messageContent = newChatMessageData.getContent();
+
+        if (sentDate == null) {
+            throw new IllegalArgumentException("Send date can not be null");
+        }
+
+        ChatMessage chatMessage = new ChatMessage(messageContent, currentUser, sentDate);
         chatConversation.addMessage(chatMessage);
         ChatMessage newMessage = chatMessageRepo.save(chatMessage);
         eventEmitter.emitEventTo(WebSocketEvent.RECEIVE_NEW_MESSAGE, otherUser);
@@ -85,7 +95,7 @@ public class ChatService implements MediatorComponent {
         return PageRequest.of(
                 pageOptions.getPage(),
                 pageOptions.getSize(),
-                Sort.by(Order.desc(ChatConversation_.ID))
+                Sort.by(Order.desc(ChatMessage_.SENT_DATE), Order.desc(ChatMessage_.ID))
         );
     }
 
@@ -122,10 +132,22 @@ public class ChatService implements MediatorComponent {
     @Transactional(readOnly = true)
     public Slice<ChatConversation> getCurrentUserNonEmptyConversations(PageOptions pageOptions) {
         User currentUser = UserService.getUser();
-        Slice<ChatConversationWithDerivedFields> conversations = chatConversationRepo.getCurrentUserNonEmptyConversations(
-                currentUser,
-                createChatConversationPageable(pageOptions)
-        );
+        Slice<ChatConversationWithDerivedFields> conversations;
+
+        if (pageOptions.getSearch() != null) {
+            conversations = chatConversationRepo.searchConversationsOfCurrentUser(
+                    currentUser,
+                    "%" + pageOptions.getSearch() + "%",
+                    createChatConversationPageable(pageOptions)
+            );
+        }
+        else {
+            conversations = chatConversationRepo.getCurrentUserNonEmptyConversations(
+                    currentUser,
+                    createChatConversationPageable(pageOptions)
+            );
+
+        }
 
         return conversations.map(
                 ChatConversationWithDerivedFields::toChatConversation

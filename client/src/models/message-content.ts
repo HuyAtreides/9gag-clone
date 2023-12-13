@@ -1,5 +1,5 @@
 export interface MessageContent {
-  readonly mediaUrl: string;
-  readonly mediaType: string;
-  readonly text: string;
+  readonly mediaUrl: string | null;
+  readonly mediaType: string | null;
+  readonly text: string | null;
 }

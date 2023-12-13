@@ -3,16 +3,19 @@ package com.huyphan.controllers;
 import com.huyphan.dtos.ChatConversationDto;
 import com.huyphan.dtos.ChatMessageDto;
 import com.huyphan.dtos.MessageContentDto;
+import com.huyphan.dtos.NewChatMessageDataDto;
 import com.huyphan.dtos.PageOptionsDto;
 import com.huyphan.dtos.SliceDto;
 import com.huyphan.mappers.ChatMessageMapper;
 import com.huyphan.mappers.ConversationMapper;
 import com.huyphan.mappers.MessageContentMapper;
+import com.huyphan.mappers.NewChatMessageDataMapper;
 import com.huyphan.mappers.PageOptionMapper;
 import com.huyphan.mappers.SliceMapper;
 import com.huyphan.models.ChatConversation;
 import com.huyphan.models.ChatMessage;
 import com.huyphan.models.MessageContent;
+import com.huyphan.models.NewChatMessageData;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserException;
@@ -43,6 +46,9 @@ public class ChatController {
     private ConversationMapper conversationMapper;
 
     @Autowired
+    private NewChatMessageDataMapper newChatMessageDataMapper;
+
+    @Autowired
     private MessageContentMapper messageContentMapper;
 
     @Autowired
@@ -59,9 +65,10 @@ public class ChatController {
 
     @PostMapping("add-message/{conversationId}")
     public ChatMessageDto sendMessage(@PathVariable Long conversationId,
-            @RequestBody MessageContentDto messageContentDto) {
-        MessageContent messageContent = messageContentMapper.fromDto(messageContentDto);
-        ChatMessage chatMessage = chatService.addMessage(conversationId, messageContent);
+            @RequestBody NewChatMessageDataDto newChatMessageDataDto) {
+        NewChatMessageData newChatMessageData = newChatMessageDataMapper.fromDto(
+                newChatMessageDataDto);
+        ChatMessage chatMessage = chatService.addMessage(conversationId, newChatMessageData);
 
         return chatMessageMapper.toDto(chatMessage);
     }

@@ -15,14 +15,18 @@ import styles from './ChatBox.module.css';
 import ChatBoxSkeleton from './ChatBoxSkeleton';
 import ChatBoxWithError from './ChatBoxWithError';
 import ChatMessageList from './ChatMessagesList';
+import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
+import { addNewMessage } from '../../../../Store/chat/chat-dispatchers';
+import { useForm } from 'antd/es/form/Form';
 
 interface Props {
   readonly index: number;
 }
 
 const ChatBox = ({ index }: Props) => {
-  const [uploadFile, handleFileChange] = useUploadFile(undefined);
+  const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(undefined);
   const dispatch = useAppDispatch();
+  const [form] = useForm<NewChatMessageFormData>();
   const openConversation = useAppSelector(
     (state) => state.chat.conversationState.openConversations[index],
   );
@@ -36,8 +40,19 @@ const ChatBox = ({ index }: Props) => {
     return <ChatBoxWithError index={index} errorMessage={openConversation.error} />;
   }
 
+  const conversationId = openConversation.conversation!.id;
   const close = () => {
     dispatch(closeConversation(index));
+  };
+
+  const handleSubmit = (values: NewChatMessageFormData) => {
+    resetFormValue();
+    dispatch(addNewMessage(conversationId, values));
+  };
+
+  const resetFormValue = () => {
+    setUploadFile(undefined);
+    form.resetFields();
   };
 
   const chatParticipant = openConversation.conversation?.getOtherParticipant(currentUser);
@@ -62,9 +77,9 @@ const ChatBox = ({ index }: Props) => {
         <Button icon={<CloseOutlined />} type='text' onClick={close} />,
       ]}
       actions={[
-        <Form>
-          <Row align='bottom' justify='space-between'>
-            <Col span={uploadFile ? 4 : 3}>
+        <Form onFinish={handleSubmit} form={form} onFocusCapture={() => console.log('?')}>
+          <Row align='middle' justify='space-between'>
+            <Col span={uploadFile ? 5 : 3}>
               <Form.Item name='file' className={styles.chatInputFormItem}>
                 <Upload
                   beforeUpload={() => false}
@@ -87,11 +102,12 @@ const ChatBox = ({ index }: Props) => {
                 </Form.Item>
               </Col>
             )}
-            {uploadFile ? <Col span={2}></Col> : null}
-            <Col span={15}>
-              <FormItem className={styles.chatInputFormItem}>
+            {uploadFile ? <Col span={1}></Col> : null}
+            <Col span={uploadFile ? 13 : 15}>
+              <FormItem className={styles.chatInputFormItem} name='text'>
                 <Input.TextArea
-                  autoSize={{ maxRows: 3, minRows: 1 }}
+                  rows={1}
+                  autoSize={{ maxRows: 3 }}
                   className={styles.chatInput}
                   placeholder='Send message'
                 />

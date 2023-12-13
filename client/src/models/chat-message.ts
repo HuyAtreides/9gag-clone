@@ -1,4 +1,3 @@
-import MessageContentDto from '../services/dtos/message-content-dto';
 import { MessageContent } from './message-content';
 import { User } from './user';
 

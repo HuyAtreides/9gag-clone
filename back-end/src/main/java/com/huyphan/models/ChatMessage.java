@@ -63,7 +63,7 @@ public class ChatMessage {
     @JoinColumn(name = "OwnerId")
     private ChatParticipant owner;
 
-    public ChatMessage(MessageContent content, ChatParticipant owner) {
+    public ChatMessage(MessageContent content, ChatParticipant owner, Instant sendDate) {
         validateContentNotNull(content);
         this.content = new MessageContent(
                 content.getMediaUrl(),
@@ -71,8 +71,8 @@ public class ChatMessage {
                 content.getText()
         );
         this.owner = owner;
-        this.sentDate = Instant.now();
-        this.lastEditDate = Instant.now();
+        this.sentDate = sendDate;
+        this.lastEditDate = sendDate;
         this.deleted = false;
         this.pinned = false;
         this.edited = false;

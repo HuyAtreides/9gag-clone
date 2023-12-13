@@ -40,4 +40,15 @@ export default class ChatConversation {
 
     return otherParticipant;
   }
+
+  getOtherReadStatus(currentUser: User) {
+    const otherReadStatus = this.readStatuses.find(
+      (status) => !status.readBy.equals(currentUser),
+    );
+    if (!otherReadStatus) {
+      throw new Error('Invalid read statuses');
+    }
+
+    return otherReadStatus;
+  }
 }

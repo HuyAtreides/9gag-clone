@@ -1,21 +1,22 @@
 import { AxiosRequestConfig } from 'axios';
+import ChatConversation from '../models/chat-conversation';
+import ChatMessage from '../models/chat-message';
 import { Constant } from '../models/enums/constant';
-import { MessageContent } from '../models/message-content';
+import NewChatMessageData from '../models/new-chat-message-data';
+import { ConversationMessagesFetchingRequest } from '../models/requests/conversation-messages-fetching-request';
 import { PageFetchingRequest } from '../models/requests/page-fetching-request';
+import Slice from '../models/slice';
 import { createAxiosInstance } from '../utils/create-axios-instance';
 import { ChatConversationDto } from './dtos/chat-conversation-dto';
 import ChatMessageDto from './dtos/chat-message-dto';
+import MessageContentDto from './dtos/message-content-dto';
 import SliceDto from './dtos/slice-dto';
 import { ChatConversationMapper } from './mappers/chat-conversation-mapper';
 import { ChatMessageMapper } from './mappers/chat-message-mapper';
 import { MessageContentMapper } from './mappers/message-content-mapper';
+import { NewChatMessageDataMapper } from './mappers/new-chat-message-data-mapper';
 import { PageOptionsMapper } from './mappers/page-options-mapper';
 import { SliceMapper } from './mappers/slice-mapper';
-import MessageContentDto from './dtos/message-content-dto';
-import { ConversationMessagesFetchingRequest } from '../models/requests/conversation-messages-fetching-request';
-import ChatMessage from '../models/chat-message';
-import ChatConversation from '../models/chat-conversation';
-import Slice from '../models/slice';
 
 export type FetchChatMessagesPageFunc<T extends PageFetchingRequest> = (
   request: T,
@@ -43,13 +44,16 @@ export async function getMessage(messageId: number) {
   return ChatMessageMapper.fromDto(response.data);
 }
 
-export async function sendMessage(conversationId: number, content: MessageContent) {
+export async function sendMessage(
+  conversationId: number,
+  newChatMessageData: NewChatMessageData,
+) {
   const axios = createAxiosInstance();
-  const contentDto = MessageContentMapper.toDto(content);
+  const newChatMessageDataDto = NewChatMessageDataMapper.toDto(newChatMessageData);
 
   const response = await axios.post<ChatMessageDto>(
     `${Constant.ChatEndPoint}/add-message/${conversationId}`,
-    contentDto,
+    newChatMessageDataDto,
   );
 
   return ChatMessageMapper.fromDto(response.data);

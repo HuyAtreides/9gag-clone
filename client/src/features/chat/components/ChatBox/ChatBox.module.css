@@ -78,6 +78,8 @@
   padding: 5px;
   text-wrap: wrap;
   max-width: 200px;
+  min-width: 33px;
+  text-align: center;
   margin: 3px;
   margin-right: 10px;
 }
@@ -88,11 +90,20 @@
   padding: 5px;
   text-wrap: wrap;
   max-width: 200px;
+  min-width: 33px;
+  text-align: center;
   margin-left: 5px;
+}
+.dummyAvatar {
+  display: inline-block;
+  width: 30px;
 }
 
 .otherMessageContainer {
-  margin-top: 3px;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: end;
 }
 
 .messageStatus {
