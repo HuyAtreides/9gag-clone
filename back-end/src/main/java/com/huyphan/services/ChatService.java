@@ -91,6 +91,16 @@ public class ChatService implements MediatorComponent {
         ).stream().map(ChatConversationWithDerivedFields::toChatConversation).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ChatMessage> findAllLatestChatMessage(Long latestMessageId) {
+        User currentUser = UserService.getUser();
+
+        return chatMessageRepo.findAllLatestChatMessages(
+                currentUser,
+                latestMessageId
+        );
+    }
+
     private Pageable createChatMessagePageable(PageOptions pageOptions) {
         return PageRequest.of(
                 pageOptions.getPage(),
@@ -140,8 +150,7 @@ public class ChatService implements MediatorComponent {
                     "%" + pageOptions.getSearch() + "%",
                     createChatConversationPageable(pageOptions)
             );
-        }
-        else {
+        } else {
             conversations = chatConversationRepo.getCurrentUserNonEmptyConversations(
                     currentUser,
                     createChatConversationPageable(pageOptions)

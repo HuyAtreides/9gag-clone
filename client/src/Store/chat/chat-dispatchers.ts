@@ -7,7 +7,11 @@ import Slice from '../../models/slice';
 import {
   FetchChatConversationFunc,
   createConversationWithUser,
+  getAllLatestChatMessage,
   getConversationMessages,
+  getConversationsWithNewestMessage,
+  getMessage,
+  markConversationAsRead,
   sendMessage,
 } from '../../services/chat-service';
 import { extractErrorMessage, handleError } from '../../utils/error-handler';
@@ -26,6 +30,9 @@ import {
   setSendingMessageError,
   removeIsSendingId,
   resetIsSendingIds,
+  addLatestPreviewConversations,
+  setPreviewChatMessage,
+  addLatestMessages,
 } from './chat-slice';
 import { NewChatMessageFormData } from '../../models/new-chat-message-form-data';
 import NewChatMessageData from '../../models/new-chat-message-data';
@@ -211,5 +218,93 @@ export const addNewMessage =
         }),
       );
       dispatch(resetIsSendingIds(conversationId));
+    }
+  };
+
+export const readConversation =
+  (conversationId: number): AppThunk =>
+  (dispatch, getState) => {
+    try {
+      markConversationAsRead(conversationId);
+    } catch (error: unknown) {}
+  };
+
+export const getLatestConversationsState = (): AppThunk => (dispatch, getState) => {
+  try {
+    dispatch(getLatestConversation());
+    dispatch(getLatestMessages());
+  } catch (error: unknown) {}
+};
+
+const getLatestConversation = (): AppThunk => async (dispatch, getState) => {
+  const currentConversations = getState().chat.conversationState.conversations;
+  const latestMessageId =
+    currentConversations.length === 0 ? 0 : currentConversations[0].latestChatMessageId;
+  const latestConversations = await getConversationsWithNewestMessage(latestMessageId);
+  dispatch(addLatestPreviewConversations(latestConversations));
+};
+
+const getLatestMessages = (): AppThunk => async (dispatch, getState) => {
+  const state = getState();
+  const currentConversations = state.chat.conversationState.conversations;
+  const latestMessageId =
+    currentConversations.length === 0 ? 0 : currentConversations[0].latestChatMessageId;
+  const openConversationIds = state.chat.conversationState.openConversations
+    .map((openConversation) => openConversation.conversation?.id)
+    .filter((id) => id != null);
+
+  if (openConversationIds.length === 0) {
+    return;
+  }
+
+  const latestChatMessages = await getAllLatestChatMessage(latestMessageId);
+  const relevantChatMessages = latestChatMessages.filter((message) =>
+    openConversationIds.includes(message.conversationId),
+  );
+
+  dispatch(addLatestMessages(relevantChatMessages));
+};
+
+export const getPossiblyUpdatedMessages = (): AppThunk => async (dispatch, getState) => {
+  try {
+  } catch (error: unknown) {}
+};
+
+export const getPreviewMessage =
+  (conversationId: number, previewMessageId: number): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(
+        setPreviewChatMessage({
+          conversationId,
+          messageState: {
+            loading: true,
+            message: null,
+            error: null,
+          },
+        }),
+      );
+      const previewMessage = await getMessage(previewMessageId);
+      dispatch(
+        setPreviewChatMessage({
+          conversationId,
+          messageState: {
+            loading: false,
+            message: previewMessage,
+            error: null,
+          },
+        }),
+      );
+    } catch (error: unknown) {
+      dispatch(
+        setPreviewChatMessage({
+          conversationId,
+          messageState: {
+            loading: false,
+            message: null,
+            error: 'Fail to get preview message',
+          },
+        }),
+      );
     }
   };

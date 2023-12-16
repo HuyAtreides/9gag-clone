@@ -4,6 +4,7 @@ import ChatMessage from '../../models/chat-message';
 import { Constant } from '../../models/enums/constant';
 import { Pagination } from '../../models/page';
 import Slice from '../../models/slice';
+import { merge2SortedList } from '../../utils/list-utils';
 
 interface MessageState {
   readonly isGettingPage: boolean;
@@ -29,9 +30,16 @@ interface OpenChatConversationState {
   readonly error: string | null;
 }
 
+interface PreviewMessageState {
+  readonly loading: boolean;
+  readonly message: ChatMessage | null;
+  readonly error: string | null;
+}
+
 interface PreviewChatConversationState {
   readonly isGettingPage: boolean;
   readonly isLoading: boolean;
+  readonly previewMessages: Readonly<Record<number, PreviewMessageState>>;
   readonly conversations: readonly ChatConversation[];
   readonly error: string | null;
   readonly pagination: Pagination;
@@ -62,6 +70,7 @@ const initialState: ChatState = {
     isLoading: false,
     openConversations: [],
     previewConversations: {
+      previewMessages: {},
       isLoading: false,
       isGettingPage: false,
       error: null,
@@ -89,6 +98,20 @@ function getInitialMessageState() {
     gettingPageError: null,
   };
 }
+
+function getInitialPreviewMessageState() {
+  return {
+    loading: false,
+    message: null,
+    error: null,
+  };
+}
+
+const chatMessageComparator = (a: ChatMessage, b: ChatMessage) => {
+  return a.sentDate.getTime() - b.sentDate.getTime() === 0
+    ? a.id - b.id
+    : a.sentDate.getTime() - b.sentDate.getTime();
+};
 
 const slice = createSlice({
   name: 'chat',
@@ -136,6 +159,22 @@ const slice = createSlice({
         size,
         isLast,
       };
+      content.forEach((conversation) => {
+        state.conversationState.previewConversations.previewMessages[conversation.id] =
+          getInitialPreviewMessageState();
+      });
+    },
+
+    setPreviewChatMessage(
+      state,
+      action: PayloadAction<{
+        conversationId: number;
+        messageState: PreviewMessageState;
+      }>,
+    ) {
+      const { conversationId, messageState } = action.payload;
+      state.conversationState.previewConversations.previewMessages[conversationId] =
+        messageState;
     },
 
     setPreviewConversationError(state, action: PayloadAction<string | null>) {
@@ -144,19 +183,45 @@ const slice = createSlice({
 
     addPreviewConversationPage(state, action: PayloadAction<Slice<ChatConversation>>) {
       const { page, size, isLast, content } = action.payload;
-      state.conversationState.previewConversations.conversations.push(...content);
+      const currentPreviewConversations =
+        state.conversationState.previewConversations.conversations;
+      state.conversationState.previewConversations.conversations = merge2SortedList(
+        currentPreviewConversations,
+        [...content],
+        (a, b) => a.latestChatMessageId - b.latestChatMessageId,
+      );
       state.conversationState.previewConversations.pagination = {
         page,
         size,
         isLast,
       };
+      content.forEach((conversation) => {
+        state.conversationState.previewConversations.previewMessages[conversation.id] =
+          getInitialPreviewMessageState();
+      });
+    },
+
+    addLatestPreviewConversations(state, action: PayloadAction<ChatConversation[]>) {
+      const currentPreviewConversations =
+        state.conversationState.previewConversations.conversations;
+      state.conversationState.previewConversations.conversations = merge2SortedList(
+        currentPreviewConversations,
+        action.payload,
+        (a, b) => a.id - b.id,
+      );
+      action.payload.forEach((conversation) => {
+        state.conversationState.previewConversations.previewMessages[conversation.id] =
+          getInitialPreviewMessageState();
+      });
     },
 
     closeConversation(state, action: PayloadAction<number>) {
-      const index = action.payload;
-      const length = state.conversationState.openConversations.length;
+      const userId = action.payload;
+      const index = state.conversationState.openConversations.findIndex(
+        (conversation) => conversation.userId === userId,
+      );
 
-      if (index >= length || index < 0) {
+      if (index === -1) {
         return;
       }
 
@@ -197,6 +262,18 @@ const slice = createSlice({
       state.messageState[conversationId].messages.push(message);
     },
 
+    addLatestMessages(state, action: PayloadAction<ChatMessage[]>) {
+      const messages = action.payload;
+      messages.forEach((message) => {
+        const conversationId = message.conversationId;
+        state.messageState[conversationId].messages = merge2SortedList(
+          state.messageState[conversationId].messages,
+          [message],
+          chatMessageComparator,
+        );
+      });
+    },
+
     removeMessage(
       state,
       action: PayloadAction<{ conversationId: number; messageId: number }>,
@@ -232,7 +309,12 @@ const slice = createSlice({
     ) {
       const { conversationId, slice } = action.payload;
       const { page, size, isLast, content } = slice;
-      state.messageState[conversationId].messages.push(...content);
+      const currentMessages = state.messageState[conversationId].messages;
+      state.messageState[conversationId].messages = merge2SortedList(
+        currentMessages,
+        [...content],
+        chatMessageComparator,
+      );
       state.messageState[conversationId].pagination = {
         page,
         size,
@@ -361,5 +443,8 @@ export const {
   setSendingMessageError,
   addIsSendingId,
   resetIsSendingIds,
+  addLatestMessages,
+  addLatestPreviewConversations,
   setPersistedMessage,
+  setPreviewChatMessage,
 } = slice.actions;

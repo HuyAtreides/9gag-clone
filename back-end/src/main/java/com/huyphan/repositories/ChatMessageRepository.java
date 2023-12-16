@@ -33,10 +33,22 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             select chatMessage
             from ChatMessage chatMessage
             where :user in elements(chatMessage.conversation.participants)
-            and chatMessage.id >= :oldestMessageId
+            and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
             """)
-    List<ChatMessage> findAllPossiblyEditedChatMessages(
+    List<ChatMessage> findAllPossiblyUpdatedChatMessages(
             @Param("user") User user,
-            @Param("oldestMessageId") Long oldestMessageId
+            @Param("oldestMessageId") Long oldestMessageId,
+            @Param("latestMessageId") Long latestMessageId
+    );
+
+    @Query("""
+            select chatMessage
+            from ChatMessage chatMessage
+            where :user in elements(chatMessage.conversation.participants)
+            and chatMessage.id >= :latestMessageId
+            """)
+    List<ChatMessage> findAllLatestChatMessages(
+            @Param("user") User user,
+            @Param("latestMessageId") Long latestMessageId
     );
 }

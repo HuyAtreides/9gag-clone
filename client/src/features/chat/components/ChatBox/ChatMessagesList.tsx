@@ -13,9 +13,10 @@ import { Constant } from '../../../../models/enums/constant';
 import PageOptions from '../../../../models/page-options';
 import styles from './ChatBox.module.css';
 import MessageGroup from './MessageGroup';
+import ChatConversation from '../../../../models/chat-conversation';
 
 interface Props {
-  readonly openConversationIndex: number;
+  readonly openConversation: ChatConversation;
 }
 
 const groupMessages = (messages: ChatMessage[]) => {
@@ -26,27 +27,31 @@ const groupMessages = (messages: ChatMessage[]) => {
     const currentMessage = messages[i];
     const nextMessage = messages[Math.min(messages.length - 1, i + 1)];
 
-    messagesInSameGroup.unshift(currentMessage);
+    messagesInSameGroup.push(currentMessage);
 
     if (!currentMessage.owner.equals(nextMessage.owner)) {
-      chatMessageGroups.unshift(<MessageGroup messages={messagesInSameGroup} />);
+      chatMessageGroups.push(
+        <MessageGroup messages={messagesInSameGroup} owner={currentMessage.owner} />,
+      );
       messagesInSameGroup = [];
     }
   }
 
   if (messagesInSameGroup.length > 0) {
-    chatMessageGroups.unshift(<MessageGroup messages={messagesInSameGroup} />);
+    chatMessageGroups.push(
+      <MessageGroup
+        messages={messagesInSameGroup}
+        owner={messagesInSameGroup[0].owner}
+      />,
+    );
   }
 
   return chatMessageGroups;
 };
 
-const ChatMessageList = ({ openConversationIndex }: Props) => {
+const ChatMessageList = ({ openConversation }: Props) => {
   const dispatch = useAppDispatch();
-  const openConversation = useAppSelector(
-    (state) => state.chat.conversationState.openConversations[openConversationIndex],
-  );
-  const conversation = openConversation.conversation!;
+  const conversation = openConversation;
   const currentUser = useAppSelector((state) => state.user.profile!);
   const chatParticipant = conversation.getOtherParticipant(currentUser);
   const conversationId = conversation.id;
@@ -113,7 +118,9 @@ const ChatMessageList = ({ openConversationIndex }: Props) => {
       height={window.innerHeight * 0.45}
       className={styles.chatBoxContent}
     >
-      {groupMessages(sortedMessages)}
+      <div id={Constant.ChatMessageScrollAreaId as string}>
+        {groupMessages(sortedMessages)}
+      </div>
 
       {pagination.isLast && !gettingPageError ? (
         <div className={styles.chatParticipantInfo}>

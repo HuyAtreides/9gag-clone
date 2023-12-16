@@ -126,6 +126,19 @@ public class ChatController {
         ).toList();
     }
 
+    @GetMapping("latest-chat-messages/{latestMessageId}")
+    public List<ChatMessageDto> getAllLatestChatMessages(
+            @PathVariable Long latestMessageId
+    ) {
+        List<ChatMessage> messages = chatService.findAllLatestChatMessage(
+                latestMessageId
+        );
+
+        return messages.stream().map(message ->
+                chatMessageMapper.toDto(message)
+        ).toList();
+    }
+
     @PutMapping("pin-message/{messageId}")
     public void pinMessage(@PathVariable Long messageId) {
         chatService.pinMessage(messageId);

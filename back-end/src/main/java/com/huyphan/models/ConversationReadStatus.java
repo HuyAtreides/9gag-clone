@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 public class ConversationReadStatus {
 
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "UserId")
     private ChatParticipant readBy;
 
@@ -54,6 +54,16 @@ public class ConversationReadStatus {
         this.latestReadMessageId = latestReadMessageId;
     }
 
+    public ConversationReadStatus(
+            ChatParticipant readBy,
+            Instant readAt
+    ) {
+        validateReadByNotNull(readBy);
+        validateReadAtNotNull(readAt);
+        this.readBy = readBy;
+        this.readAt = readAt;
+    }
+
     @Column(name = "LatestReadMessageId")
     private Long latestReadMessageId;
 
@@ -67,8 +77,7 @@ public class ConversationReadStatus {
     public ConversationReadStatus withNewReadAt(Instant readAt) {
         return new ConversationReadStatus(
                 this.readBy,
-                readAt,
-                this.latestReadMessageId
+                readAt
         );
     }
 

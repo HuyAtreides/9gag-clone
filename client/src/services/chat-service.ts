@@ -44,6 +44,26 @@ export async function getMessage(messageId: number) {
   return ChatMessageMapper.fromDto(response.data);
 }
 
+export async function getConversationsWithNewestMessage(latestMessageId: number) {
+  const axios = createAxiosInstance();
+  const response = await axios.get<ChatConversationDto[]>(
+    `${Constant.ChatEndPoint}/conversations-with-newest-messages/${latestMessageId}`,
+  );
+
+  return response.data.map((conversationDto) =>
+    ChatConversationMapper.fromDto(conversationDto),
+  );
+}
+
+export async function getAllLatestChatMessage(latestMessageId: number) {
+  const axios = createAxiosInstance();
+  const response = await axios.get<ChatMessageDto[]>(
+    `${Constant.ChatEndPoint}/latest-chat-messages/${latestMessageId}`,
+  );
+
+  return response.data.map((messageDto) => ChatMessageMapper.fromDto(messageDto));
+}
+
 export async function sendMessage(
   conversationId: number,
   newChatMessageData: NewChatMessageData,
@@ -94,6 +114,11 @@ export async function editMessage(messageId: number, newContent: MessageContentD
     `${Constant.ChatEndPoint}/edit-message/${messageId}`,
     newContentDto,
   );
+}
+
+export async function markConversationAsRead(conversationId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.ChatEndPoint}/mark-as-read/${conversationId}`);
 }
 
 export async function getConversationMessages(

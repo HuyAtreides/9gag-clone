@@ -1,10 +1,11 @@
-import { Avatar, List, Skeleton, Typography } from 'antd';
+import { List, Skeleton } from 'antd';
 import { useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
-import styles from './ConversationPreview.module.css';
+import {
+  appendConversationsPageDispatcher,
+  getConversationsPageDispatcher,
+} from '../../../../Store/chat/chat-dispatchers';
 import {
   addPreviewConversationPage,
   setPreviewConversationError,
@@ -12,16 +13,13 @@ import {
   setPreviewConversationLoading,
   setPreviewConversations,
 } from '../../../../Store/chat/chat-slice';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import useRemoveErrorWhenUnmount from '../../../../custom-hooks/remove-error';
 import UserSummaryListSkeleton from '../../../../components/user-summary-list-skeleton/UserSummaryListSkeleton';
+import useRemoveErrorWhenUnmount from '../../../../custom-hooks/remove-error';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import { Constant } from '../../../../models/enums/constant';
-import {
-  appendConversationsPageDispatcher,
-  getConversationsPageDispatcher,
-} from '../../../../Store/chat/chat-dispatchers';
-import { getNonEmptyConversations } from '../../../../services/chat-service';
 import PageOptions from '../../../../models/page-options';
+import { getNonEmptyConversations } from '../../../../services/chat-service';
+import ConversationPreview from './ConversationPreview';
 
 const actionCreator = {
   setIsLoading: setPreviewConversationLoading,
@@ -36,12 +34,9 @@ interface Props {
 
 const ConversationPreviewList = ({ searchTerm }: Props) => {
   const dispatch = useAppDispatch();
-  const commentDateDiff = useTimeDiffFromToday(new Date());
   const { isGettingPage, isLoading, pagination, conversations, error } = useAppSelector(
     (state) => state.chat.conversationState.previewConversations,
   );
-  const currentUser = useAppSelector((state) => state.user.profile!);
-
   useRenderErrorMessage(error, setPreviewConversationError);
   useRemoveErrorWhenUnmount(setPreviewConversationError);
 
@@ -102,53 +97,7 @@ const ConversationPreviewList = ({ searchTerm }: Props) => {
       <List
         dataSource={[...conversations]}
         itemLayout='horizontal'
-        renderItem={(conversation) => {
-          const otherParticipant = conversation.getOtherParticipant(currentUser);
-
-          return (
-            <List.Item
-              role='button'
-              className={styles.conversationPreview}
-              extra={<span className={styles.unreadMark}></span>}
-            >
-              <List.Item.Meta
-                avatar={<Avatar src={otherParticipant.avatarUrl} />}
-                title={
-                  <Link to={`/user/${otherParticipant.id}`}>
-                    {otherParticipant.displayName}
-                  </Link>
-                }
-                description={
-                  <span className={styles.latestMessagePreview}>
-                    <Typography.Paragraph
-                      className={styles.messageContentPreview}
-                      ellipsis={{
-                        expandable: false,
-                        rows: 1,
-                        suffix: '',
-                      }}
-                    >
-                      You: Ant Design, a design language for background applications, is
-                      refined by Ant UED Team Ant Design, a design language for background
-                      applications, is refined by Ant UED Team Ant Design, a design
-                      language for background applications, is refined by Ant UED Team Ant
-                      Design, a design language for background applications, is refined by
-                      Ant UED Team Ant Design, a design language for background
-                      applications, is refined by Ant UED Team Ant Design, a design
-                      language for background applications, is refined by Ant UED Team Ant
-                      Design, a design language for background applications, is refined by
-                      Ant UED Team Ant Design, a design language for background
-                      applications, is refined by Ant UED Team
-                    </Typography.Paragraph>
-                    <Typography.Paragraph className={styles.messageContentDate}>
-                      &#8226; {commentDateDiff}
-                    </Typography.Paragraph>
-                  </span>
-                }
-              />
-            </List.Item>
-          );
-        }}
+        renderItem={(conversation) => <ConversationPreview conversation={conversation} />}
       />
     </InfiniteScroll>
   );

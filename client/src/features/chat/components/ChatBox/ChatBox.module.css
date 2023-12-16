@@ -79,8 +79,8 @@
   text-wrap: wrap;
   max-width: 200px;
   min-width: 33px;
-  text-align: center;
-  margin: 3px;
+  text-align: left;
+  margin: 2px;
   margin-right: 10px;
 }
 
@@ -91,7 +91,7 @@
   text-wrap: wrap;
   max-width: 200px;
   min-width: 33px;
-  text-align: center;
+  text-align: left;
   margin-left: 5px;
 }
 .dummyAvatar {

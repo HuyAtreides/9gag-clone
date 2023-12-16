@@ -121,7 +121,7 @@ public class ChatConversation {
                     if (status.getReadBy().equals(user)) {
                         return status.withNewReadAt(
                                 Instant.now()
-                        ).withNewLatestReadMessageId(this.latestChatMessageId);
+                        ).withNewLatestReadMessageId(latestChatMessageId);
                     }
                     return status;
                 }

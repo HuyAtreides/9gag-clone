@@ -5,31 +5,33 @@ import {
   SendOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Card, Col, Form, Input, List, Row, Upload } from 'antd';
+import { useForm } from 'antd/es/form/Form';
 import FormItem from 'antd/es/form/FormItem';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { addNewMessage, readConversation } from '../../../../Store/chat/chat-dispatchers';
 import { closeConversation } from '../../../../Store/chat/chat-slice';
 import GifSelect from '../../../../components/gif-select/GifSelect';
 import useUploadFile from '../../../../custom-hooks/upload-file';
+import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
 import styles from './ChatBox.module.css';
 import ChatBoxSkeleton from './ChatBoxSkeleton';
 import ChatBoxWithError from './ChatBoxWithError';
 import ChatMessageList from './ChatMessagesList';
-import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
-import { addNewMessage } from '../../../../Store/chat/chat-dispatchers';
-import { useForm } from 'antd/es/form/Form';
 
 interface Props {
-  readonly index: number;
+  readonly chatParticipantId: number;
 }
 
-const ChatBox = ({ index }: Props) => {
+const ChatBox = ({ chatParticipantId }: Props) => {
   const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(undefined);
   const dispatch = useAppDispatch();
   const [form] = useForm<NewChatMessageFormData>();
-  const openConversation = useAppSelector(
-    (state) => state.chat.conversationState.openConversations[index],
-  );
+  const openConversation = useAppSelector((state) =>
+    state.chat.conversationState.openConversations.find(
+      (conversation) => conversation.userId === chatParticipantId,
+    ),
+  )!;
   const currentUser = useAppSelector((state) => state.user.profile!);
 
   if (openConversation.isLoading) {
@@ -37,12 +39,17 @@ const ChatBox = ({ index }: Props) => {
   }
 
   if (openConversation.error) {
-    return <ChatBoxWithError index={index} errorMessage={openConversation.error} />;
+    return (
+      <ChatBoxWithError
+        userId={chatParticipantId}
+        errorMessage={openConversation.error}
+      />
+    );
   }
 
   const conversationId = openConversation.conversation!.id;
   const close = () => {
-    dispatch(closeConversation(index));
+    dispatch(closeConversation(chatParticipantId));
   };
 
   const handleSubmit = (values: NewChatMessageFormData) => {
@@ -55,7 +62,11 @@ const ChatBox = ({ index }: Props) => {
     form.resetFields();
   };
 
-  const chatParticipant = openConversation.conversation?.getOtherParticipant(currentUser);
+  const markAsRead = () => {
+    dispatch(readConversation(conversationId));
+  };
+
+  const chatParticipant = openConversation.conversation!.getOtherParticipant(currentUser);
 
   return (
     <Card
@@ -77,7 +88,7 @@ const ChatBox = ({ index }: Props) => {
         <Button icon={<CloseOutlined />} type='text' onClick={close} />,
       ]}
       actions={[
-        <Form onFinish={handleSubmit} form={form} onFocusCapture={() => console.log('?')}>
+        <Form onFinish={handleSubmit} form={form} onFocusCapture={markAsRead}>
           <Row align='middle' justify='space-between'>
             <Col span={uploadFile ? 5 : 3}>
               <Form.Item name='file' className={styles.chatInputFormItem}>
@@ -122,7 +133,7 @@ const ChatBox = ({ index }: Props) => {
         </Form>,
       ]}
     >
-      <ChatMessageList openConversationIndex={index} />
+      <ChatMessageList openConversation={openConversation.conversation!} />
     </Card>
   );
 };

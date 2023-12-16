@@ -6,11 +6,11 @@ import { useAppDispatch } from '../../../../Store';
 import { closeConversation } from '../../../../Store/chat/chat-slice';
 
 interface Props {
-  readonly index: number;
+  readonly userId: number;
   readonly errorMessage: string;
 }
 
-const ChatBoxWithError = ({ index, errorMessage }: Props) => {
+const ChatBoxWithError = ({ userId, errorMessage }: Props) => {
   const dispatch = useAppDispatch();
 
   return (
@@ -24,7 +24,7 @@ const ChatBoxWithError = ({ index, errorMessage }: Props) => {
         <Button
           icon={<CloseOutlined />}
           type='text'
-          onClick={() => dispatch(closeConversation(index))}
+          onClick={() => dispatch(closeConversation(userId))}
         />,
       ]}
       className={styles.chatBox}

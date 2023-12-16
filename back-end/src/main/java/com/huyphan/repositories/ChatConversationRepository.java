@@ -3,6 +3,8 @@ package com.huyphan.repositories;
 import com.huyphan.models.ChatConversation;
 import com.huyphan.models.ChatParticipant;
 import com.huyphan.models.User;
+import com.huyphan.models.enums.ChatConversationSortField;
+import com.huyphan.models.enums.ChatConversationSortField.Constants;
 import com.huyphan.models.projections.ChatConversationWithDerivedFields;
 import java.util.List;
 import java.util.Optional;
@@ -91,18 +93,11 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                 from ChatMessage message
                 where message.conversation.id = conversation.id and message.id > :currentLatestMessageId
             )
-            """)
+            """ + """
+            order by
+            """ + " (" + Constants.LATEST_MESSAGE_ID + ")")
     List<ChatConversationWithDerivedFields> findAllConversationWithNewestMessage(
             @Param("user") User currentUser,
             @Param("currentLatestMessageId") Long currentLatestMessageId
-    );
-
-    @Query(SELECT_STATEMENT + """
-            from ChatConversation conversation
-            where :user in elements(conversation.participants) and conversation.id >= :currentLatestId
-            """)
-    List<ChatConversationWithDerivedFields> findAllPossiblyUpdatedConversation(
-            @Param("user") User currentUser,
-            @Param("currentLatestId") Long currentLatestId
     );
 }

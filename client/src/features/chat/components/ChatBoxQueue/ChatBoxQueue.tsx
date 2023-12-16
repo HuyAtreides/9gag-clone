@@ -19,9 +19,12 @@ const ChatBoxQueue = () => {
     <AuthenticatedGuard
       component={
         <Row gutter={16} className={styles.chatBoxQueue} justify='end' align='bottom'>
-          {openConversations.map((_, index) => (
-            <Col span={ANT_DESIGN_GRID_COLUMNS / openConversations.length}>
-              <ChatBox key={index} index={index} />
+          {openConversations.map((openConversation, index) => (
+            <Col
+              span={ANT_DESIGN_GRID_COLUMNS / openConversations.length}
+              key={openConversation.userId}
+            >
+              <ChatBox chatParticipantId={openConversation.userId} />
             </Col>
           ))}
         </Row>
