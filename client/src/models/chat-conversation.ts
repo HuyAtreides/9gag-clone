@@ -2,8 +2,7 @@ import { User } from './user';
 
 interface ConversationReadStatus {
   readonly readBy: User;
-  readonly readAt: Date;
-  readonly latestReadMessageId: number;
+  readAt: Date;
 }
 
 interface ChatConversationConstructorArguments {
@@ -41,7 +40,17 @@ export default class ChatConversation {
     return otherParticipant;
   }
 
-  getOtherReadStatus(currentUser: User) {
+  markRead(user: User | null) {
+    const status = this.readStatuses.find((status) => status.readBy.equals(user));
+
+    if (!status) {
+      throw new Error('Status of user does not exist');
+    }
+
+    status.readAt = new Date();
+  }
+
+  getOtherReadStatus(currentUser: User | null) {
     const otherReadStatus = this.readStatuses.find(
       (status) => !status.readBy.equals(currentUser),
     );

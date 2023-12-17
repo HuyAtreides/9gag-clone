@@ -5,6 +5,7 @@ import { Constant } from '../../models/enums/constant';
 import { Pagination } from '../../models/page';
 import Slice from '../../models/slice';
 import { merge2SortedList } from '../../utils/list-utils';
+import { User } from '../../models/user';
 
 interface MessageState {
   readonly isGettingPage: boolean;
@@ -59,11 +60,13 @@ interface ChatState {
   readonly messageState: Readonly<Record<number, MessageState>>;
   readonly conversationError: Readonly<Record<number, string | null>>;
   readonly conversationState: ConversationState;
+  readonly syncError: string | null;
 }
 
 const initialState: ChatState = {
   messageState: {},
   conversationError: {},
+  syncError: null,
   conversationState: {
     error: null,
     isGettingConversations: false,
@@ -140,6 +143,37 @@ const slice = createSlice({
 
       if (conversationId != null) {
         state.messageState[conversationId] = getInitialMessageState();
+      }
+    },
+
+    markPreviewConversationAsRead(
+      state,
+      action: PayloadAction<{ conversationId: number; user: User | null }>,
+    ) {
+      const { conversationId, user } = action.payload;
+      const conversations = state.conversationState.previewConversations.conversations;
+      const index = conversations.findIndex(
+        (conversation) => conversation.id === conversationId,
+      );
+      const conversation = conversations[index];
+      conversation.markRead(user);
+
+      if (index !== -1) {
+        conversations[index] = new ChatConversation({
+          ...conversation,
+        });
+      }
+    },
+
+    updateConversation(state, action: PayloadAction<ChatConversation>) {
+      const updateConversation = action.payload;
+      const index = state.conversationState.openConversations.findIndex(
+        (openConversation) => openConversation.conversation?.id === updateConversation.id,
+      );
+
+      if (index !== -1) {
+        state.conversationState.openConversations[index].conversation =
+          updateConversation;
       }
     },
 
@@ -259,7 +293,11 @@ const slice = createSlice({
       action: PayloadAction<{ message: ChatMessage; conversationId: number }>,
     ) {
       const { message, conversationId } = action.payload;
-      state.messageState[conversationId].messages.push(message);
+      state.messageState[conversationId].messages = merge2SortedList(
+        state.messageState[conversationId].messages,
+        [message],
+        chatMessageComparator,
+      );
     },
 
     addLatestMessages(state, action: PayloadAction<ChatMessage[]>) {
@@ -426,6 +464,7 @@ export const {
   setMessageIsGettingPage,
   setMessageIsLoading,
   addConversationPage,
+  markPreviewConversationAsRead,
   addMessage,
   addMessagePage,
   setConversations,
@@ -441,6 +480,7 @@ export const {
   setGetMessagePageError,
   setMessagePage,
   setSendingMessageError,
+  updateConversation,
   addIsSendingId,
   resetIsSendingIds,
   addLatestMessages,

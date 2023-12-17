@@ -10,12 +10,15 @@
 .latestMessagePreview {
   align-items: center;
   display: flex;
+}
+
+.latestUnreadMessagePreview {
   font-weight: bold;
 }
 
 .messageContentPreview {
   color: var(--secondary-text-color);
-  max-width: 170px;
+  max-width: 200px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

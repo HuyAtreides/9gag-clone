@@ -1,9 +1,13 @@
 import ConversationsPreview from '../../../../features/chat/components/ConversationsPreview/ConversationsPreview';
 import styles from './EmbeddedConversationsPreview.module.css';
 
-const EmbeddedConversationPreview = () => {
+interface Props {
+  readonly closePreview: () => void;
+}
+
+const EmbeddedConversationPreview = ({ closePreview }: Props) => {
   return (
-    <div className={styles.conversationsPreviewContainer}>
+    <div className={styles.conversationsPreviewContainer} onClick={closePreview}>
       <ConversationsPreview />
     </div>
   );

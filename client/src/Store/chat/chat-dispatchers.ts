@@ -11,6 +11,7 @@ import {
   getConversationMessages,
   getConversationsWithNewestMessage,
   getMessage,
+  getSpecificConversation,
   markConversationAsRead,
   sendMessage,
 } from '../../services/chat-service';
@@ -33,6 +34,8 @@ import {
   addLatestPreviewConversations,
   setPreviewChatMessage,
   addLatestMessages,
+  updateConversation,
+  markPreviewConversationAsRead,
 } from './chat-slice';
 import { NewChatMessageFormData } from '../../models/new-chat-message-form-data';
 import NewChatMessageData from '../../models/new-chat-message-data';
@@ -225,7 +228,9 @@ export const readConversation =
   (conversationId: number): AppThunk =>
   (dispatch, getState) => {
     try {
+      const currentUser = getState().user.profile;
       markConversationAsRead(conversationId);
+      dispatch(markPreviewConversationAsRead({ conversationId, user: currentUser }));
     } catch (error: unknown) {}
   };
 
@@ -244,7 +249,19 @@ const getLatestConversation = (): AppThunk => async (dispatch, getState) => {
   dispatch(addLatestPreviewConversations(latestConversations));
 };
 
-const getLatestMessages = (): AppThunk => async (dispatch, getState) => {
+export const updateOpenConversation = (): AppThunk => (dispatch, getState) => {
+  try {
+    getState().chat.conversationState.openConversations.forEach((openConversation) => {
+      if (openConversation.conversation) {
+        getSpecificConversation(openConversation.conversation.id).then((value) =>
+          dispatch(updateConversation(value)),
+        );
+      }
+    });
+  } catch (error: unknown) {}
+};
+
+export const getLatestMessages = (): AppThunk => async (dispatch, getState) => {
   const state = getState();
   const currentConversations = state.chat.conversationState.conversations;
   const latestMessageId =

@@ -1,5 +1,5 @@
 .chatBox {
-  min-width: 350px;
+  min-width: 360px;
   max-width: 370px;
   position: relative;
   border: 1px solid var(--border-color-base);
@@ -35,6 +35,12 @@
   overflow: auto;
   flex-direction: column-reverse;
   margin: -15px;
+}
+
+@media screen and (max-width: 768px) {
+  .chatBoxContent {
+    margin: -5px;
+  }
 }
 
 .chatBoxContentError {
@@ -76,6 +82,7 @@
   background-color: var(--primary-color);
   border-radius: 15px;
   padding: 5px;
+  display: inline-block;
   text-wrap: wrap;
   max-width: 200px;
   min-width: 33px;
@@ -88,6 +95,7 @@
   background-color: var(--secondary-text-color);
   border-radius: 15px;
   padding: 5px;
+  display: inline-block;
   text-wrap: wrap;
   max-width: 200px;
   min-width: 33px;

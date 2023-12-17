@@ -235,6 +235,10 @@ public class ChatService implements MediatorComponent {
         return chatConversationRepo.save(chatConversation);
     }
 
+    public ChatConversation getConversation(Long id) {
+        return findConversationWithDerivedFieldsById(id);
+    }
+
     public ChatMessage getMessage(Long id) {
         return findMessageById(id);
     }

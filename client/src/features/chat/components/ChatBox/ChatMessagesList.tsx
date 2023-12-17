@@ -8,15 +8,15 @@ import {
 } from '../../../../Store/chat/chat-dispatchers';
 import CenterSpinner from '../../../../components/center-spinner/CenterSpinner';
 import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import useOpenConversation from '../../../../custom-hooks/use-open-conversation';
 import ChatMessage from '../../../../models/chat-message';
 import { Constant } from '../../../../models/enums/constant';
 import PageOptions from '../../../../models/page-options';
 import styles from './ChatBox.module.css';
 import MessageGroup from './MessageGroup';
-import ChatConversation from '../../../../models/chat-conversation';
 
 interface Props {
-  readonly openConversation: ChatConversation;
+  readonly openConversationId: number;
 }
 
 const groupMessages = (messages: ChatMessage[]) => {
@@ -49,9 +49,9 @@ const groupMessages = (messages: ChatMessage[]) => {
   return chatMessageGroups;
 };
 
-const ChatMessageList = ({ openConversation }: Props) => {
+const ChatMessageList = ({ openConversationId }: Props) => {
   const dispatch = useAppDispatch();
-  const conversation = openConversation;
+  const conversation = useOpenConversation(openConversationId);
   const currentUser = useAppSelector((state) => state.user.profile!);
   const chatParticipant = conversation.getOtherParticipant(currentUser);
   const conversationId = conversation.id;
@@ -121,7 +121,7 @@ const ChatMessageList = ({ openConversation }: Props) => {
       <div id={Constant.ChatMessageScrollAreaId as string}>
         {groupMessages(sortedMessages)}
       </div>
-
+      <br />
       {pagination.isLast && !gettingPageError ? (
         <div className={styles.chatParticipantInfo}>
           <Avatar size={100} shape='circle' src={chatParticipant?.avatarUrl} />

@@ -92,6 +92,11 @@ public class ChatController {
         return conversationSliceMapper.toDto(chatConversations, conversationMapper);
     }
 
+    @GetMapping("conversation/{id}")
+    public ChatConversationDto getConversation(@PathVariable Long id) {
+        return conversationMapper.toDto(chatService.getConversation(id));
+    }
+
     @GetMapping("non-empty-conversations")
     public SliceDto<ChatConversationDto> getCurrentUserNonEmptyConversations(
             PageOptionsDto pageOptionsDto

@@ -3,7 +3,6 @@ import { UserDto } from './user-dto';
 interface ConversationReadStatusDto {
   readonly readBy: UserDto;
   readonly readAt: string;
-  readonly latestReadMessageId: number;
 }
 
 export interface ChatConversationDto {

@@ -35,25 +35,6 @@ public class ConversationReadStatus {
         }
     }
 
-    private void validateLatestReadMessageIdIsValid(Long latestReadMessageId) {
-        if (latestReadMessageId == null || latestReadMessageId <= 0) {
-            throw new IllegalArgumentException("Invalid latest read message ID");
-        }
-    }
-
-    public ConversationReadStatus(
-            ChatParticipant readBy,
-            Instant readAt,
-            Long latestReadMessageId
-    ) {
-        validateReadByNotNull(readBy);
-        validateReadAtNotNull(readAt);
-        validateLatestReadMessageIdIsValid(latestReadMessageId);
-        this.readBy = readBy;
-        this.readAt = readAt;
-        this.latestReadMessageId = latestReadMessageId;
-    }
-
     public ConversationReadStatus(
             ChatParticipant readBy,
             Instant readAt
@@ -63,9 +44,6 @@ public class ConversationReadStatus {
         this.readBy = readBy;
         this.readAt = readAt;
     }
-
-    @Column(name = "LatestReadMessageId")
-    private Long latestReadMessageId;
 
     public ConversationReadStatus(
             ChatParticipant readBy
@@ -81,11 +59,10 @@ public class ConversationReadStatus {
         );
     }
 
-    public ConversationReadStatus withNewLatestReadMessageId(Long latestReadMessageId) {
+    public ConversationReadStatus withNewLatestReadMessageId() {
         return new ConversationReadStatus(
                 this.readBy,
-                this.readAt,
-                latestReadMessageId
+                this.readAt
         );
     }
 }

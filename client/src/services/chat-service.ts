@@ -121,6 +121,15 @@ export async function markConversationAsRead(conversationId: number) {
   await axios.put<void>(`${Constant.ChatEndPoint}/mark-as-read/${conversationId}`);
 }
 
+export async function getSpecificConversation(id: number) {
+  const axios = createAxiosInstance();
+  const response = await axios.get<ChatConversationDto>(
+    `${Constant.ChatEndPoint}/conversation/${id}`,
+  );
+
+  return ChatConversationMapper.fromDto(response.data);
+}
+
 export async function getConversationMessages(
   pageRequest: ConversationMessagesFetchingRequest,
 ) {

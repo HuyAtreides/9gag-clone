@@ -117,6 +117,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
             <Col span={uploadFile ? 13 : 15}>
               <FormItem className={styles.chatInputFormItem} name='text'>
                 <Input.TextArea
+                  autoFocus
                   rows={1}
                   autoSize={{ maxRows: 3 }}
                   className={styles.chatInput}
@@ -133,7 +134,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
         </Form>,
       ]}
     >
-      <ChatMessageList openConversation={openConversation.conversation!} />
+      <ChatMessageList openConversationId={openConversation.conversation!.id} />
     </Card>
   );
 };
