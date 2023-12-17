@@ -100,4 +100,17 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
             @Param("user") User currentUser,
             @Param("currentLatestMessageId") Long currentLatestMessageId
     );
+
+    @Query("""
+            select count(*)
+            from ChatConversation conversation join conversation.readStatuses readStatus
+            where readStatus.readBy = :user and readStatus.readAt < (
+                select max(message.sentDate)
+                from ChatMessage message
+                where message.conversation = conversation and message.owner != :user
+            )   
+            """)
+    int countUnreadConversation(
+            @Param("user") User currentUser
+    );
 }

@@ -7,6 +7,7 @@ import {
   getPreviewMessage,
   readConversation,
 } from '../../../../Store/chat/chat-dispatchers';
+import { increaseUnreadCount } from '../../../../Store/chat/chat-slice';
 import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
 import ChatConversation from '../../../../models/chat-conversation';
 import styles from './ConversationPreview.module.css';
@@ -65,6 +66,12 @@ const ConversationPreview = ({ conversation }: Props) => {
   useEffect(() => {
     dispatch(getPreviewMessage(conversation.id, conversation.latestChatMessageId));
   }, [dispatch, conversation]);
+
+  useEffect(() => {
+    if (unread) {
+      dispatch(increaseUnreadCount());
+    }
+  }, [unread, dispatch]);
 
   const openConversation = () => {
     dispatch(createNewConversation(otherParticipant.id));

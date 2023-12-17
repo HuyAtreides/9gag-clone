@@ -61,9 +61,11 @@ interface ChatState {
   readonly conversationError: Readonly<Record<number, string | null>>;
   readonly conversationState: ConversationState;
   readonly syncError: string | null;
+  readonly unreadConversationsCount: number;
 }
 
 const initialState: ChatState = {
+  unreadConversationsCount: 0,
   messageState: {},
   conversationError: {},
   syncError: null,
@@ -120,6 +122,28 @@ const slice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
+    setSyncError(state, action: PayloadAction<string | null>) {
+      state.syncError = action.payload;
+    },
+
+    setUnreadCount(state, action: PayloadAction<number>) {
+      state.unreadConversationsCount = action.payload;
+    },
+
+    addUnreadCount(state, action: PayloadAction<number>) {
+      state.unreadConversationsCount += action.payload < 0 ? 0 : action.payload;
+    },
+
+    subtractUnreadCount(state, _: PayloadAction<void>) {
+      if (state.unreadConversationsCount > 0) {
+        state.unreadConversationsCount--;
+      }
+    },
+
+    increaseUnreadCount(state, _: PayloadAction<void>) {
+      state.unreadConversationsCount++;
+    },
+
     openConversation(state, action: PayloadAction<{ index: number; userId: number }>) {
       const { index, userId } = action.payload;
       state.conversationState.openConversations[index] = {
@@ -457,6 +481,11 @@ const slice = createSlice({
 
 export const chatReducer = slice.reducer;
 export const {
+  increaseUnreadCount,
+  setSyncError,
+  setUnreadCount,
+  addUnreadCount,
+  subtractUnreadCount,
   openConversation,
   closeConversation,
   setConversationIsGettingPage,

@@ -32,6 +32,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       (conversation) => conversation.userId === chatParticipantId,
     ),
   )!;
+  const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
 
   if (openConversation.isLoading) {
@@ -48,6 +49,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
   }
 
   const conversationId = openConversation.conversation!.id;
+  const isMessagesLoading = messageState[conversationId].isLoading;
   const close = () => {
     dispatch(closeConversation(chatParticipantId));
   };
@@ -88,7 +90,12 @@ const ChatBox = ({ chatParticipantId }: Props) => {
         <Button icon={<CloseOutlined />} type='text' onClick={close} />,
       ]}
       actions={[
-        <Form onFinish={handleSubmit} form={form} onFocusCapture={markAsRead}>
+        <Form
+          onFinish={handleSubmit}
+          form={form}
+          onFocusCapture={markAsRead}
+          disabled={isMessagesLoading}
+        >
           <Row align='middle' justify='space-between'>
             <Col span={uploadFile ? 5 : 3}>
               <Form.Item name='file' className={styles.chatInputFormItem}>

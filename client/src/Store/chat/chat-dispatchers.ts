@@ -12,6 +12,7 @@ import {
   getConversationsWithNewestMessage,
   getMessage,
   getSpecificConversation,
+  getUnreadConversationCount,
   markConversationAsRead,
   sendMessage,
 } from '../../services/chat-service';
@@ -36,6 +37,8 @@ import {
   addLatestMessages,
   updateConversation,
   markPreviewConversationAsRead,
+  subtractUnreadCount,
+  setUnreadCount,
 } from './chat-slice';
 import { NewChatMessageFormData } from '../../models/new-chat-message-form-data';
 import NewChatMessageData from '../../models/new-chat-message-data';
@@ -231,6 +234,7 @@ export const readConversation =
       const currentUser = getState().user.profile;
       markConversationAsRead(conversationId);
       dispatch(markPreviewConversationAsRead({ conversationId, user: currentUser }));
+      dispatch(subtractUnreadCount());
     } catch (error: unknown) {}
   };
 
@@ -239,6 +243,15 @@ export const getLatestConversationsState = (): AppThunk => (dispatch, getState) 
     dispatch(getLatestConversation());
     dispatch(getLatestMessages());
   } catch (error: unknown) {}
+};
+
+export const countUnreadConversation = (): AppThunk => async (dispatch, _) => {
+  const count = await getUnreadConversationCount();
+  dispatch(setUnreadCount(count));
+};
+
+export const resetUnreadCount = (): AppThunk => (dispatch, _) => {
+  dispatch(setUnreadCount(0));
 };
 
 const getLatestConversation = (): AppThunk => async (dispatch, getState) => {

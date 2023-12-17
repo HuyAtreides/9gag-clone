@@ -147,3 +147,10 @@ export async function getConversationMessages(
 
   return SliceMapper.fromDto(response.data, ChatMessageMapper.fromDto);
 }
+
+export async function getUnreadConversationCount() {
+  const axios = createAxiosInstance();
+  const response = await axios.get<number>(`${Constant.ChatEndPoint}/count/unread`);
+
+  return response.data;
+}

@@ -5,16 +5,19 @@ import EmbeddedConversationPreview from './EmbeddedConversationsPreview';
 import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
 import { useEffect, useState } from 'react';
 import { WebSocketUtils } from '../../../../utils/web-socket-utils';
-import { useAppDispatch } from '../../../../Store';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { WebSocketEvent } from '../../../../models/enums/web-socket-event';
 import {
+  countUnreadConversation,
   getLatestConversationsState,
+  resetUnreadCount,
   updateOpenConversation,
 } from '../../../../Store/chat/chat-dispatchers';
 
 const ChatIcon = () => {
   const dispatch = useAppDispatch();
   const [visible, setVisible] = useState(false);
+  const unreadCount = useAppSelector((state) => state.chat.unreadConversationsCount);
 
   useEffect(() => {
     WebSocketUtils.registerEventHandler(WebSocketEvent.RECEIVE_NEW_MESSAGE, () => {
@@ -23,7 +26,13 @@ const ChatIcon = () => {
     WebSocketUtils.registerEventHandler(WebSocketEvent.MARK_AS_READ, () => {
       dispatch(updateOpenConversation());
     });
+    dispatch(countUnreadConversation());
   }, [dispatch]);
+
+  const handleClick = () => {
+    setVisible(true);
+    dispatch(resetUnreadCount());
+  };
 
   return (
     <AuthenticatedGuard
@@ -37,9 +46,9 @@ const ChatIcon = () => {
           onVisibleChange={(value) => setVisible(value)}
           getPopupContainer={(container) => container.parentElement!}
         >
-          <Badge>
+          <Badge count={unreadCount}>
             <Button
-              onClick={() => setVisible(true)}
+              onClick={handleClick}
               shape='circle'
               icon={<CommentOutlined />}
               className={styles.chatIcon}

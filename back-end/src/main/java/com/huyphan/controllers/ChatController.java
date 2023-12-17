@@ -92,6 +92,11 @@ public class ChatController {
         return conversationSliceMapper.toDto(chatConversations, conversationMapper);
     }
 
+    @GetMapping("count/unread")
+    public int countUnreadConversations() {
+        return chatService.countUnreadConversations();
+    }
+
     @GetMapping("conversation/{id}")
     public ChatConversationDto getConversation(@PathVariable Long id) {
         return conversationMapper.toDto(chatService.getConversation(id));

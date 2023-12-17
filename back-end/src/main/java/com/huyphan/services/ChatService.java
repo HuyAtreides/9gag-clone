@@ -239,6 +239,12 @@ public class ChatService implements MediatorComponent {
         return findConversationWithDerivedFieldsById(id);
     }
 
+    public int countUnreadConversations() {
+        return chatConversationRepo.countUnreadConversation(
+                UserService.getUser()
+        );
+    }
+
     public ChatMessage getMessage(Long id) {
         return findMessageById(id);
     }

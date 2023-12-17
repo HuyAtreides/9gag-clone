@@ -9,6 +9,4 @@ public class ConversationReadStatusDto {
     private UserDto readBy;
 
     private String readAt;
-
-    private Long latestReadMessageId;
 }
