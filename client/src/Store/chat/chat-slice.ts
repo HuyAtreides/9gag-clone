@@ -516,4 +516,5 @@ export const {
   addLatestPreviewConversations,
   setPersistedMessage,
   setPreviewChatMessage,
+  removeMessage,
 } = slice.actions;

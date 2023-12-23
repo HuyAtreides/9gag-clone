@@ -27,6 +27,15 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                     where chatMessage.conversation.id = conversation.id
                 ) as latestChatMessageId
             """;
+    String PARTICIPANT_BLOCKS_EACH_OTHER_RESTRICTION = """
+            not exists (
+                                select userBlockRecord
+                                from UserBlockRecord userBlockRecord
+                                where userBlockRecord.blocked = elements(conversation.participants)
+                                      and userBlockRecord.blocker = elements(conversation.participants)
+                       )
+                        
+            """;
 
     @Query("""
             select conversation

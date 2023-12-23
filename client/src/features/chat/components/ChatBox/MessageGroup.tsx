@@ -1,11 +1,15 @@
-import { Avatar, Typography } from 'antd';
-import { useAppSelector } from '../../../../Store';
+import { Avatar, Button, Typography } from 'antd';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
+import useOpenConversation from '../../../../custom-hooks/use-open-conversation';
 import ChatMessage from '../../../../models/chat-message';
+import { Constant } from '../../../../models/enums/constant';
 import { User } from '../../../../models/user';
 import styles from './ChatBox.module.css';
-import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
-import { Constant } from '../../../../models/enums/constant';
-import useOpenConversation from '../../../../custom-hooks/use-open-conversation';
+import ChatMessageContent from './ChatMessageContent';
+import ChatMessagePopover from './ChatMessagePopover';
+import { addNewMessage, remove } from '../../../../Store/chat/chat-dispatchers';
+import ChatMessageEditor from './ChatMessageEditor';
 
 interface Props {
   readonly messages: ChatMessage[];
@@ -25,14 +29,35 @@ interface CurrentMessageGroupProps {
 }
 
 const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
+  const dispatch = useAppDispatch();
+
+  const removeMessage = () => {
+    dispatch(remove(message.conversationId, message.id));
+  };
+
   return (
-    <Typography.Text
-      className={styles.message}
-      title={message.sentDate.toString() as unknown as string}
-      key={message.id}
+    <ChatMessagePopover
+      placement='left'
+      actionButtons={
+        <>
+          <Button type='text' block onClick={removeMessage}>
+            Remove
+          </Button>
+          <Button type='text' block>
+            Reply
+          </Button>
+          <Button type='text' block>
+            Edit
+          </Button>
+          <Button type='text' block>
+            Pin
+          </Button>
+        </>
+      }
+      message={message}
     >
-      {message.content.text}
-    </Typography.Text>
+      <ChatMessageContent message={message} />
+    </ChatMessagePopover>
   );
 };
 
@@ -40,32 +65,30 @@ const OtherUserMessage = ({
   message,
   isFirstMessage,
 }: OtherChatMessageComponentProps) => {
-  if (!isFirstMessage) {
-    return (
-      <div className={styles.otherMessageContainer} key={message.id}>
-        <span className={styles.dummyAvatar}></span>
-        <Typography.Text
-          className={styles.otherMessage}
-          title={message.sentDate.toString() as unknown as string}
-        >
-          {message.content.text}
-        </Typography.Text>
-      </div>
-    );
-  }
-
   return (
-    <VirtualComponent scrollAreaId={Constant.ChatMessageScrollAreaId as string}>
-      <div className={styles.otherMessageContainer} key={message.id}>
+    <div className={styles.otherMessageContainer} key={message.id}>
+      {isFirstMessage ? (
         <Avatar size={30} shape='circle' src={message.owner.avatarUrl} />
-        <Typography.Text
-          className={styles.otherMessage}
-          title={message.sentDate.toString() as unknown as string}
-        >
-          {message.content.text}
-        </Typography.Text>
-      </div>
-    </VirtualComponent>
+      ) : (
+        <span className={styles.dummyAvatar}></span>
+      )}
+      <ChatMessagePopover
+        placement='right'
+        actionButtons={
+          <>
+            <Button type='text' block>
+              Reply
+            </Button>
+            <Button type='text' block>
+              Pin
+            </Button>
+          </>
+        }
+        message={message}
+      >
+        <ChatMessageContent message={message} />
+      </ChatMessagePopover>
+    </div>
   );
 };
 
@@ -101,6 +124,30 @@ const useLatestReadMessageOfCurrentUser = (conversationId: number) => {
   return (
     currentUserMessages.find((message) => otherReadStatus.readAt >= message.sentDate)
       ?.id || 0
+  );
+};
+
+const ErrorWhileSending = ({ message }: { message: ChatMessage }) => {
+  const dispatch = useAppDispatch();
+
+  const resend = () => {
+    dispatch(
+      addNewMessage(message.conversationId, {
+        text: message.content.text || undefined,
+        file: message.content.uploadFile,
+      }),
+    );
+  };
+
+  return (
+    <Typography.Text type='danger' strong italic className={styles.sendingError}>
+      Error while sending.{' '}
+      <Button type='text' className={styles.resendButton} danger onClick={resend}>
+        <Typography.Text type='danger' strong italic>
+          Resend
+        </Typography.Text>
+      </Button>
+    </Typography.Text>
   );
 };
 
@@ -145,10 +192,15 @@ const CurrentUserMessageGroup = ({ messages }: CurrentMessageGroupProps) => {
         scrollAreaId={Constant.ChatMessageScrollAreaId as string}
         key={message.id}
       >
-        <CurrentUserMessage message={message} key={message.id} />
-        <br />
+        <CurrentUserMessage message={message} />
         {readStatus}
         {sendingStatus}
+        {hasSendingError ? <ErrorWhileSending message={message} /> : null}
+        {/* <>
+          <br />
+          <ChatMessageEditor handleSubmit={() => {}} message={message} />
+          <br />
+        </> */}
       </VirtualComponent>
     );
   });

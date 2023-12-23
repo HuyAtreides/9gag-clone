@@ -67,15 +67,9 @@ public class AWSS3Util {
      * @return A location to access the object.
      */
     public MediaLocation uploadObject(MultipartFile multipartFile)
-            throws IOException, UploadException {
+            throws IOException {
         String objectKey = generateObjectKey(multipartFile);
         String type = multipartFile.getContentType();
-
-        if (Arrays.stream(SupportedMIMEType.values())
-                .noneMatch(supportedMIMEType -> supportedMIMEType.getValue().equals(type))) {
-            throw new UploadException("Unsupported file type");
-        }
-
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
                 .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
 

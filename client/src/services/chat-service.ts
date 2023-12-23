@@ -154,3 +154,8 @@ export async function getUnreadConversationCount() {
 
   return response.data;
 }
+
+export async function removeChatMessage(messageId: number) {
+  const axios = createAxiosInstance();
+  await axios.delete<void>(`${Constant.ChatEndPoint}/message/${messageId}`);
+}

@@ -85,9 +85,9 @@
   display: inline-block;
   text-wrap: wrap;
   max-width: 200px;
-  min-width: 33px;
+  min-width: 20px;
   text-align: left;
-  margin: 2px;
+  margin-bottom: 4px;
   margin-right: 10px;
 }
 
@@ -98,24 +98,51 @@
   display: inline-block;
   text-wrap: wrap;
   max-width: 200px;
-  min-width: 33px;
+  min-width: 20px;
   text-align: left;
-  margin-left: 5px;
+  margin-bottom: 4px;
 }
+
+.removedMessage {
+  background-color: transparent;
+  margin-top: 5px;
+  border: 1px solid var(--border-color-base);
+}
+
 .dummyAvatar {
   display: inline-block;
   width: 30px;
 }
 
 .otherMessageContainer {
-  margin-top: 5px;
   display: flex;
   flex-direction: row;
   align-items: end;
 }
 
+.messageContent {
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+}
+
+.otherMessageContent {
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
 .messageStatus {
   margin-right: 10px;
-  /* margin-top: -3px; */
-  /* font-size: 1rem; */
+  display: inline-block;
+}
+
+.resendButton {
+  padding: 0px;
+}
+
+.sendingError {
+  margin-top: 3px;
+  margin-right: 3px;
 }
