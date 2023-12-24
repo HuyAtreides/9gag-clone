@@ -91,6 +91,7 @@ const ChatMessageEditor = ({
         type: gif.type,
       },
     });
+    handleCancel();
   };
 
   useEffect(() => {
