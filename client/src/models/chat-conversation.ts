@@ -1,3 +1,4 @@
+import ChatMessage from './chat-message';
 import { User } from './user';
 
 interface ConversationReadStatus {
@@ -59,5 +60,26 @@ export default class ChatConversation {
     }
 
     return otherReadStatus;
+  }
+
+  getUserReadStatus(user: User) {
+    const readStatus = this.readStatuses.find((status) => status.readBy.equals(user));
+    if (!readStatus) {
+      throw new Error('Invalid read statuses');
+    }
+
+    return readStatus;
+  }
+
+  isReadByUser(user: User, conversationMessages: ChatMessage[]) {
+    const latestOtherUserMessage = conversationMessages.find(
+      (message) => !message.owner.equals(user),
+    );
+
+    if (!latestOtherUserMessage) {
+      return true;
+    }
+
+    return this.getUserReadStatus(user).readAt >= latestOtherUserMessage.sentDate;
   }
 }

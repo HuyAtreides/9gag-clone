@@ -28,7 +28,9 @@ const MessageTooltip = ({ children, message, placement }: MessageTooltipProps) =
       placement={placement}
       zIndex={1}
       getPopupContainer={(container) => container.parentElement!}
-      title={`Sent at ${message.sentDate.toLocaleString()}`}
+      title={`Sent at ${message.sentDate.toLocaleString()} ${
+        message.edited ? 'Edited' : ''
+      }`}
     >
       {children}
     </Tooltip>

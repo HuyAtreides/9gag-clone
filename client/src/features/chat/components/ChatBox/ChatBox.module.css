@@ -1,5 +1,5 @@
 .chatBox {
-  min-width: 360px;
+  min-width: 370px;
   max-width: 370px;
   position: relative;
   border: 1px solid var(--border-color-base);
@@ -7,6 +7,10 @@
 
 .chatInput {
   border-radius: var(--border-radius-base);
+}
+
+.messageSentDate {
+  text-wrap: nowrap;
 }
 
 .chatInputContainer {
@@ -64,6 +68,10 @@
   margin-bottom: 0;
 }
 
+.editMessageTextarea {
+  margin-bottom: 10px;
+}
+
 .currentUserMessagesGroup {
   text-align: right;
   display: flex;
@@ -87,7 +95,7 @@
   max-width: 200px;
   min-width: 20px;
   text-align: left;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   margin-right: 10px;
 }
 
@@ -100,12 +108,13 @@
   max-width: 200px;
   min-width: 20px;
   text-align: left;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .removedMessage {
   background-color: transparent;
   margin-top: 5px;
+  margin-left: 5px;
   border: 1px solid var(--border-color-base);
 }
 
@@ -123,12 +132,14 @@
 .messageContent {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   margin-top: 5px;
 }
 
 .otherMessageContent {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   margin-top: 5px;
   margin-left: 5px;
 }
@@ -145,4 +156,10 @@
 .sendingError {
   margin-top: 3px;
   margin-right: 3px;
+}
+
+.editMessageForm {
+  width: 300px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }

@@ -3,6 +3,7 @@ import { useAppSelector } from '../../../../Store';
 import ChatMessage from '../../../../models/chat-message';
 import styles from './ChatBox.module.css';
 import Media from '../../../../components/media/Media';
+import { Constant } from '../../../../models/enums/constant';
 
 interface Props {
   readonly message: ChatMessage;
@@ -45,8 +46,10 @@ const ChatMessageContent = ({ message }: Props) => {
           url={mediaUrl}
           type={mediaType}
           scrollAreaId='body'
-          width={210}
-          height={210}
+          width={Constant.DefaultChatMessageMediaWidth}
+          height={Constant.DefaultChatMessageMediaHeight}
+          gifWidth={Constant.DefaultChatMessageMediaWidth as number}
+          gifHeight={Constant.DefaultChatMessageMediaHeight as number}
         />
       ) : null}
     </div>

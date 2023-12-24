@@ -19,6 +19,7 @@ import com.huyphan.models.projections.ChatConversationWithDerivedFields;
 import com.huyphan.repositories.ChatConversationRepository;
 import com.huyphan.repositories.ChatMessageRepository;
 import com.huyphan.services.notification.NotificationService;
+import com.huyphan.utils.AWSS3Util;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -55,6 +56,9 @@ public class ChatService implements MediatorComponent {
 
     @Autowired
     private EventEmitter eventEmitter;
+
+    @Autowired
+    private AWSS3Util awss3Util;
 
     @Override
     public void setMediator(IMediator mediator) {
@@ -166,9 +170,14 @@ public class ChatService implements MediatorComponent {
     @Transactional
     public void editMessage(Long messageId, MessageContent messageContent) {
         ChatMessage chatMessage = findMessageById(messageId);
+        String currentMediaUrl = chatMessage.getContent().getMediaUrl();
         ChatConversation chatConversation = chatMessage.getConversation();
         User otherUser = getOtherParticipantInConversation(chatConversation);
         chatMessage.update(messageContent, UserService.getUser());
+
+        if (currentMediaUrl != null && !currentMediaUrl.equals(messageContent.getMediaUrl())) {
+            awss3Util.deleteObject(currentMediaUrl);
+        }
 
         eventEmitter.emitEventTo(WebSocketEvent.EDIT_MESSAGE, otherUser);
     }
@@ -180,20 +189,31 @@ public class ChatService implements MediatorComponent {
 
     private User getOtherParticipantInConversation(ChatConversation conversation) {
         User currentUser = UserService.getUser();
-        return (User) conversation.getParticipants().stream()
-                .filter(chatParticipant ->
-                        !chatParticipant.equals(currentUser)
-                ).findFirst().orElseThrow();
+        return (User) conversation.getOtherParticipantInConversation(currentUser);
     }
 
     @Transactional
     public void removeMessage(Long messageId) {
         ChatMessage chatMessage = findMessageById(messageId);
         ChatConversation chatConversation = chatMessage.getConversation();
-        chatConversation.removeMessage(chatMessage);
+        chatConversation.removeMessage(chatMessage, UserService.getUser());
         User otherUser = getOtherParticipantInConversation(chatConversation);
 
         eventEmitter.emitEventTo(WebSocketEvent.REMOVE_MESSAGE, otherUser);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatMessage> findAllPossiblyUpdatedChatMessages(
+            Long oldestMessageId,
+            Long newestMessageId
+    ) {
+        User currentUser = UserService.getUser();
+
+        return chatMessageRepo.findAllPossiblyUpdatedChatMessages(
+                currentUser,
+                oldestMessageId,
+                newestMessageId
+        );
     }
 
     @Transactional

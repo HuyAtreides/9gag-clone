@@ -10,14 +10,22 @@ import { WebSocketEvent } from '../../../../models/enums/web-socket-event';
 import {
   countUnreadConversation,
   getLatestConversationsState,
+  getPossiblyUpdatedMessages,
   resetUnreadCount,
   updateOpenConversation,
 } from '../../../../Store/chat/chat-dispatchers';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
+import { setSyncError } from '../../../../Store/chat/chat-slice';
+import useRemoveErrorWhenUnmount from '../../../../custom-hooks/remove-error';
 
 const ChatIcon = () => {
   const dispatch = useAppDispatch();
   const [visible, setVisible] = useState(false);
+  const syncError = useAppSelector((state) => state.chat.syncError);
   const unreadCount = useAppSelector((state) => state.chat.unreadConversationsCount);
+
+  useRenderErrorMessage(syncError, setSyncError);
+  useRemoveErrorWhenUnmount(setSyncError);
 
   useEffect(() => {
     WebSocketUtils.registerEventHandler(WebSocketEvent.RECEIVE_NEW_MESSAGE, () => {
@@ -25,6 +33,12 @@ const ChatIcon = () => {
     });
     WebSocketUtils.registerEventHandler(WebSocketEvent.MARK_AS_READ, () => {
       dispatch(updateOpenConversation());
+    });
+    WebSocketUtils.registerEventHandler(WebSocketEvent.REMOVE_MESSAGE, () => {
+      dispatch(getPossiblyUpdatedMessages());
+    });
+    WebSocketUtils.registerEventHandler(WebSocketEvent.EDIT_MESSAGE, () => {
+      dispatch(getPossiblyUpdatedMessages());
     });
     dispatch(countUnreadConversation());
   }, [dispatch]);

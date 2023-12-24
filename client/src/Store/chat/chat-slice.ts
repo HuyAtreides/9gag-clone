@@ -6,6 +6,7 @@ import { Pagination } from '../../models/page';
 import Slice from '../../models/slice';
 import { merge2SortedList } from '../../utils/list-utils';
 import { User } from '../../models/user';
+import { MessageContent } from '../../models/message-content';
 
 interface MessageState {
   readonly isGettingPage: boolean;
@@ -336,6 +337,22 @@ const slice = createSlice({
       });
     },
 
+    syncMessages(state, action: PayloadAction<ChatMessage[]>) {
+      const latestMessages = action.payload;
+      latestMessages.forEach((latestMessage) => {
+        const conversationId = latestMessage.conversationId;
+        const index = state.messageState[conversationId].messages.findIndex(
+          (message) => message.id === latestMessage.id,
+        );
+
+        if (index === -1) {
+          return;
+        }
+
+        state.messageState[conversationId].messages[index] = latestMessage;
+      });
+    },
+
     removeMessage(
       state,
       action: PayloadAction<{ conversationId: number; messageId: number }>,
@@ -346,6 +363,24 @@ const slice = createSlice({
 
       if (deletedMessage) {
         deletedMessage.deleted = true;
+      }
+    },
+
+    updateMessage(
+      state,
+      action: PayloadAction<{
+        conversationId: number;
+        messageId: number;
+        content: MessageContent;
+      }>,
+    ) {
+      const { conversationId, messageId, content } = action.payload;
+      const messages = state.messageState[conversationId].messages;
+      const updatedMessage = messages.find((message) => message.id === messageId);
+
+      if (updatedMessage) {
+        updatedMessage.content = content;
+        updatedMessage.edited = true;
       }
     },
 
@@ -486,6 +521,7 @@ export const {
   setUnreadCount,
   addUnreadCount,
   subtractUnreadCount,
+  updateMessage,
   openConversation,
   closeConversation,
   setConversationIsGettingPage,
@@ -517,4 +553,5 @@ export const {
   setPersistedMessage,
   setPreviewChatMessage,
   removeMessage,
+  syncMessages,
 } = slice.actions;

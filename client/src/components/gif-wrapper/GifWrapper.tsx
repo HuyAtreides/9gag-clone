@@ -14,9 +14,10 @@ const gifWidth = isSmallerThanLargeBreakPoint
 interface Props {
   mediaLocation: MediaLocation;
   width?: number;
+  height?: number;
 }
 
-const GifWrapper: React.FC<Props> = ({ mediaLocation, width }: Props) => {
+const GifWrapper: React.FC<Props> = ({ mediaLocation, width, height }: Props) => {
   const [gif, setGif] = useState<IGif | null>(null);
 
   useEffect(() => {
@@ -31,7 +32,14 @@ const GifWrapper: React.FC<Props> = ({ mediaLocation, width }: Props) => {
     return null;
   }
 
-  return <Gif gif={gif} width={width || gifWidth} style={{ objectFit: 'contain' }} />;
+  return (
+    <Gif
+      gif={gif}
+      width={width || gifWidth}
+      height={height}
+      style={{ objectFit: 'contain' }}
+    />
+  );
 };
 
 export default GifWrapper;

@@ -141,10 +141,16 @@ public class ChatConversation {
         return participants.contains(participant);
     }
 
-    public void removeMessage(ChatMessage chatMessage) {
-        ChatParticipant participant = chatMessage.getOwner();
-        validateParticipantInConversation(participant);
-        chatMessage.markAsDeleted(participant);
+    public void removeMessage(ChatMessage chatMessage, User user) {
+        validateParticipantInConversation(user);
+        chatMessage.markAsDeleted(user);
+    }
+
+    public ChatParticipant getOtherParticipantInConversation(ChatParticipant currentParticipant) {
+        return getParticipants().stream()
+                .filter(chatParticipant ->
+                        !chatParticipant.equals(currentParticipant)
+                ).findFirst().orElseThrow();
     }
 
     @Override

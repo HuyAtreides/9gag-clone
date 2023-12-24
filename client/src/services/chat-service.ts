@@ -2,6 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import ChatConversation from '../models/chat-conversation';
 import ChatMessage from '../models/chat-message';
 import { Constant } from '../models/enums/constant';
+import { MessageContent } from '../models/message-content';
 import NewChatMessageData from '../models/new-chat-message-data';
 import { ConversationMessagesFetchingRequest } from '../models/requests/conversation-messages-fetching-request';
 import { PageFetchingRequest } from '../models/requests/page-fetching-request';
@@ -9,7 +10,6 @@ import Slice from '../models/slice';
 import { createAxiosInstance } from '../utils/create-axios-instance';
 import { ChatConversationDto } from './dtos/chat-conversation-dto';
 import ChatMessageDto from './dtos/chat-message-dto';
-import MessageContentDto from './dtos/message-content-dto';
 import SliceDto from './dtos/slice-dto';
 import { ChatConversationMapper } from './mappers/chat-conversation-mapper';
 import { ChatMessageMapper } from './mappers/chat-message-mapper';
@@ -106,7 +106,7 @@ export async function getNonEmptyConversations(pageRequest: PageFetchingRequest)
   return conversations;
 }
 
-export async function editMessage(messageId: number, newContent: MessageContentDto) {
+export async function editMessage(messageId: number, newContent: MessageContent) {
   const axios = createAxiosInstance();
   const newContentDto = MessageContentMapper.toDto(newContent);
 
@@ -158,4 +158,16 @@ export async function getUnreadConversationCount() {
 export async function removeChatMessage(messageId: number) {
   const axios = createAxiosInstance();
   await axios.delete<void>(`${Constant.ChatEndPoint}/message/${messageId}`);
+}
+
+export async function getAllPossiblyUpdatedMessages(
+  oldestMessageId: number,
+  latestMessageId: number,
+) {
+  const axios = createAxiosInstance();
+  const response = await axios.get<ChatMessageDto[]>(
+    `${Constant.ChatEndPoint}/message/all-possible-updated/${oldestMessageId}/${latestMessageId}`,
+  );
+
+  return response.data.map((message) => ChatMessageMapper.fromDto(message));
 }

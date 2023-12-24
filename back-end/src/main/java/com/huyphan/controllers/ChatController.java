@@ -191,6 +191,20 @@ public class ChatController {
         return conversationMapper.toDto(chatConversation);
     }
 
+    @GetMapping("message/all-possible-updated/{oldestMessageId}/{latestMessageId}")
+    public List<ChatMessageDto> findAllPossiblyUpdatedChatMessages(
+            @PathVariable Long oldestMessageId,
+            @PathVariable Long latestMessageId
+    ) {
+        List<ChatMessage> allPossibleUpdatedMessages = chatService.findAllPossiblyUpdatedChatMessages(
+                oldestMessageId,
+                latestMessageId
+        );
+
+        return allPossibleUpdatedMessages.stream().map(message -> chatMessageMapper.toDto(message))
+                .toList();
+    }
+
     @ExceptionHandler({AppException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppException handleExceptions(AppException exception) {

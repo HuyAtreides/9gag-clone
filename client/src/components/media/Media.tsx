@@ -10,10 +10,20 @@ interface Props {
   readonly type: string;
   readonly scrollAreaId: string;
   readonly width?: string | number;
+  readonly gifWidth?: number;
+  readonly gifHeight?: number;
   readonly height?: string | number;
 }
 
-const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Props) => {
+const Media: React.FC<Props> = ({
+  url,
+  type,
+  width,
+  height,
+  scrollAreaId,
+  gifHeight,
+  gifWidth,
+}: Props) => {
   const mediaType = toEnum(type.split('/')[0], MediaType);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const className =
@@ -52,7 +62,9 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
   }
 
   if (mediaType === MediaType.Gif) {
-    return <GifWrapper mediaLocation={{ url, type }} />;
+    return (
+      <GifWrapper mediaLocation={{ url, type }} width={gifWidth} height={gifHeight} />
+    );
   }
 
   return (

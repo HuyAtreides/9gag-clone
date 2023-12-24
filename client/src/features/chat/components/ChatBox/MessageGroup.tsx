@@ -1,15 +1,17 @@
 import { Avatar, Button, Typography } from 'antd';
+import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { addNewMessage, edit, remove } from '../../../../Store/chat/chat-dispatchers';
 import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
 import useOpenConversation from '../../../../custom-hooks/use-open-conversation';
 import ChatMessage from '../../../../models/chat-message';
 import { Constant } from '../../../../models/enums/constant';
+import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
 import { User } from '../../../../models/user';
 import styles from './ChatBox.module.css';
 import ChatMessageContent from './ChatMessageContent';
-import ChatMessagePopover from './ChatMessagePopover';
-import { addNewMessage, remove } from '../../../../Store/chat/chat-dispatchers';
 import ChatMessageEditor from './ChatMessageEditor';
+import ChatMessagePopover from './ChatMessagePopover';
 
 interface Props {
   readonly messages: ChatMessage[];
@@ -30,10 +32,26 @@ interface CurrentMessageGroupProps {
 
 const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
   const dispatch = useAppDispatch();
+  const [showMessageEditor, setShowMessageEditor] = useState(false);
 
   const removeMessage = () => {
     dispatch(remove(message.conversationId, message.id));
   };
+
+  const handleEditMessage = (formData: NewChatMessageFormData) => {
+    dispatch(edit(message.conversationId, message.id, formData));
+  };
+
+  if (showMessageEditor) {
+    return (
+      <ChatMessageEditor
+        message={message}
+        handleSubmit={handleEditMessage}
+        editMessage
+        handleCancel={() => setShowMessageEditor(false)}
+      />
+    );
+  }
 
   return (
     <ChatMessagePopover
@@ -46,7 +64,7 @@ const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
           <Button type='text' block>
             Reply
           </Button>
-          <Button type='text' block>
+          <Button type='text' block onClick={() => setShowMessageEditor(true)}>
             Edit
           </Button>
           <Button type='text' block>
@@ -113,7 +131,7 @@ const useOtherReadStatus = (conversationId: number) => {
   return conversation.getOtherReadStatus(currentUser);
 };
 
-const useLatestReadMessageOfCurrentUser = (conversationId: number) => {
+const useLatestReadMessageOfOtherUser = (conversationId: number) => {
   const currentUser = useAppSelector((state) => state.user.profile);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUserMessages = messageState[conversationId].messages.filter((message) =>
@@ -156,7 +174,7 @@ const CurrentUserMessageGroup = ({ messages }: CurrentMessageGroupProps) => {
   const messageState = useAppSelector((state) => state.chat.messageState);
   const conversationId = firstMessage.conversationId;
   const latestMessageId = useLatestMessageOfCurrentUser(conversationId);
-  const latestReadMessageId = useLatestReadMessageOfCurrentUser(conversationId);
+  const latestReadMessageId = useLatestReadMessageOfOtherUser(conversationId);
   const sent = messageState[conversationId].sent;
   const hasSendingError = messages.some(
     (message) => messageState[conversationId].sendingError[message.id],

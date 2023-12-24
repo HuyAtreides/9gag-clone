@@ -18,6 +18,9 @@ export enum Constant {
   CommentState = 'commentState',
   PageSize = 15,
   DebounceTimeInMiliSeconds = 700,
+  DefaultChatMessageMediaWidth = 220,
+  DefaultChatMessageMediaHeight = 220,
+  SubmitKey = 'Enter',
 }
 
 export enum ScreenBreakPoint {

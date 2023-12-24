@@ -1,13 +1,19 @@
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { AppThunk } from '..';
 import ChatConversation from '../../models/chat-conversation';
+import ChatMessage from '../../models/chat-message';
+import NewChatMessageData from '../../models/new-chat-message-data';
+import { NewChatMessageFormData } from '../../models/new-chat-message-form-data';
 import { ConversationMessagesFetchingRequest } from '../../models/requests/conversation-messages-fetching-request';
 import { PageFetchingRequest } from '../../models/requests/page-fetching-request';
 import Slice from '../../models/slice';
+import { User } from '../../models/user';
 import {
   FetchChatConversationFunc,
   createConversationWithUser,
+  editMessage,
   getAllLatestChatMessage,
+  getAllPossiblyUpdatedMessages,
   getConversationMessages,
   getConversationsWithNewestMessage,
   getMessage,
@@ -18,11 +24,17 @@ import {
   sendMessage,
 } from '../../services/chat-service';
 import { extractErrorMessage, handleError } from '../../utils/error-handler';
+import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
 import {
   addIsSendingId,
+  addLatestMessages,
+  addLatestPreviewConversations,
   addMessage,
   addMessagePage,
+  markPreviewConversationAsRead,
   openConversation,
+  removeIsSendingId,
+  removeMessage,
   setConversation,
   setConversationLoadingError,
   setGetMessagePageError,
@@ -30,23 +42,15 @@ import {
   setMessageIsLoading,
   setMessagePage,
   setPersistedMessage,
-  setSendingMessageError,
-  removeIsSendingId,
-  resetIsSendingIds,
-  addLatestPreviewConversations,
   setPreviewChatMessage,
-  addLatestMessages,
-  updateConversation,
-  markPreviewConversationAsRead,
-  subtractUnreadCount,
+  setSendingMessageError,
+  setSyncError,
   setUnreadCount,
-  removeMessage,
+  subtractUnreadCount,
+  syncMessages,
+  updateConversation,
+  updateMessage,
 } from './chat-slice';
-import { NewChatMessageFormData } from '../../models/new-chat-message-form-data';
-import NewChatMessageData from '../../models/new-chat-message-data';
-import ChatMessage from '../../models/chat-message';
-import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
-import { User } from '../../models/user';
 
 type ConversationListStateActionCreator = {
   setIsLoading: ActionCreatorWithPayload<boolean>;
@@ -177,14 +181,14 @@ export const addNewMessagePage =
 const createNewMessageDataFromFormData = (formData: NewChatMessageFormData) => {
   const { text, file } = formData;
 
-  if (text == null && file == null) {
+  if ((text == null || !text.trim()) && file == null) {
     throw new Error('Text and file can not be both null');
   }
 
   const sentDate = new Date();
   const messageContent = {
     text: text || null,
-    mediaType: file?.originFileObj?.type || null,
+    mediaType: file?.originFileObj?.type || file?.type || null,
     mediaUrl: file?.url || null,
     uploadFile: file,
   };
@@ -218,11 +222,24 @@ const createTransientChatMessage = (
   return transientChatMessage;
 };
 
+export const edit =
+  (
+    conversationId: number,
+    messageId: number,
+    formData: NewChatMessageFormData,
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    const { content } = createNewMessageDataFromFormData(formData);
+    try {
+      dispatch(updateMessage({ conversationId, messageId, content }));
+      await editMessage(messageId, content);
+    } catch (error: unknown) {}
+  };
+
 export const addNewMessage =
   (conversationId: number, formData: NewChatMessageFormData): AppThunk =>
   async (dispatch, getState) => {
-    const newChatMessageData: NewChatMessageData =
-      createNewMessageDataFromFormData(formData);
+    const newChatMessageData = createNewMessageDataFromFormData(formData);
 
     const transientChatMessage: ChatMessage = createTransientChatMessage(
       conversationId,
@@ -259,7 +276,7 @@ export const addNewMessage =
           error: 'Error while sending message',
         }),
       );
-      dispatch(resetIsSendingIds(conversationId));
+      dispatch(removeIsSendingId({ conversationId, id: transientId }));
     }
   };
 
@@ -267,18 +284,29 @@ export const readConversation =
   (conversationId: number): AppThunk =>
   (dispatch, getState) => {
     try {
-      const currentUser = getState().user.profile;
+      const state = getState();
+      const currentUser = state.user.profile!;
+      const messages = state.chat.messageState[conversationId].messages;
+      const conversation = state.chat.conversationState.conversations.find(
+        (conversation) => conversation.id === conversationId,
+      )!;
+
+      if (conversation.isReadByUser(currentUser, messages)) {
+        return;
+      }
+
       markConversationAsRead(conversationId);
       dispatch(markPreviewConversationAsRead({ conversationId, user: currentUser }));
       dispatch(subtractUnreadCount());
     } catch (error: unknown) {}
   };
 
-export const getLatestConversationsState = (): AppThunk => (dispatch, getState) => {
+export const getLatestConversationsState = (): AppThunk => async (dispatch, getState) => {
   try {
-    dispatch(getLatestConversation());
-    dispatch(getLatestMessages());
-  } catch (error: unknown) {}
+    await Promise.all([dispatch(getLatestConversation()), dispatch(getLatestMessages())]);
+  } catch (error: unknown) {
+    dispatch(setSyncError('Failed to get latest message. Please refresh page.'));
+  }
 };
 
 export const countUnreadConversation = (): AppThunk => async (dispatch, _) => {
@@ -333,7 +361,50 @@ export const getLatestMessages = (): AppThunk => async (dispatch, getState) => {
 
 export const getPossiblyUpdatedMessages = (): AppThunk => async (dispatch, getState) => {
   try {
-  } catch (error: unknown) {}
+    const state = getState();
+    const chatState = state.chat;
+    const opensConversations = chatState.conversationState.openConversations.map(
+      (openConversation) => openConversation.conversation,
+    );
+    let oldestMessageId: number | null = null;
+    let latestMessageId: number | null = null;
+
+    opensConversations.forEach((conversation) => {
+      if (conversation == null) {
+        return;
+      }
+
+      const messages = chatState.messageState[conversation.id].messages;
+
+      if (messages.length === 0) {
+        return;
+      }
+
+      if (oldestMessageId == null) {
+        oldestMessageId = messages[messages.length - 1].id;
+      } else {
+        oldestMessageId = Math.min(oldestMessageId, messages[messages.length - 1].id);
+      }
+
+      if (latestMessageId == null) {
+        latestMessageId = messages[0].id;
+      } else {
+        latestMessageId = Math.max(latestMessageId, messages[0].id);
+      }
+    });
+
+    if (oldestMessageId == null || latestMessageId == null) {
+      return;
+    }
+
+    const possiblyUpdatedMessages = await getAllPossiblyUpdatedMessages(
+      oldestMessageId,
+      latestMessageId,
+    );
+    dispatch(syncMessages(possiblyUpdatedMessages));
+  } catch (error: unknown) {
+    dispatch(setSyncError('Failed to get latest message. Please refresh page.'));
+  }
 };
 
 export const getPreviewMessage =
@@ -377,9 +448,9 @@ export const getPreviewMessage =
 
 export const remove =
   (conversationId: number, messageId: number): AppThunk =>
-  (dispatch, getState) => {
+  async (dispatch, getState) => {
     try {
       dispatch(removeMessage({ conversationId, messageId }));
-      removeChatMessage(messageId);
+      await removeChatMessage(messageId);
     } catch (error: unknown) {}
   };
