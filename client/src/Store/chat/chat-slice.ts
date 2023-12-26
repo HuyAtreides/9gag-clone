@@ -123,6 +123,10 @@ const slice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
+    resetState() {
+      return initialState;
+    },
+
     setSyncError(state, action: PayloadAction<string | null>) {
       state.syncError = action.payload;
     },
@@ -173,7 +177,7 @@ const slice = createSlice({
 
     markPreviewConversationAsRead(
       state,
-      action: PayloadAction<{ conversationId: number; user: User | null }>,
+      action: PayloadAction<{ conversationId: number; user: User }>,
     ) {
       const { conversationId, user } = action.payload;
       const conversations = state.conversationState.previewConversations.conversations;
@@ -185,6 +189,30 @@ const slice = createSlice({
 
       if (index !== -1) {
         conversations[index] = new ChatConversation({
+          ...conversation,
+        });
+      }
+    },
+
+    markOpenConversationAsRead(
+      state,
+      action: PayloadAction<{ conversationId: number; user: User }>,
+    ) {
+      const { conversationId, user } = action.payload;
+      const openConversations = state.conversationState.openConversations;
+      const index = openConversations.findIndex(
+        (openConversation) => openConversation.conversation?.id === conversationId,
+      );
+
+      if (index === -1) {
+        return;
+      }
+
+      const conversation = openConversations[index].conversation;
+
+      if (conversation) {
+        conversation.markRead(user);
+        openConversations[index].conversation = new ChatConversation({
           ...conversation,
         });
       }
@@ -219,8 +247,12 @@ const slice = createSlice({
         isLast,
       };
       content.forEach((conversation) => {
-        state.conversationState.previewConversations.previewMessages[conversation.id] =
-          getInitialPreviewMessageState();
+        if (
+          !state.conversationState.previewConversations.previewMessages[conversation.id]
+        ) {
+          state.conversationState.previewConversations.previewMessages[conversation.id] =
+            getInitialPreviewMessageState();
+        }
       });
     },
 
@@ -247,7 +279,7 @@ const slice = createSlice({
       state.conversationState.previewConversations.conversations = merge2SortedList(
         currentPreviewConversations,
         [...content],
-        (a, b) => a.latestChatMessageId - b.latestChatMessageId,
+        (a, b) => (a.id === b.id ? 0 : a.latestChatMessageId - b.latestChatMessageId),
       );
       state.conversationState.previewConversations.pagination = {
         page,
@@ -255,22 +287,31 @@ const slice = createSlice({
         isLast,
       };
       content.forEach((conversation) => {
-        state.conversationState.previewConversations.previewMessages[conversation.id] =
-          getInitialPreviewMessageState();
+        if (
+          !state.conversationState.previewConversations.previewMessages[conversation.id]
+        ) {
+          state.conversationState.previewConversations.previewMessages[conversation.id] =
+            getInitialPreviewMessageState();
+        }
       });
     },
 
     addLatestPreviewConversations(state, action: PayloadAction<ChatConversation[]>) {
       const currentPreviewConversations =
         state.conversationState.previewConversations.conversations;
-      state.conversationState.previewConversations.conversations = merge2SortedList(
-        currentPreviewConversations,
-        action.payload,
-        (a, b) => a.id - b.id,
-      );
+      state.conversationState.previewConversations.conversations = [
+        ...action.payload,
+        ...currentPreviewConversations.filter((conversation) =>
+          action.payload.every((latest) => latest.id !== conversation.id),
+        ),
+      ];
       action.payload.forEach((conversation) => {
-        state.conversationState.previewConversations.previewMessages[conversation.id] =
-          getInitialPreviewMessageState();
+        if (
+          !state.conversationState.previewConversations.previewMessages[conversation.id]
+        ) {
+          state.conversationState.previewConversations.previewMessages[conversation.id] =
+            getInitialPreviewMessageState();
+        }
       });
     },
 
@@ -516,6 +557,8 @@ const slice = createSlice({
 
 export const chatReducer = slice.reducer;
 export const {
+  markOpenConversationAsRead,
+  resetState,
   increaseUnreadCount,
   setSyncError,
   setUnreadCount,

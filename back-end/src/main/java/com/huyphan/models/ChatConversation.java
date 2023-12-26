@@ -98,12 +98,6 @@ public class ChatConversation {
         }
     }
 
-    private void validateLatestMessageIdIsValid() {
-        if (latestChatMessageId == null || latestChatMessageId <= 0) {
-            throw new IllegalArgumentException("Invalid latest message ID");
-        }
-    }
-
     public ChatConversation(Set<ChatParticipant> participants) {
         validateNumberOfParticipants(participants);
         this.participants = participants;
@@ -115,13 +109,24 @@ public class ChatConversation {
 
     public void markConversationAsReadByUser(User user) {
         validateParticipantInConversation(user);
-        validateLatestMessageIdIsValid();
 
         this.readStatuses = this.readStatuses.stream().map(status -> {
                     if (status.getReadBy().equals(user)) {
-                        return status.withNewReadAt(
+                        return status.withLatestMessagesRead(
                                 Instant.now()
                         );
+                    }
+                    return status;
+                }
+        ).collect(Collectors.toSet());
+    }
+
+    private void markConversationUnReadByUser(User user) {
+        validateParticipantInConversation(user);
+
+        this.readStatuses = this.readStatuses.stream().map(status -> {
+                    if (status.getReadBy().equals(user)) {
+                        return status.withLatestMessagesUnread();
                     }
                     return status;
                 }
@@ -133,6 +138,9 @@ public class ChatConversation {
         validateParticipantInConversation(messageSender);
 
         validateMessageCanBeSent(messageSender);
+        markConversationUnReadByUser(
+                (User) getOtherParticipantInConversation(messageSender)
+        );
 
         newMessage.associateWithConversation(this);
     }

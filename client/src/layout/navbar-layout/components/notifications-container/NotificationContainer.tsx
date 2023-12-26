@@ -7,14 +7,12 @@ import {
   initialize,
 } from '../../../../Store/notification/notification-dispatchers';
 import { clearNotViewedCount } from '../../../../Store/notification/notification-slice';
-import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
 import { abbreviateNumber } from '../../../../utils/abbreviate-number';
 import styles from '../../Navbar.module.scss';
 import Notifications from '../Notifications';
 
 const NotificationContainer: React.FC = () => {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.profile);
   const notViewedCount = useAppSelector((state) => state.notification.notViewedCount);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -23,35 +21,28 @@ const NotificationContainer: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      dispatch(countNotViewed());
-    }
-
+    dispatch(countNotViewed());
     dispatch(initialize());
-  }, [dispatch, user]);
+  }, [dispatch]);
 
   return (
-    <AuthenticatedGuard
-      component={
-        <Popover
-          placement='bottom'
-          getPopupContainer={(container) => container.parentElement!}
-          trigger='click'
-          visible={showNotifications}
-          onVisibleChange={setShowNotifications}
-          content={<Notifications setShowNotifications={setShowNotifications} />}
-        >
-          <Badge count={abbreviateNumber(notViewedCount)}>
-            <Button
-              shape='circle'
-              icon={<BellFilled />}
-              className={styles.iconCollapse}
-              onClick={clearNotViewedNotificationsCount}
-            />
-          </Badge>
-        </Popover>
-      }
-    />
+    <Popover
+      placement='bottom'
+      getPopupContainer={(container) => container.parentElement!}
+      trigger='click'
+      visible={showNotifications}
+      onVisibleChange={setShowNotifications}
+      content={<Notifications setShowNotifications={setShowNotifications} />}
+    >
+      <Badge count={abbreviateNumber(notViewedCount)}>
+        <Button
+          shape='circle'
+          icon={<BellFilled />}
+          className={styles.iconCollapse}
+          onClick={clearNotViewedNotificationsCount}
+        />
+      </Badge>
+    </Popover>
   );
 };
 

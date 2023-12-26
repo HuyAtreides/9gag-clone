@@ -9,7 +9,8 @@ public interface ChatConversationWithDerivedFields {
 
     default ChatConversation toChatConversation() {
         ChatConversation conversation = getChatConversation();
-        conversation.setLatestChatMessageId(getLatestChatMessageId());
+        Long latestChatMessageId = getLatestChatMessageId();
+        conversation.setLatestChatMessageId(latestChatMessageId == null ? 0 : latestChatMessageId);
 
         return conversation;
     }

@@ -31,6 +31,8 @@ import {
   addLatestPreviewConversations,
   addMessage,
   addMessagePage,
+  addUnreadCount,
+  markOpenConversationAsRead,
   markPreviewConversationAsRead,
   openConversation,
   removeIsSendingId,
@@ -286,17 +288,17 @@ export const readConversation =
     try {
       const state = getState();
       const currentUser = state.user.profile!;
-      const messages = state.chat.messageState[conversationId].messages;
-      const conversation = state.chat.conversationState.conversations.find(
-        (conversation) => conversation.id === conversationId,
-      )!;
+      const conversation = state.chat.conversationState.openConversations.find(
+        (openConversation) => openConversation.conversation?.id === conversationId,
+      )!.conversation;
 
-      if (conversation.isReadByUser(currentUser, messages)) {
+      if (conversation && conversation.isReadByUser(currentUser)) {
         return;
       }
 
       markConversationAsRead(conversationId);
       dispatch(markPreviewConversationAsRead({ conversationId, user: currentUser }));
+      dispatch(markOpenConversationAsRead({ conversationId, user: currentUser }));
       dispatch(subtractUnreadCount());
     } catch (error: unknown) {}
   };
@@ -323,8 +325,43 @@ const getLatestConversation = (): AppThunk => async (dispatch, getState) => {
   const latestMessageId =
     currentConversations.length === 0 ? 0 : currentConversations[0].latestChatMessageId;
   const latestConversations = await getConversationsWithNewestMessage(latestMessageId);
+  dispatch(countLatestUnread(latestConversations));
   dispatch(addLatestPreviewConversations(latestConversations));
+  dispatch(updateOpenConversation());
 };
+
+const countLatestUnread =
+  (latestConversations: ChatConversation[]): AppThunk =>
+  (dispatch, getState) => {
+    const state = getState();
+    const previewConversations =
+      state.chat.conversationState.previewConversations.conversations;
+    const currentUser = state.user.profile!;
+    const countReset = state.chat.unreadConversationsCount === 0;
+
+    dispatch(
+      addUnreadCount(
+        latestConversations.filter((latestConversation) => {
+          const currentConversation = previewConversations.find(
+            (conversation) => latestConversation.id === conversation.id,
+          );
+
+          if (currentConversation == null) {
+            return true;
+          }
+
+          if (!countReset) {
+            return (
+              currentConversation.isReadByUser(currentUser) &&
+              !latestConversation.isReadByUser(currentUser)
+            );
+          }
+
+          return !latestConversation.isReadByUser(currentUser);
+        }).length,
+      ),
+    );
+  };
 
 export const updateOpenConversation = (): AppThunk => (dispatch, getState) => {
   try {
@@ -366,34 +403,21 @@ export const getPossiblyUpdatedMessages = (): AppThunk => async (dispatch, getSt
     const opensConversations = chatState.conversationState.openConversations.map(
       (openConversation) => openConversation.conversation,
     );
-    let oldestMessageId: number | null = null;
-    let latestMessageId: number | null = null;
+    let oldestMessageId: number = -1;
+    let latestMessageId: number = Number.MAX_VALUE;
 
     opensConversations.forEach((conversation) => {
       if (conversation == null) {
         return;
       }
 
-      const messages = chatState.messageState[conversation.id].messages;
-
-      if (messages.length === 0) {
-        return;
-      }
-
-      if (oldestMessageId == null) {
-        oldestMessageId = messages[messages.length - 1].id;
-      } else {
-        oldestMessageId = Math.min(oldestMessageId, messages[messages.length - 1].id);
-      }
-
-      if (latestMessageId == null) {
-        latestMessageId = messages[0].id;
-      } else {
-        latestMessageId = Math.max(latestMessageId, messages[0].id);
-      }
+      chatState.messageState[conversation.id].messages.forEach((message) => {
+        oldestMessageId = Math.min(oldestMessageId, message.id);
+        latestMessageId = Math.max(latestMessageId, message.id);
+      });
     });
 
-    if (oldestMessageId == null || latestMessageId == null) {
+    if (oldestMessageId === -1) {
       return;
     }
 

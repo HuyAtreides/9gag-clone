@@ -1,4 +1,4 @@
-import { Avatar, Button, Typography } from 'antd';
+import { Avatar, Button, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { addNewMessage, edit, remove } from '../../../../Store/chat/chat-dispatchers';
@@ -185,12 +185,21 @@ const CurrentUserMessageGroup = ({ messages }: CurrentMessageGroupProps) => {
     const shouldShowReadStatus = message.id === latestReadMessageId;
     const latestMessage = message.id === latestMessageId;
     const readStatus = shouldShowReadStatus ? (
-      <Avatar
-        size={15}
-        className={styles.messageStatus}
-        shape='circle'
-        src={otherReadStatus.readBy.avatarUrl}
-      />
+      <Tooltip
+        trigger='hover'
+        placement='top'
+        showArrow={false}
+        title={`Read by ${
+          otherReadStatus.readBy.displayName
+        } at ${otherReadStatus.readAt.toLocaleString()}`}
+      >
+        <Avatar
+          size={15}
+          className={styles.messageStatus}
+          shape='circle'
+          src={otherReadStatus.readBy.avatarUrl}
+        />
+      </Tooltip>
     ) : null;
 
     const shouldShowSendingStatus =

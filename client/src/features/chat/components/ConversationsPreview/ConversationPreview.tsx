@@ -7,7 +7,6 @@ import {
   getPreviewMessage,
   readConversation,
 } from '../../../../Store/chat/chat-dispatchers';
-import { increaseUnreadCount } from '../../../../Store/chat/chat-slice';
 import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
 import ChatConversation from '../../../../models/chat-conversation';
 import styles from './ConversationPreview.module.css';
@@ -52,26 +51,12 @@ const PreviewMessage = ({ conversation, unread }: PreviewMessageProps) => {
 const ConversationPreview = ({ conversation }: Props) => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.user.profile!);
-  const previewMessage = useAppSelector(
-    (state) =>
-      state.chat.conversationState.previewConversations.previewMessages[conversation.id]
-        ?.message,
-  );
   const otherParticipant = conversation.getOtherParticipant(currentUser);
-  const currentUserReadStatus = conversation.getOtherReadStatus(otherParticipant);
-  const unread = Boolean(
-    previewMessage && currentUserReadStatus.readAt < previewMessage.sentDate,
-  );
+  const unread = !conversation.isReadByUser(currentUser);
 
   useEffect(() => {
     dispatch(getPreviewMessage(conversation.id, conversation.latestChatMessageId));
-  }, [dispatch, conversation]);
-
-  useEffect(() => {
-    if (unread) {
-      dispatch(increaseUnreadCount());
-    }
-  }, [unread, dispatch]);
+  }, [dispatch, conversation.id, conversation.latestChatMessageId]);
 
   const openConversation = () => {
     dispatch(createNewConversation(otherParticipant.id));

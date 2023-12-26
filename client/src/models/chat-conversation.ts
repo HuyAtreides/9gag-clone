@@ -1,9 +1,9 @@
-import ChatMessage from './chat-message';
 import { User } from './user';
 
 interface ConversationReadStatus {
   readonly readBy: User;
   readAt: Date;
+  latestMessagesRead: boolean;
 }
 
 interface ChatConversationConstructorArguments {
@@ -41,14 +41,10 @@ export default class ChatConversation {
     return otherParticipant;
   }
 
-  markRead(user: User | null) {
-    const status = this.readStatuses.find((status) => status.readBy.equals(user));
-
-    if (!status) {
-      throw new Error('Status of user does not exist');
-    }
-
-    status.readAt = new Date();
+  markRead(user: User) {
+    const userStatus = this.getUserReadStatus(user);
+    userStatus.readAt = new Date();
+    userStatus.latestMessagesRead = true;
   }
 
   getOtherReadStatus(currentUser: User | null) {
@@ -71,15 +67,9 @@ export default class ChatConversation {
     return readStatus;
   }
 
-  isReadByUser(user: User, conversationMessages: ChatMessage[]) {
-    const latestOtherUserMessage = conversationMessages.find(
-      (message) => !message.owner.equals(user),
-    );
+  isReadByUser(user: User) {
+    const readStatus = this.getUserReadStatus(user);
 
-    if (!latestOtherUserMessage) {
-      return true;
-    }
-
-    return this.getUserReadStatus(user).readAt >= latestOtherUserMessage.sentDate;
+    return readStatus.latestMessagesRead;
   }
 }

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import ChatMessage from '../../../../models/chat-message';
-import { Popover, Tooltip } from 'antd';
+import { Button, Popover, Tooltip } from 'antd';
+import { MoreOutlined } from '@ant-design/icons';
 
 interface Props {
   readonly children: ReactNode;
@@ -21,11 +22,11 @@ interface MessagePopoverProps {
   readonly placement: 'right' | 'left';
 }
 
-const MessageTooltip = ({ children, message, placement }: MessageTooltipProps) => {
+const MessageTooltip = ({ children, message }: MessageTooltipProps) => {
   return (
     <Tooltip
       showArrow={false}
-      placement={placement}
+      placement='top'
       zIndex={1}
       getPopupContainer={(container) => container.parentElement!}
       title={`Sent at ${message.sentDate.toLocaleString()} ${
@@ -43,8 +44,14 @@ const MessagePopover = ({ placement, actionButtons, children }: MessagePopoverPr
       zIndex={2}
       placement={placement}
       getPopupContainer={(container) => container.parentElement!}
-      content={<div className='more-action-box-container'>{actionButtons}</div>}
-      trigger='click'
+      content={
+        <Popover
+          trigger='click'
+          content={<div className='more-action-box-container'>{actionButtons}</div>}
+        >
+          <Button icon={<MoreOutlined />} type='text' />
+        </Popover>
+      }
     >
       {children}
     </Popover>

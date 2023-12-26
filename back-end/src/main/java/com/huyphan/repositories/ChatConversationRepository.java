@@ -104,7 +104,7 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
             )
             """ + """
             order by
-            """ + " (" + Constants.LATEST_MESSAGE_ID + ")")
+            """ + " (" + Constants.LATEST_MESSAGE_ID + ") DESC")
     List<ChatConversationWithDerivedFields> findAllConversationWithNewestMessage(
             @Param("user") User currentUser,
             @Param("currentLatestMessageId") Long currentLatestMessageId
@@ -113,11 +113,7 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
     @Query("""
             select count(*)
             from ChatConversation conversation join conversation.readStatuses readStatus
-            where readStatus.readBy = :user and readStatus.readAt < (
-                select max(message.sentDate)
-                from ChatMessage message
-                where message.conversation = conversation and message.owner != :user
-            )   
+            where readStatus.readBy = :user and readStatus.latestMessagesRead = false 
             """)
     int countUnreadConversation(
             @Param("user") User currentUser

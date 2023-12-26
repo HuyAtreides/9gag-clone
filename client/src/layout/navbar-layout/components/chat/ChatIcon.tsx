@@ -1,12 +1,7 @@
 import { CommentOutlined } from '@ant-design/icons';
 import { Badge, Button, Popover } from 'antd';
-import styles from './ChatIcon.module.css';
-import EmbeddedConversationPreview from './EmbeddedConversationsPreview';
-import AuthenticatedGuard from '../../../../components/component-guard/AuthenticatedGuard';
 import { useEffect, useState } from 'react';
-import { WebSocketUtils } from '../../../../utils/web-socket-utils';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import { WebSocketEvent } from '../../../../models/enums/web-socket-event';
 import {
   countUnreadConversation,
   getLatestConversationsState,
@@ -14,9 +9,13 @@ import {
   resetUnreadCount,
   updateOpenConversation,
 } from '../../../../Store/chat/chat-dispatchers';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import { setSyncError } from '../../../../Store/chat/chat-slice';
+import { resetState, setSyncError } from '../../../../Store/chat/chat-slice';
 import useRemoveErrorWhenUnmount from '../../../../custom-hooks/remove-error';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
+import { WebSocketEvent } from '../../../../models/enums/web-socket-event';
+import { WebSocketUtils } from '../../../../utils/web-socket-utils';
+import styles from './ChatIcon.module.css';
+import EmbeddedConversationPreview from './EmbeddedConversationsPreview';
 
 const ChatIcon = () => {
   const dispatch = useAppDispatch();
@@ -41,6 +40,10 @@ const ChatIcon = () => {
       dispatch(getPossiblyUpdatedMessages());
     });
     dispatch(countUnreadConversation());
+
+    return () => {
+      dispatch(resetState());
+    };
   }, [dispatch]);
 
   const handleClick = () => {
@@ -49,28 +52,24 @@ const ChatIcon = () => {
   };
 
   return (
-    <AuthenticatedGuard
-      component={
-        <Popover
-          visible={visible}
-          content={<EmbeddedConversationPreview closePreview={() => setVisible(false)} />}
-          placement='bottom'
-          trigger='click'
-          destroyTooltipOnHide={false}
-          onVisibleChange={(value) => setVisible(value)}
-          getPopupContainer={(container) => container.parentElement!}
-        >
-          <Badge count={unreadCount}>
-            <Button
-              onClick={handleClick}
-              shape='circle'
-              icon={<CommentOutlined />}
-              className={styles.chatIcon}
-            />
-          </Badge>
-        </Popover>
-      }
-    />
+    <Popover
+      visible={visible}
+      content={<EmbeddedConversationPreview closePreview={() => setVisible(false)} />}
+      placement='bottom'
+      trigger='click'
+      destroyTooltipOnHide={false}
+      onVisibleChange={(value) => setVisible(value)}
+      getPopupContainer={(container) => container.parentElement!}
+    >
+      <Badge count={unreadCount}>
+        <Button
+          onClick={handleClick}
+          shape='circle'
+          icon={<CommentOutlined />}
+          className={styles.chatIcon}
+        />
+      </Badge>
+    </Popover>
   );
 };
 

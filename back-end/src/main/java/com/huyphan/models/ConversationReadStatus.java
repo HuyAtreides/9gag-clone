@@ -23,6 +23,9 @@ public class ConversationReadStatus {
     @Column(name = "ReadAt")
     private Instant readAt;
 
+    @Column(name = "AreLatestMessagesRead")
+    private boolean latestMessagesRead;
+
     private void validateReadByNotNull(ChatParticipant readBy) {
         if (readBy == null) {
             throw new IllegalArgumentException("Read by can not be null");
@@ -35,14 +38,16 @@ public class ConversationReadStatus {
         }
     }
 
-    public ConversationReadStatus(
+    private ConversationReadStatus(
             ChatParticipant readBy,
-            Instant readAt
+            Instant readAt,
+            boolean latestMessagesRead
     ) {
         validateReadByNotNull(readBy);
         validateReadAtNotNull(readAt);
         this.readBy = readBy;
         this.readAt = readAt;
+        this.latestMessagesRead = latestMessagesRead;
     }
 
     public ConversationReadStatus(
@@ -52,17 +57,19 @@ public class ConversationReadStatus {
         this.readBy = readBy;
     }
 
-    public ConversationReadStatus withNewReadAt(Instant readAt) {
+    public ConversationReadStatus withLatestMessagesRead(Instant readAt) {
         return new ConversationReadStatus(
                 this.readBy,
-                readAt
+                readAt,
+                true
         );
     }
 
-    public ConversationReadStatus withNewLatestReadMessageId() {
-        return new ConversationReadStatus(
-                this.readBy,
-                this.readAt
-        );
+    public ConversationReadStatus withLatestMessagesUnread() {
+        ConversationReadStatus newReadStatus = new ConversationReadStatus(this.readBy);
+        newReadStatus.readAt = this.readAt;
+        newReadStatus.latestMessagesRead = false;
+
+        return newReadStatus;
     }
 }

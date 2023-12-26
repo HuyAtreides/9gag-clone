@@ -54,8 +54,8 @@ const NavbarLayout: React.FC<INavbarLayout> = ({ collapse, setCollapse }) => {
         </div>
         <div className={styles.itemContainer}>
           <PostSearch />
-          <ChatIcon />
-          <NotificationContainer />
+          <AuthenticatedGuard component={<ChatIcon />} />
+          <AuthenticatedGuard component={<NotificationContainer />} />
           <Typography.Text
             className={styles.text}
             onClick={protectAction(() => {})}

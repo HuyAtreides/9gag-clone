@@ -9,4 +9,6 @@ public class ConversationReadStatusDto {
     private UserDto readBy;
 
     private String readAt;
+
+    private boolean latestMessagesRead;
 }
