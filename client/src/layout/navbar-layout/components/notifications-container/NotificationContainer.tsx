@@ -6,7 +6,10 @@ import {
   countNotViewed,
   initialize,
 } from '../../../../Store/notification/notification-dispatchers';
-import { clearNotViewedCount } from '../../../../Store/notification/notification-slice';
+import {
+  clearNotViewedCount,
+  resetNotificationState,
+} from '../../../../Store/notification/notification-slice';
 import { abbreviateNumber } from '../../../../utils/abbreviate-number';
 import styles from '../../Navbar.module.scss';
 import Notifications from '../Notifications';
@@ -23,6 +26,10 @@ const NotificationContainer: React.FC = () => {
   useEffect(() => {
     dispatch(countNotViewed());
     dispatch(initialize());
+
+    return () => {
+      dispatch(resetNotificationState());
+    };
   }, [dispatch]);
 
   return (

@@ -53,6 +53,8 @@ import {
   updateConversation,
   updateMessage,
 } from './chat-slice';
+import { isFileType } from '../../utils/mime-type';
+import { MediaType } from '../../models/enums/constant';
 
 type ConversationListStateActionCreator = {
   setIsLoading: ActionCreatorWithPayload<boolean>;
@@ -116,25 +118,19 @@ export const createNewConversation =
       const conversation = await createConversationWithUser(userId);
       dispatch(
         setConversation({
-          index,
-          conversationState: {
-            error: null,
-            isLoading: false,
-            userId,
-            conversation: conversation,
-          },
+          error: null,
+          isLoading: false,
+          userId,
+          conversation: conversation,
         }),
       );
     } catch (error: unknown) {
       dispatch(
         setConversation({
-          index,
-          conversationState: {
-            userId,
-            error: extractErrorMessage(error),
-            isLoading: false,
-            conversation: null,
-          },
+          userId,
+          error: extractErrorMessage(error),
+          isLoading: false,
+          conversation: null,
         }),
       );
     }
@@ -187,10 +183,11 @@ const createNewMessageDataFromFormData = (formData: NewChatMessageFormData) => {
     throw new Error('Text and file can not be both null');
   }
 
+  const isFile = isFileType(file?.originFileObj?.type || file?.type);
   const sentDate = new Date();
   const messageContent = {
     text: text || null,
-    mediaType: file?.originFileObj?.type || file?.type || null,
+    mediaType: isFile ? MediaType.File : file?.originFileObj?.type || file?.type || null,
     mediaUrl: file?.url || null,
     uploadFile: file,
   };
@@ -238,35 +235,27 @@ export const edit =
     } catch (error: unknown) {}
   };
 
-export const addNewMessage =
-  (conversationId: number, formData: NewChatMessageFormData): AppThunk =>
+const send =
+  (conversationId: number, transientChatMessage: ChatMessage): AppThunk =>
   async (dispatch, getState) => {
-    const newChatMessageData = createNewMessageDataFromFormData(formData);
-
-    const transientChatMessage: ChatMessage = createTransientChatMessage(
-      conversationId,
-      newChatMessageData,
-      getState().user.profile!,
-    );
-    const transientId = transientChatMessage.id;
-
     try {
-      dispatch(addIsSendingId({ conversationId, id: transientId }));
+      dispatch(addIsSendingId({ conversationId, id: transientChatMessage.id }));
       dispatch(addMessage({ conversationId, message: transientChatMessage }));
-      const mediaLocation = await getMediaLocationFromForm(formData.file);
+      const mediaLocation = await getMediaLocationFromForm(
+        transientChatMessage.content.uploadFile,
+      );
       const persistedChatMessage = await sendMessage(conversationId, {
-        ...newChatMessageData,
+        sentDate: transientChatMessage.sentDate,
         content: {
-          ...newChatMessageData.content,
-          mediaType: mediaLocation.type,
+          ...transientChatMessage.content,
           mediaUrl: mediaLocation.url,
         },
       });
-      dispatch(removeIsSendingId({ conversationId, id: transientId }));
+      dispatch(removeIsSendingId({ conversationId, id: transientChatMessage.id }));
       dispatch(
         setPersistedMessage({
           conversationId,
-          transientId,
+          transientId: transientChatMessage.id,
           chatMessage: persistedChatMessage,
         }),
       );
@@ -274,12 +263,47 @@ export const addNewMessage =
       dispatch(
         setSendingMessageError({
           conversationId,
-          messageId: transientId,
+          messageId: transientChatMessage.id,
           error: 'Error while sending message',
         }),
       );
-      dispatch(removeIsSendingId({ conversationId, id: transientId }));
+      dispatch(removeIsSendingId({ conversationId, id: transientChatMessage.id }));
     }
+  };
+
+export const resendMessage =
+  (conversationId: number, messageId: number): AppThunk =>
+  (dispatch, getState) => {
+    const state = getState();
+
+    const transientMessage = state.chat.messageState[conversationId].messages.find(
+      (message) => message.id === messageId,
+    );
+
+    if (transientMessage == null) {
+      throw new Error("Message doesn't exist");
+    }
+
+    dispatch(
+      setSendingMessageError({
+        conversationId,
+        messageId: transientMessage.id,
+        error: null,
+      }),
+    );
+    dispatch(send(conversationId, transientMessage));
+  };
+
+export const addNewMessage =
+  (conversationId: number, formData: NewChatMessageFormData): AppThunk =>
+  async (dispatch, getState) => {
+    const newChatMessageData = createNewMessageDataFromFormData(formData);
+    const transientChatMessage: ChatMessage = createTransientChatMessage(
+      conversationId,
+      newChatMessageData,
+      getState().user.profile!,
+    );
+    dispatch(send(conversationId, transientChatMessage));
   };
 
 export const readConversation =
@@ -403,8 +427,8 @@ export const getPossiblyUpdatedMessages = (): AppThunk => async (dispatch, getSt
     const opensConversations = chatState.conversationState.openConversations.map(
       (openConversation) => openConversation.conversation,
     );
-    let oldestMessageId: number = -1;
-    let latestMessageId: number = Number.MAX_VALUE;
+    let oldestMessageId: number = Number.MAX_VALUE;
+    let latestMessageId: number = -1;
 
     opensConversations.forEach((conversation) => {
       if (conversation == null) {
@@ -417,7 +441,7 @@ export const getPossiblyUpdatedMessages = (): AppThunk => async (dispatch, getSt
       });
     });
 
-    if (oldestMessageId === -1) {
+    if (latestMessageId === -1) {
       return;
     }
 

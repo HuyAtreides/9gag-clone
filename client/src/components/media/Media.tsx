@@ -1,7 +1,7 @@
 import { Image } from 'antd';
 import React, { useEffect, useRef } from 'react';
 import { MediaType } from '../../models/enums/constant';
-import { toEnum } from '../../utils/value-to-enum';
+import { getMediaTypeFromMIME } from '../../utils/mime-type';
 import GifWrapper from '../gif-wrapper/GifWrapper';
 import styles from './Media.module.css';
 
@@ -24,7 +24,7 @@ const Media: React.FC<Props> = ({
   gifHeight,
   gifWidth,
 }: Props) => {
-  const mediaType = toEnum(type.split('/')[0], MediaType);
+  const mediaType = getMediaTypeFromMIME(type);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const className =
     width || height ? styles['media'] : `${styles['media']} ${styles['media-size']}`;

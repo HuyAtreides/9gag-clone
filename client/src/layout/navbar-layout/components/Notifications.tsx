@@ -9,7 +9,7 @@ import {
   UserAddOutlined,
 } from '@ant-design/icons';
 import { Button, List, Typography } from 'antd';
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../Store';
@@ -19,10 +19,7 @@ import {
   markAsViewed,
   removeNotifications,
 } from '../../../Store/notification/notification-dispatchers';
-import {
-  resetNotificationState,
-  setNotificationErrorMessage,
-} from '../../../Store/notification/notification-slice';
+import { setNotificationErrorMessage } from '../../../Store/notification/notification-slice';
 import AutoClosePopover from '../../../components/auto-close-popover/AutoClosePopover';
 import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
 import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
@@ -61,12 +58,6 @@ const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
   const isGettingPage = useAppSelector((state) => state.notification.isGettingPage);
   useRemoveErrorWhenUnmount(setNotificationErrorMessage);
   useRenderErrorMessage(errorMessage, setNotificationErrorMessage);
-
-  useEffect(() => {
-    return () => {
-      dispatch(resetNotificationState());
-    };
-  }, [dispatch]);
 
   const getNextPage = () => {
     if (isGettingPage) {

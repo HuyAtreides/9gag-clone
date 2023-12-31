@@ -33,27 +33,32 @@ public class MessageContent {
     private SupportedMIMEType mediaType;
 
     @Lob
+    @Column(name = "OriginalFileName")
+    private String originalFileName;
+
+    @Lob
     @Column(name = "Text")
     private String text;
 
     public MessageContent withNewMedia(String mediaUrl, SupportedMIMEType mediaType) {
-        return new MessageContent(mediaUrl, mediaType, text);
+        return new MessageContent(mediaUrl, mediaType, text, this.originalFileName);
     }
 
     public MessageContent withNewContent(String mediaUrl, SupportedMIMEType mediaType,
             String text) {
-        return new MessageContent(mediaUrl, mediaType, text);
+        return new MessageContent(mediaUrl, mediaType, text, this.originalFileName);
     }
 
     public static MessageContent empty() {
         return new MessageContent(
                 null,
                 null,
-                ""
+                "",
+                null
         );
     }
 
-    public MessageContent(String mediaUrl, SupportedMIMEType mediaType, String text) {
+    public MessageContent(String mediaUrl, SupportedMIMEType mediaType, String text, String originalFileName) {
         if (mediaUrl == null && mediaType == null && text == null) {
             throw new IllegalArgumentException("Invalid Message Content");
         }
@@ -63,8 +68,15 @@ public class MessageContent {
                     "Media type and media URL must be non-null together");
         }
 
+        if (mediaType == SupportedMIMEType.FILE && originalFileName == null) {
+            throw new IllegalArgumentException(
+              "Upload file needs to have originalFileName"
+            );
+        }
+
         this.mediaType = mediaType;
         this.mediaUrl = mediaUrl;
         this.text = text;
+        this.originalFileName = originalFileName;
     }
 }

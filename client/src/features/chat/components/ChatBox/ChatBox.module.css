@@ -63,6 +63,19 @@
   flex-direction: column;
 }
 
+.fileName {
+  display: inline-block;
+  word-wrap: break-word;
+  max-width: 200px;
+  margin-top: -8px;
+  margin-left: 5px;
+}
+
+.fileNameContainer {
+  display: flex;
+  align-items: flex-start;
+}
+
 .chatInputFormItem {
   margin-left: 5px;
   margin-bottom: 0;

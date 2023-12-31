@@ -13,6 +13,9 @@ const ConversationsPreview = () => {
       <Input
         className={styles.searchConversation}
         size='large'
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
         placeholder='Search conversation...'
         onChange={handleSearch}
         prefix={<SearchOutlined />}

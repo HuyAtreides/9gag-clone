@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import Notification from '../../models/notification';
 import { Pagination } from '../../models/page';
+import { merge2SortedList } from '../../utils/list-utils';
 
 interface NotificationState {
   readonly isLoading: boolean;
@@ -45,11 +46,23 @@ const notificationSlice = createSlice({
     },
 
     appendNewNotifications(state, action: PayloadAction<readonly Notification[]>) {
-      state.notifications?.push(...action.payload);
+      if (state.notifications) {
+        state.notifications = merge2SortedList(
+          state.notifications,
+          [...action.payload],
+          (a, b) => a.id - b.id,
+        );
+      }
     },
 
     appendLatestNotifications(state, action: PayloadAction<Notification[]>) {
-      state.notifications?.unshift(...action.payload);
+      const latestNotifications = action.payload;
+      state.notifications?.push(
+        ...latestNotifications,
+        ...state.notifications.filter((notification) =>
+          latestNotifications.every((latest) => latest.id !== notification.id),
+        ),
+      );
     },
 
     markAllNotificationsAsViewed(state, action: PayloadAction<void>) {
@@ -67,8 +80,8 @@ const notificationSlice = createSlice({
       state.notViewedCount = 0;
     },
 
-    resetNotificationState(state, _: PayloadAction<void>) {
-      state = initialState;
+    resetNotificationState() {
+      return initialState;
     },
 
     setNotViewedCount(state, action: PayloadAction<number>) {

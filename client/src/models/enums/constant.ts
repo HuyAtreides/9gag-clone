@@ -18,18 +18,20 @@ export enum Constant {
   CommentState = 'commentState',
   PageSize = 15,
   DebounceTimeInMiliSeconds = 700,
-  DefaultChatMessageMediaWidth = 220,
-  DefaultChatMessageMediaHeight = 220,
+  DefaultChatMessageMediaWidth = 230,
+  DefaultChatMessageMediaHeight = 230,
   SubmitKey = 'Enter',
 }
 
 export enum ScreenBreakPoint {
+  ExtraLarge = 1290,
   Large = 992,
   Medium = 768,
 }
 
 export enum MediaType {
   Video = 'video',
+  File = 'file',
   Image = 'image',
   Gif = 'gif',
 }

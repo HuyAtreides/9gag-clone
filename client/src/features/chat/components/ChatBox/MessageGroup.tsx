@@ -1,7 +1,12 @@
 import { Avatar, Button, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import { addNewMessage, edit, remove } from '../../../../Store/chat/chat-dispatchers';
+import {
+  addNewMessage,
+  edit,
+  remove,
+  resendMessage,
+} from '../../../../Store/chat/chat-dispatchers';
 import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
 import useOpenConversation from '../../../../custom-hooks/use-open-conversation';
 import ChatMessage from '../../../../models/chat-message';
@@ -149,12 +154,7 @@ const ErrorWhileSending = ({ message }: { message: ChatMessage }) => {
   const dispatch = useAppDispatch();
 
   const resend = () => {
-    dispatch(
-      addNewMessage(message.conversationId, {
-        text: message.content.text || undefined,
-        file: message.content.uploadFile,
-      }),
-    );
+    dispatch(resendMessage(message.conversationId, message.id));
   };
 
   return (
@@ -176,14 +176,12 @@ const CurrentUserMessageGroup = ({ messages }: CurrentMessageGroupProps) => {
   const latestMessageId = useLatestMessageOfCurrentUser(conversationId);
   const latestReadMessageId = useLatestReadMessageOfOtherUser(conversationId);
   const sent = messageState[conversationId].sent;
-  const hasSendingError = messages.some(
-    (message) => messageState[conversationId].sendingError[message.id],
-  );
   const otherReadStatus = useOtherReadStatus(conversationId);
 
   const messagesView = messages.map((message, index) => {
     const shouldShowReadStatus = message.id === latestReadMessageId;
     const latestMessage = message.id === latestMessageId;
+    const hasSendingError = messageState[conversationId].sendingError[message.id];
     const readStatus = shouldShowReadStatus ? (
       <Tooltip
         trigger='hover'

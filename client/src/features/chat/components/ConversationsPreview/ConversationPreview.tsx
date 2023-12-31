@@ -9,6 +9,10 @@ import {
 } from '../../../../Store/chat/chat-dispatchers';
 import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
 import ChatConversation from '../../../../models/chat-conversation';
+import ChatMessage from '../../../../models/chat-message';
+import { MediaType } from '../../../../models/enums/constant';
+import { User } from '../../../../models/user';
+import { getMediaTypeFromMIME } from '../../../../utils/mime-type';
 import styles from './ConversationPreview.module.css';
 
 interface Props {
@@ -18,6 +22,43 @@ interface Props {
 interface PreviewMessageProps extends Props {
   readonly unread: boolean;
 }
+
+const getPreviewMessageText = (currentUser: User, message: ChatMessage) => {
+  const belongToCurrentUser = message.owner.equals(currentUser);
+  const { content } = message;
+
+  if (content.text != null) {
+    return belongToCurrentUser ? `You: ${content.text}` : content.text;
+  }
+
+  const { mediaType, mediaUrl } = content;
+
+  if (!mediaType || !mediaUrl) {
+    return null;
+  }
+
+  const type = getMediaTypeFromMIME(mediaType);
+
+  if (type === MediaType.Image) {
+    return belongToCurrentUser ? 'You: Sent an image' : 'Sent an image';
+  }
+
+  if (type === MediaType.Gif) {
+    return belongToCurrentUser ? 'You: Sent a GIF' : 'Sent a GIF';
+  }
+
+  if (type === MediaType.Video) {
+    return belongToCurrentUser ? 'You: Sent a video' : 'Sent a video';
+  }
+
+  return belongToCurrentUser ? 'You: Sent a file' : 'Sent a file';
+};
+
+const PreviewMessageContent = ({ message }: { message: ChatMessage }) => {
+  const currentUser = useAppSelector((state) => state.user.profile!);
+
+  return <>{getPreviewMessageText(currentUser, message)}</>;
+};
 
 const PreviewMessage = ({ conversation, unread }: PreviewMessageProps) => {
   const previewMessage = useAppSelector(
@@ -37,9 +78,11 @@ const PreviewMessage = ({ conversation, unread }: PreviewMessageProps) => {
         className={className}
         italic={previewMessage.loading || previewMessage.error ? true : false}
       >
-        {previewMessage.loading
-          ? 'Loading preview message...'
-          : previewMessage.message?.content.text}
+        {previewMessage.loading ? (
+          'Loading message...'
+        ) : (
+          <PreviewMessageContent message={previewMessage.message!} />
+        )}
       </Typography.Paragraph>
       <Typography.Paragraph className={styles.messageContentDate}>
         {previewMessage.loading ? null : <>&#8226; {messageDateDiff}</>}

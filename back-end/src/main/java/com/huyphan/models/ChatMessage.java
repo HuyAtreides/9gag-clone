@@ -68,7 +68,8 @@ public class ChatMessage {
         this.content = new MessageContent(
                 content.getMediaUrl(),
                 content.getMediaType(),
-                content.getText()
+                content.getText(),
+                content.getOriginalFileName()
         );
         this.owner = owner;
         this.sentDate = sendDate;

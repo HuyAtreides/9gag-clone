@@ -1,9 +1,10 @@
+import { PaperClipOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 import { useAppSelector } from '../../../../Store';
-import ChatMessage from '../../../../models/chat-message';
-import styles from './ChatBox.module.css';
 import Media from '../../../../components/media/Media';
-import { Constant } from '../../../../models/enums/constant';
+import ChatMessage from '../../../../models/chat-message';
+import { Constant, MediaType } from '../../../../models/enums/constant';
+import styles from './ChatBox.module.css';
 
 interface Props {
   readonly message: ChatMessage;
@@ -29,8 +30,9 @@ const ChatMessageContent = ({ message }: Props) => {
     ? styles.messageContent
     : styles.otherMessageContent;
   const content = message.content;
-  const { mediaType, mediaUrl } = content;
+  const { mediaType, mediaUrl, uploadFile } = content;
   const mediaNotNull = mediaType != null && mediaUrl != null;
+  const isFile = mediaType === MediaType.File;
 
   if (message.deleted) {
     return <RemovedMessage belongToCurrentUser={belongToCurrentUser} />;
@@ -41,7 +43,7 @@ const ChatMessageContent = ({ message }: Props) => {
       {content.text ? (
         <Typography.Text className={textMessageClassName}>{content.text}</Typography.Text>
       ) : null}
-      {mediaNotNull ? (
+      {mediaNotNull && !isFile ? (
         <Media
           url={mediaUrl}
           type={mediaType}
@@ -51,6 +53,14 @@ const ChatMessageContent = ({ message }: Props) => {
           gifWidth={Constant.DefaultChatMessageMediaWidth as number}
           gifHeight={Constant.DefaultChatMessageMediaHeight as number}
         />
+      ) : null}
+      {isFile ? (
+        <a href={mediaUrl || undefined} download className={styles.fileNameContainer}>
+          <PaperClipOutlined />
+          <Typography.Link className={styles.fileName}>
+            {uploadFile?.name}
+          </Typography.Link>
+        </a>
       ) : null}
     </div>
   );

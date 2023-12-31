@@ -11,6 +11,7 @@ public enum SupportedMIMEType {
     VIDEO_MP4("video/mp4"),
     IMAGE_GIF("image/gif"),
     GIF("gif"),
+    FILE("file"),
     IMAGE_JPEG("image/jpeg"),
     IMAGE_WEBP("image/webp"),
     IMAGE_PNG("image/png"),
@@ -23,8 +24,9 @@ public enum SupportedMIMEType {
     }
 
     static public SupportedMIMEType toSupportedMIMEType(String value) {
-        return Arrays.stream(SupportedMIMEType.values()).filter(c -> c.getValue().equals(value)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("MIME type doesn't exist."));
+        return Arrays.stream(SupportedMIMEType.values()).filter(c -> c.getValue().equals(value))
+                .findFirst()
+                .orElse(SupportedMIMEType.FILE);
     }
 
     @JsonValue

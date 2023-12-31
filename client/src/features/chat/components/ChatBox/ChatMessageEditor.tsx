@@ -11,10 +11,11 @@ import { useEffect, useState } from 'react';
 import GifSelect from '../../../../components/gif-select/GifSelect';
 import useUploadFile from '../../../../custom-hooks/upload-file';
 import ChatMessage from '../../../../models/chat-message';
-import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
-import styles from './ChatBox.module.css';
 import { Constant } from '../../../../models/enums/constant';
 import MediaLocation from '../../../../models/media-location';
+import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
+import { isFileType } from '../../../../utils/mime-type';
+import styles from './ChatBox.module.css';
 
 const isOnlyEnterKeyPressed = (event: React.KeyboardEvent) => {
   return event.key === Constant.SubmitKey && !event.shiftKey;
@@ -52,12 +53,15 @@ const ChatMessageEditor = ({
       ? {
           url: content.mediaUrl,
           type: content.mediaType,
+          originalFileName:
+            content.uploadFile?.name || content.uploadFile?.originFileObj?.name,
         }
       : undefined,
   );
   const [focus, setFocus] = useState(false);
   const [form] = useForm<NewChatMessageFormData>();
   const singleUploadFile = uploadFile && uploadFile[0];
+  const isFile = isFileType(singleUploadFile?.type);
 
   const handlePressEnter = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (focus && isOnlyEnterKeyPressed(event)) {
@@ -85,7 +89,7 @@ const ChatMessageEditor = ({
     handleSubmit({
       text: undefined,
       file: {
-        uid: '0',
+        uid: gif.url,
         name: '',
         url: gif.url,
         type: gif.type,
@@ -141,7 +145,7 @@ const ChatMessageEditor = ({
                     beforeUpload={() => false}
                     maxCount={1}
                     fileList={uploadFile}
-                    listType='picture'
+                    listType={isFile ? 'text' : 'picture'}
                     onChange={handleFileChange}
                   >
                     {uploadFile ? null : (
@@ -183,13 +187,13 @@ const ChatMessageEditor = ({
       disabled={disabled}
     >
       <Row align='middle' justify='space-between'>
-        <Col span={uploadFile ? 5 : 3}>
+        <Col span={uploadFile ? (isFile ? 7 : 5) : 3}>
           <Form.Item name='file' className={styles.chatInputFormItem}>
             <Upload
               beforeUpload={() => false}
               maxCount={1}
               fileList={uploadFile}
-              listType='picture'
+              listType={isFile ? 'text' : 'picture'}
               onChange={handleFileChange}
             >
               {uploadFile ? null : <Button icon={<CameraOutlined />} shape='default' />}

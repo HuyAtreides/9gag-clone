@@ -15,4 +15,6 @@ public class MessageContentDto {
     private SupportedMIMEType mediaType;
 
     private String text;
+
+    private String originalFileName;
 }

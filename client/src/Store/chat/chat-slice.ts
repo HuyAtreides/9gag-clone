@@ -2,11 +2,11 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import ChatConversation from '../../models/chat-conversation';
 import ChatMessage from '../../models/chat-message';
 import { Constant } from '../../models/enums/constant';
+import { MessageContent } from '../../models/message-content';
 import { Pagination } from '../../models/page';
 import Slice from '../../models/slice';
-import { merge2SortedList } from '../../utils/list-utils';
 import { User } from '../../models/user';
-import { MessageContent } from '../../models/message-content';
+import { merge2SortedList } from '../../utils/list-utils';
 
 interface MessageState {
   readonly isGettingPage: boolean;
@@ -107,7 +107,7 @@ function getInitialMessageState() {
 
 function getInitialPreviewMessageState() {
   return {
-    loading: false,
+    loading: true,
     message: null,
     error: null,
   };
@@ -159,14 +159,16 @@ const slice = createSlice({
       };
     },
 
-    setConversation(
-      state,
-      action: PayloadAction<{
-        index: number;
-        conversationState: OpenChatConversationState;
-      }>,
-    ) {
-      const { index, conversationState } = action.payload;
+    setConversation(state, action: PayloadAction<OpenChatConversationState>) {
+      const conversationState = action.payload;
+      const index = state.conversationState.openConversations.findIndex(
+        (openConversation) => openConversation.userId === conversationState.userId,
+      );
+
+      if (index === -1) {
+        return;
+      }
+
       const conversationId = conversationState.conversation?.id;
       state.conversationState.openConversations[index] = conversationState;
 
