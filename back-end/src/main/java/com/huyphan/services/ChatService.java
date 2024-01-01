@@ -236,6 +236,18 @@ public class ChatService implements MediatorComponent {
     }
 
     @Transactional
+    public void markAllAsRead() {
+        User currentUser = UserService.getUser();
+        List<ChatConversation> unreadConversations = chatConversationRepo.findAllUnreadConversation(
+                currentUser
+        );
+
+        unreadConversations.forEach(conversation -> {
+            markConversationAsRead(conversation.getId());
+        });
+    }
+
+    @Transactional
     public ChatConversation createConversationWithUser(Long userId) throws UserException {
         User currentUser = UserService.getUser();
         User otherUser = userService.getUserWithoutDerivedFieldsById(userId);

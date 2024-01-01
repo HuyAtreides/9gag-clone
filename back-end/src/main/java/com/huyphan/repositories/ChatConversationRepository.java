@@ -118,4 +118,13 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
     int countUnreadConversation(
             @Param("user") User currentUser
     );
+
+    @Query("""
+            select conversation
+            from ChatConversation conversation join conversation.readStatuses readStatus
+            where readStatus.readBy = :user and readStatus.latestMessagesRead = false
+            """)
+    List<ChatConversation> findAllUnreadConversation(
+            @Param("user") User currentUser
+    );
 }

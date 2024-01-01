@@ -19,6 +19,7 @@ import {
   getMessage,
   getSpecificConversation,
   getUnreadConversationCount,
+  markAllAsRead,
   markConversationAsRead,
   removeChatMessage,
   sendMessage,
@@ -45,6 +46,7 @@ import {
   setMessagePage,
   setPersistedMessage,
   setPreviewChatMessage,
+  setPreviewConversationError,
   setSendingMessageError,
   setSyncError,
   setUnreadCount,
@@ -199,6 +201,24 @@ const createNewMessageDataFromFormData = (formData: NewChatMessageFormData) => {
   return newChatMessageData;
 };
 
+export const readAllConversation = (): AppThunk => async (dispatch, getState) => {
+  try {
+    dispatch(resetUnreadCount());
+    const state = getState();
+    const user = state.user.profile!;
+    state.chat.conversationState.previewConversations.conversations.forEach((preview) =>
+      dispatch(markPreviewConversationAsRead({ conversationId: preview.id, user })),
+    );
+    await markAllAsRead();
+  } catch (err: unknown) {
+    dispatch(
+      setPreviewConversationError(
+        'Failed to mark all conversations as read. Please try again later',
+      ),
+    );
+  }
+};
+
 const createTransientChatMessage = (
   conversationId: number,
   newMessageData: NewChatMessageData,
@@ -331,6 +351,7 @@ export const getLatestConversationsState = (): AppThunk => async (dispatch, getS
   try {
     await Promise.all([dispatch(getLatestConversation()), dispatch(getLatestMessages())]);
   } catch (error: unknown) {
+    console.log(error);
     dispatch(setSyncError('Failed to get latest message. Please refresh page.'));
   }
 };

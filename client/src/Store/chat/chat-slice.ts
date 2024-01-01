@@ -382,18 +382,20 @@ const slice = createSlice({
 
     syncMessages(state, action: PayloadAction<ChatMessage[]>) {
       const latestMessages = action.payload;
-      latestMessages.forEach((latestMessage) => {
-        const conversationId = latestMessage.conversationId;
-        const index = state.messageState[conversationId].messages.findIndex(
-          (message) => message.id === latestMessage.id,
-        );
+      latestMessages
+        .filter((message) => state.messageState[message.conversationId] != null)
+        .forEach((latestMessage) => {
+          const conversationId = latestMessage.conversationId;
+          const index = state.messageState[conversationId].messages.findIndex(
+            (message) => message.id === latestMessage.id,
+          );
 
-        if (index === -1) {
-          return;
-        }
+          if (index === -1) {
+            return;
+          }
 
-        state.messageState[conversationId].messages[index] = latestMessage;
-      });
+          state.messageState[conversationId].messages[index] = latestMessage;
+        });
     },
 
     removeMessage(

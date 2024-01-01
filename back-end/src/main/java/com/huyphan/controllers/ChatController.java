@@ -159,6 +159,11 @@ public class ChatController {
         chatService.markConversationAsRead(conversationId);
     }
 
+    @PutMapping("mark-all-as-read")
+    public void markAllAsRead() {
+        chatService.markAllAsRead();
+    }
+
     @DeleteMapping("message/{messageId}")
     public void removeMessage(@PathVariable Long messageId) {
         chatService.removeMessage(messageId);

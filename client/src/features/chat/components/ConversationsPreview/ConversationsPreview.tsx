@@ -3,9 +3,23 @@ import { Button, Input, Typography } from 'antd';
 import useDebounceSearch from '../../../../custom-hooks/use-debounce-search';
 import styles from './ConversationPreview.module.css';
 import ConversationPreviewList from './ConversationsPreviewList';
+import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { readAllConversation } from '../../../../Store/chat/chat-dispatchers';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
+import { setPreviewConversationError } from '../../../../Store/chat/chat-slice';
 
 const ConversationsPreview = () => {
+  const dispatch = useAppDispatch();
   const [searchTerm, handleSearch] = useDebounceSearch();
+  const previewError = useAppSelector(
+    (state) => state.chat.conversationState.previewConversations.error,
+  );
+
+  useRenderErrorMessage(previewError, setPreviewConversationError);
+
+  const readAll = () => {
+    dispatch(readAllConversation());
+  };
 
   return (
     <>
@@ -21,7 +35,14 @@ const ConversationsPreview = () => {
         prefix={<SearchOutlined />}
       />
       <div className={styles.markAsReadButtonContainer}>
-        <Button type='text' className={styles.markAsReadButton}>
+        <Button
+          type='text'
+          className={styles.markAsReadButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            readAll();
+          }}
+        >
           Mark all as read
         </Button>
       </div>

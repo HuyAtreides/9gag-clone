@@ -55,6 +55,12 @@ export async function getConversationsWithNewestMessage(latestMessageId: number)
   );
 }
 
+export async function markAllAsRead() {
+  const axios = createAxiosInstance();
+
+  await axios.put<void>(`${Constant.ChatEndPoint}/mark-all-as-read`);
+}
+
 export async function getAllLatestChatMessage(latestMessageId: number) {
   const axios = createAxiosInstance();
   const response = await axios.get<ChatMessageDto[]>(

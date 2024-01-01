@@ -115,7 +115,7 @@ const ChatMessageList = ({ openConversationId }: Props) => {
       dataLength={sortedMessages.length}
       loader={<CenterSpinner />}
       inverse
-      scrollThreshold={0.9}
+      scrollThreshold={0.95}
       height={window.innerHeight * 0.45}
       className={styles.chatBoxContent}
     >
