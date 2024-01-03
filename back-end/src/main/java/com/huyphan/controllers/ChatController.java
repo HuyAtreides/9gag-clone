@@ -149,9 +149,14 @@ public class ChatController {
         ).toList();
     }
 
-    @PutMapping("pin-message/{messageId}")
+    @PutMapping("message/pin/{messageId}")
     public void pinMessage(@PathVariable Long messageId) {
         chatService.pinMessage(messageId);
+    }
+
+    @PutMapping("message/unpin/{messageId}")
+    public void unPinMessage(@PathVariable Long messageId) {
+        chatService.unPinMessage(messageId);
     }
 
     @PutMapping("mark-as-read/{conversationId}")
@@ -196,18 +201,29 @@ public class ChatController {
         return conversationMapper.toDto(chatConversation);
     }
 
-    @GetMapping("message/all-possible-updated/{oldestMessageId}/{latestMessageId}")
-    public List<ChatMessageDto> findAllPossiblyUpdatedChatMessages(
+    @GetMapping("message/in-range/{oldestMessageId}/{latestMessageId}")
+    public List<ChatMessageDto> findAllChatMessagesInRange(
             @PathVariable Long oldestMessageId,
             @PathVariable Long latestMessageId
     ) {
-        List<ChatMessage> allPossibleUpdatedMessages = chatService.findAllPossiblyUpdatedChatMessages(
+        List<ChatMessage> allPossibleUpdatedMessages = chatService.findAllChatMessagesInRange(
                 oldestMessageId,
                 latestMessageId
         );
 
         return allPossibleUpdatedMessages.stream().map(message -> chatMessageMapper.toDto(message))
                 .toList();
+    }
+
+    @GetMapping("message/pinned/{conversationId}")
+    public SliceDto<ChatMessageDto> findAllPinnedMessage(
+            @PathVariable Long conversationId,
+            PageOptionsDto pageOptionsDto
+    ) {
+        PageOptions pageOptions = pageOptionMapper.fromDto(pageOptionsDto);
+        Slice<ChatMessage> slice = chatService.findAllPinnedMessage(conversationId, pageOptions);
+
+        return messageSliceMapper.toDto(slice, chatMessageMapper);
     }
 
     @ExceptionHandler({AppException.class})

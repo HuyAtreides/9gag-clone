@@ -4,7 +4,6 @@ import com.huyphan.controllers.eventemitter.EventEmitter;
 import com.huyphan.mediators.IMediator;
 import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.ChatConversation;
-import com.huyphan.models.ChatConversation_;
 import com.huyphan.models.ChatMessage;
 import com.huyphan.models.ChatMessage_;
 import com.huyphan.models.ChatParticipant;
@@ -203,23 +202,50 @@ public class ChatService implements MediatorComponent {
     }
 
     @Transactional(readOnly = true)
-    public List<ChatMessage> findAllPossiblyUpdatedChatMessages(
+    public List<ChatMessage> findAllChatMessagesInRange(
             Long oldestMessageId,
             Long newestMessageId
     ) {
         User currentUser = UserService.getUser();
 
-        return chatMessageRepo.findAllPossiblyUpdatedChatMessages(
+        return chatMessageRepo.findAllChatMessagesInRange(
                 currentUser,
                 oldestMessageId,
                 newestMessageId
         );
     }
 
+    @Transactional(readOnly = true)
+    public Slice<ChatMessage> findAllPinnedMessage(
+            Long conversationId,
+            PageOptions pageOptions
+    ) {
+        ChatConversation chatConversation = findConversationById(conversationId);
+        User user = UserService.getUser();
+
+        if (!chatConversation.hasParticipant(user)) {
+            throw new IllegalArgumentException("User not in conversation");
+        }
+
+        return chatMessageRepo.findAllPinnedMessages(
+                chatConversation,
+                createChatMessagePageable(pageOptions)
+        );
+    }
+
     @Transactional
     public void pinMessage(Long messageId) {
         ChatMessage chatMessage = findMessageById(messageId);
-        chatMessage.pinMessage();
+        chatMessage.pinMessage(UserService.getUser());
+        User otherUser = getOtherParticipantInConversation(chatMessage.getConversation());
+
+        eventEmitter.emitEventTo(WebSocketEvent.PIN_MESSAGE, otherUser);
+    }
+
+    @Transactional
+    public void unPinMessage(Long messageId) {
+        ChatMessage chatMessage = findMessageById(messageId);
+        chatMessage.unPinMessage(UserService.getUser());
         User otherUser = getOtherParticipantInConversation(chatMessage.getConversation());
 
         eventEmitter.emitEventTo(WebSocketEvent.PIN_MESSAGE, otherUser);

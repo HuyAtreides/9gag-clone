@@ -47,6 +47,14 @@ interface PreviewChatConversationState {
   readonly pagination: Pagination;
 }
 
+interface PinnedMessagesState {
+  readonly isGettingPage: boolean;
+  readonly isLoading: boolean;
+  readonly messages: readonly ChatMessage[];
+  readonly error: string | null;
+  readonly pagination: Pagination;
+}
+
 interface ConversationState {
   readonly isGettingConversations: boolean;
   readonly isLoading: boolean;
@@ -59,6 +67,7 @@ interface ConversationState {
 
 interface ChatState {
   readonly messageState: Readonly<Record<number, MessageState>>;
+  readonly pinnedMessageState: PinnedMessagesState;
   readonly conversationError: Readonly<Record<number, string | null>>;
   readonly conversationState: ConversationState;
   readonly syncError: string | null;
@@ -70,6 +79,13 @@ const initialState: ChatState = {
   messageState: {},
   conversationError: {},
   syncError: null,
+  pinnedMessageState: {
+    error: null,
+    isLoading: false,
+    isGettingPage: false,
+    messages: [],
+    pagination: initialPagination,
+  },
   conversationState: {
     error: null,
     isGettingConversations: false,
@@ -125,6 +141,58 @@ const slice = createSlice({
   reducers: {
     resetState() {
       return initialState;
+    },
+
+    setPinnedMessageIsLoading(state, action: PayloadAction<boolean>) {
+      state.pinnedMessageState.isLoading = action.payload;
+    },
+
+    setPinnedMessageIsGettingPage(state, action: PayloadAction<boolean>) {
+      state.pinnedMessageState.isGettingPage = action.payload;
+    },
+
+    setPinnedMessagesPage(state, action: PayloadAction<Slice<ChatMessage>>) {
+      const { page, isLast, size, content } = action.payload;
+      state.pinnedMessageState.pagination = { page, isLast, size };
+      state.pinnedMessageState.messages = [...content];
+    },
+
+    addPinnedMessagesPage(state, action: PayloadAction<Slice<ChatMessage>>) {
+      const { page, isLast, size, content } = action.payload;
+      state.pinnedMessageState.pagination = { page, isLast, size };
+      state.pinnedMessageState.messages.push(...content);
+    },
+
+    setPinnedMessageError(state, action: PayloadAction<string | null>) {
+      state.pinnedMessageState.error = action.payload;
+    },
+
+    resetPinnedMessagesState(state) {
+      state.pinnedMessageState = {
+        error: null,
+        isLoading: false,
+        isGettingPage: false,
+        messages: [],
+        pagination: initialPagination,
+      };
+    },
+
+    setMessagePinned(
+      state,
+      action: PayloadAction<{
+        conversationId: number;
+        messageId: number;
+        pinned: boolean;
+      }>,
+    ) {
+      const { conversationId, messageId, pinned } = action.payload;
+      const message = state.messageState[conversationId].messages.find(
+        (message) => message.id === messageId,
+      );
+
+      if (message) {
+        message.pinned = pinned;
+      }
     },
 
     setSyncError(state, action: PayloadAction<string | null>) {
@@ -561,6 +629,13 @@ const slice = createSlice({
 
 export const chatReducer = slice.reducer;
 export const {
+  setPinnedMessageError,
+  setPinnedMessageIsGettingPage,
+  setPinnedMessageIsLoading,
+  setMessagePinned,
+  setPinnedMessagesPage,
+  resetPinnedMessagesState,
+  addPinnedMessagesPage,
   markOpenConversationAsRead,
   resetState,
   increaseUnreadCount,

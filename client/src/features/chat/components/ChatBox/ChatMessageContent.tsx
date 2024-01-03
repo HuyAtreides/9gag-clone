@@ -1,4 +1,4 @@
-import { PaperClipOutlined } from '@ant-design/icons';
+import { PaperClipOutlined, PushpinFilled } from '@ant-design/icons';
 import { Typography } from 'antd';
 import { useAppSelector } from '../../../../Store';
 import Media from '../../../../components/media/Media';
@@ -40,6 +40,12 @@ const ChatMessageContent = ({ message }: Props) => {
 
   return (
     <div className={messageContentClassName}>
+      {message.pinned ? (
+        <Typography.Text type='secondary' className={styles.pinMessage}>
+          Pinned <PushpinFilled className={styles.messagePinIcon} />
+        </Typography.Text>
+      ) : null}
+
       {content.text ? (
         <Typography.Text className={textMessageClassName}>{content.text}</Typography.Text>
       ) : null}
@@ -54,6 +60,7 @@ const ChatMessageContent = ({ message }: Props) => {
           gifHeight={Constant.DefaultChatMessageMediaHeight as number}
         />
       ) : null}
+
       {isFile ? (
         <a href={mediaUrl || undefined} download className={styles.fileNameContainer}>
           <PaperClipOutlined />

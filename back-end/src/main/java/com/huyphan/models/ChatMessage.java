@@ -107,9 +107,22 @@ public class ChatMessage {
                 .getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void pinMessage() {
+    public void pinMessage(ChatParticipant participant) {
+        if (!conversation.hasParticipant(participant)) {
+            throw new IllegalArgumentException("User not in this conversation");
+        }
+
         validateIsNotDeleted();
         this.pinned = true;
+    }
+
+    public void unPinMessage(ChatParticipant participant) {
+        if (!conversation.hasParticipant(participant)) {
+            throw new IllegalArgumentException("User not in this conversation");
+        }
+
+        validateIsNotDeleted();
+        this.pinned = false;
     }
 
     public void associateWithConversation(ChatConversation conversation) {

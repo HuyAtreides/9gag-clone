@@ -1,5 +1,5 @@
 import { CloseOutlined, MoreOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card, List } from 'antd';
+import { Avatar, Button, Card, List, Popover } from 'antd';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { addNewMessage, readConversation } from '../../../../Store/chat/chat-dispatchers';
@@ -10,6 +10,8 @@ import ChatBoxSkeleton from './ChatBoxSkeleton';
 import ChatBoxWithError from './ChatBoxWithError';
 import ChatMessageEditor from './ChatMessageEditor';
 import ChatMessageList from './ChatMessagesList';
+import { useState } from 'react';
+import PinnedChatMessageDialog from '../PinnedChatMessage/PinnedChatMessageDialog';
 
 interface Props {
   readonly chatParticipantId: number;
@@ -22,6 +24,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       (conversation) => conversation.userId === chatParticipantId,
     ),
   )!;
+  const [openPinnedChatMessages, setOpenPinnedChatMessages] = useState(false);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
 
@@ -52,7 +55,8 @@ const ChatBox = ({ chatParticipantId }: Props) => {
     dispatch(readConversation(conversationId));
   };
 
-  const chatParticipant = openConversation.conversation!.getOtherParticipant(currentUser);
+  const conversation = openConversation.conversation!;
+  const chatParticipant = conversation.getOtherParticipant(currentUser);
 
   return (
     <Card
@@ -70,7 +74,19 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       }
       className={styles.chatBox}
       extra={[
-        <Button icon={<MoreOutlined />} type='text' />,
+        <Popover
+          trigger='click'
+          placement='left'
+          content={
+            <div className='more-action-box-container'>
+              <Button block type='text' onClick={() => setOpenPinnedChatMessages(true)}>
+                View pinned messages
+              </Button>
+            </div>
+          }
+        >
+          <Button icon={<MoreOutlined />} type='text' />
+        </Popover>,
         <Button icon={<CloseOutlined />} type='text' onClick={close} />,
       ]}
       actions={[
@@ -81,7 +97,14 @@ const ChatBox = ({ chatParticipantId }: Props) => {
         />,
       ]}
     >
-      <ChatMessageList openConversationId={openConversation.conversation!.id} />
+      <ChatMessageList openConversationId={conversation.id} />
+      {openPinnedChatMessages ? (
+        <PinnedChatMessageDialog
+          conversationId={conversation.id}
+          visible={openPinnedChatMessages}
+          close={() => setOpenPinnedChatMessages(false)}
+        />
+      ) : null}
     </Card>
   );
 };

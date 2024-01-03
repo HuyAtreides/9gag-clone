@@ -3,10 +3,7 @@ package com.huyphan.repositories;
 import com.huyphan.models.ChatConversation;
 import com.huyphan.models.ChatMessage;
 import com.huyphan.models.User;
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -34,11 +31,22 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where :user in elements(chatMessage.conversation.participants)
             and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
+            order by chatMessage.sentDate DESC
             """)
-    List<ChatMessage> findAllPossiblyUpdatedChatMessages(
+    List<ChatMessage> findAllChatMessagesInRange(
             @Param("user") User user,
             @Param("oldestMessageId") Long oldestMessageId,
             @Param("latestMessageId") Long latestMessageId
+    );
+
+    @Query("""
+            select chatMessage
+            from ChatMessage chatMessage
+            where chatMessage.conversation = :conversation and chatMessage.pinned = true
+            """)
+    Slice<ChatMessage> findAllPinnedMessages(
+            @Param("conversation")ChatConversation conversation,
+            Pageable pageable
     );
 
     @Query("""

@@ -66,7 +66,7 @@
 .fileName {
   display: inline-block;
   word-wrap: break-word;
-  max-width: 200px;
+  max-width: 205px;
   margin-top: -8px;
   margin-left: 5px;
 }
@@ -101,6 +101,7 @@
 
 .message {
   background-color: var(--primary-color);
+  /* border: solid 2px wheat; */
   border-radius: 15px;
   padding: 5px;
   display: inline-block;
@@ -147,6 +148,14 @@
   flex-direction: column;
   align-items: flex-end;
   margin-top: 5px;
+}
+
+.messagePinIcon {
+  margin-left: 3px;
+}
+
+.pinMessage {
+  font-size: 1rem;
 }
 
 .otherMessageContent {

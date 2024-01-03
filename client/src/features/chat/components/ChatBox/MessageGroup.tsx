@@ -2,10 +2,11 @@ import { Avatar, Button, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
-  addNewMessage,
   edit,
+  pin,
   remove,
   resendMessage,
+  unPin,
 } from '../../../../Store/chat/chat-dispatchers';
 import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
 import useOpenConversation from '../../../../custom-hooks/use-open-conversation';
@@ -34,6 +35,24 @@ interface OtherChatMessageComponentProps extends ChatMessageComponentProps {
 interface CurrentMessageGroupProps {
   readonly messages: ChatMessage[];
 }
+
+const PinButton = ({ message }: { message: ChatMessage }) => {
+  const dispatch = useAppDispatch();
+
+  const handlePin = () => {
+    if (message.pinned) {
+      dispatch(unPin(message.conversationId, message.id));
+    } else {
+      dispatch(pin(message.conversationId, message.id));
+    }
+  };
+
+  return (
+    <Button type='text' block onClick={handlePin}>
+      {message.pinned ? 'Unpin' : 'Pin'}
+    </Button>
+  );
+};
 
 const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
   const dispatch = useAppDispatch();
@@ -72,9 +91,7 @@ const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
           <Button type='text' block onClick={() => setShowMessageEditor(true)}>
             Edit
           </Button>
-          <Button type='text' block>
-            Pin
-          </Button>
+          <PinButton message={message} />
         </>
       }
       message={message}
@@ -102,9 +119,7 @@ const OtherUserMessage = ({
             <Button type='text' block>
               Reply
             </Button>
-            <Button type='text' block>
-              Pin
-            </Button>
+            <PinButton message={message} />
           </>
         }
         message={message}

@@ -13,16 +13,19 @@ import {
   createConversationWithUser,
   editMessage,
   getAllLatestChatMessage,
-  getAllPossiblyUpdatedMessages,
+  getAllMessagesInRange,
   getConversationMessages,
   getConversationsWithNewestMessage,
   getMessage,
+  getPinnedMessages,
   getSpecificConversation,
   getUnreadConversationCount,
   markAllAsRead,
   markConversationAsRead,
+  pinMessage,
   removeChatMessage,
   sendMessage,
+  unPinMessage,
 } from '../../services/chat-service';
 import { extractErrorMessage, handleError } from '../../utils/error-handler';
 import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
@@ -32,6 +35,7 @@ import {
   addLatestPreviewConversations,
   addMessage,
   addMessagePage,
+  addPinnedMessagesPage,
   addUnreadCount,
   markOpenConversationAsRead,
   markPreviewConversationAsRead,
@@ -44,7 +48,12 @@ import {
   setMessageIsGettingPage,
   setMessageIsLoading,
   setMessagePage,
+  setMessagePinned,
   setPersistedMessage,
+  setPinnedMessageError,
+  setPinnedMessageIsGettingPage,
+  setPinnedMessageIsLoading,
+  setPinnedMessagesPage,
   setPreviewChatMessage,
   setPreviewConversationError,
   setSendingMessageError,
@@ -158,6 +167,34 @@ export const getMessagePage =
     }
   };
 
+export const fetchPinnedMessages =
+  (pageFetchingRequest: ConversationMessagesFetchingRequest): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPinnedMessageIsLoading(true));
+      const messagePage = await getPinnedMessages(pageFetchingRequest);
+      dispatch(setPinnedMessageIsLoading(false));
+      dispatch(setPinnedMessagesPage(messagePage));
+    } catch (error: unknown) {
+      dispatch(setPinnedMessageIsLoading(false));
+      handleError(dispatch, error, setPinnedMessageError);
+    }
+  };
+
+export const appendPinnedMessages =
+  (pageFetchingRequest: ConversationMessagesFetchingRequest): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setPinnedMessageIsGettingPage(true));
+      const messagePage = await getPinnedMessages(pageFetchingRequest);
+      dispatch(setPinnedMessageIsGettingPage(false));
+      dispatch(addPinnedMessagesPage(messagePage));
+    } catch (error: unknown) {
+      dispatch(setPinnedMessageIsGettingPage(false));
+      handleError(dispatch, error, setPinnedMessageError);
+    }
+  };
+
 export const addNewMessagePage =
   (pageFetchingRequest: ConversationMessagesFetchingRequest): AppThunk =>
   async (dispatch, getState) => {
@@ -253,6 +290,20 @@ export const edit =
       dispatch(updateMessage({ conversationId, messageId, content }));
       await editMessage(messageId, content);
     } catch (error: unknown) {}
+  };
+
+export const pin =
+  (conversationId: number, messageId: number): AppThunk =>
+  async (dispatch) => {
+    dispatch(setMessagePinned({ conversationId, messageId, pinned: true }));
+    await pinMessage(messageId);
+  };
+
+export const unPin =
+  (conversationId: number, messageId: number): AppThunk =>
+  async (dispatch) => {
+    dispatch(setMessagePinned({ conversationId, messageId, pinned: false }));
+    await unPinMessage(messageId);
   };
 
 const send =
@@ -351,7 +402,6 @@ export const getLatestConversationsState = (): AppThunk => async (dispatch, getS
   try {
     await Promise.all([dispatch(getLatestConversation()), dispatch(getLatestMessages())]);
   } catch (error: unknown) {
-    console.log(error);
     dispatch(setSyncError('Failed to get latest message. Please refresh page.'));
   }
 };
@@ -466,7 +516,7 @@ export const getPossiblyUpdatedMessages = (): AppThunk => async (dispatch, getSt
       return;
     }
 
-    const possiblyUpdatedMessages = await getAllPossiblyUpdatedMessages(
+    const possiblyUpdatedMessages = await getAllMessagesInRange(
       oldestMessageId,
       latestMessageId,
     );

@@ -1,0 +1,14 @@
+.dialog {
+  width: max-content;
+  min-width: 50vw;
+}
+
+.message {
+  width: fit-content;
+}
+
+@media screen and (max-width: 768px) {
+  .dialog {
+    min-width: 90vw;
+  }
+}

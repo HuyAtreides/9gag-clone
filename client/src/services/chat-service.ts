@@ -122,6 +122,16 @@ export async function editMessage(messageId: number, newContent: MessageContent)
   );
 }
 
+export async function pinMessage(messageId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.ChatEndPoint}/message/pin/${messageId}`);
+}
+
+export async function unPinMessage(messageId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.ChatEndPoint}/message/unpin/${messageId}`);
+}
+
 export async function markConversationAsRead(conversationId: number) {
   const axios = createAxiosInstance();
   await axios.put<void>(`${Constant.ChatEndPoint}/mark-as-read/${conversationId}`);
@@ -166,14 +176,31 @@ export async function removeChatMessage(messageId: number) {
   await axios.delete<void>(`${Constant.ChatEndPoint}/message/${messageId}`);
 }
 
-export async function getAllPossiblyUpdatedMessages(
+export async function getAllMessagesInRange(
   oldestMessageId: number,
   latestMessageId: number,
 ) {
   const axios = createAxiosInstance();
   const response = await axios.get<ChatMessageDto[]>(
-    `${Constant.ChatEndPoint}/message/all-possible-updated/${oldestMessageId}/${latestMessageId}`,
+    `${Constant.ChatEndPoint}/message/in-range/${oldestMessageId}/${latestMessageId}`,
   );
 
   return response.data.map((message) => ChatMessageMapper.fromDto(message));
+}
+
+export async function getPinnedMessages(
+  pageRequest: ConversationMessagesFetchingRequest,
+) {
+  const axios = createAxiosInstance();
+  const conversationId = pageRequest.conversationId;
+  const pageOptionsDto = PageOptionsMapper.toDto(pageRequest.pageOptions);
+  const axiosRequestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const response = await axios.get<SliceDto<ChatMessageDto>>(
+    `${Constant.ChatEndPoint}/message/pinned/${conversationId}`,
+    axiosRequestConfig,
+  );
+
+  return SliceMapper.fromDto(response.data, ChatMessageMapper.fromDto);
 }
