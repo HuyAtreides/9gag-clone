@@ -228,20 +228,17 @@ const CurrentUserMessageGroup = ({ messages }: CurrentMessageGroupProps) => {
     ) : null;
 
     return (
-      <VirtualComponent
-        scrollAreaId={Constant.ChatMessageScrollAreaId as string}
-        key={message.id}
-      >
-        <CurrentUserMessage message={message} />
-        {readStatus}
-        {sendingStatus}
-        {hasSendingError ? <ErrorWhileSending message={message} /> : null}
-        {/* <>
-          <br />
-          <ChatMessageEditor handleSubmit={() => {}} message={message} />
-          <br />
-        </> */}
-      </VirtualComponent>
+      <div id={`${Constant.ChatMessageElementIdPrefix}${message.id}`}>
+        <VirtualComponent
+          scrollAreaId={Constant.ChatMessageScrollAreaId as string}
+          key={message.id}
+        >
+          <CurrentUserMessage message={message} />
+          {readStatus}
+          {sendingStatus}
+          {hasSendingError ? <ErrorWhileSending message={message} /> : null}
+        </VirtualComponent>
+      </div>
     );
   });
 
@@ -252,15 +249,17 @@ const OtherUserMessageGroup = ({ messages }: CurrentMessageGroupProps) => {
   return (
     <div className={styles.otherUserMessagesGroup}>
       {messages.map((message, index) => (
-        <VirtualComponent
-          scrollAreaId={Constant.ChatMessageScrollAreaId as string}
-          key={message.id}
-        >
-          <OtherUserMessage
-            message={message}
-            isFirstMessage={index === messages.length - 1}
-          />
-        </VirtualComponent>
+        <div id={`${Constant.ChatMessageElementIdPrefix}${message.id}`}>
+          <VirtualComponent
+            scrollAreaId={Constant.ChatMessageScrollAreaId as string}
+            key={message.id}
+          >
+            <OtherUserMessage
+              message={message}
+              isFirstMessage={index === messages.length - 1}
+            />
+          </VirtualComponent>
+        </div>
       ))}
     </div>
   );

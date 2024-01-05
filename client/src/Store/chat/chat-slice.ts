@@ -436,6 +436,23 @@ const slice = createSlice({
       );
     },
 
+    addMessages(
+      state,
+      action: PayloadAction<{ messages: ChatMessage[]; conversationId: number }>,
+    ) {
+      const { messages, conversationId } = action.payload;
+      state.messageState[conversationId].messages = merge2SortedList(
+        state.messageState[conversationId].messages,
+        messages,
+        chatMessageComparator,
+      );
+    },
+
+    markMessagePageAsLast(state, action: PayloadAction<number>) {
+      const conversationId = action.payload;
+      state.messageState[conversationId].pagination.isLast = true;
+    },
+
     addLatestMessages(state, action: PayloadAction<ChatMessage[]>) {
       const messages = action.payload;
       messages.forEach((message) => {
@@ -670,10 +687,12 @@ export const {
   updateConversation,
   addIsSendingId,
   resetIsSendingIds,
+  markMessagePageAsLast,
   addLatestMessages,
   addLatestPreviewConversations,
   setPersistedMessage,
   setPreviewChatMessage,
   removeMessage,
   syncMessages,
+  addMessages,
 } = slice.actions;

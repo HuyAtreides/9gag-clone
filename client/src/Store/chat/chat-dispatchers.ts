@@ -15,6 +15,8 @@ import {
   getAllLatestChatMessage,
   getAllMessagesInRange,
   getConversationMessages,
+  getConversationMessagesInRange,
+  getConversationOldestMessageId,
   getConversationsWithNewestMessage,
   getMessage,
   getPinnedMessages,
@@ -35,8 +37,10 @@ import {
   addLatestPreviewConversations,
   addMessage,
   addMessagePage,
+  addMessages,
   addPinnedMessagesPage,
   addUnreadCount,
+  markMessagePageAsLast,
   markOpenConversationAsRead,
   markPreviewConversationAsRead,
   openConversation,
@@ -572,4 +576,35 @@ export const remove =
       dispatch(removeMessage({ conversationId, messageId }));
       await removeChatMessage(messageId);
     } catch (error: unknown) {}
+  };
+
+export const fetchAllMessageUpToId =
+  (id: number, conversationId: number): AppThunk =>
+  async (dispatch, getState) => {
+    const state = getState().chat;
+    let minId = Number.MAX_VALUE;
+
+    state.messageState[conversationId].messages.forEach((message) => {
+      minId = Math.min(minId, message.id);
+    });
+
+    if (id >= minId) {
+      return;
+    }
+    try {
+      dispatch(setMessageIsLoading({ conversationId, isLoading: true }));
+      const [messages, oldestId] = await Promise.all([
+        getConversationMessagesInRange(conversationId, id, minId),
+        getConversationOldestMessageId(conversationId),
+      ]);
+
+      if (messages.some((message) => message.id === oldestId)) {
+        dispatch(markMessagePageAsLast(conversationId));
+      }
+
+      dispatch(setMessageIsLoading({ conversationId, isLoading: false }));
+      dispatch(addMessages({ conversationId, messages }));
+    } catch (error: unknown) {
+      dispatch(setMessageIsLoading({ conversationId, isLoading: false }));
+    }
   };

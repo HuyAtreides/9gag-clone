@@ -201,7 +201,7 @@ public class ChatController {
         return conversationMapper.toDto(chatConversation);
     }
 
-    @GetMapping("message/in-range/{oldestMessageId}/{latestMessageId}")
+    @GetMapping("all-message/in-range/{oldestMessageId}/{latestMessageId}")
     public List<ChatMessageDto> findAllChatMessagesInRange(
             @PathVariable Long oldestMessageId,
             @PathVariable Long latestMessageId
@@ -213,6 +213,27 @@ public class ChatController {
 
         return allPossibleUpdatedMessages.stream().map(message -> chatMessageMapper.toDto(message))
                 .toList();
+    }
+
+    @GetMapping("message/{conversationId}/in-range/{oldestMessageId}/{latestMessageId}")
+    public List<ChatMessageDto> findAllChatMessagesInRange(
+            @PathVariable Long conversationId,
+            @PathVariable Long oldestMessageId,
+            @PathVariable Long latestMessageId
+    ) {
+        List<ChatMessage> allPossibleUpdatedMessages = chatService.findConversationChatMessagesInRange(
+                conversationId,
+                oldestMessageId,
+                latestMessageId
+        );
+
+        return allPossibleUpdatedMessages.stream().map(message -> chatMessageMapper.toDto(message))
+                .toList();
+    }
+
+    @GetMapping("conversation/{conversationId}/oldest-message-id")
+    public int getConversationOldestId(@PathVariable Long conversationId) {
+        return chatService.getConversationOldestMessageId(conversationId);
     }
 
     @GetMapping("message/pinned/{conversationId}")

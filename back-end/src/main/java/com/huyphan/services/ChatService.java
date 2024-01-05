@@ -216,6 +216,40 @@ public class ChatService implements MediatorComponent {
     }
 
     @Transactional(readOnly = true)
+    public List<ChatMessage> findConversationChatMessagesInRange(
+            Long conversationId,
+            Long oldestMessageId,
+            Long newestMessageId
+    ) {
+        ChatConversation chatConversation = findConversationById(conversationId);
+        User currentUser = UserService.getUser();
+
+        if (!chatConversation.hasParticipant(currentUser)) {
+            throw new IllegalArgumentException("User not in this conversation");
+        }
+
+        return chatMessageRepo.findConversationChatMessagesInRange(
+                chatConversation,
+                oldestMessageId,
+                newestMessageId
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public int getConversationOldestMessageId(Long conversationId) {
+        ChatConversation chatConversation = findConversationById(conversationId);
+        User currentUser = UserService.getUser();
+
+        if (!chatConversation.hasParticipant(currentUser)) {
+            throw new IllegalArgumentException("User not in this conversation");
+        }
+
+        Integer id = chatMessageRepo.getConversationOldestMessageId(chatConversation);
+
+        return id == null ? -1 : id;
+    }
+
+    @Transactional(readOnly = true)
     public Slice<ChatMessage> findAllPinnedMessage(
             Long conversationId,
             PageOptions pageOptions

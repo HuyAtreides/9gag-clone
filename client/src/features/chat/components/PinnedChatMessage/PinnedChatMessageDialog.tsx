@@ -1,32 +1,39 @@
 import { MoreOutlined } from '@ant-design/icons';
-import { Avatar, Button, List, Modal, Popover, Skeleton } from 'antd';
+import { Avatar, Button, List, Modal, Skeleton } from 'antd';
+import { useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
-import ChatMessageContent from '../ChatBox/ChatMessageContent';
-import styles from './PinnedChatMessageDialog.module.css';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
-import {
-  resetPinnedMessagesState,
-  setPinnedMessageError,
-} from '../../../../Store/chat/chat-slice';
-import UserSummaryListSkeleton from '../../../../components/user-summary-list-skeleton/UserSummaryListSkeleton';
-import { useEffect } from 'react';
 import {
   appendPinnedMessages,
   fetchPinnedMessages,
   unPin,
 } from '../../../../Store/chat/chat-dispatchers';
+import {
+  resetPinnedMessagesState,
+  setPinnedMessageError,
+} from '../../../../Store/chat/chat-slice';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
+import NameWithCountryFlag from '../../../../components/name-with-country-flag/NameWithCountryFlag';
+import UserSummaryListSkeleton from '../../../../components/user-summary-list-skeleton/UserSummaryListSkeleton';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import { Constant } from '../../../../models/enums/constant';
+import ChatMessageContent from '../ChatBox/ChatMessageContent';
+import styles from './PinnedChatMessageDialog.module.css';
 
 interface Props {
   readonly visible: boolean;
   readonly conversationId: number;
   readonly close: () => void;
+  readonly viewPinnedMessage: (id: number) => void;
 }
 
-const PinnedChatMessageDialog = ({ visible, conversationId, close }: Props) => {
+const PinnedChatMessageDialog = ({
+  visible,
+  conversationId,
+  close,
+  viewPinnedMessage,
+}: Props) => {
   const dispatch = useAppDispatch();
   const { messages, pagination, isGettingPage, isLoading, error } = useAppSelector(
     (state) => state.chat.pinnedMessageState,
@@ -40,19 +47,22 @@ const PinnedChatMessageDialog = ({ visible, conversationId, close }: Props) => {
   };
 
   useEffect(() => {
-    dispatch(
-      fetchPinnedMessages({
-        conversationId,
-        pageOptions: {
-          page: 0,
-          size: Constant.PageSize as number,
-        },
-      }),
-    );
+    if (visible) {
+      dispatch(
+        fetchPinnedMessages({
+          conversationId,
+          pageOptions: {
+            page: 0,
+            size: Constant.PageSize as number,
+          },
+        }),
+      );
+    }
+
     return () => {
       dispatch(resetPinnedMessagesState());
     };
-  }, [dispatch, conversationId]);
+  }, [dispatch, conversationId, visible]);
 
   const getNextPage = () => {
     if (isGettingPage) {
@@ -93,12 +103,18 @@ const PinnedChatMessageDialog = ({ visible, conversationId, close }: Props) => {
             renderItem={(message, _) => (
               <List.Item
                 actions={[
-                  <Popover
+                  <AutoClosePopover
                     placement='left'
-                    trigger='click'
                     content={
                       <div className='more-action-box-container'>
-                        <Button block type='text'>
+                        <Button
+                          block
+                          type='text'
+                          onClick={() => {
+                            viewPinnedMessage(message.id);
+                            close();
+                          }}
+                        >
                           View in chat
                         </Button>
                         <Button block type='text' onClick={() => handleUnpin(message.id)}>
@@ -108,7 +124,7 @@ const PinnedChatMessageDialog = ({ visible, conversationId, close }: Props) => {
                     }
                   >
                     <Button type='text' icon={<MoreOutlined />} />
-                  </Popover>,
+                  </AutoClosePopover>,
                 ]}
               >
                 <List.Item.Meta

@@ -21,6 +21,7 @@ export enum Constant {
   DefaultChatMessageMediaWidth = 230,
   DefaultChatMessageMediaHeight = 230,
   SubmitKey = 'Enter',
+  ChatMessageElementIdPrefix = 'chat-message-',
 }
 
 export enum ScreenBreakPoint {

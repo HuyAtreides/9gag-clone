@@ -182,10 +182,32 @@ export async function getAllMessagesInRange(
 ) {
   const axios = createAxiosInstance();
   const response = await axios.get<ChatMessageDto[]>(
-    `${Constant.ChatEndPoint}/message/in-range/${oldestMessageId}/${latestMessageId}`,
+    `${Constant.ChatEndPoint}/all-message/in-range/${oldestMessageId}/${latestMessageId}`,
   );
 
   return response.data.map((message) => ChatMessageMapper.fromDto(message));
+}
+
+export async function getConversationMessagesInRange(
+  conversationId: number,
+  oldestMessageId: number,
+  latestMessageId: number,
+) {
+  const axios = createAxiosInstance();
+  const response = await axios.get<ChatMessageDto[]>(
+    `${Constant.ChatEndPoint}/message/${conversationId}/in-range/${oldestMessageId}/${latestMessageId}`,
+  );
+
+  return response.data.map((message) => ChatMessageMapper.fromDto(message));
+}
+
+export async function getConversationOldestMessageId(conversationId: number) {
+  const axios = createAxiosInstance();
+  const response = await axios.get<number>(
+    `${Constant.ChatEndPoint}/conversation/${conversationId}/oldest-message-id`,
+  );
+
+  return response.data;
 }
 
 export async function getPinnedMessages(

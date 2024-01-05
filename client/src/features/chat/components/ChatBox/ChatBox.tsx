@@ -1,17 +1,23 @@
 import { CloseOutlined, MoreOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card, List, Popover } from 'antd';
+import { Avatar, Button, Card, List } from 'antd';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
-import { addNewMessage, readConversation } from '../../../../Store/chat/chat-dispatchers';
+import {
+  addNewMessage,
+  fetchAllMessageUpToId,
+  readConversation,
+} from '../../../../Store/chat/chat-dispatchers';
 import { closeConversation } from '../../../../Store/chat/chat-slice';
+import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
+import { Constant } from '../../../../models/enums/constant';
 import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
+import PinnedChatMessageDialog from '../PinnedChatMessage/PinnedChatMessageDialog';
 import styles from './ChatBox.module.css';
 import ChatBoxSkeleton from './ChatBoxSkeleton';
 import ChatBoxWithError from './ChatBoxWithError';
 import ChatMessageEditor from './ChatMessageEditor';
 import ChatMessageList from './ChatMessagesList';
-import { useState } from 'react';
-import PinnedChatMessageDialog from '../PinnedChatMessage/PinnedChatMessageDialog';
 
 interface Props {
   readonly chatParticipantId: number;
@@ -27,6 +33,17 @@ const ChatBox = ({ chatParticipantId }: Props) => {
   const [openPinnedChatMessages, setOpenPinnedChatMessages] = useState(false);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
+  const [focusMessageId, setFocusMessageId] = useState<null | number>(null);
+
+  useEffect(() => {
+    if (focusMessageId != null && openPinnedChatMessages === false) {
+      document
+        .getElementById(`${Constant.ChatMessageElementIdPrefix}${focusMessageId}`)
+        ?.scrollIntoView({ behavior: 'smooth' });
+
+      setFocusMessageId(null);
+    }
+  }, [focusMessageId, openPinnedChatMessages]);
 
   if (openConversation.isLoading) {
     return <ChatBoxSkeleton />;
@@ -43,6 +60,12 @@ const ChatBox = ({ chatParticipantId }: Props) => {
 
   const conversationId = openConversation.conversation!.id;
   const isMessagesLoading = messageState[conversationId].isLoading;
+
+  const focusMessage = async (id: number) => {
+    await dispatch(fetchAllMessageUpToId(id, conversationId));
+    setFocusMessageId(id);
+    setOpenPinnedChatMessages(false);
+  };
   const close = () => {
     dispatch(closeConversation(chatParticipantId));
   };
@@ -74,8 +97,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       }
       className={styles.chatBox}
       extra={[
-        <Popover
-          trigger='click'
+        <AutoClosePopover
           placement='left'
           content={
             <div className='more-action-box-container'>
@@ -86,7 +108,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
           }
         >
           <Button icon={<MoreOutlined />} type='text' />
-        </Popover>,
+        </AutoClosePopover>,
         <Button icon={<CloseOutlined />} type='text' onClick={close} />,
       ]}
       actions={[
@@ -98,13 +120,12 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       ]}
     >
       <ChatMessageList openConversationId={conversation.id} />
-      {openPinnedChatMessages ? (
-        <PinnedChatMessageDialog
-          conversationId={conversation.id}
-          visible={openPinnedChatMessages}
-          close={() => setOpenPinnedChatMessages(false)}
-        />
-      ) : null}
+      <PinnedChatMessageDialog
+        conversationId={conversation.id}
+        visible={openPinnedChatMessages}
+        close={() => setOpenPinnedChatMessages(false)}
+        viewPinnedMessage={focusMessage}
+      />
     </Card>
   );
 };

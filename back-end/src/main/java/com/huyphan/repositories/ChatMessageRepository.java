@@ -42,10 +42,32 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
     @Query("""
             select chatMessage
             from ChatMessage chatMessage
+            where chatMessage.conversation = :conversation
+            and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
+            order by chatMessage.sentDate DESC
+            """)
+    List<ChatMessage> findConversationChatMessagesInRange(
+            @Param("conversation") ChatConversation conversation,
+            @Param("oldestMessageId") Long oldestMessageId,
+            @Param("latestMessageId") Long latestMessageId
+    );
+
+    @Query("""
+            select min(chatMessage.id)
+            from ChatMessage chatMessage
+            where chatMessage.conversation = :conversation
+            """)
+    Integer getConversationOldestMessageId(
+            @Param("conversation") ChatConversation conversation
+    );
+
+    @Query("""
+            select chatMessage
+            from ChatMessage chatMessage
             where chatMessage.conversation = :conversation and chatMessage.pinned = true
             """)
     Slice<ChatMessage> findAllPinnedMessages(
-            @Param("conversation")ChatConversation conversation,
+            @Param("conversation") ChatConversation conversation,
             Pageable pageable
     );
 
