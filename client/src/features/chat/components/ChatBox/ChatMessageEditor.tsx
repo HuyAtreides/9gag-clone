@@ -1,10 +1,11 @@
 import {
   CameraOutlined,
   CheckOutlined,
+  CloseCircleFilled,
   CloseOutlined,
   SendOutlined,
 } from '@ant-design/icons';
-import { Button, Col, Form, Input, Row, Upload } from 'antd';
+import { Button, Col, Form, Input, Row, Typography, Upload } from 'antd';
 import FormItem from 'antd/es/form/FormItem';
 import { useForm } from 'antd/lib/form/Form';
 import { useEffect, useState } from 'react';
@@ -16,6 +17,9 @@ import MediaLocation from '../../../../models/media-location';
 import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
 import { isFileType } from '../../../../utils/mime-type';
 import styles from './ChatBox.module.css';
+import ReplyToMessagePreview from '../ReplyToMessage/ReplyToMessagePreview';
+import { useAppDispatch } from '../../../../Store';
+import { setReplyingToMessage } from '../../../../Store/chat/chat-slice';
 
 const isOnlyEnterKeyPressed = (event: React.KeyboardEvent) => {
   return event.key === Constant.SubmitKey && !event.shiftKey;
@@ -36,6 +40,7 @@ interface Props {
   readonly editMessage?: boolean;
   readonly disabled?: boolean;
   readonly message?: ChatMessage;
+  readonly replyingToMessage?: ChatMessage;
 }
 
 const ChatMessageEditor = ({
@@ -45,7 +50,9 @@ const ChatMessageEditor = ({
   handleFocus = () => {},
   handleCancel = () => {},
   disabled = false,
+  replyingToMessage,
 }: Props) => {
+  const dispatch = useAppDispatch();
   const content = message?.content;
   const hasFile = content?.mediaUrl != null && content?.mediaType != null;
   const [uploadFile, handleFileChange, setUploadFile] = useUploadFile(
@@ -77,6 +84,18 @@ const ChatMessageEditor = ({
   const handleFormFocus = () => {
     setFocus(true);
     handleFocus();
+  };
+
+  const closeReplying = () => {
+    if (!replyingToMessage) {
+      return;
+    }
+    dispatch(
+      setReplyingToMessage({
+        conversationId: replyingToMessage.conversationId,
+        message: null,
+      }),
+    );
   };
 
   const handleFormSubmit = (formData: NewChatMessageFormData) => {
@@ -184,8 +203,24 @@ const ChatMessageEditor = ({
       initialValues={{
         text: message?.content.text,
       }}
+      className={styles.editor}
       disabled={disabled}
     >
+      {replyingToMessage ? (
+        <div className={styles.replyContainer} role='button'>
+          <Typography.Text strong>
+            Replying To {replyingToMessage.owner.displayName}
+          </Typography.Text>
+          <ReplyToMessagePreview message={replyingToMessage} />
+          <Button
+            type='text'
+            icon={<CloseCircleFilled />}
+            className={styles.closeReplyButton}
+            onClick={closeReplying}
+          />
+        </div>
+      ) : null}
+
       <Row align='middle' justify='space-between'>
         <Col span={uploadFile ? (isFile ? 7 : 5) : 3}>
           <Form.Item name='file' className={styles.chatInputFormItem}>

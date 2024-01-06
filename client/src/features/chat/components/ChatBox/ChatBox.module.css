@@ -185,3 +185,22 @@
   margin-top: 15px;
   margin-bottom: 15px;
 }
+
+.replyToMessageContainer {
+  max-width: 200px;
+  min-width: 20px;
+}
+
+.replyContainer {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin: 0 !important;
+  text-align: left;
+  position: relative;
+}
+
+.closeReplyButton {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}

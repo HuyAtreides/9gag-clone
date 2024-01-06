@@ -19,6 +19,8 @@ public class ChatMessageDto {
 
     private boolean pinned;
 
+    private ReplyToMessageDto replyToMessage;
+
     private boolean edited;
 
     private boolean deleted;

@@ -7,6 +7,7 @@ import {
   addNewMessage,
   fetchAllMessageUpToId,
   readConversation,
+  reply,
 } from '../../../../Store/chat/chat-dispatchers';
 import { closeConversation } from '../../../../Store/chat/chat-slice';
 import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
@@ -59,6 +60,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
   }
 
   const conversationId = openConversation.conversation!.id;
+  const replyingToMessage = messageState[conversationId].replyingToMessage;
   const isMessagesLoading = messageState[conversationId].isLoading;
 
   const focusMessage = async (id: number) => {
@@ -71,6 +73,11 @@ const ChatBox = ({ chatParticipantId }: Props) => {
   };
 
   const handleSubmit = (values: NewChatMessageFormData) => {
+    if (replyingToMessage) {
+      dispatch(reply(replyingToMessage, values));
+      return;
+    }
+
     dispatch(addNewMessage(conversationId, values));
   };
 
@@ -116,6 +123,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
           handleSubmit={handleSubmit}
           handleFocus={markAsRead}
           disabled={isMessagesLoading}
+          replyingToMessage={replyingToMessage || undefined}
         />,
       ]}
     >

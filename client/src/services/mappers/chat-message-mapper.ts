@@ -11,6 +11,12 @@ export namespace ChatMessageMapper {
       sentDate: new Date(data.sentDate),
       lastEditDate: new Date(data.lastEditDate),
       owner: UserMapper.fromDto(data.owner),
+      replyToMessage: data.replyToMessage
+        ? {
+            ...data.replyToMessage,
+            content: MessageContentMapper.fromDto(data.replyToMessage.content),
+          }
+        : data.replyToMessage,
     };
   }
 }

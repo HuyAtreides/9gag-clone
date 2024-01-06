@@ -73,6 +73,16 @@ public class ChatController {
         return chatMessageMapper.toDto(chatMessage);
     }
 
+    @PostMapping("message/reply-to/{replyToId}")
+    public ChatMessageDto reply(@PathVariable Long replyToId,
+            @RequestBody NewChatMessageDataDto newMessageDataDto) {
+        NewChatMessageData newMessageData = newChatMessageDataMapper.fromDto(
+                newMessageDataDto);
+        ChatMessage chatMessage = chatService.replyTo(replyToId, newMessageData);
+
+        return chatMessageMapper.toDto(chatMessage);
+    }
+
     @GetMapping("message/{messageId}")
     public ChatMessageDto getMessage(@PathVariable Long messageId) {
         ChatMessage chatMessage = chatService.getMessage(messageId);

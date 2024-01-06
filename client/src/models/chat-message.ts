@@ -1,4 +1,5 @@
 import { MessageContent } from './message-content';
+import ReplyToMessage from './reply-to-message';
 import { User } from './user';
 
 export default interface ChatMessage {
@@ -11,4 +12,5 @@ export default interface ChatMessage {
   readonly conversationId: number;
   readonly edited: boolean;
   readonly owner: User;
+  readonly replyToMessage?: ReplyToMessage;
 }

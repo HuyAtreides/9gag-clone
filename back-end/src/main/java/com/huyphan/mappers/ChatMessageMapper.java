@@ -2,6 +2,7 @@ package com.huyphan.mappers;
 
 import com.huyphan.dtos.ChatMessageDto;
 import com.huyphan.dtos.MessageContentDto;
+import com.huyphan.dtos.ReplyToMessageDto;
 import com.huyphan.dtos.UserDto;
 import com.huyphan.models.ChatConversation;
 import com.huyphan.models.ChatMessage;
@@ -41,6 +42,12 @@ public class ChatMessageMapper extends BaseMapper implements
 
             return modelMapper.map(participant, UserDto.class);
         };
+
+/*        Converter<ChatMessage, ReplyToMessageDto> replyToConverter = (context) -> {
+          ChatMessage message = context.getSource();
+
+          return modelMapper.map(message, ReplyToMessageDto.class);
+        };*/
 
         Converter<MessageContent, MessageContentDto> messageContentConverter = (context) ->
                 modelMapper.map(context.getSource(), MessageContentDto.class);

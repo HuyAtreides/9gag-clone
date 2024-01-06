@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,8 @@ import org.hibernate.proxy.HibernateProxy;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @NamedEntityGraph(name = "ChatMessageWithConversationInfo", attributeNodes = {
-        @NamedAttributeNode("conversation")
+        @NamedAttributeNode("conversation"),
+        @NamedAttributeNode("replyToMessage")
 })
 @Setter(AccessLevel.PRIVATE)
 public class ChatMessage {
@@ -59,6 +61,10 @@ public class ChatMessage {
     @JoinColumn(name = "ChatConversationId")
     private ChatConversation conversation;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ReplyToId")
+    private ChatMessage replyToMessage;
+
     @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "OwnerId")
     private ChatParticipant owner;
@@ -77,6 +83,17 @@ public class ChatMessage {
         this.deleted = false;
         this.pinned = false;
         this.edited = false;
+    }
+
+    public void replyTo(ChatMessage message) {
+        ChatConversation chatConversation = message.getConversation();
+        if (!chatConversation.equals(this.getConversation())) {
+            throw new IllegalArgumentException(
+                    "Can not reply to message in different conversation");
+        }
+
+        validateIsNotDeleted();
+        this.replyToMessage = message;
     }
 
     @Override

@@ -18,6 +18,7 @@ import styles from './ChatBox.module.css';
 import ChatMessageContent from './ChatMessageContent';
 import ChatMessageEditor from './ChatMessageEditor';
 import ChatMessagePopover from './ChatMessagePopover';
+import { setReplyingToMessage } from '../../../../Store/chat/chat-slice';
 
 interface Props {
   readonly messages: ChatMessage[];
@@ -54,16 +55,41 @@ const PinButton = ({ message }: { message: ChatMessage }) => {
   );
 };
 
+const ReplyButton = ({ message }: { message: ChatMessage }) => {
+  const dispatch = useAppDispatch();
+  const conversationId = message.conversationId;
+  const sendingIds = useAppSelector(
+    (state) => state.chat.messageState[conversationId].sendingIds,
+  );
+  const isBeingSent = sendingIds.includes(message.id);
+
+  const handleReply = () => {
+    dispatch(setReplyingToMessage({ conversationId, message }));
+  };
+
+  return (
+    <Button
+      type='text'
+      block
+      title={isBeingSent ? 'This message is being sent' : undefined}
+      disabled={isBeingSent}
+      onClick={handleReply}
+    >
+      Reply
+    </Button>
+  );
+};
+
 const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
   const dispatch = useAppDispatch();
   const [showMessageEditor, setShowMessageEditor] = useState(false);
-
+  const conversationId = message.conversationId;
   const removeMessage = () => {
-    dispatch(remove(message.conversationId, message.id));
+    dispatch(remove(conversationId, message.id));
   };
 
   const handleEditMessage = (formData: NewChatMessageFormData) => {
-    dispatch(edit(message.conversationId, message.id, formData));
+    dispatch(edit(conversationId, message.id, formData));
   };
 
   if (showMessageEditor) {
@@ -85,9 +111,7 @@ const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
           <Button type='text' block onClick={removeMessage}>
             Remove
           </Button>
-          <Button type='text' block>
-            Reply
-          </Button>
+          <ReplyButton message={message} />
           <Button type='text' block onClick={() => setShowMessageEditor(true)}>
             Edit
           </Button>
@@ -116,9 +140,7 @@ const OtherUserMessage = ({
         placement='right'
         actionButtons={
           <>
-            <Button type='text' block>
-              Reply
-            </Button>
+            <ReplyButton message={message} />
             <PinButton message={message} />
           </>
         }

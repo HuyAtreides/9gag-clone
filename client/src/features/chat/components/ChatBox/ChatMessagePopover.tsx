@@ -25,6 +25,7 @@ interface MessagePopoverProps {
 const MessageTooltip = ({ children, message }: MessageTooltipProps) => {
   return (
     <Tooltip
+      mouseEnterDelay={0.5}
       showArrow={false}
       placement='top'
       zIndex={1}
@@ -41,6 +42,7 @@ const MessageTooltip = ({ children, message }: MessageTooltipProps) => {
 const MessagePopover = ({ placement, actionButtons, children }: MessagePopoverProps) => {
   return (
     <Popover
+      mouseEnterDelay={0.3}
       zIndex={2}
       placement={placement}
       getPopupContainer={(container) => container.parentElement!}

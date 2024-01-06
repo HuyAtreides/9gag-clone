@@ -249,6 +249,16 @@ public class ChatService implements MediatorComponent {
         return id == null ? -1 : id;
     }
 
+    @Transactional
+    public ChatMessage replyTo(Long messageId, NewChatMessageData newMessageData) {
+        ChatMessage replyToMessage = findMessageById(messageId);
+        ChatMessage newMessage = addMessage(replyToMessage.getConversation().getId(),
+                newMessageData);
+        newMessage.replyTo(replyToMessage);
+
+        return newMessage;
+    }
+
     @Transactional(readOnly = true)
     public Slice<ChatMessage> findAllPinnedMessage(
             Long conversationId,

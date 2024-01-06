@@ -226,3 +226,17 @@ export async function getPinnedMessages(
 
   return SliceMapper.fromDto(response.data, ChatMessageMapper.fromDto);
 }
+
+export async function sendReply(
+  replyToId: number,
+  newChatMessageData: NewChatMessageData,
+) {
+  const axios = createAxiosInstance();
+  const newChatMessageDataDto = NewChatMessageDataMapper.toDto(newChatMessageData);
+  const response = await axios.post<ChatMessageDto>(
+    `${Constant.ChatEndPoint}/message/reply-to/${replyToId}`,
+    newChatMessageDataDto,
+  );
+
+  return ChatMessageMapper.fromDto(response.data);
+}

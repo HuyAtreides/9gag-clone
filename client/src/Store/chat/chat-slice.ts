@@ -16,6 +16,7 @@ interface MessageState {
   readonly sent: boolean;
   readonly gettingPageError: string | null;
   readonly sendingError: Readonly<Record<number, string | null>>;
+  readonly replyingToMessage: ChatMessage | null;
   readonly messages: ChatMessage[];
 }
 
@@ -115,6 +116,7 @@ function getInitialMessageState() {
       size: Constant.PageSize as number,
       isLast: false,
     },
+    replyingToMessage: null,
     sendingIds: [],
     sendingError: {},
     gettingPageError: null,
@@ -175,6 +177,14 @@ const slice = createSlice({
         messages: [],
         pagination: initialPagination,
       };
+    },
+
+    setReplyingToMessage(
+      state,
+      action: PayloadAction<{ conversationId: number; message: ChatMessage | null }>,
+    ) {
+      const { conversationId, message } = action.payload;
+      state.messageState[conversationId].replyingToMessage = message;
     },
 
     setMessagePinned(
@@ -646,6 +656,7 @@ const slice = createSlice({
 
 export const chatReducer = slice.reducer;
 export const {
+  setReplyingToMessage,
   setPinnedMessageError,
   setPinnedMessageIsGettingPage,
   setPinnedMessageIsLoading,

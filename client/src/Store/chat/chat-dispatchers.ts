@@ -27,6 +27,7 @@ import {
   pinMessage,
   removeChatMessage,
   sendMessage,
+  sendReply,
   unPinMessage,
 } from '../../services/chat-service';
 import { extractErrorMessage, handleError } from '../../utils/error-handler';
@@ -319,13 +320,24 @@ const send =
       const mediaLocation = await getMediaLocationFromForm(
         transientChatMessage.content.uploadFile,
       );
-      const persistedChatMessage = await sendMessage(conversationId, {
+      const newMessageData = {
         sentDate: transientChatMessage.sentDate,
         content: {
           ...transientChatMessage.content,
           mediaUrl: mediaLocation.url,
         },
-      });
+      };
+      let persistedChatMessage;
+
+      if (transientChatMessage.replyToMessage) {
+        persistedChatMessage = await sendReply(
+          transientChatMessage.replyToMessage.id,
+          newMessageData,
+        );
+      } else {
+        persistedChatMessage = await sendMessage(conversationId, newMessageData);
+      }
+
       dispatch(removeIsSendingId({ conversationId, id: transientChatMessage.id }));
       dispatch(
         setPersistedMessage({
@@ -379,6 +391,21 @@ export const addNewMessage =
       getState().user.profile!,
     );
     dispatch(send(conversationId, transientChatMessage));
+  };
+
+export const reply =
+  (replyToMessage: ChatMessage, formData: NewChatMessageFormData): AppThunk =>
+  async (dispatch, getState) => {
+    const newChatMessageData = createNewMessageDataFromFormData(formData);
+    const transientChatMessage: ChatMessage = {
+      ...createTransientChatMessage(
+        replyToMessage.conversationId,
+        newChatMessageData,
+        getState().user.profile!,
+      ),
+      replyToMessage: replyToMessage,
+    };
+    dispatch(send(replyToMessage.conversationId, transientChatMessage));
   };
 
 export const readConversation =

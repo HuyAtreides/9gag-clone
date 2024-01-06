@@ -3,3 +3,9 @@
   bottom: 3px;
   right: 50px;
 }
+
+@media screen and (max-width: 768px) {
+  .chatBoxQueue {
+    right: 3px;
+  }
+}

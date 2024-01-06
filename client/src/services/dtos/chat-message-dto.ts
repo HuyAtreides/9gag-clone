@@ -1,4 +1,5 @@
 import MessageContentDto from './message-content-dto';
+import ReplyToMessageDto from './reply-to-message-dto';
 import { UserDto } from './user-dto';
 
 export default interface ChatMessageDto {
@@ -11,4 +12,5 @@ export default interface ChatMessageDto {
   readonly owner: UserDto;
   readonly deleted: boolean;
   readonly conversationId: number;
+  readonly replyToMessage?: ReplyToMessageDto;
 }

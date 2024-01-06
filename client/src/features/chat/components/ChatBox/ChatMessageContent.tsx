@@ -5,6 +5,7 @@ import Media from '../../../../components/media/Media';
 import ChatMessage from '../../../../models/chat-message';
 import { Constant, MediaType } from '../../../../models/enums/constant';
 import styles from './ChatBox.module.css';
+import ReplyToMessagePreview from '../ReplyToMessage/ReplyToMessagePreview';
 
 interface Props {
   readonly message: ChatMessage;
@@ -44,6 +45,12 @@ const ChatMessageContent = ({ message }: Props) => {
         <Typography.Text type='secondary' className={styles.pinMessage}>
           Pinned <PushpinFilled className={styles.messagePinIcon} />
         </Typography.Text>
+      ) : null}
+
+      {message.replyToMessage ? (
+        <div className={styles.replyToMessageContainer}>
+          <ReplyToMessagePreview message={message.replyToMessage} />
+        </div>
       ) : null}
 
       {content.text ? (
