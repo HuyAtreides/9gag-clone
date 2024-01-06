@@ -2,6 +2,7 @@ import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { AppThunk } from '..';
 import ChatConversation from '../../models/chat-conversation';
 import ChatMessage from '../../models/chat-message';
+import { Constant, MediaType } from '../../models/enums/constant';
 import NewChatMessageData from '../../models/new-chat-message-data';
 import { NewChatMessageFormData } from '../../models/new-chat-message-form-data';
 import { ConversationMessagesFetchingRequest } from '../../models/requests/conversation-messages-fetching-request';
@@ -16,7 +17,6 @@ import {
   getAllMessagesInRange,
   getConversationMessages,
   getConversationMessagesInRange,
-  getConversationOldestMessageId,
   getConversationsWithNewestMessage,
   getMessage,
   getPinnedMessages,
@@ -32,6 +32,7 @@ import {
 } from '../../services/chat-service';
 import { extractErrorMessage, handleError } from '../../utils/error-handler';
 import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
+import { isFileType } from '../../utils/mime-type';
 import {
   addIsSendingId,
   addLatestMessages,
@@ -41,7 +42,6 @@ import {
   addMessages,
   addPinnedMessagesPage,
   addUnreadCount,
-  markMessagePageAsLast,
   markOpenConversationAsRead,
   markPreviewConversationAsRead,
   openConversation,
@@ -54,6 +54,7 @@ import {
   setMessageIsLoading,
   setMessagePage,
   setMessagePinned,
+  setMessagesPagination,
   setPersistedMessage,
   setPinnedMessageError,
   setPinnedMessageIsGettingPage,
@@ -69,8 +70,6 @@ import {
   updateConversation,
   updateMessage,
 } from './chat-slice';
-import { isFileType } from '../../utils/mime-type';
-import { MediaType } from '../../models/enums/constant';
 
 type ConversationListStateActionCreator = {
   setIsLoading: ActionCreatorWithPayload<boolean>;
@@ -620,17 +619,28 @@ export const fetchAllMessageUpToId =
     }
     try {
       dispatch(setMessageIsLoading({ conversationId, isLoading: true }));
-      const [messages, oldestId] = await Promise.all([
-        getConversationMessagesInRange(conversationId, id, minId),
-        getConversationOldestMessageId(conversationId),
-      ]);
-
-      if (messages.some((message) => message.id === oldestId)) {
-        dispatch(markMessagePageAsLast(conversationId));
-      }
-
-      dispatch(setMessageIsLoading({ conversationId, isLoading: false }));
+      const messages = await getConversationMessagesInRange(conversationId, id, minId);
       dispatch(addMessages({ conversationId, messages }));
+      const totalMessages = getState().chat.messageState[conversationId].messages.length;
+      const haveAllMessagesInThisPage = totalMessages % Constant.PageSize === 0;
+
+      //  We need to -1 here because we haven't
+      //  had all messages for current page and when user scroll to the end
+      //  we need to continue fetch all messages of this page (page + 1 - 1 = page)
+      const currentPage =
+        Math.floor(totalMessages / Constant.PageSize) +
+        (haveAllMessagesInThisPage ? 0 : -1);
+      dispatch(
+        setMessagesPagination({
+          conversationId,
+          pagination: {
+            isLast: false,
+            page: currentPage,
+            size: Constant.PageSize as number,
+          },
+        }),
+      );
+      dispatch(setMessageIsLoading({ conversationId, isLoading: false }));
     } catch (error: unknown) {
       dispatch(setMessageIsLoading({ conversationId, isLoading: false }));
     }

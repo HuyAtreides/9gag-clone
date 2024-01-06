@@ -189,6 +189,9 @@
 .replyToMessageContainer {
   max-width: 200px;
   min-width: 20px;
+  margin-top: 5px;
+  cursor: pointer;
+  margin-bottom: -10px;
 }
 
 .replyContainer {

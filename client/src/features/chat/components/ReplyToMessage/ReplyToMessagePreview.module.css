@@ -1,6 +1,6 @@
 .replyContentMessage {
   display: inline-block;
-  width: 95%;
+  width: 93%;
   margin: 3px !important;
   overflow: hidden;
   text-wrap: nowrap;
@@ -9,5 +9,4 @@
 
 .replyContentMessageContainer {
   margin: 0 !important;
-  cursor: pointer;
 }

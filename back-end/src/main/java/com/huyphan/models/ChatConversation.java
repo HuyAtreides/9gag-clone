@@ -180,6 +180,8 @@ public class ChatConversation {
             return false;
         }
         ChatConversation that = (ChatConversation) o;
+        Long id = getId();
+
         return id != null && Objects.equals(id, that.id);
     }
 

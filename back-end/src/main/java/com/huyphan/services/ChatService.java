@@ -235,20 +235,6 @@ public class ChatService implements MediatorComponent {
         );
     }
 
-    @Transactional(readOnly = true)
-    public int getConversationOldestMessageId(Long conversationId) {
-        ChatConversation chatConversation = findConversationById(conversationId);
-        User currentUser = UserService.getUser();
-
-        if (!chatConversation.hasParticipant(currentUser)) {
-            throw new IllegalArgumentException("User not in this conversation");
-        }
-
-        Integer id = chatMessageRepo.getConversationOldestMessageId(chatConversation);
-
-        return id == null ? -1 : id;
-    }
-
     @Transactional
     public ChatMessage replyTo(Long messageId, NewChatMessageData newMessageData) {
         ChatMessage replyToMessage = findMessageById(messageId);

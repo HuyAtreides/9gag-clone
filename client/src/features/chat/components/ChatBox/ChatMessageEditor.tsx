@@ -102,6 +102,7 @@ const ChatMessageEditor = ({
     handleSubmit(formData);
     resetFormValue();
     handleCancel();
+    closeReplying();
   };
 
   const sendGif = (gif: MediaLocation) => {

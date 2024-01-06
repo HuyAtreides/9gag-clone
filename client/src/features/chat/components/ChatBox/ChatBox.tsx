@@ -1,6 +1,6 @@
 import { CloseOutlined, MoreOutlined } from '@ant-design/icons';
 import { Avatar, Button, Card, List } from 'antd';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
@@ -23,6 +23,10 @@ import ChatMessageList from './ChatMessagesList';
 interface Props {
   readonly chatParticipantId: number;
 }
+
+export const ChatMessageFocusFunction = React.createContext<(id: number) => void>(
+  (_: number) => {},
+);
 
 const ChatBox = ({ chatParticipantId }: Props) => {
   const dispatch = useAppDispatch();
@@ -127,7 +131,10 @@ const ChatBox = ({ chatParticipantId }: Props) => {
         />,
       ]}
     >
-      <ChatMessageList openConversationId={conversation.id} />
+      <ChatMessageFocusFunction.Provider value={(id) => focusMessage(id)}>
+        <ChatMessageList openConversationId={conversation.id} />
+      </ChatMessageFocusFunction.Provider>
+
       <PinnedChatMessageDialog
         conversationId={conversation.id}
         visible={openPinnedChatMessages}

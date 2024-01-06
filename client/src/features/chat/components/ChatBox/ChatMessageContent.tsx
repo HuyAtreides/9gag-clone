@@ -6,6 +6,8 @@ import ChatMessage from '../../../../models/chat-message';
 import { Constant, MediaType } from '../../../../models/enums/constant';
 import styles from './ChatBox.module.css';
 import ReplyToMessagePreview from '../ReplyToMessage/ReplyToMessagePreview';
+import { useContext } from 'react';
+import { ChatMessageFocusFunction } from './ChatBox';
 
 interface Props {
   readonly message: ChatMessage;
@@ -26,6 +28,7 @@ const RemovedMessage = ({ belongToCurrentUser }: { belongToCurrentUser: boolean 
 const ChatMessageContent = ({ message }: Props) => {
   const currentUser = useAppSelector((state) => state.user.profile);
   const belongToCurrentUser = message.owner.equals(currentUser);
+  const setFocusMessage = useContext(ChatMessageFocusFunction);
   const textMessageClassName = belongToCurrentUser ? styles.message : styles.otherMessage;
   const messageContentClassName = belongToCurrentUser
     ? styles.messageContent
@@ -34,6 +37,12 @@ const ChatMessageContent = ({ message }: Props) => {
   const { mediaType, mediaUrl, uploadFile } = content;
   const mediaNotNull = mediaType != null && mediaUrl != null;
   const isFile = mediaType === MediaType.File;
+
+  const handleFocus = () => {
+    if (message.replyToMessage) {
+      setFocusMessage(message.replyToMessage.id);
+    }
+  };
 
   if (message.deleted) {
     return <RemovedMessage belongToCurrentUser={belongToCurrentUser} />;
@@ -48,7 +57,11 @@ const ChatMessageContent = ({ message }: Props) => {
       ) : null}
 
       {message.replyToMessage ? (
-        <div className={styles.replyToMessageContainer}>
+        <div
+          className={styles.replyToMessageContainer}
+          role='button'
+          onClick={handleFocus}
+        >
           <ReplyToMessagePreview message={message.replyToMessage} />
         </div>
       ) : null}

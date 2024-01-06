@@ -463,6 +463,14 @@ const slice = createSlice({
       state.messageState[conversationId].pagination.isLast = true;
     },
 
+    setMessagesPagination(
+      state,
+      action: PayloadAction<{ conversationId: number; pagination: Pagination }>,
+    ) {
+      const { conversationId, pagination } = action.payload;
+      state.messageState[conversationId].pagination = pagination;
+    },
+
     addLatestMessages(state, action: PayloadAction<ChatMessage[]>) {
       const messages = action.payload;
       messages.forEach((message) => {
@@ -706,4 +714,5 @@ export const {
   removeMessage,
   syncMessages,
   addMessages,
+  setMessagesPagination,
 } = slice.actions;

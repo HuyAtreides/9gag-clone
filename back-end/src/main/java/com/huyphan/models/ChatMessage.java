@@ -86,8 +86,7 @@ public class ChatMessage {
     }
 
     public void replyTo(ChatMessage message) {
-        ChatConversation chatConversation = message.getConversation();
-        if (!chatConversation.equals(this.getConversation())) {
+        if (!message.getConversation().equals(this.getConversation())) {
             throw new IllegalArgumentException(
                     "Can not reply to message in different conversation");
         }

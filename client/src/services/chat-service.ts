@@ -201,15 +201,6 @@ export async function getConversationMessagesInRange(
   return response.data.map((message) => ChatMessageMapper.fromDto(message));
 }
 
-export async function getConversationOldestMessageId(conversationId: number) {
-  const axios = createAxiosInstance();
-  const response = await axios.get<number>(
-    `${Constant.ChatEndPoint}/conversation/${conversationId}/oldest-message-id`,
-  );
-
-  return response.data;
-}
-
 export async function getPinnedMessages(
   pageRequest: ConversationMessagesFetchingRequest,
 ) {

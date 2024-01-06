@@ -26,6 +26,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             Pageable pageable
     );
 
+    @EntityGraph("ChatMessageWithConversationInfo")
     @Query("""
             select chatMessage
             from ChatMessage chatMessage
@@ -39,6 +40,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             @Param("latestMessageId") Long latestMessageId
     );
 
+    @EntityGraph("ChatMessageWithConversationInfo")
     @Query("""
             select chatMessage
             from ChatMessage chatMessage
@@ -52,15 +54,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             @Param("latestMessageId") Long latestMessageId
     );
 
-    @Query("""
-            select min(chatMessage.id)
-            from ChatMessage chatMessage
-            where chatMessage.conversation = :conversation
-            """)
-    Integer getConversationOldestMessageId(
-            @Param("conversation") ChatConversation conversation
-    );
-
+    @EntityGraph("ChatMessageWithConversationInfo")
     @Query("""
             select chatMessage
             from ChatMessage chatMessage
@@ -71,6 +65,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             Pageable pageable
     );
 
+    @EntityGraph("ChatMessageWithConversationInfo")
     @Query("""
             select chatMessage
             from ChatMessage chatMessage

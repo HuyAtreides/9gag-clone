@@ -241,11 +241,6 @@ public class ChatController {
                 .toList();
     }
 
-    @GetMapping("conversation/{conversationId}/oldest-message-id")
-    public int getConversationOldestId(@PathVariable Long conversationId) {
-        return chatService.getConversationOldestMessageId(conversationId);
-    }
-
     @GetMapping("message/pinned/{conversationId}")
     public SliceDto<ChatMessageDto> findAllPinnedMessage(
             @PathVariable Long conversationId,
