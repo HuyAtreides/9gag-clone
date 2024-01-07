@@ -69,14 +69,8 @@ public class ChatService implements MediatorComponent {
         User currentUser = UserService.getUser();
         ChatConversation chatConversation = findConversationById(conversationId);
         User otherUser = getOtherParticipantInConversation(chatConversation);
-        Instant sentDate = newChatMessageData.getSentDate();
         MessageContent messageContent = newChatMessageData.getContent();
-
-        if (sentDate == null) {
-            throw new IllegalArgumentException("Send date can not be null");
-        }
-
-        ChatMessage chatMessage = new ChatMessage(messageContent, currentUser, sentDate);
+        ChatMessage chatMessage = new ChatMessage(messageContent, currentUser);
         chatConversation.addMessage(chatMessage);
         ChatMessage newMessage = chatMessageRepo.save(chatMessage);
         eventEmitter.emitEventTo(WebSocketEvent.RECEIVE_NEW_MESSAGE, otherUser);
