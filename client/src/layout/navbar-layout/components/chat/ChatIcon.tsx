@@ -39,6 +39,9 @@ const ChatIcon = () => {
     WebSocketUtils.registerEventHandler(WebSocketEvent.EDIT_MESSAGE, () => {
       dispatch(getPossiblyUpdatedMessages());
     });
+    WebSocketUtils.registerEventHandler(WebSocketEvent.PIN_MESSAGE, () => {
+      dispatch(getPossiblyUpdatedMessages());
+    });
     dispatch(countUnreadConversation());
 
     return () => {
