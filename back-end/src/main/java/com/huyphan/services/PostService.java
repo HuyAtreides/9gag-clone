@@ -70,7 +70,7 @@ public class PostService implements MediatorComponent {
                     "Media type and media url must be present when post content type is MEDIA");
         }
 
-        if (Arrays.stream(SupportedMIMEType.values())
+        if (mediaType != null && Arrays.stream(SupportedMIMEType.values())
                 .noneMatch(supportedMIMEType -> supportedMIMEType.getValue().equals(mediaType))) {
             awss3Util.deleteObject(mediaUrl);
             throw new PostException("Unsupported file type");
