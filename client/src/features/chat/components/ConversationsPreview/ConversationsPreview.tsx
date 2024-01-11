@@ -4,19 +4,21 @@ import {
   MoreOutlined,
   PlusCircleOutlined,
   SearchOutlined,
+  SettingOutlined,
+  StopOutlined,
 } from '@ant-design/icons';
 import { Button, Input, Typography } from 'antd';
-import useDebounceSearch from '../../../../custom-hooks/use-debounce-search';
-import styles from './ConversationPreview.module.css';
-import ConversationPreviewList from './ConversationsPreviewList';
+import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import { readAllConversation } from '../../../../Store/chat/chat-dispatchers';
-import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
 import { setPreviewConversationError } from '../../../../Store/chat/chat-slice';
-import useAddNewConversationDialog from '../../../../custom-hooks/use-add-new-conversation-dialog';
-import AddNewConversationDialog from '../AddNewConversationDialog/AddNewConversationDialog';
-import { Link } from 'react-router-dom';
 import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
+import useRenderErrorMessage from '../../../../custom-hooks/render-error-message';
+import useAddNewConversationDialog from '../../../../custom-hooks/use-add-new-conversation-dialog';
+import useDebounceSearch from '../../../../custom-hooks/use-debounce-search';
+import AddNewConversationDialog from '../AddNewConversationDialog/AddNewConversationDialog';
+import styles from './ConversationPreview.module.css';
+import ConversationPreviewList from './ConversationsPreviewList';
 
 interface Props {
   readonly standAlone?: boolean;
@@ -48,11 +50,11 @@ const ConversationsPreview = ({ standAlone = false }: Props) => {
           <AutoClosePopover
             content={
               <div className='more-action-box-container'>
-                <Button type='text' block>
+                <Button type='text' block icon={<StopOutlined />}>
                   View restricted accounts
                 </Button>
-                <Button type='text' block>
-                  View Preference
+                <Button type='text' block icon={<SettingOutlined />}>
+                  View chat settings
                 </Button>
               </div>
             }

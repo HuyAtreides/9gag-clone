@@ -22,12 +22,18 @@ const StandAloneChat = () => {
   )?.conversation;
 
   useEffect(() => {
-    if (openConversations.length === 2) {
-      dispatch(closeConversation(openConversations[0].userId));
-      navigate(`/chat/${openConversations[0].conversation?.id}`);
-    } else if (openConversations.length === 1) {
-      navigate(`/chat/${openConversations[0].conversation?.id}`);
+    if (openConversations.length === 0) {
+      return;
     }
+
+    if (openConversations.length === 3) {
+      dispatch(closeConversation(openConversations[2].userId));
+      dispatch(closeConversation(openConversations[1].userId));
+    } else if (openConversations.length === 2) {
+      dispatch(closeConversation(openConversations[0].userId));
+    }
+
+    navigate(`/chat/${openConversations[0].conversation?.id}`);
   }, [openConversations, dispatch, navigate]);
 
   return (

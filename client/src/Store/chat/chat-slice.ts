@@ -625,7 +625,14 @@ const slice = createSlice({
       const { conversationId, transientId, chatMessage } = action.payload;
       const messages = state.messageState[conversationId].messages;
       const transientIndex = messages.findIndex((message) => message.id === transientId);
+
+      if (messages.find((message) => message.id === chatMessage.id)) {
+        messages.splice(transientIndex, 1);
+        return;
+      }
+
       messages[transientIndex] = chatMessage;
+      console.log('persisted messages current', messages);
     },
 
     setSendingMessageError(

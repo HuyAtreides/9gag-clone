@@ -112,6 +112,11 @@
   margin-right: 10px;
 }
 
+.fullscreenLink {
+  color: unset;
+  margin-left: 8px;
+}
+
 .otherMessage {
   background-color: var(--secondary-text-color);
   border-radius: 15px;

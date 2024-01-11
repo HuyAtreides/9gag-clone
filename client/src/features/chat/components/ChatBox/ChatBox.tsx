@@ -1,4 +1,12 @@
-import { CloseOutlined, MoreOutlined } from '@ant-design/icons';
+import {
+  AlertOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  FullscreenOutlined,
+  MoreOutlined,
+  PushpinOutlined,
+  StopOutlined,
+} from '@ant-design/icons';
 import { Avatar, Button, Card, List } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -112,8 +120,28 @@ const ChatBox = ({ chatParticipantId }: Props) => {
           placement='left'
           content={
             <div className='more-action-box-container'>
-              <Button block type='text' onClick={() => setOpenPinnedChatMessages(true)}>
+              <Button block type='text' icon={<FullscreenOutlined />}>
+                <Link to={`/chat/${conversation.id}`} className={styles.fullscreenLink}>
+                  Open in fullscreen
+                </Link>
+              </Button>
+
+              <Button
+                block
+                type='text'
+                icon={<PushpinOutlined />}
+                onClick={() => setOpenPinnedChatMessages(true)}
+              >
                 View pinned messages
+              </Button>
+              <Button block type='text' icon={<AlertOutlined />}>
+                Mute
+              </Button>
+              <Button block type='text' icon={<StopOutlined />}>
+                Restrict
+              </Button>
+              <Button block type='text' danger icon={<DeleteOutlined />}>
+                Delete chat
               </Button>
             </div>
           }
