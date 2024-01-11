@@ -30,9 +30,10 @@ const actionCreator = {
 
 interface Props {
   readonly searchTerm: string | null;
+  readonly standAlone?: boolean;
 }
 
-const ConversationPreviewList = ({ searchTerm }: Props) => {
+const ConversationPreviewList = ({ searchTerm, standAlone = false }: Props) => {
   const dispatch = useAppDispatch();
   const { isGettingPage, isLoading, pagination, conversations, error } = useAppSelector(
     (state) => state.chat.conversationState.previewConversations,
@@ -92,12 +93,14 @@ const ConversationPreviewList = ({ searchTerm }: Props) => {
       next={getNextPage}
       dataLength={conversations.length}
       loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
-      height={window.innerHeight * 0.45}
+      height={window.innerHeight * 0.65}
     >
       <List
         dataSource={[...conversations]}
         itemLayout='horizontal'
-        renderItem={(conversation) => <ConversationPreview conversation={conversation} />}
+        renderItem={(conversation) => (
+          <ConversationPreview conversation={conversation} standAlone={standAlone} />
+        )}
       />
     </InfiniteScroll>
   );

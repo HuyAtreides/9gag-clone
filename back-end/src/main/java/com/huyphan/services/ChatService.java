@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,14 +69,21 @@ public class ChatService implements MediatorComponent {
     public ChatMessage addMessage(Long conversationId, NewChatMessageData newChatMessageData) {
         User currentUser = UserService.getUser();
         ChatConversation chatConversation = findConversationById(conversationId);
-        User otherUser = getOtherParticipantInConversation(chatConversation);
         MessageContent messageContent = newChatMessageData.getContent();
         ChatMessage chatMessage = new ChatMessage(messageContent, currentUser);
         chatConversation.addMessage(chatMessage);
         ChatMessage newMessage = chatMessageRepo.save(chatMessage);
-        eventEmitter.emitEventTo(WebSocketEvent.RECEIVE_NEW_MESSAGE, otherUser);
+
+        emitEventToParticipants(WebSocketEvent.RECEIVE_NEW_MESSAGE,
+                chatConversation.getParticipants());
 
         return newMessage;
+    }
+
+    private void emitEventToParticipants(WebSocketEvent event, Set<ChatParticipant> participants) {
+        participants.forEach(participant -> {
+            eventEmitter.emitEventTo(event, (User) participant);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -165,14 +173,13 @@ public class ChatService implements MediatorComponent {
         ChatMessage chatMessage = findMessageById(messageId);
         String currentMediaUrl = chatMessage.getContent().getMediaUrl();
         ChatConversation chatConversation = chatMessage.getConversation();
-        User otherUser = getOtherParticipantInConversation(chatConversation);
         chatMessage.update(messageContent, UserService.getUser());
 
         if (currentMediaUrl != null && !currentMediaUrl.equals(messageContent.getMediaUrl())) {
             awss3Util.deleteObject(currentMediaUrl);
         }
 
-        eventEmitter.emitEventTo(WebSocketEvent.EDIT_MESSAGE, otherUser);
+        emitEventToParticipants(WebSocketEvent.EDIT_MESSAGE, chatConversation.getParticipants());
     }
 
     @Transactional
@@ -190,9 +197,8 @@ public class ChatService implements MediatorComponent {
         ChatMessage chatMessage = findMessageById(messageId);
         ChatConversation chatConversation = chatMessage.getConversation();
         chatConversation.removeMessage(chatMessage, UserService.getUser());
-        User otherUser = getOtherParticipantInConversation(chatConversation);
 
-        eventEmitter.emitEventTo(WebSocketEvent.REMOVE_MESSAGE, otherUser);
+        emitEventToParticipants(WebSocketEvent.REMOVE_MESSAGE, chatConversation.getParticipants());
     }
 
     @Transactional(readOnly = true)
@@ -261,28 +267,27 @@ public class ChatService implements MediatorComponent {
     public void pinMessage(Long messageId) {
         ChatMessage chatMessage = findMessageById(messageId);
         chatMessage.pinMessage(UserService.getUser());
-        User otherUser = getOtherParticipantInConversation(chatMessage.getConversation());
+        ChatConversation conversation = chatMessage.getConversation();
 
-        eventEmitter.emitEventTo(WebSocketEvent.PIN_MESSAGE, otherUser);
+        emitEventToParticipants(WebSocketEvent.PIN_MESSAGE, conversation.getParticipants());
     }
 
     @Transactional
     public void unPinMessage(Long messageId) {
         ChatMessage chatMessage = findMessageById(messageId);
         chatMessage.unPinMessage(UserService.getUser());
-        User otherUser = getOtherParticipantInConversation(chatMessage.getConversation());
+        ChatConversation conversation = chatMessage.getConversation();
 
-        eventEmitter.emitEventTo(WebSocketEvent.PIN_MESSAGE, otherUser);
+        emitEventToParticipants(WebSocketEvent.PIN_MESSAGE, conversation.getParticipants());
     }
 
     @Transactional
     public void markConversationAsRead(Long conversationId) {
         ChatConversation conversation = findConversationWithDerivedFieldsById(conversationId);
         User currentUser = UserService.getUser();
-        User otherUser = getOtherParticipantInConversation(conversation);
         conversation.markConversationAsReadByUser(currentUser);
 
-        eventEmitter.emitEventTo(WebSocketEvent.MARK_AS_READ, otherUser);
+        emitEventToParticipants(WebSocketEvent.MARK_AS_READ, conversation.getParticipants());
     }
 
     @Transactional

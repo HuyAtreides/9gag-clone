@@ -1,5 +1,5 @@
 import { Avatar, Typography } from 'antd';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
@@ -14,6 +14,7 @@ import { Constant } from '../../../../models/enums/constant';
 import PageOptions from '../../../../models/page-options';
 import styles from './ChatBox.module.css';
 import MessageGroup from './MessageGroup';
+import { ChatBoxHeight } from '../../../../context/chat-box-height';
 
 interface Props {
   readonly openConversationId: number;
@@ -55,6 +56,7 @@ const ChatMessageList = ({ openConversationId }: Props) => {
   const currentUser = useAppSelector((state) => state.user.profile!);
   const chatParticipant = conversation.getOtherParticipant(currentUser);
   const conversationId = conversation.id;
+  const height = useContext(ChatBoxHeight);
   const { pagination, messages, isGettingPage, isLoading, gettingPageError } =
     useAppSelector((state) => state.chat.messageState[conversationId]);
 
@@ -96,7 +98,7 @@ const ChatMessageList = ({ openConversationId }: Props) => {
         next={() => {}}
         dataLength={0}
         loader
-        height={window.innerHeight * 0.45}
+        height={height}
         className={styles.chatBoxMessageLoading}
       >
         <CenterSpinner />
@@ -116,7 +118,7 @@ const ChatMessageList = ({ openConversationId }: Props) => {
       loader={<CenterSpinner />}
       inverse
       scrollThreshold={0.95}
-      height={window.innerHeight * 0.45}
+      height={height}
       className={styles.chatBoxContent}
     >
       <div id={Constant.ChatMessageScrollAreaId as string}>

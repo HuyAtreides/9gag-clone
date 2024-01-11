@@ -7,6 +7,7 @@ import PostRoutes from '../features/post/PostRoutes';
 import UserRoutes from '../features/user/UserRoutes';
 import NavbarLayout from '../layout/navbar-layout/NavbarLayout';
 import { ScreenBreakPoint } from '../models/enums/constant';
+import ChatRoutes from '../features/chat/pages/ChatRoutes';
 
 const { Content } = Layout;
 
@@ -24,6 +25,10 @@ const RootRoutes: React.FC = () => {
       <NavbarLayout collapse={collapse} setCollapse={setCollapse} />
       <Content>
         <Routes>
+          <Route
+            path='/chat//*'
+            element={<ProtectedRoute targetComponent={<ChatRoutes />} />}
+          />
           <Route
             path='/add-post'
             element={<ProtectedRoute targetComponent={<PostRoutes />} />}

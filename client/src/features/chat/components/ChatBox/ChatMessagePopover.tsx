@@ -25,10 +25,10 @@ interface MessagePopoverProps {
 const MessageTooltip = ({ children, message }: MessageTooltipProps) => {
   return (
     <Tooltip
-      mouseEnterDelay={0.5}
+      mouseEnterDelay={1}
       showArrow={false}
-      placement='top'
-      zIndex={1}
+      placement='left'
+      zIndex={2}
       getPopupContainer={(container) => container.parentElement!}
       title={`Sent at ${message.sentDate.toLocaleString()} ${
         message.edited ? 'Edited' : ''
@@ -43,7 +43,7 @@ const MessagePopover = ({ placement, actionButtons, children }: MessagePopoverPr
   return (
     <Popover
       mouseEnterDelay={0.3}
-      zIndex={2}
+      zIndex={1}
       placement={placement}
       getPopupContainer={(container) => container.parentElement!}
       content={

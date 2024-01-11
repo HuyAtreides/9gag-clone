@@ -6,6 +6,7 @@ import AuthenticatedGuard from '../../../../components/component-guard/Authentic
 import { ScreenBreakPoint } from '../../../../models/enums/constant';
 import ChatBox from '../ChatBox/ChatBox';
 import styles from './ChatBoxQueue.module.css';
+import { ChatBoxHeight } from '../../../../context/chat-box-height';
 
 const ANT_DESIGN_GRID_COLUMNS = 24;
 
@@ -59,8 +60,11 @@ const ChatBoxQueue = () => {
             <Col
               span={ANT_DESIGN_GRID_COLUMNS / openConversations.length}
               key={openConversation.userId}
+              className={styles.chatBoxContainer}
             >
-              <ChatBox chatParticipantId={openConversation.userId} />
+              <ChatBoxHeight.Provider value={window.innerHeight * 0.45}>
+                <ChatBox chatParticipantId={openConversation.userId} />
+              </ChatBoxHeight.Provider>
             </Col>
           ))}
         </Row>

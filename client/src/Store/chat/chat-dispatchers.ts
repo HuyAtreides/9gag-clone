@@ -131,6 +131,14 @@ export const createNewConversation =
     try {
       dispatch(openConversation({ index, userId }));
       const conversation = await createConversationWithUser(userId);
+      if (
+        getState().chat.conversationState.openConversations.find(
+          (openConversation) => openConversation.userId === userId,
+        )?.conversation != null
+      ) {
+        return;
+      }
+
       dispatch(
         setConversation({
           error: null,

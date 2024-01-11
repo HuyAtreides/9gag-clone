@@ -14,9 +14,11 @@ import { MediaType } from '../../../../models/enums/constant';
 import { User } from '../../../../models/user';
 import { getMediaTypeFromMIME } from '../../../../utils/mime-type';
 import styles from './ConversationPreview.module.css';
+import { setConversation } from '../../../../Store/chat/chat-slice';
 
 interface Props {
   readonly conversation: ChatConversation;
+  readonly standAlone?: boolean;
 }
 
 interface PreviewMessageProps extends Props {
@@ -91,11 +93,23 @@ const PreviewMessage = ({ conversation, unread }: PreviewMessageProps) => {
   );
 };
 
-const ConversationPreview = ({ conversation }: Props) => {
+const ConversationPreview = ({ conversation, standAlone = false }: Props) => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.user.profile!);
+  const openConversations = useAppSelector(
+    (state) => state.chat.conversationState.openConversations,
+  );
+  const isOpened =
+    openConversations.find(
+      (openedConversation) => openedConversation.conversation?.id === conversation.id,
+    ) != null;
   const otherParticipant = conversation.getOtherParticipant(currentUser);
   const unread = !conversation.isReadByUser(currentUser);
+
+  const previewClassName =
+    isOpened && standAlone
+      ? `${styles.conversationPreview} ${styles.focusConversation}`
+      : `${styles.conversationPreview}`;
 
   useEffect(() => {
     dispatch(getPreviewMessage(conversation.id, conversation.latestChatMessageId));
@@ -103,13 +117,21 @@ const ConversationPreview = ({ conversation }: Props) => {
 
   const openConversation = () => {
     dispatch(createNewConversation(otherParticipant.id));
+    dispatch(
+      setConversation({
+        error: null,
+        isLoading: false,
+        userId: otherParticipant.id,
+        conversation: conversation,
+      }),
+    );
     dispatch(readConversation(conversation.id));
   };
 
   return (
     <List.Item
       role='button'
-      className={styles.conversationPreview}
+      className={previewClassName}
       extra={unread ? <span className={styles.unreadMark}></span> : null}
       onClick={openConversation}
     >

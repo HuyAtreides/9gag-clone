@@ -224,7 +224,7 @@ const ChatMessageEditor = ({
       ) : null}
 
       <Row align='middle' justify='space-between'>
-        <Col span={uploadFile ? (isFile ? 7 : 5) : 3}>
+        <Col flex={1}>
           <Form.Item name='file' className={styles.chatInputFormItem}>
             <Upload
               beforeUpload={() => false}
@@ -239,14 +239,14 @@ const ChatMessageEditor = ({
         </Col>
 
         {uploadFile ? null : (
-          <Col span={3}>
+          <Col flex={1}>
             <Form.Item className={styles.chatInputFormItem}>
               <GifSelect setGif={sendGif} disabled={false} />
             </Form.Item>
           </Col>
         )}
         {uploadFile ? <Col span={1}></Col> : null}
-        <Col span={uploadFile ? 13 : 15}>
+        <Col flex={70}>
           <FormItem className={styles.chatInputFormItem} name='text'>
             <Input.TextArea
               autoFocus
@@ -259,7 +259,7 @@ const ChatMessageEditor = ({
             />
           </FormItem>
         </Col>
-        <Col span={3}>
+        <Col flex={1}>
           <FormItem className={styles.chatInputFormItem}>
             <Button icon={<SendOutlined />} type='text' htmlType='submit' />
           </FormItem>
