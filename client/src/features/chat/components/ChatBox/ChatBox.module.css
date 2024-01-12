@@ -103,10 +103,10 @@
   border-radius: 15px;
   padding: 5px;
   display: inline-block;
-  max-width: 300px;
+  max-width: 250px;
   text-wrap: pretty;
   min-width: 20px;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   text-align: left;
   margin-bottom: 5px;
   margin-right: 10px;
@@ -122,9 +122,9 @@
   border-radius: 15px;
   padding: 5px;
   display: inline-block;
-  max-width: 300px;
+  max-width: 250px;
   text-wrap: pretty;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   min-width: 20px;
   text-align: left;
   margin-bottom: 5px;

@@ -55,6 +55,8 @@ public class ConversationReadStatus {
     ) {
         validateReadByNotNull(readBy);
         this.readBy = readBy;
+        this.readAt = Instant.now();
+        this.latestMessagesRead = true;
     }
 
     public ConversationReadStatus withLatestMessagesRead(Instant readAt) {

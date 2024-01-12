@@ -18,7 +18,13 @@
 }
 
 .shareButtonContainer {
-  display: block;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.shareButtonContainer > button {
+  margin-right: 5px;
 }
 
 .shareButtonContainerSmallBreakpoint {

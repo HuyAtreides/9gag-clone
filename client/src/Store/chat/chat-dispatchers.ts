@@ -480,7 +480,7 @@ const countLatestUnread =
           );
 
           if (currentConversation == null) {
-            return true;
+            return !latestConversation.isReadByUser(currentUser);
           }
 
           if (!countReset) {

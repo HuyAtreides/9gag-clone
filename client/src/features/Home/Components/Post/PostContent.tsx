@@ -224,6 +224,16 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
             </Button>,
             <div className={styles.shareButtonContainer}>
               <ShareButton post={post} />
+              <Button type='text' icon={<CopyOutlined />} onClick={copyLink}>
+                Copy Link
+              </Button>
+              <Button
+                icon={<BookOutlined />}
+                onClick={protectAction(savePost)}
+                type={post.isSaved ? 'primary' : 'text'}
+              >
+                {post.isSaved ? 'Unsave' : 'Save'}
+              </Button>
             </div>,
           ]}
         >
