@@ -11,7 +11,7 @@ const StandAloneChatBox = ({ conversation }: Props) => {
   const currentUser = useAppSelector((state) => state.user.profile!);
 
   return (
-    <ChatBoxHeight.Provider value='72vh'>
+    <ChatBoxHeight.Provider value={window.innerHeight * 0.72}>
       <ChatBox chatParticipantId={conversation.getOtherParticipant(currentUser).id} />
     </ChatBoxHeight.Provider>
   );

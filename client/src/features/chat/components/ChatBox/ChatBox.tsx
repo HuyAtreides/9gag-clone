@@ -8,7 +8,7 @@ import {
   StopOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Card, List } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
@@ -27,6 +27,7 @@ import ChatBoxSkeleton from './ChatBoxSkeleton';
 import ChatBoxWithError from './ChatBoxWithError';
 import ChatMessageEditor from './ChatMessageEditor';
 import ChatMessageList from './ChatMessagesList';
+import { ChatBoxHeight } from '../../../../context/chat-box-height';
 
 interface Props {
   readonly chatParticipantId: number;
@@ -43,6 +44,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       (conversation) => conversation.userId === chatParticipantId,
     ),
   )!;
+  const chatBoxHeight = useContext(ChatBoxHeight);
   const [openPinnedChatMessages, setOpenPinnedChatMessages] = useState(false);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
@@ -160,7 +162,11 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       ]}
     >
       <ChatMessageFocusFunction.Provider value={(id) => focusMessage(id)}>
-        <ChatMessageList openConversationId={conversation.id} />
+        <ChatBoxHeight.Provider
+          value={replyingToMessage ? chatBoxHeight - 70 : chatBoxHeight}
+        >
+          <ChatMessageList openConversationId={conversation.id} />
+        </ChatBoxHeight.Provider>
       </ChatMessageFocusFunction.Provider>
 
       <PinnedChatMessageDialog

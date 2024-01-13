@@ -224,8 +224,11 @@ const ChatMessageEditor = ({
       ) : null}
 
       <Row align='middle' justify='space-between'>
-        <Col flex={1}>
-          <Form.Item name='file' className={styles.chatInputFormItem}>
+        <Col flex={1} span={uploadFile ? (isFile ? 7 : 5) : undefined}>
+          <Form.Item
+            name='file'
+            className={`${styles.chatInputFormItem} ${styles.chatInputFormItemUpload}`}
+          >
             <Upload
               beforeUpload={() => false}
               maxCount={1}
@@ -246,7 +249,7 @@ const ChatMessageEditor = ({
           </Col>
         )}
         {uploadFile ? <Col span={1}></Col> : null}
-        <Col flex={70}>
+        <Col flex={70} span={uploadFile ? 13 : undefined}>
           <FormItem className={styles.chatInputFormItem} name='text'>
             <Input.TextArea
               autoFocus
@@ -259,7 +262,7 @@ const ChatMessageEditor = ({
             />
           </FormItem>
         </Col>
-        <Col flex={1}>
+        <Col flex={1} span={3}>
           <FormItem className={styles.chatInputFormItem}>
             <Button icon={<SendOutlined />} type='text' htmlType='submit' />
           </FormItem>
