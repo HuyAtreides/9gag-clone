@@ -3,6 +3,7 @@ package com.huyphan.models;
 
 import com.huyphan.services.UserService;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -107,6 +108,7 @@ public class ChatConversation {
                 ConversationReadStatus::new
         ).collect(Collectors.toSet());
         this.participants = participants;
+        this.muteStatuses = new HashSet<>();
         this.messages = messages;
         this.created = Instant.now();
     }
@@ -144,6 +146,7 @@ public class ChatConversation {
         this.readStatuses = participants.stream().map(
                 ConversationReadStatus::new
         ).collect(Collectors.toSet());
+        this.muteStatuses = new HashSet<>();
         this.created = Instant.now();
     }
 

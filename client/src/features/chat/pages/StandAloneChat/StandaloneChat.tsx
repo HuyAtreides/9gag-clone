@@ -37,11 +37,23 @@ const StandAloneChat = () => {
   }, [openConversations, dispatch, navigate]);
 
   return (
-    <Row className={styles.standaloneChatContainer}>
-      <Col span={8} className={styles.conversationPreview}>
+    <Row
+      className={styles.standaloneChatContainer}
+      align='middle'
+      justify='center'
+      gutter={[0, { xs: 40, md: 0 }]}
+    >
+      <Col
+        md={{ span: 8, order: 1 }}
+        className={styles.conversationPreview}
+        xs={{ span: 24, order: selectedConversation ? 2 : 1 }}
+      >
         <ConversationsPreview standAlone />
       </Col>
-      <Col span={16}>
+      <Col
+        md={{ span: 16, order: 2 }}
+        xs={{ span: 24, order: selectedConversation ? 1 : 2 }}
+      >
         {!selectedConversation ? (
           <Empty />
         ) : (
