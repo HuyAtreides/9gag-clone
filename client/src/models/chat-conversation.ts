@@ -12,6 +12,7 @@ interface ChatConversationConstructorArguments {
   readonly read: boolean;
   readonly latestChatMessageId: number;
   readonly readStatuses: ConversationReadStatus[];
+  readonly muted: boolean;
 }
 
 export default class ChatConversation {
@@ -19,6 +20,7 @@ export default class ChatConversation {
   readonly participants: User[];
   readonly read: boolean;
   readonly latestChatMessageId: number;
+  readonly muted: boolean;
   readonly readStatuses: ConversationReadStatus[];
 
   constructor(constructorArguments: ChatConversationConstructorArguments) {
@@ -27,6 +29,7 @@ export default class ChatConversation {
     this.read = constructorArguments.read;
     this.latestChatMessageId = constructorArguments.latestChatMessageId;
     this.readStatuses = constructorArguments.readStatuses;
+    this.muted = constructorArguments.muted;
   }
 
   getOtherParticipant(currentUser: User) {

@@ -1,6 +1,7 @@
 package com.huyphan.models;
 
 
+import com.huyphan.services.UserService;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
@@ -52,6 +54,43 @@ public class ChatConversation {
             @JoinColumn(name = "ConversationId")
     })
     private Set<ConversationReadStatus> readStatuses;
+
+    @ElementCollection
+    @CollectionTable(name = "ConversationMuteStatus", joinColumns = {
+            @JoinColumn(name = "ConversationId")
+    })
+    private Set<ConversationMuteStatus> muteStatuses;
+
+    @Transient
+    private boolean muted;
+
+    public boolean isMuted() {
+        User currentUser = Objects.requireNonNull(UserService.getUser());
+
+        return muteStatuses.stream().anyMatch(status -> status.ownedBy(currentUser));
+    }
+
+    public void mute() {
+        User currentUser = Objects.requireNonNull(UserService.getUser());
+        validateParticipantInConversation(currentUser);
+
+        muteStatuses.add(
+                new ConversationMuteStatus(
+                        currentUser,
+                        Instant.now()
+                )
+        );
+    }
+
+    public void unMute() {
+        User currentUser = Objects.requireNonNull(UserService.getUser());
+        validateParticipantInConversation(currentUser);
+
+        muteStatuses.removeIf(
+                status -> status.ownedBy(currentUser)
+        );
+    }
+
 
     @Column(name = "Created", nullable = false)
     private Instant created;

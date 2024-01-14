@@ -132,6 +132,16 @@ export async function unPinMessage(messageId: number) {
   await axios.put<void>(`${Constant.ChatEndPoint}/message/unpin/${messageId}`);
 }
 
+export async function muteConversation(conversationId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.ChatEndPoint}/conversation/mute/${conversationId}`);
+}
+
+export async function unMuteConversation(conversationId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.ChatEndPoint}/conversation/unmute/${conversationId}`);
+}
+
 export async function markConversationAsRead(conversationId: number) {
   const axios = createAxiosInstance();
   await axios.put<void>(`${Constant.ChatEndPoint}/mark-as-read/${conversationId}`);

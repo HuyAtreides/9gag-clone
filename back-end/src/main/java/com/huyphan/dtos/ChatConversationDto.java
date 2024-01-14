@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatConversationDto {
+
     private long id;
 
     private List<UserDto> participants;
@@ -16,4 +17,6 @@ public class ChatConversationDto {
     private Long latestChatMessageId;
 
     private String created;
+
+    private boolean muted;
 }

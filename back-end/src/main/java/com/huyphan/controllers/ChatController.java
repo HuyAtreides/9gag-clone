@@ -179,6 +179,16 @@ public class ChatController {
         chatService.markAllAsRead();
     }
 
+    @PutMapping("conversation/mute/{conversationId}")
+    public void muteConversation(@PathVariable Long conversationId) {
+        chatService.muteConversation(conversationId);
+    }
+
+    @PutMapping("conversation/unmute/{conversationId}")
+    public void unMuteConversation(@PathVariable Long conversationId) {
+        chatService.unMuteConversation(conversationId);
+    }
+
     @DeleteMapping("message/{messageId}")
     public void removeMessage(@PathVariable Long messageId) {
         chatService.removeMessage(messageId);

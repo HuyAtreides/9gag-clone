@@ -237,6 +237,20 @@ const slice = createSlice({
       };
     },
 
+    toggleConversationMuted(state, action: PayloadAction<number>) {
+      const conversationId = action.payload;
+      const openConversation = state.conversationState.openConversations.find(
+        (openConversation) => openConversation.conversation?.id === conversationId,
+      );
+
+      if (openConversation?.conversation) {
+        openConversation.conversation = new ChatConversation({
+          ...openConversation.conversation,
+          muted: !openConversation.conversation.muted,
+        });
+      }
+    },
+
     setConversation(state, action: PayloadAction<OpenChatConversationState>) {
       const conversationState = action.payload;
       const index = state.conversationState.openConversations.findIndex(
@@ -671,6 +685,7 @@ const slice = createSlice({
 
 export const chatReducer = slice.reducer;
 export const {
+  toggleConversationMuted,
   setReplyingToMessage,
   setPinnedMessageError,
   setPinnedMessageIsGettingPage,

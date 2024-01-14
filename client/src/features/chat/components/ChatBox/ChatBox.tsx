@@ -1,4 +1,5 @@
 import {
+  AlertFilled,
   AlertOutlined,
   CloseOutlined,
   DeleteOutlined,
@@ -14,8 +15,10 @@ import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   addNewMessage,
   fetchAllMessageUpToId,
+  mute,
   readConversation,
   reply,
+  unMute,
 } from '../../../../Store/chat/chat-dispatchers';
 import { closeConversation } from '../../../../Store/chat/chat-slice';
 import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
@@ -73,7 +76,8 @@ const ChatBox = ({ chatParticipantId }: Props) => {
     );
   }
 
-  const conversationId = openConversation.conversation!.id;
+  const conversation = openConversation.conversation!;
+  const conversationId = conversation!.id;
   const replyingToMessage = messageState[conversationId].replyingToMessage;
   const isMessagesLoading = messageState[conversationId].isLoading;
 
@@ -99,8 +103,15 @@ const ChatBox = ({ chatParticipantId }: Props) => {
     dispatch(readConversation(conversationId));
   };
 
-  const conversation = openConversation.conversation!;
   const chatParticipant = conversation.getOtherParticipant(currentUser);
+
+  const handleMute = () => {
+    if (!conversation.muted) {
+      dispatch(mute(conversation.id));
+    } else {
+      dispatch(unMute(conversation.id));
+    }
+  };
 
   return (
     <Card
@@ -136,8 +147,13 @@ const ChatBox = ({ chatParticipantId }: Props) => {
               >
                 View pinned messages
               </Button>
-              <Button block type='text' icon={<AlertOutlined />}>
-                Mute
+              <Button
+                block
+                type='text'
+                icon={!conversation.muted ? <AlertFilled /> : <AlertOutlined />}
+                onClick={handleMute}
+              >
+                {!conversation.muted ? 'Mute' : 'Unmute'}
               </Button>
               <Button block type='text' icon={<StopOutlined />}>
                 Restrict

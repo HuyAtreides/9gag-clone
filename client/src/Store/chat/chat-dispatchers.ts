@@ -24,10 +24,12 @@ import {
   getUnreadConversationCount,
   markAllAsRead,
   markConversationAsRead,
+  muteConversation,
   pinMessage,
   removeChatMessage,
   sendMessage,
   sendReply,
+  unMuteConversation,
   unPinMessage,
 } from '../../services/chat-service';
 import { extractErrorMessage, handleError } from '../../utils/error-handler';
@@ -67,6 +69,7 @@ import {
   setUnreadCount,
   subtractUnreadCount,
   syncMessages,
+  toggleConversationMuted,
   updateConversation,
   updateMessage,
 } from './chat-slice';
@@ -463,6 +466,20 @@ const getLatestConversation = (): AppThunk => async (dispatch, getState) => {
   dispatch(updateOpenConversation());
 };
 
+export const mute =
+  (conversationId: number): AppThunk =>
+  async (dispatch, getState) => {
+    dispatch(toggleConversationMuted(conversationId));
+    await muteConversation(conversationId);
+  };
+
+export const unMute =
+  (conversationId: number): AppThunk =>
+  async (dispatch, getState) => {
+    dispatch(toggleConversationMuted(conversationId));
+    await unMuteConversation(conversationId);
+  };
+
 const countLatestUnread =
   (latestConversations: ChatConversation[]): AppThunk =>
   (dispatch, getState) => {
@@ -475,6 +492,10 @@ const countLatestUnread =
     dispatch(
       addUnreadCount(
         latestConversations.filter((latestConversation) => {
+          if (latestConversation.muted) {
+            return false;
+          }
+
           const currentConversation = previewConversations.find(
             (conversation) => latestConversation.id === conversation.id,
           );

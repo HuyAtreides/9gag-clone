@@ -7,6 +7,7 @@ interface ConversationReadStatusDto {
 }
 
 export interface ChatConversationDto {
+  readonly muted: boolean;
   readonly id: number;
   readonly participants: readonly UserDto[];
   readonly read: boolean;

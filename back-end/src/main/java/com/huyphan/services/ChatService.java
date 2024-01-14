@@ -19,6 +19,7 @@ import com.huyphan.repositories.ChatConversationRepository;
 import com.huyphan.repositories.ChatMessageRepository;
 import com.huyphan.services.notification.NotificationService;
 import com.huyphan.utils.AWSS3Util;
+import java.beans.Transient;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -84,6 +85,18 @@ public class ChatService implements MediatorComponent {
         participants.forEach(participant -> {
             eventEmitter.emitEventTo(event, (User) participant);
         });
+    }
+
+    @Transactional
+    public void muteConversation(Long conversationId) {
+        ChatConversation conversation = findConversationById(conversationId);
+        conversation.mute();
+    }
+
+    @Transactional
+    public void unMuteConversation(Long conversationId) {
+        ChatConversation conversation = findConversationById(conversationId);
+        conversation.unMute();
     }
 
     @Transactional(readOnly = true)
