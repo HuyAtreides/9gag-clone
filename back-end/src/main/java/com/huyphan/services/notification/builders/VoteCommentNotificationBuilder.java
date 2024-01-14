@@ -23,12 +23,15 @@ public class VoteCommentNotificationBuilder extends CommentNotificationBuilder {
         List<User> receivers = receiverResolver.resolve(commentNotificationPayload);
         String destUrl = buildDestUrl(commentNotificationPayload);
         String message = "Someone votes your comment";
+        User sender = commentNotificationPayload.getSender();
+
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
             notification.setType(NotificationType.VOTE_COMMENT);
             notification.setDestUrl(destUrl);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

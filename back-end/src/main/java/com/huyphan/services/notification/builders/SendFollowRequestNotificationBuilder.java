@@ -25,12 +25,15 @@ public class SendFollowRequestNotificationBuilder implements
         List<User> receivers = receiverResolver.resolve(notificationPayload);
         String destUrl = buildDestUrl(notificationPayload);
         String message = "A user sent you a follow request";
+        User sender = notificationPayload.getSender();
+
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
             notification.setDestUrl(destUrl);
             notification.setType(NotificationType.SEND_FOLLOW_REQUEST);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

@@ -23,13 +23,16 @@ public class FollowingCommentHasNewReplyNotificationBuilder extends CommentNotif
     public List<Notification> build(CommentNotificationPayload notificationPayload) {
         List<User> receivers = receiverResolver.resolve(notificationPayload);
         String destUrl = buildDestUrl(notificationPayload);
+        User sender = notificationPayload.getSender();
         String message = "A comment you follow receives new reply";
+
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
             notification.setType(NotificationType.FOLLOWING_POST_HAS_NEW_COMMENT);
             notification.setDestUrl(destUrl);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

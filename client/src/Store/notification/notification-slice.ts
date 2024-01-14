@@ -57,12 +57,15 @@ const notificationSlice = createSlice({
 
     appendLatestNotifications(state, action: PayloadAction<Notification[]>) {
       const latestNotifications = action.payload;
-      state.notifications?.push(
-        ...latestNotifications,
-        ...state.notifications.filter((notification) =>
-          latestNotifications.every((latest) => latest.id !== notification.id),
-        ),
-      );
+
+      if (state.notifications) {
+        state.notifications = [
+          ...latestNotifications,
+          ...state.notifications?.filter((notification) =>
+            latestNotifications.every((latest) => latest.id !== notification.id),
+          ),
+        ];
+      }
     },
 
     markAllNotificationsAsViewed(state, action: PayloadAction<void>) {

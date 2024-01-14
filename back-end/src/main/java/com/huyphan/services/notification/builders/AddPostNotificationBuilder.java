@@ -22,6 +22,7 @@ public class AddPostNotificationBuilder implements NotificationBuilder<AddPostNo
     public List<Notification> build(AddPostNotificationPayload notificationPayload) {
         List<User> receivers = receiverResolver.resolve(notificationPayload);
         String destUrl = buildDestUrl(notificationPayload);
+        User sender = notificationPayload.getSender();
         String message = "A user you followed just add new post";
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
@@ -29,6 +30,7 @@ public class AddPostNotificationBuilder implements NotificationBuilder<AddPostNo
             notification.setType(NotificationType.ADD_POST);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

@@ -1,4 +1,5 @@
 import { NotificationType } from './enums/notification-type';
+import { User } from './user';
 
 export default interface Notification {
   readonly id: number;
@@ -6,6 +7,8 @@ export default interface Notification {
   readonly type: NotificationType;
 
   readonly destUrl: string;
+
+  readonly sender: User;
 
   readonly isViewed: boolean;
 

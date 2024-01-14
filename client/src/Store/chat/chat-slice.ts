@@ -646,7 +646,6 @@ const slice = createSlice({
       }
 
       messages[transientIndex] = chatMessage;
-      console.log('persisted messages current', messages);
     },
 
     setSendingMessageError(

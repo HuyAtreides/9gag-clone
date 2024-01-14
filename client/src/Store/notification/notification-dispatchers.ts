@@ -94,12 +94,16 @@ export const removeNotifications = (): AppThunk => async (dispatch, getState) =>
 };
 
 export const markAsViewed =
-  (index: number): AppThunk =>
+  (notificationId: number): AppThunk =>
   async (dispatch, getState) => {
     try {
-      const notification = getState().notification.notifications![index];
+      const index = getState().notification.notifications!.findIndex(
+        (notification) => notification.id === notificationId,
+      );
+      const notViewedCount = getState().notification.notViewedCount;
       dispatch(markNotificationAsViewed(index));
-      await markSpecificNotificationAsViewed(notification.id);
+      dispatch(setNotViewedCount(Math.max(notViewedCount - 1, 0)));
+      await markSpecificNotificationAsViewed(notificationId);
     } catch (error: unknown) {
       handleError(
         dispatch,
