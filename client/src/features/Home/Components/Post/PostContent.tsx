@@ -133,74 +133,6 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
     <VirtualComponent scrollAreaId={Constant.PostScrollAreaId as string}>
       <div className={styles['list-item']}>
         <List.Item
-          extra={[
-            <AutoClosePopover
-              closeAfterClicked={false}
-              content={
-                <>
-                  <Button
-                    icon={<BookOutlined />}
-                    onClick={protectAction(savePost)}
-                    type={post.isSaved ? 'primary' : 'text'}
-                  >
-                    {post.isSaved ? 'Unsave' : 'Save'}
-                  </Button>
-                  <OwnerGuard
-                    component={
-                      <Button
-                        danger
-                        type='text'
-                        className='full-width-btn'
-                        icon={<DeleteOutlined />}
-                        onClick={deletePost}
-                      >
-                        Delete
-                      </Button>
-                    }
-                    owner={post.user}
-                  />
-                  <Button
-                    type='text'
-                    className='full-width-btn'
-                    icon={<CopyOutlined />}
-                    onClick={copyLink}
-                  >
-                    Copy Link
-                  </Button>
-                  <OwnerGuard
-                    owner={post.user}
-                    component={
-                      <Button
-                        icon={<UserOutlined />}
-                        type={post.anonymous ? 'primary' : 'text'}
-                        className='full-width-btn'
-                        onClick={setPostAnonymous}
-                      >
-                        {post.anonymous ? 'Turn off anonymous' : 'Turn on anonymous'}
-                      </Button>
-                    }
-                  />
-                  <OwnerGuard
-                    owner={post.user}
-                    component={
-                      <ToggleNotificationButton
-                        notificationEnabled={post.notificationEnabled}
-                        handleToggle={toggleSendNotifications}
-                      />
-                    }
-                    replace={
-                      <FollowButton followed={post.followed} handleFollow={followPost} />
-                    }
-                  />
-                  <div className={styles.shareButtonContainerSmallBreakpoint}>
-                    <ShareButton post={post} />
-                  </div>
-                </>
-              }
-            >
-              <Button icon={<MoreOutlined />} type='text' />
-            </AutoClosePopover>,
-          ]}
           actions={[
             <Button
               icon={<CaretUpOutlined />}
@@ -240,9 +172,80 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
           <List.Item.Meta
             avatar={<Avatar src={post.section.imgUrl} />}
             title={
-              <Link to={`/tag/${tag ? tag : SortType.FRESH}/${post.section.name}`}>
-                <Typography.Link>{post.section.displayName}</Typography.Link>
-              </Link>
+              <div className={styles.postHeader}>
+                <Link to={`/tag/${tag ? tag : SortType.FRESH}/${post.section.name}`}>
+                  <Typography.Link>{post.section.displayName}</Typography.Link>
+                </Link>
+                <AutoClosePopover
+                  closeAfterClicked={false}
+                  content={
+                    <>
+                      <Button
+                        icon={<BookOutlined />}
+                        onClick={protectAction(savePost)}
+                        type={post.isSaved ? 'primary' : 'text'}
+                      >
+                        {post.isSaved ? 'Unsave' : 'Save'}
+                      </Button>
+                      <OwnerGuard
+                        component={
+                          <Button
+                            danger
+                            type='text'
+                            className='full-width-btn'
+                            icon={<DeleteOutlined />}
+                            onClick={deletePost}
+                          >
+                            Delete
+                          </Button>
+                        }
+                        owner={post.user}
+                      />
+                      <Button
+                        type='text'
+                        className='full-width-btn'
+                        icon={<CopyOutlined />}
+                        onClick={copyLink}
+                      >
+                        Copy Link
+                      </Button>
+                      <OwnerGuard
+                        owner={post.user}
+                        component={
+                          <Button
+                            icon={<UserOutlined />}
+                            type={post.anonymous ? 'primary' : 'text'}
+                            className='full-width-btn'
+                            onClick={setPostAnonymous}
+                          >
+                            {post.anonymous ? 'Turn off anonymous' : 'Turn on anonymous'}
+                          </Button>
+                        }
+                      />
+                      <OwnerGuard
+                        owner={post.user}
+                        component={
+                          <ToggleNotificationButton
+                            notificationEnabled={post.notificationEnabled}
+                            handleToggle={toggleSendNotifications}
+                          />
+                        }
+                        replace={
+                          <FollowButton
+                            followed={post.followed}
+                            handleFollow={followPost}
+                          />
+                        }
+                      />
+                      <div className={styles.shareButtonContainerSmallBreakpoint}>
+                        <ShareButton post={post} />
+                      </div>
+                    </>
+                  }
+                >
+                  <Button icon={<MoreOutlined />} type='text' />
+                </AutoClosePopover>
+              </div>
             }
             description={
               <>

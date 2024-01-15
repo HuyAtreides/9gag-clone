@@ -12,6 +12,12 @@
   overflow: auto;
 }
 
+.postHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .tag {
   padding: 10px;
   margin-top: 10px;
