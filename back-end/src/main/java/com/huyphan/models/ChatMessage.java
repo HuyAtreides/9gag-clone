@@ -172,7 +172,7 @@ public class ChatMessage {
     }
 
     private void validateIsNotDeleted() {
-        if (deleted) {
+        if (deleted || this.conversation.deletedAfterTime(sentDate)) {
             throw new IllegalArgumentException("This message is deleted");
         }
     }

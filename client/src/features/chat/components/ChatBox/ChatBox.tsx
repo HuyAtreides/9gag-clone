@@ -8,12 +8,13 @@ import {
   PushpinOutlined,
   StopOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, List } from 'antd';
+import { Avatar, Button, Card, List, Modal } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   addNewMessage,
+  deleteChat,
   fetchAllMessageUpToId,
   mute,
   readConversation,
@@ -103,6 +104,16 @@ const ChatBox = ({ chatParticipantId }: Props) => {
     dispatch(readConversation(conversationId));
   };
 
+  const deleteConversation = () => {
+    Modal.confirm({
+      onOk: () => {
+        dispatch(deleteChat(conversationId));
+        return false;
+      },
+      title: 'Do you want to delete this conversation?',
+    });
+  };
+
   const chatParticipant = conversation.getOtherParticipant(currentUser);
 
   const handleMute = () => {
@@ -158,7 +169,13 @@ const ChatBox = ({ chatParticipantId }: Props) => {
               <Button block type='text' icon={<StopOutlined />}>
                 Restrict
               </Button>
-              <Button block type='text' danger icon={<DeleteOutlined />}>
+              <Button
+                block
+                type='text'
+                danger
+                icon={<DeleteOutlined />}
+                onClick={deleteConversation}
+              >
                 Delete chat
               </Button>
             </div>

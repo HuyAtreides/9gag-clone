@@ -116,6 +116,10 @@ const ConversationPreview = ({ conversation, standAlone = false }: Props) => {
   }, [dispatch, conversation.id, conversation.latestChatMessageId]);
 
   const openConversation = () => {
+    if (isOpened) {
+      return;
+    }
+
     dispatch(createNewConversation(otherParticipant.id));
     dispatch(
       setConversation({

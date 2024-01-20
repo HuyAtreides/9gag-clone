@@ -62,6 +62,9 @@ public class ChatConversation {
     })
     private Set<ConversationMuteStatus> muteStatuses;
 
+    @Column(name = "DeleteAt")
+    private Instant deleteAt;
+
     @Transient
     private boolean muted;
 
@@ -99,20 +102,6 @@ public class ChatConversation {
     @Setter
     private Long latestChatMessageId;
 
-    public ChatConversation(
-            Set<ChatParticipant> participants,
-            Set<ChatMessage> messages
-    ) {
-        validateNumberOfParticipants(participants);
-        this.readStatuses = participants.stream().map(
-                ConversationReadStatus::new
-        ).collect(Collectors.toSet());
-        this.participants = participants;
-        this.muteStatuses = new HashSet<>();
-        this.messages = messages;
-        this.created = Instant.now();
-    }
-
     private void validateNumberOfParticipants(Set<ChatParticipant> participants) {
         if (participants.size() != 2) {
             throw new IllegalArgumentException("Number of participants should be 2");
@@ -148,6 +137,17 @@ public class ChatConversation {
         ).collect(Collectors.toSet());
         this.muteStatuses = new HashSet<>();
         this.created = Instant.now();
+        this.deleteAt = this.created;
+    }
+
+    public boolean deletedAfterTime(Instant time) {
+        return time.isBefore(this.deleteAt);
+    }
+
+    public void delete() {
+        User currentUser = UserService.getUser();
+        validateParticipantInConversation(currentUser);
+        this.deleteAt = Instant.now();
     }
 
     public void markConversationAsReadByUser(User user) {

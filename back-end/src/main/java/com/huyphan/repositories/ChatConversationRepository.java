@@ -65,6 +65,7 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                 select message
                 from ChatMessage message
                 where message.conversation.id = conversation.id
+                and message.sentDate > message.conversation.deleteAt
             )
             """)
     Slice<ChatConversationWithDerivedFields> getCurrentUserNonEmptyConversations(

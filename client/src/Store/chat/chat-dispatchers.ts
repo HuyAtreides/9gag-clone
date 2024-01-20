@@ -12,6 +12,7 @@ import { User } from '../../models/user';
 import {
   FetchChatConversationFunc,
   createConversationWithUser,
+  deleteConversation,
   editMessage,
   getAllLatestChatMessage,
   getAllMessagesInRange,
@@ -44,11 +45,13 @@ import {
   addMessages,
   addPinnedMessagesPage,
   addUnreadCount,
+  closeConversation,
   markOpenConversationAsRead,
   markPreviewConversationAsRead,
   openConversation,
   removeIsSendingId,
   removeMessage,
+  removePreviewConversation,
   setConversation,
   setConversationLoadingError,
   setGetMessagePageError,
@@ -73,6 +76,7 @@ import {
   updateConversation,
   updateMessage,
 } from './chat-slice';
+import { message } from 'antd';
 
 type ConversationListStateActionCreator = {
   setIsLoading: ActionCreatorWithPayload<boolean>;
@@ -114,6 +118,26 @@ export const appendConversationsPageDispatcher =
     } catch (error: unknown) {
       dispatch(actionCreators.setIsGettingPage(false));
       handleError(dispatch, error, setConversationLoadingError);
+    }
+  };
+
+export const deleteChat =
+  (conversationId: number): AppThunk =>
+  async (dispatch, state) => {
+    try {
+      const openConversation = state().chat.conversationState.openConversations.find(
+        (openConversation) => openConversation.conversation?.id === conversationId,
+      );
+
+      if (!openConversation) {
+        return;
+      }
+
+      dispatch(closeConversation(openConversation.userId));
+      dispatch(removePreviewConversation(conversationId));
+      await deleteConversation(conversationId);
+    } catch (err: unknown) {
+      message.error('Failed to delete conversation. Please try again later');
     }
   };
 

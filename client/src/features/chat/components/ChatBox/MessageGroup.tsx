@@ -37,8 +37,19 @@ interface CurrentMessageGroupProps {
   readonly messages: ChatMessage[];
 }
 
+const useIsBeingSent = (message: ChatMessage) => {
+  const conversationId = message.conversationId;
+  const sendingIds = useAppSelector(
+    (state) => state.chat.messageState[conversationId].sendingIds,
+  );
+  const isBeingSent = sendingIds.includes(message.id);
+
+  return isBeingSent;
+};
+
 const PinButton = ({ message }: { message: ChatMessage }) => {
   const dispatch = useAppDispatch();
+  const isBeingSent = useIsBeingSent(message);
 
   const handlePin = () => {
     if (message.pinned) {
@@ -49,7 +60,7 @@ const PinButton = ({ message }: { message: ChatMessage }) => {
   };
 
   return (
-    <Button type='text' block onClick={handlePin}>
+    <Button type='text' block onClick={handlePin} disabled={isBeingSent}>
       {message.pinned ? 'Unpin' : 'Pin'}
     </Button>
   );
@@ -58,10 +69,7 @@ const PinButton = ({ message }: { message: ChatMessage }) => {
 const ReplyButton = ({ message }: { message: ChatMessage }) => {
   const dispatch = useAppDispatch();
   const conversationId = message.conversationId;
-  const sendingIds = useAppSelector(
-    (state) => state.chat.messageState[conversationId].sendingIds,
-  );
-  const isBeingSent = sendingIds.includes(message.id);
+  const isBeingSent = useIsBeingSent(message);
 
   const handleReply = () => {
     dispatch(setReplyingToMessage({ conversationId, message }));
@@ -87,6 +95,7 @@ const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
   const removeMessage = () => {
     dispatch(remove(conversationId, message.id));
   };
+  const isBeingSent = useIsBeingSent(message);
 
   const handleEditMessage = (formData: NewChatMessageFormData) => {
     dispatch(edit(conversationId, message.id, formData));
@@ -108,11 +117,16 @@ const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
       placement='left'
       actionButtons={
         <>
-          <Button type='text' block onClick={removeMessage}>
+          <Button type='text' block onClick={removeMessage} disabled={isBeingSent}>
             Remove
           </Button>
           <ReplyButton message={message} />
-          <Button type='text' block onClick={() => setShowMessageEditor(true)}>
+          <Button
+            type='text'
+            block
+            onClick={() => setShowMessageEditor(true)}
+            disabled={isBeingSent}
+          >
             Edit
           </Button>
           <PinButton message={message} />

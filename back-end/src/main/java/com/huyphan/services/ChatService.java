@@ -197,7 +197,8 @@ public class ChatService implements MediatorComponent {
 
     @Transactional
     public void deleteConversation(Long conversationId) {
-
+        ChatConversation conversation = findConversationById(conversationId);
+        conversation.delete();
     }
 
     private User getOtherParticipantInConversation(ChatConversation conversation) {

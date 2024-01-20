@@ -179,6 +179,15 @@ const slice = createSlice({
       };
     },
 
+    removePreviewConversation(state, action: PayloadAction<number>) {
+      const conversationId = action.payload;
+      const index = state.conversationState.previewConversations.conversations.findIndex(
+        (conversation) => conversation.id === conversationId,
+      );
+
+      state.conversationState.previewConversations.conversations.splice(index, 1);
+    },
+
     setReplyingToMessage(
       state,
       action: PayloadAction<{ conversationId: number; message: ChatMessage | null }>,
@@ -684,6 +693,7 @@ const slice = createSlice({
 
 export const chatReducer = slice.reducer;
 export const {
+  removePreviewConversation,
   toggleConversationMuted,
   setReplyingToMessage,
   setPinnedMessageError,

@@ -19,6 +19,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where chatMessage.conversation.id = :conversationId
              and :user in elements(chatMessage.conversation.participants)
+             and chatMessage.sentDate > chatMessage.conversation.deleteAt
              """)
     Slice<ChatMessage> getConversationChatMessages(
             @Param("user") User user,
@@ -32,6 +33,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where :user in elements(chatMessage.conversation.participants)
             and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
+            and chatMessage.sentDate > chatMessage.conversation.deleteAt
             order by chatMessage.sentDate DESC
             """)
     List<ChatMessage> findAllChatMessagesInRange(
@@ -46,6 +48,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where chatMessage.conversation = :conversation
             and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
+            and chatMessage.sentDate > chatMessage.conversation.deleteAt
             order by chatMessage.sentDate DESC
             """)
     List<ChatMessage> findConversationChatMessagesInRange(
@@ -59,6 +62,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             select chatMessage
             from ChatMessage chatMessage
             where chatMessage.conversation = :conversation and chatMessage.pinned = true
+            and chatMessage.sentDate > chatMessage.conversation.deleteAt
             """)
     Slice<ChatMessage> findAllPinnedMessages(
             @Param("conversation") ChatConversation conversation,
@@ -71,6 +75,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where :user in elements(chatMessage.conversation.participants)
             and chatMessage.id >= :latestMessageId
+            and chatMessage.sentDate > chatMessage.conversation.deleteAt
             """)
     List<ChatMessage> findAllLatestChatMessages(
             @Param("user") User user,
