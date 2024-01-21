@@ -37,6 +37,8 @@ public class UserDto {
 
     private String blockedTime;
 
+    private boolean onlyReceiveMessageFromFollowers;
+
     public void setIsPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }

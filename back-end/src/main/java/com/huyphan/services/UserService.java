@@ -297,6 +297,17 @@ public class UserService implements UserDetailsService, MediatorComponent {
         );
     }
 
+    @Transactional
+    public void restrict(Long userId) throws UserException {
+        User currentUser = getCurrentUser();
+        currentUser.restrict(getUserById(userId));
+    }
+
+    @Transactional
+    public void unRestrict(Long userId) throws UserException {
+        User currentUser = getCurrentUser();
+        currentUser.unRestrict(getUserById(userId));
+    }
 
     /**
      * Get a specific user using user's id.

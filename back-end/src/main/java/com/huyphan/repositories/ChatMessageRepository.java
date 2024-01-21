@@ -17,13 +17,13 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
     @Query("""
             select chatMessage
             from ChatMessage chatMessage
-            where chatMessage.conversation.id = :conversationId
+            where chatMessage.conversation = :conversation
              and :user in elements(chatMessage.conversation.participants)
              and chatMessage.sentDate > chatMessage.conversation.deleteAt
              """)
     Slice<ChatMessage> getConversationChatMessages(
             @Param("user") User user,
-            @Param("conversationId") Long conversationId,
+            @Param("conversation") ChatConversation conversation,
             Pageable pageable
     );
 

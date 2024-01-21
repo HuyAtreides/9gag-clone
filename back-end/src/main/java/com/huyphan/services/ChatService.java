@@ -19,12 +19,9 @@ import com.huyphan.repositories.ChatConversationRepository;
 import com.huyphan.repositories.ChatMessageRepository;
 import com.huyphan.services.notification.NotificationService;
 import com.huyphan.utils.AWSS3Util;
-import java.beans.Transient;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +79,13 @@ public class ChatService implements MediatorComponent {
     }
 
     private void emitEventToParticipants(WebSocketEvent event, Set<ChatParticipant> participants) {
+        User currentUser = userService.getCurrentUser();
+
         participants.forEach(participant -> {
+            if (participant.isRestricting(currentUser)) {
+                return;
+            }
+
             eventEmitter.emitEventTo(event, (User) participant);
         });
     }
@@ -143,8 +146,9 @@ public class ChatService implements MediatorComponent {
     ) {
         User currentUser = UserService.getUser();
         Pageable pageable = createChatMessagePageable(pageOptions);
+        ChatConversation conversation = findConversationById(conversationId);
 
-        return chatMessageRepo.getConversationChatMessages(currentUser, conversationId, pageable);
+        return chatMessageRepo.getConversationChatMessages(currentUser, conversation, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -203,7 +207,7 @@ public class ChatService implements MediatorComponent {
 
     private User getOtherParticipantInConversation(ChatConversation conversation) {
         User currentUser = UserService.getUser();
-        return (User) conversation.getOtherParticipantInConversation(currentUser);
+        return (User) conversation.getOtherParticipant(currentUser);
     }
 
     @Transactional

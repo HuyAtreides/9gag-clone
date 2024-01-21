@@ -24,9 +24,7 @@ import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 
 
@@ -65,8 +63,47 @@ public class ChatConversation {
     @Column(name = "DeleteAt")
     private Instant deleteAt;
 
+    @Column(name = "AllowedChatWithoutFollowing")
+    private boolean allowedChatWithoutFollowing;
+
     @Transient
     private boolean muted;
+
+    @Transient
+    private boolean restricted;
+
+    @Transient
+    private boolean unavailable;
+
+    @Transient
+    private boolean blocked;
+
+    @Transient
+    private boolean mustFollowToChat;
+
+    public boolean isRestricted() {
+        ChatParticipant currentParticipant = getCurrentchatParticipant();
+
+        return currentParticipant.isRestricting(getOtherParticipant(currentParticipant));
+    }
+
+    public boolean isUnavailable() {
+        ChatParticipant currentParticipant = getCurrentchatParticipant();
+
+        return getOtherParticipant(currentParticipant).isBlocking(currentParticipant);
+    }
+
+    public boolean isMustFollowToChat() {
+        ChatParticipant currentParticipant = getCurrentchatParticipant();
+
+        return getOtherParticipant(currentParticipant).isUserMustFollowToChat(currentParticipant);
+    }
+
+    public boolean isBlocked() {
+        ChatParticipant currentParticipant = getCurrentchatParticipant();
+
+        return currentParticipant.isBlocking(getOtherParticipant(currentParticipant));
+    }
 
     public boolean isMuted() {
         User currentUser = Objects.requireNonNull(UserService.getUser());
@@ -138,6 +175,22 @@ public class ChatConversation {
         this.muteStatuses = new HashSet<>();
         this.created = Instant.now();
         this.deleteAt = this.created;
+        this.allowedChatWithoutFollowing = isMustFollowToChat();
+    }
+
+    private ChatParticipant getCurrentchatParticipant() {
+        User currentUser = Objects.requireNonNull(UserService.getUser());
+
+        return participants.stream()
+                .filter(currentUser::equals)
+                .findAny()
+                .orElseThrow();
+    }
+
+    private void validateModification() {
+        if (isUnavailable() || isBlocked() || isRestricted()) {
+            throw new IllegalArgumentException("Invalid operation!");
+        }
     }
 
     public boolean deletedAfterTime(Instant time) {
@@ -147,11 +200,13 @@ public class ChatConversation {
     public void delete() {
         User currentUser = UserService.getUser();
         validateParticipantInConversation(currentUser);
+        validateModification();
         this.deleteAt = Instant.now();
     }
 
     public void markConversationAsReadByUser(User user) {
         validateParticipantInConversation(user);
+        validateModification();
 
         this.readStatuses = this.readStatuses.stream().map(status -> {
                     if (status.getReadBy().equals(user)) {
@@ -182,7 +237,7 @@ public class ChatConversation {
 
         validateMessageCanBeSent(messageSender);
         markConversationUnReadByUser(
-                (User) getOtherParticipantInConversation(messageSender)
+                (User) getOtherParticipant(messageSender)
         );
 
         newMessage.associateWithConversation(this);
@@ -194,10 +249,11 @@ public class ChatConversation {
 
     public void removeMessage(ChatMessage chatMessage, User user) {
         validateParticipantInConversation(user);
+        validateModification();
         chatMessage.markAsDeleted(user);
     }
 
-    public ChatParticipant getOtherParticipantInConversation(ChatParticipant currentParticipant) {
+    public ChatParticipant getOtherParticipant(ChatParticipant currentParticipant) {
         return getParticipants().stream()
                 .filter(chatParticipant ->
                         !chatParticipant.equals(currentParticipant)

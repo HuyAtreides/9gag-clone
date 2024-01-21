@@ -27,7 +27,7 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                     where chatMessage.conversation.id = conversation.id
                 ) as latestChatMessageId
             """;
-    String PARTICIPANT_BLOCKS_EACH_OTHER_RESTRICTION = """
+    String PARTICIPANT_BLOCKS_EACH_OTHER_FILTER = """
             not exists (
                                 select userBlockRecord
                                 from UserBlockRecord userBlockRecord
@@ -35,6 +35,14 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                                       and userBlockRecord.blocker = elements(conversation.participants)
                        )
                         
+            """;
+
+    String RESTRICT_PARTICIPANT_FILTER = """
+            not exists (
+                select record
+                from RestrictRecord record
+                where record.restricting = :user and record.restricted in elements(conversation.participants)
+            )
             """;
 
     @Query("""
@@ -53,7 +61,8 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
     @Query(SELECT_STATEMENT + """
             from ChatConversation conversation
             where :user in elements(conversation.participants)
-            """)
+            and
+            """ + PARTICIPANT_BLOCKS_EACH_OTHER_FILTER + " and " + RESTRICT_PARTICIPANT_FILTER)
     Slice<ChatConversationWithDerivedFields> getAllConversationsOfCurrentUser(
             @Param("user") User currentUser,
             Pageable pageable
@@ -66,8 +75,8 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                 from ChatMessage message
                 where message.conversation.id = conversation.id
                 and message.sentDate > message.conversation.deleteAt
-            )
-            """)
+            ) and
+            """ + PARTICIPANT_BLOCKS_EACH_OTHER_FILTER + " and " + RESTRICT_PARTICIPANT_FILTER)
     Slice<ChatConversationWithDerivedFields> getCurrentUserNonEmptyConversations(
             @Param("user") User currentUser,
             Pageable pageable
@@ -88,8 +97,8 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                 from ChatMessage message
                 where message.conversation.id = conversation.id
             ) and (lower(participant.username) like :searchTerm or lower(participant.displayName) like :searchTerm)
-            and participant != :user
-            """)
+            and participant != :user and
+            """ + PARTICIPANT_BLOCKS_EACH_OTHER_FILTER + " and " + RESTRICT_PARTICIPANT_FILTER)
     Slice<ChatConversationWithDerivedFields> searchConversationsOfCurrentUser(
             @Param("user") User currentUser,
             @Param("searchTerm") String searchTerm,
@@ -102,8 +111,8 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                 select message
                 from ChatMessage message
                 where message.conversation.id = conversation.id and message.id > :currentLatestMessageId
-            )
-            """ + """
+            ) and
+            """ + PARTICIPANT_BLOCKS_EACH_OTHER_FILTER + " and " + RESTRICT_PARTICIPANT_FILTER + """
             order by
             """ + " (" + Constants.LATEST_MESSAGE_ID + ") DESC")
     List<ChatConversationWithDerivedFields> findAllConversationWithNewestMessage(
@@ -114,8 +123,9 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
     @Query("""
             select count(*)
             from ChatConversation conversation join conversation.readStatuses readStatus
-            where readStatus.readBy = :user and readStatus.latestMessagesRead = false 
-            """)
+            where readStatus.readBy = :user and readStatus.latestMessagesRead = false
+            and
+            """ + RESTRICT_PARTICIPANT_FILTER)
     int countUnreadConversation(
             @Param("user") User currentUser
     );
@@ -124,7 +134,8 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
             select conversation
             from ChatConversation conversation join conversation.readStatuses readStatus
             where readStatus.readBy = :user and readStatus.latestMessagesRead = false
-            """)
+            and
+            """ + PARTICIPANT_BLOCKS_EACH_OTHER_FILTER + " and " + RESTRICT_PARTICIPANT_FILTER)
     List<ChatConversation> findAllUnreadConversation(
             @Param("user") User currentUser
     );

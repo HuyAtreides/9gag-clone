@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,6 +84,16 @@ public class UserController {
     public UserDto getUserById(@PathVariable Long id) throws UserException {
         User user = userService.getUserById(id);
         return userMapper.toDto(user);
+    }
+
+    @PutMapping("restrict/{userId}")
+    public void restrict(@PathVariable Long userId) throws UserException {
+        userService.restrict(userId);
+    }
+
+    @PutMapping("un-restrict/{userId}")
+    public void unRestrict(@PathVariable Long userId) throws UserException {
+        userService.unRestrict(userId);
     }
 
     @GetMapping("{id}/stats")

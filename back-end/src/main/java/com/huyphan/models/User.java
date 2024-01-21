@@ -171,6 +171,15 @@ public class User implements UserDetails, Followable, ChatParticipant {
             inverseJoinColumns = @JoinColumn(name = "BlockedId"))
     private Set<User> blocking;
 
+    @Column(name = "OnlyReceiveMessageFromFollowers")
+    private boolean onlyReceiveMessageFromFollowers;
+
+    @OneToMany(mappedBy = "restricting")
+    private Set<RestrictRecord> restrictingRecords;
+
+    @OneToMany(mappedBy = "restricted")
+    private Set<RestrictRecord> restrictedByRecords;
+
     @Transient
     private boolean blocked;
 
@@ -180,6 +189,20 @@ public class User implements UserDetails, Followable, ChatParticipant {
     @Override
     public User getOwner() {
         return this;
+    }
+
+    @Override
+    public boolean isBlocking(ChatParticipant participant) {
+        return this.blocking.contains(participant);
+    }
+
+    private boolean isBlocked(ChatParticipant participant) {
+        return this.blockedBy.contains(participant);
+    }
+
+    @Override
+    public boolean isUserMustFollowToChat(ChatParticipant chatParticipant) {
+        return onlyReceiveMessageFromFollowers && !followers.contains(chatParticipant);
     }
 
     @Override
@@ -228,8 +251,31 @@ public class User implements UserDetails, Followable, ChatParticipant {
         return true;
     }
 
+    public void restrict(User user) {
+        if (!isRestricting(user)) {
+            this.restrictingRecords.add(
+                    new RestrictRecord(this, user)
+            );
+        }
+    }
+
+    @Override
+    public boolean isRestricting(ChatParticipant user) {
+        return this.restrictingRecords.stream().anyMatch(
+                record -> record.appliedFor((User) user)
+        );
+    }
+
+    public void unRestrict(User user) {
+        this.restrictingRecords.removeIf(record -> record.appliedFor(user));
+    }
+
     @Override
     public boolean canSendMessageTo(ChatParticipant receiver) {
-        return true;
+        if (isRestricting(receiver)) {
+            return false;
+        }
+
+        return !isBlocked(receiver) && !isBlocking(receiver) && !isUserMustFollowToChat(receiver);
     }
 }
