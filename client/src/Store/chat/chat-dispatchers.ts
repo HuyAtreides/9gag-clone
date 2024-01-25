@@ -1,4 +1,5 @@
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { message } from 'antd';
 import { AppThunk } from '..';
 import ChatConversation from '../../models/chat-conversation';
 import ChatMessage from '../../models/chat-message';
@@ -76,7 +77,6 @@ import {
   updateConversation,
   updateMessage,
 } from './chat-slice';
-import { message } from 'antd';
 
 type ConversationListStateActionCreator = {
   setIsLoading: ActionCreatorWithPayload<boolean>;
@@ -493,15 +493,23 @@ const getLatestConversation = (): AppThunk => async (dispatch, getState) => {
 export const mute =
   (conversationId: number): AppThunk =>
   async (dispatch, getState) => {
-    dispatch(toggleConversationMuted(conversationId));
-    await muteConversation(conversationId);
+    try {
+      dispatch(toggleConversationMuted(conversationId));
+      await muteConversation(conversationId);
+    } catch (error: unknown) {
+      message.error('Failed to mute conversation. Please try again later');
+    }
   };
 
 export const unMute =
   (conversationId: number): AppThunk =>
   async (dispatch, getState) => {
-    dispatch(toggleConversationMuted(conversationId));
-    await unMuteConversation(conversationId);
+    try {
+      dispatch(toggleConversationMuted(conversationId));
+      await unMuteConversation(conversationId);
+    } catch (err: unknown) {
+      message.error('Failed to unmute conversation. Please try again later');
+    }
   };
 
 const countLatestUnread =

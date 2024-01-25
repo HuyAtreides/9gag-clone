@@ -13,6 +13,7 @@ import {
   blockUser,
   followUser,
   getRecentSearchUser,
+  getRestrictingUser,
   getUserBlocking,
   getUserFollowers,
   getUserFollowing,
@@ -20,22 +21,25 @@ import {
   removeUserFromRecentSearch,
   searchUser,
   unFollowUser,
+  unRestrictUser,
   unblockUser,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
 import { PageFetchingFunction } from '../../utils/types/page-fetching-function';
+import { setConversationBlocked, setConversationRestricted } from '../chat/chat-slice';
 import {
   appendNewUsers,
   removeUser,
   setIsGettingPage,
   setIsLoading,
   setPagination,
+  setUserSummaryBlocked,
   setUserSummaryErrorMessage,
   setUserSummaryFollowed,
   setUserSummaryReceivedFollowRequest,
+  setUserSummaryRestricted,
   setUsers,
 } from './user-summary-slice';
-import { setUserSummaryBlocked } from './user-summary-slice';
 
 export const getSummaryUserList =
   <T extends PageFetchingRequest>(
@@ -128,6 +132,14 @@ export const appendBlocking = (request: PageFetchingRequest) => {
   return appendUserSummary(request, getUserBlocking);
 };
 
+export const getRestricting = (request: PageFetchingRequest) => {
+  return getSummaryUserList(request, getRestrictingUser);
+};
+
+export const appendRestricting = (request: PageFetchingRequest) => {
+  return appendUserSummary(request, getRestrictingUser);
+};
+
 export const getRecentSearch = (request: PageFetchingRequest) => {
   return getSummaryUserList(request, getRecentSearchUser);
 };
@@ -218,6 +230,7 @@ export const blockInSummaryList =
     try {
       await blockUser(userId);
       dispatch(setUserSummaryBlocked({ id: userId, value: true }));
+      dispatch(setConversationBlocked(userId));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserSummaryErrorMessage);
     }
@@ -229,6 +242,31 @@ export const unblock =
     try {
       await unblockUser(userId);
       dispatch(setUserSummaryBlocked({ id: userId, value: false }));
+      dispatch(setConversationBlocked(userId));
+    } catch (err: unknown) {
+      handleError(dispatch, err, setUserSummaryErrorMessage);
+    }
+  };
+
+export const restrictInSummaryList =
+  (userId: number): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      await unRestrictUser(userId);
+      dispatch(setUserSummaryRestricted({ id: userId, value: true }));
+      dispatch(setConversationRestricted(userId));
+    } catch (err: unknown) {
+      handleError(dispatch, err, setUserSummaryErrorMessage);
+    }
+  };
+
+export const unRestrictInSummaryList =
+  (userId: number): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      await unRestrictUser(userId);
+      dispatch(setUserSummaryRestricted({ id: userId, value: false }));
+      dispatch(setConversationRestricted(userId));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserSummaryErrorMessage);
     }

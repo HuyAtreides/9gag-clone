@@ -31,8 +31,8 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
             not exists (
                                 select userBlockRecord
                                 from UserBlockRecord userBlockRecord
-                                where userBlockRecord.blocked = elements(conversation.participants)
-                                      and userBlockRecord.blocker = elements(conversation.participants)
+                                where userBlockRecord.blocked in elements(conversation.participants)
+                                      and userBlockRecord.blocker in elements(conversation.participants)
                        )
                         
             """;

@@ -23,6 +23,9 @@ export namespace WebSocketUtils {
     [WebSocketEvent.RECEIVE_NEW_MESSAGE]: () => {
       throw new Error('Function not implemented.');
     },
+    [WebSocketEvent.BLOCK_USER]: function (): void {
+      throw new Error('Function not implemented.');
+    },
   };
 
   const messageHandler = (event: MessageEvent<WebSocketEvent>) => {

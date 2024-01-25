@@ -14,4 +14,9 @@ export interface ChatConversationDto {
   readonly created: Date;
   readonly latestChatMessageId: number;
   readonly readStatuses: readonly ConversationReadStatusDto[];
+  readonly restricted: boolean;
+  readonly unavailable: boolean;
+  readonly blocked: boolean;
+  readonly mustFollowToChat: boolean;
+  readonly needConfirmationBeforeSendingMessage: boolean;
 }

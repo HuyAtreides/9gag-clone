@@ -8,5 +8,7 @@ public enum WebSocketEvent {
     PIN_MESSAGE,
 
     MARK_AS_READ,
-    RECEIVE_NEW_MESSAGE;
+    RECEIVE_NEW_MESSAGE,
+
+    BLOCK_USER;
 }

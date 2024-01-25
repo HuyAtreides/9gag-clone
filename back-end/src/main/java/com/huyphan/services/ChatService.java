@@ -65,7 +65,7 @@ public class ChatService implements MediatorComponent {
 
     @Transactional
     public ChatMessage addMessage(Long conversationId, NewChatMessageData newChatMessageData) {
-        User currentUser = UserService.getUser();
+        User currentUser = userService.getCurrentUser();
         ChatConversation chatConversation = findConversationById(conversationId);
         MessageContent messageContent = newChatMessageData.getContent();
         ChatMessage chatMessage = new ChatMessage(messageContent, currentUser);
@@ -323,7 +323,7 @@ public class ChatService implements MediatorComponent {
     @Transactional
     public ChatConversation createConversationWithUser(Long userId) throws UserException {
         User currentUser = UserService.getUser();
-        User otherUser = userService.getUserWithoutDerivedFieldsById(userId);
+        User otherUser = userService.findUserByIdWithoutBlockFilter(userId);
         Set<ChatParticipant> participants = new HashSet<>(Arrays.asList(currentUser, otherUser));
         Optional<ChatConversation> conversationWithParticipants = chatConversationRepo.findConversationWithParticipants(
                 participants

@@ -1,5 +1,6 @@
 package com.huyphan.services;
 
+import com.huyphan.controllers.eventemitter.EventEmitter;
 import com.huyphan.events.FollowEvent;
 import com.huyphan.mediators.IMediator;
 import com.huyphan.mediators.MediatorComponent;
@@ -10,6 +11,7 @@ import com.huyphan.models.UpdateProfileData;
 import com.huyphan.models.User;
 import com.huyphan.models.UserSecret;
 import com.huyphan.models.UserStats;
+import com.huyphan.models.enums.WebSocketEvent;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
@@ -56,6 +58,9 @@ public class UserService implements UserDetailsService, MediatorComponent {
 
     @Autowired
     private AWSS3Util awss3Util;
+
+    @Autowired
+    private EventEmitter eventEmitter;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -198,6 +203,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         }
 
         user.getBlocking().add(blockedUser);
+        eventEmitter.emitEventTo(WebSocketEvent.BLOCK_USER, blockedUser);
     }
 
     @Transactional(rollbackFor = {AppException.class})
@@ -206,6 +212,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         User blockedUser = userRepo.findById(userId)
                 .orElseThrow(() -> new UserException("User not found"));
         user.getBlocking().remove(blockedUser);
+        eventEmitter.emitEventTo(WebSocketEvent.BLOCK_USER, blockedUser);
     }
 
     public Slice<User> getBlockingUser(PageOptions pageOptions) {
@@ -216,6 +223,18 @@ public class UserService implements UserDetailsService, MediatorComponent {
                         "(blockedTime)")
         );
         Slice<UserWithDerivedFields> slice = userRepo.getBlockedUsers(getUser(), pageable);
+
+        return slice.map(UserWithDerivedFields::toUser);
+    }
+
+    public Slice<User> getRestrictedUser(PageOptions pageOptions) {
+        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize(),
+                JpaSort.unsafe(
+                        Direction.DESC
+                        ,
+                        "(restrictedAt)")
+        );
+        Slice<UserWithDerivedFields> slice = userRepo.getRestrictedUser(getUser(), pageable);
 
         return slice.map(UserWithDerivedFields::toUser);
     }
@@ -322,5 +341,9 @@ public class UserService implements UserDetailsService, MediatorComponent {
     public User getUserWithoutDerivedFieldsById(Long id) throws UserException {
         return userRepo.findById(id, getUser())
                 .orElseThrow(() -> new UserException("User is not found"));
+    }
+
+    public User findUserByIdWithoutBlockFilter(Long id) throws UserException {
+        return userRepo.findById(id).orElseThrow(() -> new UserException("User is not found"));
     }
 }

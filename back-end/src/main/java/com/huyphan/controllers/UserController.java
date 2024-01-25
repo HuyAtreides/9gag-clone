@@ -167,6 +167,14 @@ public class UserController {
         return sliceMapper.toDto(slice, userMapper);
     }
 
+    @GetMapping("restricting")
+    public SliceDto<UserDto> getRestrictedUser(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
+        Slice<User> slice = userService.getRestrictedUser(pageOptions);
+
+        return sliceMapper.toDto(slice, userMapper);
+    }
+
     @PutMapping("block/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void block(@PathVariable Long userId) throws UserException {

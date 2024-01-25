@@ -89,7 +89,7 @@ const ChatMessageList = ({ openConversationId }: Props) => {
     };
 
     dispatch(getMessagePage(pageFetchingRequest));
-  }, [dispatch, conversationId]);
+  }, [dispatch, conversationId, conversation.restricted]);
 
   if (isLoading) {
     return (

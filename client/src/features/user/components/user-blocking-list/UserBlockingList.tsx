@@ -12,6 +12,7 @@ import { User } from '../../../../models/user';
 import { useAppDispatch } from '../../../../Store';
 import { useState } from 'react';
 import useTimeDiffFromToday from '../../../../custom-hooks/use-time-diff-from-today';
+import ViewChatButton from '../view-chat-button/ViewChatButton';
 
 const BlockedUser: React.FC<{ user: User }> = ({ user }) => {
   const dispatch = useAppDispatch();
@@ -47,6 +48,7 @@ const BlockedUser: React.FC<{ user: User }> = ({ user }) => {
         >
           {user.blocked ? 'Unblock' : 'Block'}
         </Button>,
+        <ViewChatButton user={user} />,
       ]}
     />
   );

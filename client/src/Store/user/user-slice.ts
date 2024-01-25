@@ -93,11 +93,20 @@ const userSlice = createSlice({
         receivedFollowRequest: action.payload,
       });
     },
+
+    setOtherProfileRestricted(state, action: PayloadAction<boolean>) {
+      const otherProfile = state.otherProfile!;
+      state.otherProfile = new User({
+        ...otherProfile,
+        restricted: action.payload,
+      });
+    },
   },
 });
 
 export const userReducer = userSlice.reducer;
 export const {
+  setOtherProfileRestricted,
   setIsLoading,
   setProfile,
   setUserErrorMessage,

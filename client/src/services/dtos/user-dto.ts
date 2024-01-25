@@ -24,4 +24,8 @@ export interface UserDto {
   readonly coverImageUrl: string;
 
   readonly about: string;
+
+  readonly restricted: boolean;
+
+  readonly restrictedAt: string | null;
 }

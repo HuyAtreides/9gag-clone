@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -174,17 +175,26 @@ public class User implements UserDetails, Followable, ChatParticipant {
     @Column(name = "OnlyReceiveMessageFromFollowers")
     private boolean onlyReceiveMessageFromFollowers;
 
-    @OneToMany(mappedBy = "restricting")
-    private Set<RestrictRecord> restrictingRecords;
+    @ManyToMany
+    @JoinTable(name = "RestrictRecord",
+            joinColumns = @JoinColumn(name = "RestrictingId"),
+            inverseJoinColumns = @JoinColumn(name = "RestrictedId"))
+    private Set<User> restricting;
 
-    @OneToMany(mappedBy = "restricted")
-    private Set<RestrictRecord> restrictedByRecords;
+    @ManyToMany(mappedBy = "restricting")
+    private Set<User> restrictedBy;
 
     @Transient
     private boolean blocked;
 
     @Transient
     private Instant blockedTime;
+
+    @Transient
+    private boolean restricted;
+
+    @Transient
+    private Instant restrictedAt;
 
     @Override
     public User getOwner() {
@@ -253,21 +263,17 @@ public class User implements UserDetails, Followable, ChatParticipant {
 
     public void restrict(User user) {
         if (!isRestricting(user)) {
-            this.restrictingRecords.add(
-                    new RestrictRecord(this, user)
-            );
+            this.restricting.add(user);
         }
     }
 
     @Override
     public boolean isRestricting(ChatParticipant user) {
-        return this.restrictingRecords.stream().anyMatch(
-                record -> record.appliedFor((User) user)
-        );
+        return this.restricting.contains(user);
     }
 
     public void unRestrict(User user) {
-        this.restrictingRecords.removeIf(record -> record.appliedFor(user));
+        this.restricting.remove(user);
     }
 
     @Override

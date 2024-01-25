@@ -9,7 +9,7 @@ import {
 import { InfiniteScrollHeight } from '../../context/infinite-scroll-height';
 import useRemoveErrorWhenUnmount from '../../custom-hooks/remove-error';
 import useRenderErrorMessage from '../../custom-hooks/render-error-message';
-import { Constant } from '../../models/enums/constant';
+import { Constant, ScreenBreakPoint } from '../../models/enums/constant';
 import PageOptions from '../../models/page-options';
 import { PageFetchingRequest } from '../../models/requests/page-fetching-request';
 import { User } from '../../models/user';
@@ -21,6 +21,9 @@ interface Props {
   readonly fetchUsers: (request: PageFetchingRequest) => AppThunk;
   readonly appendUsers: (request: PageFetchingRequest) => AppThunk;
 }
+
+const itemLayout =
+  window.innerWidth <= ScreenBreakPoint.Medium ? 'vertical' : 'horizontal';
 
 const UserSummaryList: React.FC<Props> = ({ UserSummary, fetchUsers, appendUsers }) => {
   const dispatch = useAppDispatch();
@@ -81,6 +84,7 @@ const UserSummaryList: React.FC<Props> = ({ UserSummary, fetchUsers, appendUsers
     >
       <List
         dataSource={users}
+        itemLayout={itemLayout}
         renderItem={(user, _) => React.createElement(UserSummary, { user, key: user.id })}
       />
     </InfiniteScroll>

@@ -42,6 +42,9 @@ const ChatIcon = () => {
     WebSocketUtils.registerEventHandler(WebSocketEvent.PIN_MESSAGE, () => {
       dispatch(getPossiblyUpdatedMessages());
     });
+    WebSocketUtils.registerEventHandler(WebSocketEvent.BLOCK_USER, () => {
+      dispatch(updateOpenConversation());
+    });
     dispatch(countUnreadConversation());
 
     return () => {

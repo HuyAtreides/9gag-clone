@@ -418,6 +418,45 @@ const slice = createSlice({
       });
     },
 
+    setConversationRestricted(state, action: PayloadAction<number>) {
+      const userId = action.payload;
+      const index = state.conversationState.openConversations.findIndex(
+        (openConversation) => openConversation.userId === userId,
+      );
+
+      if (index === -1) {
+        return;
+      }
+
+      const currentConversation =
+        state.conversationState.openConversations[index].conversation;
+
+      if (currentConversation) {
+        state.conversationState.openConversations[index].conversation =
+          new ChatConversation({
+            ...currentConversation,
+            restricted: !currentConversation.restricted,
+          });
+      }
+    },
+
+    setConversationBlocked(state, action: PayloadAction<number>) {
+      const userId = action.payload;
+      const index = state.conversationState.openConversations.findIndex(
+        (openConversation) => openConversation.userId === userId,
+      );
+      const currentConversation =
+        state.conversationState.openConversations[index].conversation;
+
+      if (index > -1 && currentConversation) {
+        state.conversationState.openConversations[index].conversation =
+          new ChatConversation({
+            ...currentConversation,
+            blocked: !currentConversation.blocked,
+          });
+      }
+    },
+
     closeConversation(state, action: PayloadAction<number>) {
       const userId = action.payload;
       const index = state.conversationState.openConversations.findIndex(
@@ -694,6 +733,8 @@ const slice = createSlice({
 export const chatReducer = slice.reducer;
 export const {
   removePreviewConversation,
+  setConversationBlocked,
+  setConversationRestricted,
   toggleConversationMuted,
   setReplyingToMessage,
   setPinnedMessageError,

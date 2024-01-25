@@ -66,21 +66,6 @@ public class ChatConversation {
     @Column(name = "AllowedChatWithoutFollowing")
     private boolean allowedChatWithoutFollowing;
 
-    @Transient
-    private boolean muted;
-
-    @Transient
-    private boolean restricted;
-
-    @Transient
-    private boolean unavailable;
-
-    @Transient
-    private boolean blocked;
-
-    @Transient
-    private boolean mustFollowToChat;
-
     public boolean isRestricted() {
         ChatParticipant currentParticipant = getCurrentchatParticipant();
 
@@ -93,7 +78,18 @@ public class ChatConversation {
         return getOtherParticipant(currentParticipant).isBlocking(currentParticipant);
     }
 
+    public boolean isNeedConfirmationBeforeSendingMessage() {
+        ChatParticipant currentParticipant = getCurrentchatParticipant();
+
+        return !allowedChatWithoutFollowing && currentParticipant.isUserMustFollowToChat(
+                getOtherParticipant(currentParticipant));
+    }
+
     public boolean isMustFollowToChat() {
+        if (allowedChatWithoutFollowing) {
+            return false;
+        }
+
         ChatParticipant currentParticipant = getCurrentchatParticipant();
 
         return getOtherParticipant(currentParticipant).isUserMustFollowToChat(currentParticipant);
@@ -105,6 +101,11 @@ public class ChatConversation {
         return currentParticipant.isBlocking(getOtherParticipant(currentParticipant));
     }
 
+    public void allowChatWithoutFollowing() {
+        validateModification();
+        this.allowedChatWithoutFollowing = true;
+    }
+
     public boolean isMuted() {
         User currentUser = Objects.requireNonNull(UserService.getUser());
 
@@ -114,6 +115,7 @@ public class ChatConversation {
     public void mute() {
         User currentUser = Objects.requireNonNull(UserService.getUser());
         validateParticipantInConversation(currentUser);
+        validateModification();
 
         muteStatuses.add(
                 new ConversationMuteStatus(
@@ -126,6 +128,7 @@ public class ChatConversation {
     public void unMute() {
         User currentUser = Objects.requireNonNull(UserService.getUser());
         validateParticipantInConversation(currentUser);
+        validateModification();
 
         muteStatuses.removeIf(
                 status -> status.ownedBy(currentUser)
@@ -152,10 +155,16 @@ public class ChatConversation {
     }
 
     private void validateMessageCanBeSent(ChatParticipant messageSender) {
-        Optional<ChatParticipant> otherParticipant = participants.stream()
-                .filter(participant -> !participant.equals(messageSender))
-                .findFirst();
+        if (isNeedConfirmationBeforeSendingMessage()) {
+            throw new IllegalArgumentException(
+                    "Need to allow message to be sent from non follower user"
+            );
+        }
 
+        validateModification();
+        Optional<ChatParticipant> otherParticipant = Optional.ofNullable(
+                getOtherParticipant(messageSender)
+        );
         if (otherParticipant.isEmpty()) {
             throw new IllegalArgumentException("Invalid receiver");
         }
@@ -175,7 +184,7 @@ public class ChatConversation {
         this.muteStatuses = new HashSet<>();
         this.created = Instant.now();
         this.deleteAt = this.created;
-        this.allowedChatWithoutFollowing = isMustFollowToChat();
+        this.allowedChatWithoutFollowing = false;
     }
 
     private ChatParticipant getCurrentchatParticipant() {
@@ -187,8 +196,8 @@ public class ChatConversation {
                 .orElseThrow();
     }
 
-    private void validateModification() {
-        if (isUnavailable() || isBlocked() || isRestricted()) {
+    public void validateModification() {
+        if (isUnavailable() || isBlocked() || isRestricted() || isMustFollowToChat()) {
             throw new IllegalArgumentException("Invalid operation!");
         }
     }

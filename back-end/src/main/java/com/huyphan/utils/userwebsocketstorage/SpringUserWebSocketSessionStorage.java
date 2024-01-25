@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -11,7 +12,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class SpringUserWebSocketSessionStorage implements
         UserWebSocketSessionStorage<WebSocketSession> {
 
-    private final Map<Long, List<WebSocketSession>> sessions = new LinkedHashMap<>();
+    private final ConcurrentHashMap<Long, List<WebSocketSession>> sessions = new ConcurrentHashMap<>();
 
     @Override
     public List<WebSocketSession> getSessionOf(long userId) {

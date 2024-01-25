@@ -35,7 +35,11 @@ public class UserDto {
 
     private boolean blocked;
 
+    private boolean restricted;
+
     private String blockedTime;
+
+    private String restrictedAt;
 
     private boolean onlyReceiveMessageFromFollowers;
 

@@ -13,6 +13,11 @@ interface ChatConversationConstructorArguments {
   readonly latestChatMessageId: number;
   readonly readStatuses: ConversationReadStatus[];
   readonly muted: boolean;
+  readonly restricted: boolean;
+  readonly unavailable: boolean;
+  readonly blocked: boolean;
+  readonly mustFollowToChat: boolean;
+  readonly needConfirmationBeforeSendingMessage: boolean;
 }
 
 export default class ChatConversation {
@@ -22,6 +27,11 @@ export default class ChatConversation {
   readonly latestChatMessageId: number;
   readonly muted: boolean;
   readonly readStatuses: ConversationReadStatus[];
+  readonly restricted: boolean;
+  readonly unavailable: boolean;
+  readonly blocked: boolean;
+  readonly mustFollowToChat: boolean;
+  readonly needConfirmationBeforeSendingMessage: boolean;
 
   constructor(constructorArguments: ChatConversationConstructorArguments) {
     this.id = constructorArguments.id;
@@ -30,6 +40,12 @@ export default class ChatConversation {
     this.latestChatMessageId = constructorArguments.latestChatMessageId;
     this.readStatuses = constructorArguments.readStatuses;
     this.muted = constructorArguments.muted;
+    this.restricted = constructorArguments.restricted;
+    this.unavailable = constructorArguments.unavailable;
+    this.blocked = constructorArguments.blocked;
+    this.mustFollowToChat = constructorArguments.mustFollowToChat;
+    this.needConfirmationBeforeSendingMessage =
+      constructorArguments.needConfirmationBeforeSendingMessage;
   }
 
   getOtherParticipant(currentUser: User) {
@@ -74,5 +90,11 @@ export default class ChatConversation {
     const readStatus = this.getUserReadStatus(user);
 
     return readStatus.latestMessagesRead;
+  }
+
+  canChat() {
+    return (
+      !this.restricted && !this.unavailable && !this.blocked && !this.mustFollowToChat
+    );
   }
 }

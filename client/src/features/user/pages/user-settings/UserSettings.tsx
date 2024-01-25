@@ -1,4 +1,5 @@
 import {
+  AudioMutedOutlined,
   ExportOutlined,
   ImportOutlined,
   KeyOutlined,
@@ -14,6 +15,7 @@ import UserFollowRequests from '../../components/user-follow-requests/UserFollow
 import UserPasswordSettings from '../../components/user-password-settings/UserPasswordSettings';
 import styles from './UserSettings.module.scss';
 import UserBlockingList from '../../components/user-blocking-list/UserBlockingList';
+import UserRestrictingList from '../../components/user-resstricting-list/UserRestrictingList';
 
 type MenuItem = Required<MenuProps>['items'][number];
 type ItemKey =
@@ -21,13 +23,15 @@ type ItemKey =
   | 'password'
   | 'received-follow-requests'
   | 'sent-follow-requests'
-  | 'blocking';
+  | 'blocking'
+  | 'restricting';
 const validItemKeys: ItemKey[] = [
   'account',
   'password',
   'received-follow-requests',
   'sent-follow-requests',
   'blocking',
+  'restricting',
 ];
 
 const items: MenuItem[] = [
@@ -86,6 +90,15 @@ const items: MenuItem[] = [
     ),
     icon: <StopOutlined />,
   },
+  {
+    key: 'restricting',
+    label: (
+      <Link to={`/user/settings/restricting`} className={styles.menuLink}>
+        Restricting
+      </Link>
+    ),
+    icon: <AudioMutedOutlined />,
+  },
 ];
 
 const MENU_ITEM_KEY_TO_CONTENT: Record<ItemKey, React.ReactNode> = {
@@ -94,6 +107,7 @@ const MENU_ITEM_KEY_TO_CONTENT: Record<ItemKey, React.ReactNode> = {
   'received-follow-requests': <UserFollowRequests />,
   'sent-follow-requests': <UserFollowRequests />,
   blocking: <UserBlockingList />,
+  restricting: <UserRestrictingList />,
 };
 
 const UserSettings: React.FC = () => {

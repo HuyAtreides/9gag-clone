@@ -28,4 +28,6 @@ public class ChatConversationDto {
     private boolean blocked;
 
     private boolean mustFollowToChat;
+
+    private boolean needConfirmationBeforeSendingMessage;
 }

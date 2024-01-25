@@ -50,9 +50,11 @@ const ConversationsPreview = ({ standAlone = false }: Props) => {
           <AutoClosePopover
             content={
               <div className='more-action-box-container'>
-                <Button type='text' block icon={<StopOutlined />}>
-                  View restricted accounts
-                </Button>
+                <Link to='/user/settings/restricting'>
+                  <Button type='text' block icon={<StopOutlined />}>
+                    View restricted accounts
+                  </Button>
+                </Link>
                 <Button type='text' block icon={<SettingOutlined />}>
                   View chat settings
                 </Button>

@@ -90,8 +90,14 @@ const ReplyButton = ({ message }: { message: ChatMessage }) => {
 
 const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
   const dispatch = useAppDispatch();
+  const openConversations = useAppSelector(
+    (state) => state.chat.conversationState.openConversations,
+  );
   const [showMessageEditor, setShowMessageEditor] = useState(false);
   const conversationId = message.conversationId;
+  const conversation = openConversations.find(
+    (openConversation) => openConversation.conversation?.id === conversationId,
+  )?.conversation;
   const removeMessage = () => {
     dispatch(remove(conversationId, message.id));
   };
@@ -117,19 +123,23 @@ const CurrentUserMessage = ({ message }: ChatMessageComponentProps) => {
       placement='left'
       actionButtons={
         <>
-          <Button type='text' block onClick={removeMessage} disabled={isBeingSent}>
-            Remove
-          </Button>
-          <ReplyButton message={message} />
-          <Button
-            type='text'
-            block
-            onClick={() => setShowMessageEditor(true)}
-            disabled={isBeingSent}
-          >
-            Edit
-          </Button>
-          <PinButton message={message} />
+          {conversation?.canChat() ? (
+            <>
+              <Button type='text' block onClick={removeMessage} disabled={isBeingSent}>
+                Remove
+              </Button>
+              <ReplyButton message={message} />
+              <Button
+                type='text'
+                block
+                onClick={() => setShowMessageEditor(true)}
+                disabled={isBeingSent}
+              >
+                Edit
+              </Button>
+              <PinButton message={message} />
+            </>
+          ) : null}
         </>
       }
       message={message}
@@ -143,6 +153,13 @@ const OtherUserMessage = ({
   message,
   isFirstMessage,
 }: OtherChatMessageComponentProps) => {
+  const openConversations = useAppSelector(
+    (state) => state.chat.conversationState.openConversations,
+  );
+  const conversation = openConversations.find(
+    (openConversation) => openConversation.conversation?.id === message.conversationId,
+  )?.conversation;
+
   return (
     <div className={styles.otherMessageContainer} key={message.id}>
       {isFirstMessage ? (
@@ -154,8 +171,12 @@ const OtherUserMessage = ({
         placement='right'
         actionButtons={
           <>
-            <ReplyButton message={message} />
-            <PinButton message={message} />
+            {conversation?.canChat() ? (
+              <>
+                <ReplyButton message={message} />
+                <PinButton message={message} />
+              </>
+            ) : null}
           </>
         }
         message={message}

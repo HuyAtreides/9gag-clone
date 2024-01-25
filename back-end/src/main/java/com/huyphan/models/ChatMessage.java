@@ -93,6 +93,7 @@ public class ChatMessage {
         }
 
         validateIsNotDeleted();
+        conversation.validateModification();
         this.replyToMessage = message;
     }
 
@@ -130,6 +131,7 @@ public class ChatMessage {
         }
 
         validateIsNotDeleted();
+        conversation.validateModification();
         this.pinned = true;
     }
 
@@ -139,6 +141,7 @@ public class ChatMessage {
         }
 
         validateIsNotDeleted();
+        conversation.validateModification();
         this.pinned = false;
     }
 
@@ -149,7 +152,7 @@ public class ChatMessage {
     public void markAsDeleted(ChatParticipant participant) {
         validateIsNotDeleted();
         validateIsOwnedByParticipant(participant);
-
+        conversation.validateModification();
         this.deleted = true;
     }
 
@@ -192,6 +195,7 @@ public class ChatMessage {
                 newContent.getMediaType(),
                 newContent.getText()
         );
+        conversation.validateModification();
         this.lastEditDate = Instant.now();
         this.edited = true;
     }

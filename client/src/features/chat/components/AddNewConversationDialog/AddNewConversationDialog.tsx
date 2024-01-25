@@ -1,5 +1,5 @@
 import { Button, Input, Modal } from 'antd';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   appendSearchResult,
   search,
@@ -10,6 +10,8 @@ import useDebounceSearch from '../../../../custom-hooks/use-debounce-search';
 import { PageFetchingRequest } from '../../../../models/requests/page-fetching-request';
 import { User } from '../../../../models/user';
 import { InfiniteScrollHeight } from '../../../../context/infinite-scroll-height';
+import { useAppDispatch } from '../../../../Store';
+import { resetState } from '../../../../Store/user-summary/user-summary-slice';
 
 interface Props {
   readonly open: boolean;
@@ -18,6 +20,7 @@ interface Props {
 }
 
 const AddNewConversationDialog = ({ open, close, createConversation }: Props) => {
+  const dispatch = useAppDispatch();
   const [searchTerm, handleSearch] = useDebounceSearch();
   const MessageReceiver: React.FC<{ user: User }> = ({ user }) => {
     const handleClick = () => {
@@ -35,6 +38,12 @@ const AddNewConversationDialog = ({ open, close, createConversation }: Props) =>
       />
     );
   };
+
+  useEffect(() => {
+    if (!open) {
+      dispatch(resetState());
+    }
+  }, [open, dispatch]);
 
   const searchUser = useCallback(
     (pageRequest: PageFetchingRequest) => {

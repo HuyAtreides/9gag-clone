@@ -1,5 +1,8 @@
 import {
+  AudioMutedOutlined,
+  AudioOutlined,
   EditOutlined,
+  MessageOutlined,
   MoreOutlined,
   SettingOutlined,
   StopOutlined,
@@ -19,13 +22,16 @@ import Meta from 'antd/lib/card/Meta';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
+import { createNewConversation } from '../../../../Store/chat/chat-dispatchers';
 import {
   block,
   cancelRequest,
   follow,
   getSpecificUser,
+  restrict,
   sendRequest,
   unFollow,
+  unRestrict,
 } from '../../../../Store/user/user-dipatchers';
 import {
   resetOtherProfileState,
@@ -158,6 +164,24 @@ const UserProfile: React.FC = () => {
     });
   };
 
+  const handleRestrict = () => {
+    if (!user) {
+      return;
+    }
+    Modal.confirm({
+      onOk: async () => {
+        if (user.restricted) {
+          await dispatch(unRestrict(user.id));
+        } else {
+          await dispatch(restrict(user.id));
+        }
+      },
+      title: !user.restricted
+        ? 'Do you want to restrict this user?'
+        : 'Do you want to unrestrict this user?',
+    });
+  };
+
   useEffect(() => {
     return () => {
       dispatch(resetOtherProfileState());
@@ -241,6 +265,36 @@ const UserProfile: React.FC = () => {
                           sendRequest={sendFollowRequest}
                           user={user}
                         />
+                      }
+                      owner={user}
+                    />
+
+                    <OwnerGuard
+                      component={<></>}
+                      replace={
+                        <Button
+                          type='text'
+                          icon={<MessageOutlined />}
+                          onClick={() => dispatch(createNewConversation(user.id))}
+                        >
+                          Chat
+                        </Button>
+                      }
+                      owner={user}
+                    />
+
+                    <OwnerGuard
+                      component={<></>}
+                      replace={
+                        <Button
+                          type='text'
+                          icon={
+                            user.restricted ? <AudioOutlined /> : <AudioMutedOutlined />
+                          }
+                          onClick={handleRestrict}
+                        >
+                          {user.restricted ? 'Unrestrict' : 'Restrict'}
+                        </Button>
                       }
                       owner={user}
                     />
