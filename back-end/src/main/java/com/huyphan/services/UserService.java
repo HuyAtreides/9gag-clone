@@ -125,6 +125,9 @@ public class UserService implements UserDetailsService, MediatorComponent {
         user.setCoverImageUrl(updatedCoverImgUrl);
         user.setAbout(updatedAbout == null ? "" : updatedAbout);
         user.setPrivate(updateProfileData.isPrivate());
+        user.setOnlyReceiveMessageFromFollowers(
+                updateProfileData.isOnlyReceiveMessageFromFollowers()
+        );
 
         if (!updatedAvatarUrl.equals(oldAvatarUrl) && !Objects.equals(oldAvatarUrl,
                 defaultAvatarUrl)) {

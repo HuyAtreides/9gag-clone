@@ -66,3 +66,7 @@
   align-items: center;
   flex-direction: row;
 }
+
+.linkButton {
+  text-align: left;
+}

@@ -8,4 +8,6 @@ export interface UpdateProfileData extends Omit<RegisterData, 'password'> {
   readonly isPrivate: boolean;
 
   readonly about: string;
+
+  readonly onlyReceiveMessageFromFollowers: boolean;
 }

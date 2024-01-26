@@ -28,4 +28,6 @@ export interface UserDto {
   readonly restricted: boolean;
 
   readonly restrictedAt: string | null;
+
+  readonly onlyReceiveMessageFromFollowers: boolean;
 }

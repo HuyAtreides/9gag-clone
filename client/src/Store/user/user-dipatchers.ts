@@ -251,7 +251,7 @@ export const block =
     try {
       await blockUser(userId);
       dispatch(resetOtherProfileState());
-      dispatch(setConversationBlocked(userId));
+      dispatch(setConversationBlocked({ userId, value: true }));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserErrorMessage);
     }
@@ -265,7 +265,7 @@ export const restrict =
     try {
       await restrictUser(userId);
       dispatch(setOtherProfileRestricted(true));
-      dispatch(setConversationRestricted(userId));
+      dispatch(setConversationRestricted({ userId, value: true }));
     } catch (error: unknown) {
       message.error(`Failed to restrict ${otherUser?.displayName || ''}`);
     }
@@ -279,7 +279,7 @@ export const unRestrict =
     try {
       await unRestrictUser(userId);
       dispatch(setOtherProfileRestricted(false));
-      dispatch(setConversationRestricted(userId));
+      dispatch(setConversationRestricted({ userId, value: false }));
     } catch (error: unknown) {
       message.error(`Failed to un-restrict ${otherUser?.displayName || ''}`);
     }

@@ -83,6 +83,11 @@ public class ChatController {
         return chatMessageMapper.toDto(chatMessage);
     }
 
+    @PutMapping("allow-chat-without-following/{conversationId}")
+    public void allowChatWithoutFollowing(@PathVariable Long conversationId) {
+        chatService.allowChatWithoutFollowing(conversationId);
+    }
+
     @GetMapping("message/{messageId}")
     public ChatMessageDto getMessage(@PathVariable Long messageId) {
         ChatMessage chatMessage = chatService.getMessage(messageId);

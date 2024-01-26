@@ -162,14 +162,11 @@ public class ChatConversation {
         }
 
         validateModification();
-        Optional<ChatParticipant> otherParticipant = Optional.ofNullable(
+        ChatParticipant otherParticipant = Optional.ofNullable(
                 getOtherParticipant(messageSender)
-        );
-        if (otherParticipant.isEmpty()) {
-            throw new IllegalArgumentException("Invalid receiver");
-        }
+        ).orElseThrow();
 
-        if (!messageSender.canSendMessageTo(otherParticipant.get())) {
+        if (!messageSender.canSendMessageTo(otherParticipant)) {
             throw new IllegalArgumentException(
                     "Can not send message to other participant in this chat");
         }

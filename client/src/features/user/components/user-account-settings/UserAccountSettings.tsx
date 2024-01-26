@@ -55,6 +55,7 @@ const UserAccountSettings: React.FC = () => {
         country: user.country,
         isPrivate: user.isPrivate,
         about: user.about,
+        onlyReceiveMessageFromFollowers: user.onlyReceiveMessageFromFollowers,
       });
       setUploadAvatar([
         {
@@ -204,6 +205,13 @@ const UserAccountSettings: React.FC = () => {
 When your account is private, only the followers you approve can see your posts and your followers and following lists. '
       >
         <Checkbox>Account Private</Checkbox>
+      </Form.Item>
+      <Form.Item
+        name='onlyReceiveMessageFromFollowers'
+        valuePropName='checked'
+        extra='Only users following you can send you chat message.'
+      >
+        <Checkbox>Only Receive Chat Message From Followers</Checkbox>
       </Form.Item>
       <Form.Item>
         <Button type='primary' htmlType='submit' block loading={isUpdating}>

@@ -51,17 +51,33 @@ const ConversationsPreview = ({ standAlone = false }: Props) => {
             content={
               <div className='more-action-box-container'>
                 <Link to='/user/settings/restricting'>
-                  <Button type='text' block icon={<StopOutlined />}>
+                  <Button
+                    type='text'
+                    block
+                    icon={<StopOutlined />}
+                    className={styles.linkButton}
+                  >
                     View restricted accounts
                   </Button>
                 </Link>
-                <Button type='text' block icon={<SettingOutlined />}>
-                  View chat settings
-                </Button>
+                <Link to='/user/settings/account'>
+                  <Button
+                    type='text'
+                    block
+                    icon={<SettingOutlined />}
+                    className={styles.linkButton}
+                  >
+                    View chat settings
+                  </Button>
+                </Link>
               </div>
             }
           >
-            <Button type='text' icon={<MoreOutlined />} />
+            <Button
+              type='text'
+              icon={<MoreOutlined />}
+              onClick={(event) => event.stopPropagation()}
+            />
           </AutoClosePopover>
           <Link to={path}>
             <Button type='text' icon={icon} className={styles.button} />

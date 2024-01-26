@@ -35,6 +35,13 @@ export async function createConversationWithUser(userId: number) {
   return ChatConversationMapper.fromDto(response.data);
 }
 
+export async function allowChatWithoutFollowing(conversationId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(
+    `${Constant.ChatEndPoint}/allow-chat-without-following/${conversationId}`,
+  );
+}
+
 export async function getMessage(messageId: number) {
   const axios = createAxiosInstance();
   const response = await axios.get<ChatMessageDto>(

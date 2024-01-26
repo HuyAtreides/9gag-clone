@@ -282,6 +282,8 @@ public class User implements UserDetails, Followable, ChatParticipant {
             return false;
         }
 
-        return !isBlocked(receiver) && !isBlocking(receiver) && !isUserMustFollowToChat(receiver);
+        return !isBlocked(receiver) && !isBlocking(receiver) && !receiver.isUserMustFollowToChat(
+                this
+        );
     }
 }

@@ -112,6 +112,12 @@ public class ChatService implements MediatorComponent {
         ).stream().map(ChatConversationWithDerivedFields::toChatConversation).toList();
     }
 
+    @Transactional
+    public void allowChatWithoutFollowing(Long conversationId) {
+        ChatConversation conversation = findConversationById(conversationId);
+        conversation.allowChatWithoutFollowing();
+    }
+
     @Transactional(readOnly = true)
     public List<ChatMessage> findAllLatestChatMessage(Long latestMessageId) {
         User currentUser = UserService.getUser();
@@ -203,11 +209,6 @@ public class ChatService implements MediatorComponent {
     public void deleteConversation(Long conversationId) {
         ChatConversation conversation = findConversationById(conversationId);
         conversation.delete();
-    }
-
-    private User getOtherParticipantInConversation(ChatConversation conversation) {
-        User currentUser = UserService.getUser();
-        return (User) conversation.getOtherParticipant(currentUser);
     }
 
     @Transactional
@@ -322,7 +323,7 @@ public class ChatService implements MediatorComponent {
 
     @Transactional
     public ChatConversation createConversationWithUser(Long userId) throws UserException {
-        User currentUser = UserService.getUser();
+        User currentUser = userService.getCurrentUser();
         User otherUser = userService.findUserByIdWithoutBlockFilter(userId);
         Set<ChatParticipant> participants = new HashSet<>(Arrays.asList(currentUser, otherUser));
         Optional<ChatConversation> conversationWithParticipants = chatConversationRepo.findConversationWithParticipants(

@@ -418,7 +418,32 @@ const slice = createSlice({
       });
     },
 
-    setConversationRestricted(state, action: PayloadAction<number>) {
+    setConversationRestricted(
+      state,
+      action: PayloadAction<{ userId: number; value: boolean }>,
+    ) {
+      const { userId, value } = action.payload;
+      const index = state.conversationState.openConversations.findIndex(
+        (openConversation) => openConversation.userId === userId,
+      );
+
+      if (index === -1) {
+        return;
+      }
+
+      const currentConversation =
+        state.conversationState.openConversations[index].conversation;
+
+      if (currentConversation) {
+        state.conversationState.openConversations[index].conversation =
+          new ChatConversation({
+            ...currentConversation,
+            restricted: value,
+          });
+      }
+    },
+
+    setConversationNeedsConfirmation(state, action: PayloadAction<number>) {
       const userId = action.payload;
       const index = state.conversationState.openConversations.findIndex(
         (openConversation) => openConversation.userId === userId,
@@ -435,24 +460,32 @@ const slice = createSlice({
         state.conversationState.openConversations[index].conversation =
           new ChatConversation({
             ...currentConversation,
-            restricted: !currentConversation.restricted,
+            needConfirmationBeforeSendingMessage: false,
           });
       }
     },
 
-    setConversationBlocked(state, action: PayloadAction<number>) {
-      const userId = action.payload;
+    setConversationBlocked(
+      state,
+      action: PayloadAction<{ userId: number; value: boolean }>,
+    ) {
+      const { userId, value } = action.payload;
       const index = state.conversationState.openConversations.findIndex(
         (openConversation) => openConversation.userId === userId,
       );
+
+      if (index === -1) {
+        return;
+      }
+
       const currentConversation =
         state.conversationState.openConversations[index].conversation;
 
-      if (index > -1 && currentConversation) {
+      if (currentConversation) {
         state.conversationState.openConversations[index].conversation =
           new ChatConversation({
             ...currentConversation,
-            blocked: !currentConversation.blocked,
+            blocked: value,
           });
       }
     },
@@ -732,6 +765,7 @@ const slice = createSlice({
 
 export const chatReducer = slice.reducer;
 export const {
+  setConversationNeedsConfirmation,
   removePreviewConversation,
   setConversationBlocked,
   setConversationRestricted,

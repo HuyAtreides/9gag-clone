@@ -12,6 +12,7 @@ import Slice from '../../models/slice';
 import { User } from '../../models/user';
 import {
   FetchChatConversationFunc,
+  allowChatWithoutFollowing,
   createConversationWithUser,
   deleteConversation,
   editMessage,
@@ -55,6 +56,7 @@ import {
   removePreviewConversation,
   setConversation,
   setConversationLoadingError,
+  setConversationNeedsConfirmation,
   setGetMessagePageError,
   setMessageIsGettingPage,
   setMessageIsLoading,
@@ -704,5 +706,16 @@ export const fetchAllMessageUpToId =
       dispatch(setMessageIsLoading({ conversationId, isLoading: false }));
     } catch (error: unknown) {
       dispatch(setMessageIsLoading({ conversationId, isLoading: false }));
+    }
+  };
+
+export const allowChat =
+  (conversationId: number): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      await allowChatWithoutFollowing(conversationId);
+      setConversationNeedsConfirmation(conversationId);
+    } catch (error: unknown) {
+      message.error(extractErrorMessage(error));
     }
   };

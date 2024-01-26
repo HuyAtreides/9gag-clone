@@ -230,7 +230,7 @@ export const blockInSummaryList =
     try {
       await blockUser(userId);
       dispatch(setUserSummaryBlocked({ id: userId, value: true }));
-      dispatch(setConversationBlocked(userId));
+      dispatch(setConversationBlocked({ userId, value: true }));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserSummaryErrorMessage);
     }
@@ -242,7 +242,7 @@ export const unblock =
     try {
       await unblockUser(userId);
       dispatch(setUserSummaryBlocked({ id: userId, value: false }));
-      dispatch(setConversationBlocked(userId));
+      dispatch(setConversationBlocked({ userId, value: false }));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserSummaryErrorMessage);
     }
@@ -254,7 +254,7 @@ export const restrictInSummaryList =
     try {
       await unRestrictUser(userId);
       dispatch(setUserSummaryRestricted({ id: userId, value: true }));
-      dispatch(setConversationRestricted(userId));
+      dispatch(setConversationRestricted({ userId, value: true }));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserSummaryErrorMessage);
     }
@@ -266,7 +266,7 @@ export const unRestrictInSummaryList =
     try {
       await unRestrictUser(userId);
       dispatch(setUserSummaryRestricted({ id: userId, value: false }));
-      dispatch(setConversationRestricted(userId));
+      dispatch(setConversationRestricted({ userId, value: false }));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserSummaryErrorMessage);
     }

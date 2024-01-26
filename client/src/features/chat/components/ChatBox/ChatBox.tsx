@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
 import {
   addNewMessage,
+  allowChat,
   deleteChat,
   fetchAllMessageUpToId,
   mute,
@@ -116,7 +117,7 @@ const ChatStatus = ({ conversation }: { conversation: ChatConversation }) => {
         >{`${otherUser.displayName} only received messages from followers`}</Typography.Title>
       }
       imageStyle={{ height: 'auto' }}
-      description={`Follow to message ${otherUser.displayName}.`}
+      description={`You need to follow ${otherUser.displayName} to chat.`}
     ></Empty>
   );
 };
@@ -172,6 +173,23 @@ const ChatBox = ({ chatParticipantId }: Props) => {
   };
 
   const handleSubmit = (values: NewChatMessageFormData) => {
+    if (conversation.needConfirmationBeforeSendingMessage) {
+      Modal.confirm({
+        onOk: async () => {
+          await dispatch(allowChat(conversationId));
+          sendMessage(values);
+          return false;
+        },
+        title:
+          'This user is not your followers, send this message will allow the user to chat with you.',
+      });
+      return;
+    }
+
+    sendMessage(values);
+  };
+
+  const sendMessage = (values: NewChatMessageFormData) => {
     if (replyingToMessage) {
       dispatch(reply(replyingToMessage, values));
       return;
