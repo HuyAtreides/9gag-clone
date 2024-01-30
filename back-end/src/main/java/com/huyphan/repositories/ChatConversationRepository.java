@@ -74,7 +74,11 @@ public interface ChatConversationRepository extends CrudRepository<ChatConversat
                 select message
                 from ChatMessage message
                 where message.conversation.id = conversation.id
-                and message.sentDate > message.conversation.deleteAt
+                and message.sentDate > (
+                    select case when (count(*) > 0) then max(record.deleteAt) else '1999-01-01' end
+                    from ChatConversation conversation inner join conversation.deleteRecords record
+                    where record.deleteBy = :user and conversation = message.conversation
+                )
             ) and
             """ + PARTICIPANT_BLOCKS_EACH_OTHER_FILTER + " and " + RESTRICT_PARTICIPANT_FILTER)
     Slice<ChatConversationWithDerivedFields> getCurrentUserNonEmptyConversations(

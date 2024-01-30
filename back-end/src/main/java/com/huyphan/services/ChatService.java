@@ -248,6 +248,7 @@ public class ChatService implements MediatorComponent {
         }
 
         return chatMessageRepo.findConversationChatMessagesInRange(
+                currentUser,
                 chatConversation,
                 oldestMessageId,
                 newestMessageId
@@ -277,6 +278,7 @@ public class ChatService implements MediatorComponent {
         }
 
         return chatMessageRepo.findAllPinnedMessages(
+                user,
                 chatConversation,
                 createChatMessagePageable(pageOptions)
         );

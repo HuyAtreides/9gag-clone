@@ -13,14 +13,21 @@ import org.springframework.data.repository.query.Param;
 
 public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long> {
 
+    String CONVERSATION_DELETE_DATE = """
+                (
+                    select case when (count(*) > 0) then max(record.deleteAt) else '1999-01-01' end
+                    from ChatConversation conversation inner join conversation.deleteRecords record
+                    where record.deleteBy = :user and conversation = chatMessage.conversation
+                )
+            """;
+
     @EntityGraph("ChatMessageWithConversationInfo")
     @Query("""
             select chatMessage
             from ChatMessage chatMessage
             where chatMessage.conversation = :conversation
              and :user in elements(chatMessage.conversation.participants)
-             and chatMessage.sentDate > chatMessage.conversation.deleteAt
-             """)
+             and chatMessage.sentDate > """ + CONVERSATION_DELETE_DATE)
     Slice<ChatMessage> getConversationChatMessages(
             @Param("user") User user,
             @Param("conversation") ChatConversation conversation,
@@ -33,7 +40,8 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where :user in elements(chatMessage.conversation.participants)
             and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
-            and chatMessage.sentDate > chatMessage.conversation.deleteAt
+            and chatMessage.sentDate > """ + CONVERSATION_DELETE_DATE +
+            """
             order by chatMessage.sentDate DESC
             """)
     List<ChatMessage> findAllChatMessagesInRange(
@@ -48,10 +56,12 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where chatMessage.conversation = :conversation
             and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
-            and chatMessage.sentDate > chatMessage.conversation.deleteAt
+            and chatMessage.sentDate > """ + CONVERSATION_DELETE_DATE +
+            """
             order by chatMessage.sentDate DESC
             """)
     List<ChatMessage> findConversationChatMessagesInRange(
+            @Param("user") User user,
             @Param("conversation") ChatConversation conversation,
             @Param("oldestMessageId") Long oldestMessageId,
             @Param("latestMessageId") Long latestMessageId
@@ -62,9 +72,9 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             select chatMessage
             from ChatMessage chatMessage
             where chatMessage.conversation = :conversation and chatMessage.pinned = true
-            and chatMessage.sentDate > chatMessage.conversation.deleteAt
-            """)
+            and chatMessage.sentDate > """ + CONVERSATION_DELETE_DATE)
     Slice<ChatMessage> findAllPinnedMessages(
+            @Param("user") User user,
             @Param("conversation") ChatConversation conversation,
             Pageable pageable
     );
@@ -75,8 +85,7 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
             from ChatMessage chatMessage
             where :user in elements(chatMessage.conversation.participants)
             and chatMessage.id >= :latestMessageId
-            and chatMessage.sentDate > chatMessage.conversation.deleteAt
-            """)
+            and chatMessage.sentDate > """ + CONVERSATION_DELETE_DATE)
     List<ChatMessage> findAllLatestChatMessages(
             @Param("user") User user,
             @Param("latestMessageId") Long latestMessageId

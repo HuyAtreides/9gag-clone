@@ -60,8 +60,11 @@ public class ChatConversation {
     })
     private Set<ConversationMuteStatus> muteStatuses;
 
-    @Column(name = "DeleteAt")
-    private Instant deleteAt;
+    @ElementCollection
+    @CollectionTable(name = "ConversationDeleteRecord", joinColumns = {
+            @JoinColumn(name = "ConversationId")
+    })
+    private Set<ConversationDeleteRecord> deleteRecords;
 
     @Column(name = "AllowedChatWithoutFollowing")
     private boolean allowedChatWithoutFollowing;
@@ -135,7 +138,6 @@ public class ChatConversation {
         );
     }
 
-
     @Column(name = "Created", nullable = false)
     private Instant created;
     @Transient
@@ -180,7 +182,9 @@ public class ChatConversation {
         ).collect(Collectors.toSet());
         this.muteStatuses = new HashSet<>();
         this.created = Instant.now();
-        this.deleteAt = this.created;
+        this.deleteRecords = participants.stream().map(participant ->
+                new ConversationDeleteRecord(participant, this.created.minusSeconds(60L))
+        ).collect(Collectors.toSet());
         this.allowedChatWithoutFollowing = false;
     }
 
@@ -199,15 +203,41 @@ public class ChatConversation {
         }
     }
 
+    private Instant getDeleteAt() {
+        User currentUser = UserService.getUser();
+
+        return deleteRecords.stream()
+                .filter(record -> record.ownedBy(currentUser))
+                .findFirst()
+                .map(ConversationDeleteRecord::getDeleteAt)
+                .orElseGet(() -> Instant.parse("1999-01-01"));
+    }
+
     public boolean deletedAfterTime(Instant time) {
-        return time.isBefore(this.deleteAt);
+        return time.isBefore(getDeleteAt());
     }
 
     public void delete() {
         User currentUser = UserService.getUser();
         validateParticipantInConversation(currentUser);
         validateModification();
-        this.deleteAt = Instant.now();
+
+        if (this.deleteRecords.stream().noneMatch(record -> record.ownedBy(currentUser))) {
+            this.deleteRecords.add(
+                    new ConversationDeleteRecord(currentUser, Instant.now())
+            );
+
+            return;
+        }
+
+        this.deleteRecords = this.deleteRecords.stream().map(record -> {
+                    if (!record.ownedBy(currentUser)) {
+                        return record;
+                    }
+
+                    return record.withNewDeleteAt(Instant.now());
+                }
+        ).collect(Collectors.toSet());
     }
 
     public void markConversationAsReadByUser(User user) {
