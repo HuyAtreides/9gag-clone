@@ -24,12 +24,15 @@ public class FollowUserNotificationBuilder implements
         List<User> receivers = receiverResolver.resolve(notificationPayload);
         String destUrl = buildDestUrl(notificationPayload);
         String message = "A user just followed you!";
+        User sender = notificationPayload.getSender();
+
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
             notification.setDestUrl(destUrl);
             notification.setType(NotificationType.FOLLOW_USER);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

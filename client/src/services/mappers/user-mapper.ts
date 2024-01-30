@@ -10,6 +10,7 @@ export namespace UserMapper {
       country: user.country ? toEnum(user.country, Country) : null,
       created: new Date(user.created),
       blockedTime: user.blockedTime ? new Date(user.blockedTime) : null,
+      restrictedAt: user.restrictedAt ? new Date(user.restrictedAt) : null,
     });
   }
 }

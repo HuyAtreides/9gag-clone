@@ -1,12 +1,10 @@
 package com.huyphan.utils;
 
 import com.huyphan.models.MediaLocation;
-import com.huyphan.models.enums.SupportedMIMEType;
-import com.huyphan.models.exceptions.UploadException;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,15 +65,9 @@ public class AWSS3Util {
      * @return A location to access the object.
      */
     public MediaLocation uploadObject(MultipartFile multipartFile)
-            throws IOException, UploadException {
+            throws IOException {
         String objectKey = generateObjectKey(multipartFile);
         String type = multipartFile.getContentType();
-
-        if (Arrays.stream(SupportedMIMEType.values())
-                .noneMatch(supportedMIMEType -> supportedMIMEType.getValue().equals(type))) {
-            throw new UploadException("Unsupported file type");
-        }
-
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
                 .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
 
@@ -121,7 +113,12 @@ public class AWSS3Util {
      */
     private String generateObjectKey(MultipartFile multipartFile) {
         Instant instant = Instant.now();
-        String fileName = multipartFile.getOriginalFilename().replace(" ", "_");
+        String originalFileName = multipartFile.getOriginalFilename();
+        String fileName = Base64.getEncoder().encodeToString(
+                originalFileName.getBytes(
+                        StandardCharsets.UTF_8
+                )
+        );
         return instant.getEpochSecond() + "-" + fileName;
     }
 

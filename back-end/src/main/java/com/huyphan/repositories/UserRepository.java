@@ -46,7 +46,19 @@ public interface UserRepository extends CrudRepository<User, Long> {
                     from UserBlockRecord userBlockRecord
                     where userBlockRecord.blocked = user
                         and userBlockRecord.blocker = :currentUser
-                ) as blockedTime
+                ) as blockedTime,
+                
+                (
+                    select case when (count(*) > 0) then true else false end
+                    from RestrictRecord record
+                    where record.restricting = :currentUser and record.restricted = user
+                ) as isRestricted,
+                
+                (
+                    select record.restrictAt
+                    from RestrictRecord record
+                    where record.restricting = :currentUser and record.restricted = user
+                ) as restrictedAt
             """;
     String BLOCKED_USER_RESTRICTION = """
             (
@@ -100,6 +112,15 @@ public interface UserRepository extends CrudRepository<User, Long> {
             @PathVariable("currentUser") User currentUser
     );
 
+    @Query("""
+            select user
+            from User user
+            where user.id = :id
+            """)
+    Optional<User> findById(
+            @PathVariable("id") Long id
+    );
+
     boolean existsByUsername(String username);
 
     Optional<User> findByProviderAndSocialId(SocialProvider provider, String socialId);
@@ -147,6 +168,15 @@ public interface UserRepository extends CrudRepository<User, Long> {
             """)
     Slice<UserWithDerivedFields> getBlockedUsers(@Param("currentUser") User currentUser,
             Pageable pageable);
+
+    @Query(SELECT_STATEMENT + """
+            From User user
+            where :currentUser in elements(user.restrictedBy)
+            """)
+    Slice<UserWithDerivedFields> getRestrictedUser(
+            @Param("currentUser") User currentUser,
+            Pageable pageable
+    );
 
     @Query("""
             select user

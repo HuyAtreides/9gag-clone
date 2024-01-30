@@ -13,4 +13,6 @@ public class UpdateProfileData extends RegisterData {
     private boolean isPrivate;
 
     private String about;
+
+    private boolean onlyReceiveMessageFromFollowers;
 }

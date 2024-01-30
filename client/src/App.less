@@ -29,17 +29,30 @@
   --primary-color: @primary-color;
   --body-background-dark-theme: #141414;
   --border-color-base: @border-color-base;
+  --chat-box-background-color: #242526;
   --border-radius-base: @border-radius-base;
+  --focus-conversation-color: #222e3c;
   --overlay-background-color: rgba(0, 0, 0, 0.5);
   --contrast-background-color: black;
   --google-logo-color: #ea4335;
   --facebook-logo-color: #1877f2;
+  --secondary-text-color: grey;
   --search-result-background-color: rgb(36, 37, 39);
 }
 
 html {
   font-size: 11px;
   line-height: 1.75;
+}
+
+.gifInputContainer {
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.ant-upload-list-item-name {
+  flex-shrink: 1 !important;
 }
 
 .overlay-background {

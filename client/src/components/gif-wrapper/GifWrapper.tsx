@@ -14,6 +14,7 @@ const gifWidth = isSmallerThanLargeBreakPoint
 interface Props {
   mediaLocation: MediaLocation;
   width?: number;
+  height?: number;
 }
 
 const GifWrapper: React.FC<Props> = ({ mediaLocation, width }: Props) => {

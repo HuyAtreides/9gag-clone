@@ -17,6 +17,7 @@ public enum NotificationType {
     FOLLOW_REQUEST_ACCEPTED("FollowRequestAccepted"),
     SEND_FOLLOW_REQUEST("SendFollowRequest"),
 
+    RECEIVE_NEW_CHAT_MESSAGE("ReceiverNewChatMessage"),
     SHARE_POST("SharePost");
 
     private final String value;

@@ -1,0 +1,13 @@
+.replyContentMessage {
+  display: inline-block;
+  width: 93%;
+  margin: 3px !important;
+  max-height: 50px;
+  overflow: hidden;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+
+.replyContentMessageContainer {
+  margin: 0 !important;
+}

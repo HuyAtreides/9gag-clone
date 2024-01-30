@@ -98,6 +98,19 @@ export async function getUserBlocking(request: PageFetchingRequest) {
   return SliceMapper.fromDto(response.data, UserMapper.fromDto);
 }
 
+export async function getRestrictingUser(request: PageFetchingRequest) {
+  const { pageOptions } = request;
+  const axios = createAxiosInstance();
+  const pageOptionsDto = PageOptionsMapper.toDto(pageOptions);
+  const requestConfig: AxiosRequestConfig = {
+    params: pageOptionsDto,
+  };
+  const url = `${Constant.UserEndpoint}/restricting`;
+  const response = await axios.get<SliceDto<UserDto>>(url, requestConfig);
+
+  return SliceMapper.fromDto(response.data, UserMapper.fromDto);
+}
+
 export async function getSpecificUserInfo(id: number) {
   const axios = createAxiosInstance();
   const response = await axios.get<UserDto>(`${Constant.UserEndpoint}/${id}`);
@@ -168,4 +181,14 @@ export async function updateUserPassword(updatePasswordData: UpdatePasswordData)
   const axios = createAxiosInstance();
   const updatePasswordDataDto = UpdatePasswordDataMapper.toDto(updatePasswordData);
   await axios.put<void>(`${Constant.UserEndpoint}/password`, updatePasswordDataDto);
+}
+
+export async function restrictUser(userId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.UserEndpoint}/restrict/${userId}`);
+}
+
+export async function unRestrictUser(userId: number) {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.UserEndpoint}/un-restrict/${userId}`);
 }

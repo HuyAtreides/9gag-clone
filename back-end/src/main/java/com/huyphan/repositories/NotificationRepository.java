@@ -15,8 +15,16 @@ import org.springframework.data.repository.query.Param;
 
 public interface NotificationRepository extends CrudRepository<Notification, Long> {
 
-    List<Notification> findByUserIdAndIdGreaterThanOrderByIdDesc(Long userId,
-            Long id);
+    @Query("""
+            select notification
+            from Notification notification
+            where notification.user = :user and notification.id >= :latestId
+            order by notification.id desc
+            """)
+    List<Notification> getLatestNotifications(
+            @Param("user") User user,
+            @Param("latestId") Long latestId
+    );
 
     Slice<Notification> findByUserId(Long userId, Pageable pageable);
 

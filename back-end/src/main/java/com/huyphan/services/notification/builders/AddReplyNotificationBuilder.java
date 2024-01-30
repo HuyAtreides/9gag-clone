@@ -22,6 +22,7 @@ public class AddReplyNotificationBuilder extends CommentNotificationBuilder {
     public List<Notification> build(CommentNotificationPayload commentNotificationPayload) {
         List<User> receivers = receiverResolver.resolve(commentNotificationPayload);
         String destUrl = buildDestUrl(commentNotificationPayload);
+        User sender = commentNotificationPayload.getSender();
         String message = "Someone replies to your comment";
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
@@ -29,6 +30,7 @@ public class AddReplyNotificationBuilder extends CommentNotificationBuilder {
             notification.setDestUrl(destUrl);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

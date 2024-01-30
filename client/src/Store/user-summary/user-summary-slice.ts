@@ -83,6 +83,19 @@ const userSummarySlice = createSlice({
       });
     },
 
+    setUserSummaryRestricted(
+      state,
+      action: PayloadAction<{ id: number; value: boolean }>,
+    ) {
+      const { id, value } = action.payload;
+      const index = state.users.findIndex((user) => user.id === id);
+      const currentUser = state.users[index];
+      state.users[index] = new User({
+        ...currentUser,
+        restricted: value,
+      });
+    },
+
     removeUser(state, action: PayloadAction<number>) {
       state.users = state.users.filter((user) => user.id !== action.payload);
     },
@@ -90,6 +103,7 @@ const userSummarySlice = createSlice({
 });
 
 export const {
+  setUserSummaryRestricted,
   setIsLoading,
   setIsGettingPage,
   setUserSummaryErrorMessage,

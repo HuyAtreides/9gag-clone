@@ -8,4 +8,6 @@ export default interface UpdateProfileDataDto extends Omit<RegisterDataDto, 'pas
   readonly isPrivate: boolean;
 
   readonly about: string;
+
+  readonly onlyReceiveMessageFromFollowers: boolean;
 }

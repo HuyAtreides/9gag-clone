@@ -15,14 +15,17 @@ import com.huyphan.models.SharedPost;
 import com.huyphan.models.User;
 import com.huyphan.models.enums.PostContentType;
 import com.huyphan.models.enums.SortType;
+import com.huyphan.models.enums.SupportedMIMEType;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.PostException;
+import com.huyphan.models.exceptions.UploadException;
 import com.huyphan.models.projections.PostWithDerivedFields;
 import com.huyphan.repositories.PostRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
 import com.huyphan.services.togglenotificationinvoker.IToggleNotificationInvoker;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
+import java.util.Arrays;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +68,12 @@ public class PostService implements MediatorComponent {
         if (contentType == PostContentType.MEDIA && (mediaType == null || mediaUrl == null)) {
             throw new PostException(
                     "Media type and media url must be present when post content type is MEDIA");
+        }
+
+        if (mediaType != null && Arrays.stream(SupportedMIMEType.values())
+                .noneMatch(supportedMIMEType -> supportedMIMEType.getValue().equals(mediaType))) {
+            awss3Util.deleteObject(mediaUrl);
+            throw new PostException("Unsupported file type");
         }
 
         post.setUser(userService.getCurrentUser());

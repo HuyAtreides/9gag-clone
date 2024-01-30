@@ -13,18 +13,23 @@ export function handleError(
   error: unknown,
   errorActionCreator: ActionCreatorWithPayload<string | null> | AppActionCreator,
 ): void {
+  const errorMessage = extractErrorMessage(error);
+  dispatch(errorActionCreator(errorMessage));
+}
+
+export function extractErrorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     /** Use the error message sent from server if there is one. */
     if (error.response && error.response.data) {
-      dispatch(errorActionCreator((error.response.data as any).message));
+      return (error.response.data as any).message;
     } else {
-      dispatch(errorActionCreator(error.message));
+      return error.message;
     }
   } else if (error instanceof Error) {
-    dispatch(errorActionCreator(error.message));
+    return error.message;
   } else if (typeof error === 'string') {
-    dispatch(errorActionCreator(error));
+    return error;
   } else {
-    dispatch(errorActionCreator('Something wrong happens please try again later.'));
+    return 'Something wrong happens please try again later.';
   }
 }

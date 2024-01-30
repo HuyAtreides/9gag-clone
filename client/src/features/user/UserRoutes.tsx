@@ -3,6 +3,8 @@ import ProtectedRoute from '../../components/protected-route/ProtectedRoute';
 import SideBarLayout from '../../layout/sidebar-layout/SidebarLayout';
 import UserProfile from './pages/user-profile/UserProfile';
 import UserSettings from './pages/user-settings/UserSettings';
+import AffixAddConversationButton from '../../components/chat-conversations/AffixAddConversationButton';
+import ChatBoxQueue from '../chat/components/ChatBoxQueue/ChatBoxQueue';
 
 interface Props {
   readonly sideBarCollapse: boolean;
@@ -28,6 +30,8 @@ const UserRoutes: React.FC<Props> = ({ sideBarCollapse, setSideBarCollapse }) =>
         />
         <Route path='' element={<UserProfile />} />
       </Routes>
+      <AffixAddConversationButton />
+      <ChatBoxQueue />
     </SideBarLayout>
   );
 };

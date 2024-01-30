@@ -1,0 +1,72 @@
+.searchConversation {
+  border-radius: var(--border-radius-base);
+  margin-bottom: 15px;
+}
+
+.conversationPreview {
+  cursor: pointer;
+}
+
+.focusConversation {
+  background-color: var(--focus-conversation-color);
+  border-radius: 10px;
+  margin-top: 5px;
+
+  padding-left: 5px;
+}
+
+.latestMessagePreview {
+  align-items: center;
+  display: flex;
+}
+
+.latestUnreadMessagePreview {
+  font-weight: bold;
+}
+
+.messageContentPreview {
+  color: var(--secondary-text-color);
+  max-width: 170px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messageContentDate {
+  color: var(--secondary-text-color);
+  margin-left: 5px;
+}
+
+.markAsReadButton {
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.markAsReadButtonContainer {
+  text-align: right;
+}
+
+.unreadMark {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  margin-right: 3px;
+  background-color: var(--primary-color);
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+.linkButton {
+  text-align: left;
+}

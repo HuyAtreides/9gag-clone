@@ -1,15 +1,6 @@
-import {
-  CheckSquareOutlined,
-  CommentOutlined,
-  FormOutlined,
-  LikeOutlined,
-  MoreOutlined,
-  PlusSquareOutlined,
-  SendOutlined,
-  UserAddOutlined,
-} from '@ant-design/icons';
-import { Button, List, Typography } from 'antd';
-import React, { ReactElement, useContext, useEffect } from 'react';
+import { MoreOutlined } from '@ant-design/icons';
+import { Avatar, Button, List, Typography } from 'antd';
+import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../Store';
@@ -19,38 +10,90 @@ import {
   markAsViewed,
   removeNotifications,
 } from '../../../Store/notification/notification-dispatchers';
-import {
-  resetNotificationState,
-  setNotificationErrorMessage,
-} from '../../../Store/notification/notification-slice';
+import { setNotificationErrorMessage } from '../../../Store/notification/notification-slice';
+import AutoClosePopover from '../../../components/auto-close-popover/AutoClosePopover';
 import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
 import useRemoveErrorWhenUnmount from '../../../custom-hooks/remove-error';
 import useRenderErrorMessage from '../../../custom-hooks/render-error-message';
+import useTimeDiffFromToday from '../../../custom-hooks/use-time-diff-from-today';
 import { Constant } from '../../../models/enums/constant';
 import { NotificationType } from '../../../models/enums/notification-type';
 import Notification from '../../../models/notification';
 import PageOptions from '../../../models/page-options';
-import { IntervalIdContext } from './notifications-container/NotificationContainer';
-
-import AutoClosePopover from '../../../components/auto-close-popover/AutoClosePopover';
 import styles from './Notifications.module.scss';
 
-const NOTIFICATION_TYPE_TO_ICON_MAP: Record<NotificationType, ReactElement> = {
-  [NotificationType.ADD_COMMENT]: <CommentOutlined />,
-  [NotificationType.ADD_REPLY]: <CommentOutlined />,
-  [NotificationType.VOTE_COMMENT]: <LikeOutlined />,
-  [NotificationType.VOTE_POST]: <LikeOutlined />,
-  [NotificationType.FOLLOWING_POST_HAS_NEW_COMMENT]: <CommentOutlined />,
-  [NotificationType.ADD_POST]: <PlusSquareOutlined />,
-  [NotificationType.FOLLOW_USER]: <UserAddOutlined />,
-  [NotificationType.SEND_FOLLOW_REQUEST]: <SendOutlined />,
-  [NotificationType.FOLLOW_REQUEST_ACCEPTED]: <CheckSquareOutlined />,
-  [NotificationType.SHARE_POST]: <FormOutlined />,
+const NOTIFICATION_TYPE_TO_MESSAGE_MAP: Record<NotificationType, string> = {
+  [NotificationType.ADD_COMMENT]: 'commented to your post',
+  [NotificationType.ADD_REPLY]: 'replied to your comment',
+  [NotificationType.VOTE_COMMENT]: 'voted your comment',
+  [NotificationType.VOTE_POST]: 'voted your post',
+  [NotificationType.FOLLOWING_POST_HAS_NEW_COMMENT]:
+    'commented to a post that you are following',
+  [NotificationType.ADD_POST]: 'added a new post',
+  [NotificationType.FOLLOW_USER]: 'followed you',
+  [NotificationType.SEND_FOLLOW_REQUEST]: 'sent you a follow request',
+  [NotificationType.FOLLOW_REQUEST_ACCEPTED]: 'accepted you follow request',
+  [NotificationType.SHARE_POST]: 'shared your post',
 };
 
 interface Props {
-  setShowNotifications: (showNotifications: boolean) => void;
+  readonly setShowNotifications: (showNotifications: boolean) => void;
 }
+
+interface NotificationItemProps extends Props {
+  readonly notification: Notification;
+}
+
+const NotificationItem = ({
+  notification,
+  setShowNotifications,
+}: NotificationItemProps) => {
+  const dispatch = useAppDispatch();
+  const timeDiff = useTimeDiffFromToday(notification.created);
+
+  const viewNotification = () => {
+    setShowNotifications(false);
+    window.scrollTo(0, 0);
+    if (notification.isViewed) {
+      return;
+    }
+    dispatch(markAsViewed(notification.id));
+  };
+
+  return (
+    <List.Item key={notification.id}>
+      <Link
+        to={notification.destUrl}
+        className={styles.notificationLink}
+        onClick={viewNotification}
+      >
+        <List.Item.Meta
+          className={notification.isViewed ? undefined : styles.notViewedNotification}
+          avatar={<Avatar src={notification.sender.avatarUrl} size={50} />}
+          title={
+            <Typography.Text
+              className={styles.notificationMessage}
+              strong={!notification.isViewed}
+              type={notification.isViewed ? 'secondary' : undefined}
+            >
+              {notification.sender.displayName}{' '}
+              {NOTIFICATION_TYPE_TO_MESSAGE_MAP[notification.type]}
+            </Typography.Text>
+          }
+          description={
+            <Typography.Text
+              className={styles.notificationDate}
+              strong={!notification.isViewed}
+              type={notification.isViewed ? 'secondary' : undefined}
+            >
+              {timeDiff}
+            </Typography.Text>
+          }
+        />
+      </Link>
+    </List.Item>
+  );
+};
 
 const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
   const dispatch = useAppDispatch();
@@ -61,18 +104,8 @@ const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
   const isLoading = useAppSelector((state) => state.notification.isLoading);
   const errorMessage = useAppSelector((state) => state.notification.errorMessage);
   const isGettingPage = useAppSelector((state) => state.notification.isGettingPage);
-  const context = useContext(IntervalIdContext);
   useRemoveErrorWhenUnmount(setNotificationErrorMessage);
   useRenderErrorMessage(errorMessage, setNotificationErrorMessage);
-
-  useEffect(() => {
-    return () => {
-      dispatch(resetNotificationState());
-      (async function () {
-        clearInterval(await context);
-      })();
-    };
-  }, [context, dispatch]);
 
   const getNextPage = () => {
     if (isGettingPage) {
@@ -93,15 +126,6 @@ const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
     }
 
     dispatch(removeNotifications());
-  };
-
-  const viewNotification = (notification: Notification, index: number) => {
-    setShowNotifications(false);
-    window.scrollTo(0, 0);
-    if (notification.isViewed) {
-      return;
-    }
-    dispatch(markAsViewed(index));
   };
 
   const viewAllNotification = () => {
@@ -146,34 +170,14 @@ const Notifications: React.FC<Props> = ({ setShowNotifications }) => {
         height={window.innerHeight * 0.4}
       >
         <List
-          className={styles.notifications}
           dataSource={notifications!}
-          renderItem={(item, index) => {
-            return (
-              <List.Item
-                className={`${styles.notification} ${
-                  item.isViewed ? null : styles.notViewedNotification
-                }`}
-                key={item.id}
-              >
-                <Link to={item.destUrl} onClick={() => viewNotification(item, index)}>
-                  <div className={styles.notificationDescriptionContainer}>
-                    {NOTIFICATION_TYPE_TO_ICON_MAP[item.type]}
-                    <Typography.Paragraph className={styles.notificationDescription}>
-                      {item.message}
-                    </Typography.Paragraph>
-                  </div>
-                  <Typography.Paragraph
-                    className={styles.notificationDate}
-                    strong={true}
-                    type='secondary'
-                  >
-                    {item.created.toDateString()} {item.created.toLocaleTimeString()}
-                  </Typography.Paragraph>
-                </Link>
-              </List.Item>
-            );
-          }}
+          itemLayout='horizontal'
+          renderItem={(item, _) => (
+            <NotificationItem
+              notification={item}
+              setShowNotifications={setShowNotifications}
+            />
+          )}
         />
       </InfiniteScroll>
     </div>

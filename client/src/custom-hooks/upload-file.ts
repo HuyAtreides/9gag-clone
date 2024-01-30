@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { MediaType } from '../models/enums/constant';
 import MediaLocation from '../models/media-location';
 import { generateVideoThumbnail } from '../utils/generate-video-thumbnail';
+import { isFileType } from '../utils/mime-type';
 
 type ReturnType = [
   UploadFile[] | undefined,
@@ -22,7 +23,7 @@ const useUploadFile = (media?: MediaLocation): ReturnType => {
         setUploadFile([
           {
             uid: '0',
-            name: '',
+            name: media.type === MediaType.File ? media.originalFileName || '' : '',
             thumbUrl: thumbUrl,
             url: media.url,
             type: media.type,
@@ -47,15 +48,18 @@ const useUploadFile = (media?: MediaLocation): ReturnType => {
         }),
       );
 
-      uploadFiles = fileList.map(
-        (file, index): UploadFile => ({
+      uploadFiles = fileList.map((file, index): UploadFile => {
+        const isFile = isFileType(file?.originFileObj?.type);
+
+        return {
           uid: file.uid,
-          name: '',
+          name: isFile ? file.originFileObj?.name || '' : '',
           url: URL.createObjectURL(file.originFileObj!),
           thumbUrl: thumbnailUrls[index],
+          type: file.originFileObj?.type,
           originFileObj: file.originFileObj,
-        }),
-      );
+        };
+      });
     }
 
     if (info.file.status === 'removed' && info.file.url) {

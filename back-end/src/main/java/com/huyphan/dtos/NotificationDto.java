@@ -16,6 +16,8 @@ public class NotificationDto {
 
     private Boolean isViewed;
 
+    private UserDto sender;
+
     private String created;
 
     private String message;

@@ -13,6 +13,10 @@ public interface UserWithDerivedFields {
 
     boolean getBlocked();
 
+    boolean getIsRestricted();
+
+    Instant getRestrictedAt();
+
     Instant getBlockedTime();
 
     default User toUser() {
@@ -21,6 +25,8 @@ public interface UserWithDerivedFields {
         user.setReceivedFollowRequest(getIsReceivedFollowRequestFromCurrentUser());
         user.setBlocked(getBlocked());
         user.setBlockedTime(getBlockedTime());
+        user.setRestricted(getIsRestricted());
+        user.setRestrictedAt(getRestrictedAt());
 
         return user;
     }

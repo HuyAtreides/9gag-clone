@@ -23,12 +23,15 @@ public class SharePostNotificationBuilder implements NotificationBuilder<SharePo
         List<User> receivers = receiverResolver.resolve(notificationPayload);
         String destUrl = buildDestUrl(notificationPayload);
         String message = "A user shares your post";
+        User sender = notificationPayload.getSender();
+
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
             notification.setDestUrl(destUrl);
             notification.setType(NotificationType.SHARE_POST);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

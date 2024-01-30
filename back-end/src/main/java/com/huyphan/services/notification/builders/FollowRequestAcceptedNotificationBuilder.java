@@ -25,12 +25,15 @@ public class FollowRequestAcceptedNotificationBuilder implements NotificationBui
         List<User> receivers = receiverResolver.resolve(notificationPayload);
         String destUrl = buildDestUrl(notificationPayload);
         String message = "A user just accepted your follow request!";
+        User sender = notificationPayload.getSender();
+
         return receivers.stream().map(receiver -> {
             Notification notification = new Notification();
             notification.setDestUrl(destUrl);
             notification.setType(NotificationType.FOLLOW_REQUEST_ACCEPTED);
             notification.setMessage(message);
             notification.setUser(receiver);
+            notification.setSender(sender);
 
             return notification;
         }).collect(Collectors.toList());

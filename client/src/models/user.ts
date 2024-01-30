@@ -27,7 +27,13 @@ export interface UserConstructorArguments {
 
   readonly blockedTime: Date | null;
 
+  readonly restricted: boolean;
+
+  readonly restrictedAt: Date | null;
+
   readonly about: string;
+
+  readonly onlyReceiveMessageFromFollowers: boolean;
 }
 
 export class User {
@@ -57,6 +63,12 @@ export class User {
 
   readonly coverImageUrl: string;
 
+  readonly restricted: boolean;
+
+  readonly restrictedAt: Date | null;
+
+  readonly onlyReceiveMessageFromFollowers: boolean;
+
   public constructor(constructorArguments: UserConstructorArguments) {
     this.id = constructorArguments.id;
     this.username = constructorArguments.username;
@@ -71,6 +83,10 @@ export class User {
     this.blockedTime = constructorArguments.blockedTime;
     this.coverImageUrl = constructorArguments.coverImageUrl;
     this.about = constructorArguments.about;
+    this.restricted = constructorArguments.restricted;
+    this.restrictedAt = constructorArguments.restrictedAt;
+    this.onlyReceiveMessageFromFollowers =
+      constructorArguments.onlyReceiveMessageFromFollowers;
   }
 
   public getAvatarLocation(): MediaLocation {
@@ -93,5 +109,13 @@ export class User {
     );
 
     return countryCode;
+  }
+
+  public equals(otherUser: User | null) {
+    if (otherUser == null) {
+      return false;
+    }
+
+    return otherUser.id === this.id;
   }
 }

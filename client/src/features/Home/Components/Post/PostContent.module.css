@@ -12,13 +12,25 @@
   overflow: auto;
 }
 
+.postHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .tag {
   padding: 10px;
   margin-top: 10px;
 }
 
 .shareButtonContainer {
-  display: block;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.shareButtonContainer > button {
+  margin-right: 5px;
 }
 
 .shareButtonContainerSmallBreakpoint {

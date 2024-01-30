@@ -76,7 +76,7 @@ const CommentEditor: React.FC<Props> = ({
           }}
         >
           <Form.Item name='text'>
-            <WYSIWYGEditor height='35vh' />
+            <WYSIWYGEditor height='35vh' initialValue={comment?.text || undefined} />
           </Form.Item>
           <Form.Item>
             <Row>

@@ -5,19 +5,20 @@
 }
 
 .media-size {
-  width: 50vw;
+  min-width: 52vw;
+  width: 100%;
   height: 80vh !important;
 }
 
 @media screen and (max-width: 992px) {
   .media-size {
-    width: 70vw;
+    min-width: 90vw;
   }
 }
 
 @media screen and (max-width: 768px) {
   .media-size {
-    width: 85vw;
+    min-width: 92vw;
   }
 }
 

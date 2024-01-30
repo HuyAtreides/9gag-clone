@@ -1,7 +1,7 @@
 @import '../../../Style/color.scss';
 
 .notifyContainer {
-  min-width: 320px;
+  min-width: 350px;
   padding: 15px;
   background-color: $backGroundColorDarkTheme;
   border-radius: 8px;
@@ -29,11 +29,6 @@
         margin-top: -7px;
       }
     }
-
-    .notificationDate {
-      font-size: 1.2rem;
-      margin-bottom: 0;
-    }
   }
 
   .notificationHeader {
@@ -54,6 +49,24 @@
 
 .notViewedNotification {
   background-color: var(--border-color-base);
-  font-weight: bold;
-  margin-top: 10px;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.notificationDate {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  color: var(--primary-color);
+}
+
+.notificationLink {
+  flex-grow: 1;
+}
+
+.badge {
+  color: var(--primary-color);
+}
+
+.notificationMessage {
+  font-size: 1.45rem;
 }

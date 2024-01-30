@@ -1,7 +1,7 @@
 import { Image } from 'antd';
 import React, { useEffect, useRef } from 'react';
 import { MediaType } from '../../models/enums/constant';
-import { toEnum } from '../../utils/value-to-enum';
+import { getMediaTypeFromMIME } from '../../utils/mime-type';
 import GifWrapper from '../gif-wrapper/GifWrapper';
 import styles from './Media.module.css';
 
@@ -10,11 +10,21 @@ interface Props {
   readonly type: string;
   readonly scrollAreaId: string;
   readonly width?: string | number;
+  readonly gifWidth?: number;
+  readonly gifHeight?: number;
   readonly height?: string | number;
 }
 
-const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Props) => {
-  const mediaType = toEnum(type.split('/')[0], MediaType);
+const Media: React.FC<Props> = ({
+  url,
+  type,
+  width,
+  height,
+  scrollAreaId,
+  gifHeight,
+  gifWidth,
+}: Props) => {
+  const mediaType = getMediaTypeFromMIME(type);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const className =
     width || height ? styles['media'] : `${styles['media']} ${styles['media-size']}`;
@@ -52,7 +62,9 @@ const Media: React.FC<Props> = ({ url, type, width, height, scrollAreaId }: Prop
   }
 
   if (mediaType === MediaType.Gif) {
-    return <GifWrapper mediaLocation={{ url, type }} />;
+    return (
+      <GifWrapper mediaLocation={{ url, type }} width={gifWidth} height={gifHeight} />
+    );
   }
 
   return (

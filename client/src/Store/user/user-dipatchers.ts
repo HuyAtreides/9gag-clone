@@ -18,12 +18,15 @@ import {
   getUserFavoriteSections,
   getUserStats,
   removeSectionFromUserFavoriteSections,
+  restrictUser,
   unFollowUser,
+  unRestrictUser,
   updateUserPassword,
   updateUserProfile,
 } from '../../services/user-service';
 import { handleError } from '../../utils/error-handler';
 import { getMediaLocationFromForm } from '../../utils/get-media-location-from-form';
+import { setConversationBlocked, setConversationRestricted } from '../chat/chat-slice';
 import {
   addSectionToFavorite,
   removeSectionFromFavorite,
@@ -36,6 +39,7 @@ import {
   setOtherProfile,
   setOtherProfileFollowed,
   setOtherProfileReceivedFollowRequest,
+  setOtherProfileRestricted,
   setProfile,
   setUserErrorMessage,
   setUserStats,
@@ -247,7 +251,36 @@ export const block =
     try {
       await blockUser(userId);
       dispatch(resetOtherProfileState());
+      dispatch(setConversationBlocked({ userId, value: true }));
     } catch (err: unknown) {
       handleError(dispatch, err, setUserErrorMessage);
+    }
+  };
+
+export const restrict =
+  (userId: number): AppThunk =>
+  async (dispatch, getState) => {
+    const otherUser = getState().user.otherProfile;
+
+    try {
+      await restrictUser(userId);
+      dispatch(setOtherProfileRestricted(true));
+      dispatch(setConversationRestricted({ userId, value: true }));
+    } catch (error: unknown) {
+      message.error(`Failed to restrict ${otherUser?.displayName || ''}`);
+    }
+  };
+
+export const unRestrict =
+  (userId: number): AppThunk =>
+  async (dispatch, getState) => {
+    const otherUser = getState().user.otherProfile;
+
+    try {
+      await unRestrictUser(userId);
+      dispatch(setOtherProfileRestricted(false));
+      dispatch(setConversationRestricted({ userId, value: false }));
+    } catch (error: unknown) {
+      message.error(`Failed to un-restrict ${otherUser?.displayName || ''}`);
     }
   };

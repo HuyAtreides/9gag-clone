@@ -70,8 +70,10 @@ public class NotificationService implements NotificationSender {
 
     public List<Notification> getLatestNotifications(Long currentLatestId) {
         User user = UserService.getUser();
-        return notificationRepository.findByUserIdAndIdGreaterThanOrderByIdDesc(user.getId(),
-                currentLatestId);
+        return notificationRepository.getLatestNotifications(
+                user,
+                currentLatestId
+        );
     }
 
     @Override
@@ -84,7 +86,8 @@ public class NotificationService implements NotificationSender {
                 ).findFirst().orElseThrow(() -> new AppException("Invalid notification type"));
         notificationBuilder.build(notificationPayload).forEach(notification -> {
             notificationRepository.save(notification);
-            eventEmitter.emitEventTo(WebSocketEvent.RECEIVE_NEW_NOTIFICATION, notification.getUser());
+            eventEmitter.emitEventTo(WebSocketEvent.RECEIVE_NEW_NOTIFICATION,
+                    notification.getUser());
         });
     }
 }

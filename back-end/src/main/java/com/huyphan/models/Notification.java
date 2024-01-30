@@ -43,6 +43,10 @@ public class Notification {
     @JoinColumn(name = "UserId")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SenderId")
+    private User sender;
+
     @Column(name = "IsViewed")
     private Boolean isViewed;
 

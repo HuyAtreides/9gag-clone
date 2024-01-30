@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -43,7 +44,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "[User]")
 @DynamicInsert
 @DynamicUpdate
-public class User implements UserDetails, Followable {
+public class User implements UserDetails, Followable, ChatParticipant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -171,15 +172,47 @@ public class User implements UserDetails, Followable {
             inverseJoinColumns = @JoinColumn(name = "BlockedId"))
     private Set<User> blocking;
 
+    @Column(name = "OnlyReceiveMessageFromFollowers")
+    private boolean onlyReceiveMessageFromFollowers;
+
+    @ManyToMany
+    @JoinTable(name = "RestrictRecord",
+            joinColumns = @JoinColumn(name = "RestrictingId"),
+            inverseJoinColumns = @JoinColumn(name = "RestrictedId"))
+    private Set<User> restricting;
+
+    @ManyToMany(mappedBy = "restricting")
+    private Set<User> restrictedBy;
+
     @Transient
     private boolean blocked;
 
     @Transient
     private Instant blockedTime;
 
+    @Transient
+    private boolean restricted;
+
+    @Transient
+    private Instant restrictedAt;
+
     @Override
     public User getOwner() {
         return this;
+    }
+
+    @Override
+    public boolean isBlocking(ChatParticipant participant) {
+        return this.blocking.contains(participant);
+    }
+
+    private boolean isBlocked(ChatParticipant participant) {
+        return this.blockedBy.contains(participant);
+    }
+
+    @Override
+    public boolean isUserMustFollowToChat(ChatParticipant chatParticipant) {
+        return onlyReceiveMessageFromFollowers && !followers.contains(chatParticipant);
     }
 
     @Override
@@ -228,4 +261,29 @@ public class User implements UserDetails, Followable {
         return true;
     }
 
+    public void restrict(User user) {
+        if (!isRestricting(user)) {
+            this.restricting.add(user);
+        }
+    }
+
+    @Override
+    public boolean isRestricting(ChatParticipant user) {
+        return this.restricting.contains(user);
+    }
+
+    public void unRestrict(User user) {
+        this.restricting.remove(user);
+    }
+
+    @Override
+    public boolean canSendMessageTo(ChatParticipant receiver) {
+        if (isRestricting(receiver)) {
+            return false;
+        }
+
+        return !isBlocked(receiver) && !isBlocking(receiver) && !receiver.isUserMustFollowToChat(
+                this
+        );
+    }
 }

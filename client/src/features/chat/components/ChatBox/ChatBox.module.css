@@ -1,0 +1,218 @@
+.chatBox {
+  position: relative;
+  border: 1px solid var(--border-color-base);
+}
+
+.chatInput {
+  border-radius: var(--border-radius-base);
+}
+
+.messageSentDate {
+  text-wrap: nowrap;
+}
+
+.chatInputContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.chatBoxMessageError {
+  text-align: center;
+}
+
+.chatBoxMessageLoading {
+  display: flex;
+  align-items: center;
+  margin: -15px;
+}
+
+.chatBoxHeader {
+  margin-top: -10px;
+  margin-bottom: -10px;
+}
+
+.chatBoxContent {
+  display: flex;
+  overflow: auto;
+  flex-direction: column-reverse;
+  margin: -15px;
+}
+
+@media screen and (max-width: 768px) {
+  .chatBoxContent {
+    margin: -5px;
+  }
+}
+
+.chatBoxContentError {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatBoxErrorMessage {
+  text-align: center;
+}
+
+.chatParticipantInfo {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.fileName {
+  display: inline-block;
+  word-wrap: break-word;
+  max-width: 205px;
+  margin-top: -8px;
+  margin-left: 5px;
+}
+
+.fileNameContainer {
+  display: flex;
+  align-items: flex-start;
+}
+
+.chatInputFormItem {
+  margin-left: 5px;
+  margin-bottom: 0;
+}
+
+.editMessageTextarea {
+  margin-bottom: 10px;
+}
+
+.currentUserMessagesGroup {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.otherUserMessagesGroup {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.message {
+  background-color: var(--primary-color);
+  /* border: solid 2px wheat; */
+  border-radius: 15px;
+  padding: 5px;
+  display: inline-block;
+  max-width: 250px;
+  text-wrap: pretty;
+  min-width: 20px;
+  font-size: 1.3rem;
+  text-align: left;
+  margin-bottom: 5px;
+  margin-right: 10px;
+}
+
+.fullscreenLink {
+  color: unset;
+  margin-left: 8px;
+}
+
+.otherMessage {
+  background-color: var(--secondary-text-color);
+  border-radius: 15px;
+  padding: 5px;
+  display: inline-block;
+  max-width: 250px;
+  text-wrap: pretty;
+  font-size: 1.3rem;
+  min-width: 20px;
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+.removedMessage {
+  background-color: transparent;
+  margin-top: 5px;
+  margin-left: 5px;
+  border: 1px solid var(--border-color-base);
+}
+
+.dummyAvatar {
+  display: inline-block;
+  width: 30px;
+}
+
+.otherMessageContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+}
+
+.messageContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 5px;
+}
+
+.messagePinIcon {
+  margin-left: 3px;
+}
+
+.pinMessage {
+  font-size: 1rem;
+}
+
+.otherMessageContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.messageStatus {
+  margin-right: 10px;
+  display: inline-block;
+}
+
+.resendButton {
+  padding: 0px;
+}
+
+.sendingError {
+  margin-top: 3px;
+  margin-right: 3px;
+}
+
+.editMessageForm {
+  width: 300px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.replyToMessageContainer {
+  max-width: 200px;
+  min-width: 20px;
+  margin-top: 5px;
+  cursor: pointer;
+  margin-bottom: -10px;
+}
+
+.replyContainer {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin: 0 !important;
+  text-align: left;
+  position: relative;
+}
+
+.closeReplyButton {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
+.chatInputFormItemUpload {
+  max-width: 90px;
+}
