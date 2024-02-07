@@ -172,6 +172,12 @@ public class ChatConversation {
             throw new IllegalArgumentException(
                     "Can not send message to other participant in this chat");
         }
+
+        if (otherParticipant.isUserMustFollowToChat(messageSender)
+                && !isAllowedChatWithoutFollowing()) {
+            throw new IllegalArgumentException(
+                    "Follow this user to send message.");
+        }
     }
 
     public ChatConversation(Set<ChatParticipant> participants) {
