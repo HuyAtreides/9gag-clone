@@ -35,8 +35,9 @@
 .chatBoxContent {
   display: flex;
   overflow: auto;
+  overflow-x: hidden !important;
   flex-direction: column-reverse;
-  margin: -15px;
+  margin: -14px;
 }
 
 @media screen and (max-width: 768px) {
