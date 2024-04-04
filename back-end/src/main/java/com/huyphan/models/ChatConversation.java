@@ -216,7 +216,7 @@ public class ChatConversation {
                 .filter(record -> record.ownedBy(currentUser))
                 .findFirst()
                 .map(ConversationDeleteRecord::getDeleteAt)
-                .orElseGet(() -> Instant.parse("1999-01-01"));
+                .orElseGet(() -> Instant.parse("2000-01-01T07:00:30.00Z"));
     }
 
     public boolean deletedAfterTime(Instant time) {
