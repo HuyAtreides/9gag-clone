@@ -12,6 +12,7 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.DetectModerationLabelsRequest;
 import software.amazon.awssdk.services.rekognition.model.Image;
+import software.amazon.awssdk.services.rekognition.model.InvalidImageFormatException;
 import software.amazon.awssdk.services.rekognition.model.ModerationLabel;
 
 @Component
@@ -24,15 +25,20 @@ public class AWSRekognition {
 
 
     public boolean isNSFW(MultipartFile multipartFile) {
-        List<ModerationLabel> moderationLabels = moderateContent(multipartFile);
+        try {
+            List<ModerationLabel> moderationLabels = moderateContent(multipartFile);
 
-        log.info("result={}", moderationLabels.toString());
+            log.info("result={}", moderationLabels.toString());
 
-        moderationLabels.forEach(moderationLabel -> {
-            log.info("moderation_label={}", moderationLabel.toString());
-        });
+            moderationLabels.forEach(moderationLabel -> {
+                log.info("moderation_label={}", moderationLabel.toString());
+            });
 
-        return !moderationLabels.isEmpty();
+            return !moderationLabels.isEmpty();
+        }
+        catch (InvalidImageFormatException exception) {
+            return false;
+        }
     }
 
     private List<ModerationLabel> moderateContent(MultipartFile multipartFile) {
