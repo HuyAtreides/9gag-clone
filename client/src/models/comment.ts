@@ -35,6 +35,8 @@ interface AppCommentConstructorArguments {
   readonly notificationEnabled: boolean;
 
   readonly followed: boolean;
+
+  readonly nsfw: boolean;
 }
 
 export default class AppComment {
@@ -72,6 +74,8 @@ export default class AppComment {
 
   readonly followed: boolean;
 
+  readonly nsfw: boolean;
+
   constructor(comment: AppCommentConstructorArguments) {
     this.id = comment.id;
     this.replyTo = comment.replyTo;
@@ -104,11 +108,12 @@ export default class AppComment {
     this.postId = comment.postId;
     this.replyToId = comment.replyToId;
     this.notificationEnabled = comment.notificationEnabled;
+    this.nsfw = comment.nsfw;
   }
 
   public getMediaLocation(): MediaLocation | undefined {
     return this.mediaType && this.mediaUrl
-      ? { url: this.mediaUrl, type: this.mediaType }
+      ? { url: this.mediaUrl, type: this.mediaType, nsfw: false }
       : undefined;
   }
 

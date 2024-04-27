@@ -46,6 +46,7 @@ const GifSelect: React.FC<Props> = ({ setGif, disabled }: Props) => {
     setGif({
       type: MediaType.Gif,
       url: gif.id as string,
+      nsfw: false,
     });
   };
 

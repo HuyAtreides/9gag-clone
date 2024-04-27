@@ -54,6 +54,7 @@ const PostMedia: React.FC<{ post: Post }> = ({ post }) => {
   return (
     <Media
       type={post.mediaType}
+      nsfw={post.nsfw}
       url={post.mediaUrl}
       scrollAreaId={Constant.PostScrollAreaId as string}
     />

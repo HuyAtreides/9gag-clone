@@ -1,9 +1,10 @@
-import { Image } from 'antd';
-import React, { useEffect, useRef } from 'react';
+import { Button, Empty, Image, Typography } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import { MediaType } from '../../models/enums/constant';
 import { getMediaTypeFromMIME } from '../../utils/mime-type';
 import GifWrapper from '../gif-wrapper/GifWrapper';
 import styles from './Media.module.css';
+import useProtectedAction from '../../custom-hooks/protected-action';
 
 interface Props {
   readonly url: string;
@@ -13,19 +14,23 @@ interface Props {
   readonly gifWidth?: number;
   readonly gifHeight?: number;
   readonly height?: string | number;
+  readonly nsfw?: boolean;
 }
 
 const Media: React.FC<Props> = ({
   url,
   type,
+  nsfw,
   width,
   height,
   scrollAreaId,
   gifHeight,
   gifWidth,
 }: Props) => {
+  const [showNSFW, setShowNSFW] = useState(false);
   const mediaType = getMediaTypeFromMIME(type);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const protectedAction = useProtectedAction();
   const className =
     width || height ? styles['media'] : `${styles['media']} ${styles['media-size']}`;
   const observerCallback: IntersectionObserverCallback = (entries, _) => {
@@ -58,12 +63,35 @@ const Media: React.FC<Props> = ({
   }, []);
 
   if (mediaType === MediaType.Image) {
+    if (!showNSFW && nsfw) {
+      return (
+        <Empty
+          className={styles.nsfwMedia}
+          image={<Typography.Title level={3}>Sensitive content</Typography.Title>}
+          imageStyle={{ height: 'auto' }}
+          description={
+            <Typography.Text type='secondary'>
+              The following media includes potentially sensitive content.
+            </Typography.Text>
+          }
+        >
+          <Button type='ghost' onClick={protectedAction(() => setShowNSFW(true))}>
+            View
+          </Button>
+        </Empty>
+      );
+    }
+
     return <Image src={url} width={width} height={height} className={className} />;
   }
 
   if (mediaType === MediaType.Gif) {
     return (
-      <GifWrapper mediaLocation={{ url, type }} width={gifWidth} height={gifHeight} />
+      <GifWrapper
+        mediaLocation={{ url, type, nsfw: false }}
+        width={gifWidth}
+        height={gifHeight}
+      />
     );
   }
 

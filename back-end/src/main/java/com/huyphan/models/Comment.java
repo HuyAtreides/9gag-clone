@@ -67,6 +67,9 @@ public class Comment implements Followable, Notifiable {
     @Column(name = "Text")
     @Nationalized
     private String text;
+
+    @Column(name = "NSFW")
+    private boolean nsfw;
     @Lob
     @Column(name = "MediaUrl")
     private String mediaUrl;

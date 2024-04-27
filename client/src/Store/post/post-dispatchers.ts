@@ -284,6 +284,7 @@ export const uploadNewPost =
         : {
             type: null,
             url: null,
+            nsfw: false,
           };
       await addNewPost({
         title: newPostFormData.title,
@@ -294,6 +295,7 @@ export const uploadNewPost =
         contentType: newPostFormData.contentType,
         text: newPostFormData.text || null,
         anonymous: newPostFormData.anonymous,
+        nsfw: mediaLocation.nsfw,
         notificationEnabled: newPostFormData.notificationEnabled,
       });
       dispatch(setIsLoading(false));

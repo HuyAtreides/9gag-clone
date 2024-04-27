@@ -25,4 +25,6 @@ public class NewPostDto {
     private boolean anonymous;
 
     private boolean notificationEnabled;
+
+    private boolean nsfw;
 }

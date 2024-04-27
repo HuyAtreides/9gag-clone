@@ -20,4 +20,6 @@ export default interface NewPostDto {
   readonly anonymous: boolean;
 
   readonly notificationEnabled: boolean;
+
+  readonly nsfw: boolean;
 }

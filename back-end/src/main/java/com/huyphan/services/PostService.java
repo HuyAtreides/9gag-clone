@@ -82,6 +82,7 @@ public class PostService implements MediatorComponent {
         post.setMediaType(mediaType);
         post.setTitle(newPost.getTitle());
         post.setTags(newPost.getTags());
+        post.setNsfw(newPost.isNsfw());
         post.setContentType(contentType);
         post.setText(newPost.getText());
         post.setNotificationEnabled(newPost.isNotificationEnabled());

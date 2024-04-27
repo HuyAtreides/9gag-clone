@@ -19,6 +19,8 @@ public class NewPost {
 
     private Section section;
 
+    private boolean nsfw;
+
     private String tags;
 
     private String text;

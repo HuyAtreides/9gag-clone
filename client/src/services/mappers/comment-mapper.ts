@@ -9,6 +9,7 @@ export namespace CommentMapper {
       user: UserMapper.fromDto(commentDto.user),
       replyTo: commentDto.replyTo ? UserMapper.fromDto(commentDto.replyTo) : null,
       date: new Date(commentDto.date),
+      nsfw: commentDto.nsfw,
     });
   }
 }

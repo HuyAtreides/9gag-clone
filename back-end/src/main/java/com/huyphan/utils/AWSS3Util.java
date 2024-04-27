@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -39,6 +40,9 @@ public class AWSS3Util {
     private final String awsRegion;
 
     private final CloudFrontClient cloudFrontClient;
+
+    @Autowired
+    private AWSRekognition awsRekognition;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -74,7 +78,8 @@ public class AWSS3Util {
         RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());
         s3Client.putObject(putObjectRequest, requestBody);
         String objectUrl = buildObjectUrl(objectKey);
-        return new MediaLocation(objectUrl, type);
+
+        return new MediaLocation(objectUrl, type, awsRekognition.isNSFW(multipartFile));
     }
 
     public void deleteObject(String objectUrl) {

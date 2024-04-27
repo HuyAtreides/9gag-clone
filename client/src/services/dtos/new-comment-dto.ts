@@ -4,4 +4,6 @@ export default interface NewCommentDto {
   readonly mediaUrl: string | null;
 
   readonly mediaType: string | null;
+
+  readonly nsfw: boolean;
 }

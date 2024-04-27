@@ -45,6 +45,8 @@ public class CommentDto {
 
     private Long replyToId;
 
+    private boolean nsfw;
+
     public boolean getIsDownvoted() {
         return isDownvoted;
     }

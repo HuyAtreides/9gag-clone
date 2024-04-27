@@ -16,4 +16,6 @@ public class NewCommentDto {
 
     @Nullable
     private String mediaType;
+
+    private boolean nsfw;
 }

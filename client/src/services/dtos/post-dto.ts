@@ -17,6 +17,8 @@ export default interface PostDto {
 
   readonly section: SectionDto;
 
+  readonly nsfw: boolean;
+
   /**
    * The upload time of this post in ISO format e.g.2022-07-23T00:42:50Z .
    */

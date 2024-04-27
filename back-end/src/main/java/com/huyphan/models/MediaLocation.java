@@ -17,4 +17,6 @@ public class MediaLocation {
     private String url;
 
     private String type;
+
+    private boolean nsfw;
 }

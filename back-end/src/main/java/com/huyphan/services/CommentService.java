@@ -215,6 +215,7 @@ public class CommentService implements MediatorComponent {
         comment.setMediaUrl(newComment.getMediaUrl());
         comment.setMediaType(newComment.getMediaType());
         comment.setNotificationEnabled(true);
+        comment.setNsfw(newComment.isNsfw());
         return comment;
     }
 

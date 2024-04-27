@@ -235,6 +235,7 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
               <Media
                 url={comment.mediaUrl}
                 type={comment.mediaType}
+                nsfw={comment.nsfw}
                 width={mediaWidth}
                 scrollAreaId={Constant.CommentScrollAreaId as string}
               />
