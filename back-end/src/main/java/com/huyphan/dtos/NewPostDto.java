@@ -27,4 +27,6 @@ public class NewPostDto {
     private boolean notificationEnabled;
 
     private boolean nsfw;
+
+    private boolean moderating;
 }

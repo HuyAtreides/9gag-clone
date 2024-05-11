@@ -22,4 +22,6 @@ export default interface NewPostDto {
   readonly notificationEnabled: boolean;
 
   readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }

@@ -4,4 +4,6 @@ export default interface MediaLocationDto {
   readonly type: string;
 
   readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }

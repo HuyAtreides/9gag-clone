@@ -113,7 +113,7 @@ export default class AppComment {
 
   public getMediaLocation(): MediaLocation | undefined {
     return this.mediaType && this.mediaUrl
-      ? { url: this.mediaUrl, type: this.mediaType, nsfw: false }
+      ? { url: this.mediaUrl, type: this.mediaType, nsfw: false, moderating: false }
       : undefined;
   }
 

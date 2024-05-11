@@ -94,6 +94,7 @@ export class User {
       url: this.avatarUrl,
       type: MediaType.Image,
       nsfw: false,
+      moderating: false,
     };
   }
 
@@ -102,6 +103,7 @@ export class User {
       url: this.coverImageUrl,
       type: MediaType.Image,
       nsfw: false,
+      moderating: false,
     };
   }
 

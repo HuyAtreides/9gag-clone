@@ -21,6 +21,8 @@ public class NewPost {
 
     private boolean nsfw;
 
+    private boolean moderating;
+
     private String tags;
 
     private String text;

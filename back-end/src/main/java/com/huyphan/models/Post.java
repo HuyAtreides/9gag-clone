@@ -86,6 +86,9 @@ public class Post implements Followable, Notifiable, SharedPost {
     @Column(name="NSFW")
     private boolean nsfw;
 
+    @Column(name = "Moderating")
+    private boolean moderating;
+
     @Column(name = "SharedPostId")
     private Long sharedPostId;
 

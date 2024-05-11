@@ -88,7 +88,7 @@ const Media: React.FC<Props> = ({
   if (mediaType === MediaType.Gif) {
     return (
       <GifWrapper
-        mediaLocation={{ url, type, nsfw: false }}
+        mediaLocation={{ url, type, nsfw: false, moderating: false }}
         width={gifWidth}
         height={gifHeight}
       />

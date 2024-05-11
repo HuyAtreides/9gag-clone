@@ -19,4 +19,6 @@ public class MediaLocation {
     private String type;
 
     private boolean nsfw;
+
+    private boolean moderating;
 }

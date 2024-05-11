@@ -1,6 +1,7 @@
 package com.huyphan.utils;
 
 import com.huyphan.models.MediaLocation;
+import com.huyphan.models.enums.SupportedMIMEType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -24,6 +25,7 @@ import software.amazon.awssdk.services.cloudfront.model.InvalidationBatch;
 import software.amazon.awssdk.services.cloudfront.model.Paths;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
@@ -75,11 +77,17 @@ public class AWSS3Util {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName)
                 .key(objectKey).acl(ObjectCannedACL.PUBLIC_READ).build();
 
+        boolean isVideo = SupportedMIMEType.isVideoType(type);
         RequestBody requestBody = RequestBody.fromBytes(multipartFile.getBytes());
         s3Client.putObject(putObjectRequest, requestBody);
         String objectUrl = buildObjectUrl(objectKey);
 
-        return new MediaLocation(objectUrl, type, awsRekognition.isNSFW(multipartFile));
+        if (isVideo) {
+            awsRekognition.startModerateVideoJob(objectKey, objectUrl);
+            return new MediaLocation(objectUrl, type, false, true);
+        }
+
+        return new MediaLocation(objectUrl, type, awsRekognition.isNSFW(multipartFile), false);
     }
 
     public void deleteObject(String objectUrl) {
@@ -127,7 +135,7 @@ public class AWSS3Util {
         return instant.getEpochSecond() + "-" + fileName;
     }
 
-    private String getObjectKeyFromUrl(String url) {
+    public String getObjectKeyFromUrl(String url) {
         String[] urlSegments = url.split("/");
 
         return urlSegments[urlSegments.length - 1];
@@ -143,7 +151,7 @@ public class AWSS3Util {
 
         return S3Client.builder().credentialsProvider(
                 StaticCredentialsProvider.create(awsCredentials)
-        ).region(Region.AP_EAST_1).build();
+        ).region(Region.of(awsRegion)).build();
     }
 
     private CloudFrontClient buildCloudFrontClient() {
