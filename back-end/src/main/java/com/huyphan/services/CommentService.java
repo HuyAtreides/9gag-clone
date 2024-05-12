@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Getter
 @Setter
-public class CommentService implements MediatorComponent {
+public class CommentService implements MediatorComponent, ContentModerationService {
 
     @Autowired
     private CommentRepository commentRepository;
@@ -60,6 +60,11 @@ public class CommentService implements MediatorComponent {
 
     @Autowired
     private AWSS3Util awss3Util;
+
+    @Override
+    public void updateContentModerationStatus(boolean isNSFW, String contentUrl) {
+
+    }
 
     @Transactional
     public void toggleNotification(Long id, boolean value)

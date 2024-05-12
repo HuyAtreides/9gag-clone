@@ -26,6 +26,7 @@ import com.huyphan.services.togglenotificationinvoker.IToggleNotificationInvoker
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import java.util.Arrays;
+import javax.swing.text.AbstractDocument.Content;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Getter
 @Setter
-public class PostService implements MediatorComponent {
+public class PostService implements MediatorComponent, ContentModerationService {
 
     @Autowired
     private PostRepository postRepository;
@@ -369,5 +370,13 @@ public class PostService implements MediatorComponent {
     public void removeSavedPost(Long id) throws PostException {
         Post post = getPost(id);
         post.getSaveUsers().remove(UserService.getUser());
+    }
+
+    @Override
+    @Transactional
+    public void updateContentModerationStatus(boolean isNSFW, String contentUrl) {
+        Post post = postRepository.findByModeratingTrueAndMediaUrl(contentUrl);
+        post.setModerating(false);
+        post.setNsfw(isNSFW);
     }
 }

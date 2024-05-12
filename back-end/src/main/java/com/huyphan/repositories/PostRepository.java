@@ -84,6 +84,11 @@ public interface PostRepository extends CrudRepository<Post, Long> {
             )
             """;
 
+    String MODERATING_RESTRICTION = """
+            (
+                post.moderating = false or post.user = :user
+            )
+            """;
     String BLOCKED_USER_RESTRICTION = """
             (
                 not exists (
@@ -165,7 +170,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
             ) and
-            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION)
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION + " and " + MODERATING_RESTRICTION)
     Slice<PostWithDerivedFields> findUserPost(
             @Param("requestUser") User requestUser,
             @Param("user") User user,
@@ -177,7 +182,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     @Query(SELECT_STATEMENT + """
             from Post post
             where post.id = :id and 
-            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION)
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION + " and " + MODERATING_RESTRICTION)
     Optional<PostWithDerivedFields> findByPostId(@Param("user") User user, Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -205,7 +210,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
             ) and 
-            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION)
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION + " and " + MODERATING_RESTRICTION)
     Slice<PostWithDerivedFields> findBySectionName(
             @Param("user") User user,
             @Param("sectionName") String sectionName,
@@ -221,7 +226,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true)
                 and 
-            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION
+            """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION + " and " + MODERATING_RESTRICTION
     )
     Slice<PostWithDerivedFields> findAll(
             @Param("user") User user,
@@ -237,4 +242,6 @@ public interface PostRepository extends CrudRepository<Post, Long> {
              """ + PRIVATE_USER_POST_FILTER + "and " + BLOCKED_POST_OWNER_RESTRICTION
     )
     boolean canUserAccessPost(@Param("user") User user, @Param("postId") Long postId);
+
+    Post findByModeratingTrueAndMediaUrl(String mediaUrl);
 }

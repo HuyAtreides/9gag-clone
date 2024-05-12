@@ -54,6 +54,15 @@ public class AWSRekognition {
         }
     }
 
+    public boolean isNSFW(String jobId) {
+        return !rekognition.getContentModeration(
+                GetContentModerationRequest
+                        .builder()
+                        .jobId(jobId)
+                        .build()
+        ).moderationLabels().isEmpty();
+    }
+
     public void startModerateVideoJob(String objectKey, String objectUrl) {
         log.info("method=startModerateVideoJob, objectKey={}", objectKey);
 
