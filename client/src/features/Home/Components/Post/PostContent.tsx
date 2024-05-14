@@ -27,7 +27,9 @@ import AutoClosePopover from '../../../../components/auto-close-popover/AutoClos
 import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import FollowButton from '../../../../components/follow-button/FollowButton';
 import Media from '../../../../components/media/Media';
+import PostTitle from '../../../../components/post-title/PostTitle';
 import ShareButton from '../../../../components/share-button/ShareButton';
+import SharedPostContainer from '../../../../components/shared-post/SharedPostContainer';
 import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
 import VirtualComponent from '../../../../components/virtual-component/VirtualComponent';
 import WYSIWYGView from '../../../../components/wysiwyg-view/WYSIWYGView';
@@ -44,8 +46,6 @@ import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
-import SharedPostContainer from '../../../../components/shared-post/SharedPostContainer';
-import PostTitle from '../../../../components/post-title/PostTitle';
 
 interface Props {
   post: Post;
@@ -256,7 +256,8 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                 ) : (
                   'an anonymous user'
                 )}{' '}
-                &#8226; {uploadTimeDiffFromToday}
+                &#8226;{' '}
+                {post.moderating ? 'Moderating Content...' : uploadTimeDiffFromToday}
               </>
             }
           />

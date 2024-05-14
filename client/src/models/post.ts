@@ -44,4 +44,6 @@ export default interface Post {
   readonly sharedPostId: number | null;
 
   readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }

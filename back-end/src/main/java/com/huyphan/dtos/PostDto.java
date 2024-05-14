@@ -55,4 +55,6 @@ public class PostDto {
     private boolean anonymous;
 
     private boolean nsfw;
+
+    private boolean moderating;
 }

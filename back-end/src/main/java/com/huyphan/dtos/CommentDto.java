@@ -28,6 +28,8 @@ public class CommentDto {
 
     private String date;
 
+    private boolean moderating;
+
     @Nullable
     private UserDto user;
 

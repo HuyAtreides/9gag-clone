@@ -47,4 +47,6 @@ export default interface PostDto {
   readonly anonymous: boolean;
 
   readonly sharedPostId: number | null;
+
+  readonly moderating: boolean;
 }

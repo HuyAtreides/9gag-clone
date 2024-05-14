@@ -376,6 +376,11 @@ public class PostService implements MediatorComponent, ContentModerationService 
     @Transactional
     public void updateContentModerationStatus(boolean isNSFW, String contentUrl) {
         Post post = postRepository.findByModeratingTrueAndMediaUrl(contentUrl);
+
+        if (post == null) {
+            return;
+        }
+
         post.setModerating(false);
         post.setNsfw(isNSFW);
     }

@@ -18,4 +18,6 @@ public class NewCommentDto {
     private String mediaType;
 
     private boolean nsfw;
+
+    private boolean moderating;
 }

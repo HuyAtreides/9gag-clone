@@ -20,5 +20,7 @@ public class NewComment {
     @Nullable
     private String mediaType;
 
+    private boolean moderating;
+
     private boolean nsfw;
 }

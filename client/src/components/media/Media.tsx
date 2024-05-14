@@ -62,26 +62,26 @@ const Media: React.FC<Props> = ({
     };
   }, []);
 
-  if (mediaType === MediaType.Image) {
-    if (!showNSFW && nsfw) {
-      return (
-        <Empty
-          className={styles.nsfwMedia}
-          image={<Typography.Title level={3}>Sensitive content</Typography.Title>}
-          imageStyle={{ height: 'auto' }}
-          description={
-            <Typography.Text type='secondary'>
-              The following media includes potentially sensitive content.
-            </Typography.Text>
-          }
-        >
-          <Button type='ghost' onClick={protectedAction(() => setShowNSFW(true))}>
-            View
-          </Button>
-        </Empty>
-      );
-    }
+  if (!showNSFW && nsfw) {
+    return (
+      <Empty
+        className={styles.nsfwMedia}
+        image={<Typography.Title level={3}>Sensitive content</Typography.Title>}
+        imageStyle={{ height: 'auto' }}
+        description={
+          <Typography.Text type='secondary'>
+            The following media includes potentially sensitive content.
+          </Typography.Text>
+        }
+      >
+        <Button type='ghost' onClick={protectedAction(() => setShowNSFW(true))}>
+          View
+        </Button>
+      </Empty>
+    );
+  }
 
+  if (mediaType === MediaType.Image) {
     return <Image src={url} width={width} height={height} className={className} />;
   }
 
