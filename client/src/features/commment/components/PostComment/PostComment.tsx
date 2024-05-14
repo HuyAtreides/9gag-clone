@@ -242,7 +242,11 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
             ) : null}
           </>
         }
-        datetime={<span>&#8226; {commentDateDiff}</span>}
+        datetime={
+          <span>
+            &#8226; {comment.moderating ? 'Moderating content...' : commentDateDiff}
+          </span>
+        }
       >
         {showReplyEditor ? (
           <CommentEditor

@@ -37,6 +37,8 @@ interface AppCommentConstructorArguments {
   readonly followed: boolean;
 
   readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }
 
 export default class AppComment {
@@ -76,6 +78,8 @@ export default class AppComment {
 
   readonly nsfw: boolean;
 
+  readonly moderating: boolean;
+
   constructor(comment: AppCommentConstructorArguments) {
     this.id = comment.id;
     this.replyTo = comment.replyTo;
@@ -91,6 +95,8 @@ export default class AppComment {
     this.mediaType = comment.mediaType;
 
     this.replyTo = comment.replyTo;
+
+    this.moderating = comment.moderating;
 
     this.date = comment.date;
 

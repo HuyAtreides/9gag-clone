@@ -6,4 +6,6 @@ export default interface NewComment {
   readonly mediaType: string | null;
 
   readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }

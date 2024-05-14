@@ -36,4 +36,6 @@ export default interface CommentDto {
   readonly followed: boolean;
 
   readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }
