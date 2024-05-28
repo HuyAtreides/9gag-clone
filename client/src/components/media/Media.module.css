@@ -10,6 +10,12 @@
   height: 80vh !important;
 }
 
+.nsfwMedia {
+  padding-top: 45px;
+  padding-bottom: 45px;
+  background-color: #333333;
+}
+
 @media screen and (max-width: 992px) {
   .media-size {
     min-width: 90vw;

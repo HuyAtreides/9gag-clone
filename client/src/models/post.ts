@@ -42,4 +42,8 @@ export default interface Post {
   readonly anonymous: boolean;
 
   readonly sharedPostId: number | null;
+
+  readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }

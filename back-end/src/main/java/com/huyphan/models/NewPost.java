@@ -19,6 +19,10 @@ public class NewPost {
 
     private Section section;
 
+    private boolean nsfw;
+
+    private boolean moderating;
+
     private String tags;
 
     private String text;

@@ -19,4 +19,8 @@ export default interface NewPost {
   readonly anonymous: boolean;
 
   readonly notificationEnabled: boolean;
+
+  readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }

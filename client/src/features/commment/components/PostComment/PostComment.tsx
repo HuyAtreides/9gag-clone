@@ -235,13 +235,18 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
               <Media
                 url={comment.mediaUrl}
                 type={comment.mediaType}
+                nsfw={comment.nsfw}
                 width={mediaWidth}
                 scrollAreaId={Constant.CommentScrollAreaId as string}
               />
             ) : null}
           </>
         }
-        datetime={<span>&#8226; {commentDateDiff}</span>}
+        datetime={
+          <span>
+            &#8226; {comment.moderating ? 'Moderating content...' : commentDateDiff}
+          </span>
+        }
       >
         {showReplyEditor ? (
           <CommentEditor

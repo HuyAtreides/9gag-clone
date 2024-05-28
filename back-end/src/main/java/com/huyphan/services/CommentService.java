@@ -9,6 +9,7 @@ import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.Comment;
 import com.huyphan.models.NewComment;
 import com.huyphan.models.PageOptions;
+import com.huyphan.models.Post;
 import com.huyphan.models.User;
 import com.huyphan.models.enums.SortType;
 import com.huyphan.models.exceptions.AppException;
@@ -37,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Getter
 @Setter
-public class CommentService implements MediatorComponent {
+public class CommentService implements MediatorComponent, ContentModerationService {
 
     @Autowired
     private CommentRepository commentRepository;
@@ -215,6 +216,8 @@ public class CommentService implements MediatorComponent {
         comment.setMediaUrl(newComment.getMediaUrl());
         comment.setMediaType(newComment.getMediaType());
         comment.setNotificationEnabled(true);
+        comment.setNsfw(newComment.isNsfw());
+        comment.setModerating(newComment.isModerating());
         return comment;
     }
 
@@ -275,5 +278,18 @@ public class CommentService implements MediatorComponent {
         return commentRepository.findWithLockById(UserService.getUser(), id)
                 .orElseThrow(() -> new CommentException("Comment not found"));
 
+    }
+
+    @Override
+    @Transactional
+    public void updateContentModerationStatus(boolean isNSFW, String contentUrl) {
+        Comment comment = commentRepository.findByModeratingTrueAndMediaUrl(contentUrl);
+
+        if (comment == null) {
+            return;
+        }
+
+        comment.setModerating(false);
+        comment.setNsfw(isNSFW);
     }
 }

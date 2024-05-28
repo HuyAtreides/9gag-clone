@@ -48,6 +48,12 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
                         where followedComment.id = comment.id and :user in elements(followedComment.followers)
                     ) as followed
             """;
+
+    String MODERATING_RESTRICTION = """
+            (
+                comment.moderating = false or comment.user = :user
+            )
+            """;
     String BLOCKED_COMMENT_USER_FILTER = """
             (
                 not exists (
@@ -75,7 +81,8 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
     @Query(value = SELECT_STATEMENT + """
             from Comment comment
             where comment.parent.id = :parentId and
-            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER, countQuery = """
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER
+            + "and " + MODERATING_RESTRICTION, countQuery = """
             select count(*)
             from Comment comment
             where comment.parent.id = :parentId
@@ -90,7 +97,9 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
     @Query(value = SELECT_STATEMENT + """
             from Comment comment
             where comment.post.id = :postId and comment.parent is null and
-            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER, countQuery = """
+            """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER
+            + "and " + MODERATING_RESTRICTION
+            , countQuery = """
             select count(*)
             from Comment comment
             where comment.post.id = :postId and comment.parent is null
@@ -157,4 +166,6 @@ public interface CommentRepository extends CrudRepository<Comment, Long> {
             where comment.user = :user and
             """ + BLOCKED_COMMENT_USER_FILTER + "and " + PRIVATE_USER_COMMENT_FILTER)
     Slice<CommentWithDerivedFields> findUserComments(@Param("user") User user, Pageable pageable);
+
+    Comment findByModeratingTrueAndMediaUrl(String mediaUrl);
 }

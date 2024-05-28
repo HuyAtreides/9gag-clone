@@ -29,6 +29,12 @@ public enum SupportedMIMEType {
                 .orElse(SupportedMIMEType.FILE);
     }
 
+    static public boolean isVideoType(String value) {
+        SupportedMIMEType mimeType = toSupportedMIMEType(value);
+
+        return mimeType == SupportedMIMEType.VIDEO_MP4 || mimeType == SupportedMIMEType.VIDEO_MPEG;
+    }
+
     @JsonValue
     public String getValue() {
         return value;

@@ -67,6 +67,9 @@ public class Comment implements Followable, Notifiable {
     @Column(name = "Text")
     @Nationalized
     private String text;
+
+    @Column(name = "NSFW")
+    private boolean nsfw;
     @Lob
     @Column(name = "MediaUrl")
     private String mediaUrl;
@@ -88,6 +91,8 @@ public class Comment implements Followable, Notifiable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ParentId")
     private Comment parent;
+    @Column(name = "Moderating")
+    private boolean moderating;
     @OneToMany(mappedBy = "parent")
     @Fetch(FetchMode.SUBSELECT)
     private Set<Comment> children = new LinkedHashSet<>();

@@ -7,6 +7,7 @@ export namespace PostMapper {
   export function fromDto(data: PostDto): Post {
     return {
       ...data,
+      nsfw: data.nsfw,
       uploadTime: new Date(data.uploadTime),
       section: SectionMapper.fromDto(data.section),
       user: data.user ? UserMapper.fromDto(data.user) : data.user,

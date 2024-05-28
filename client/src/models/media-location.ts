@@ -1,7 +1,11 @@
 export default interface MediaLocation {
-  url: string;
+  readonly url: string;
 
-  type: string;
+  readonly type: string;
 
-  originalFileName?: string;
+  readonly originalFileName?: string;
+
+  readonly nsfw: boolean;
+
+  readonly moderating: boolean;
 }

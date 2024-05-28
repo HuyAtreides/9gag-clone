@@ -60,6 +60,8 @@ const ChatMessageEditor = ({
       ? {
           url: content.mediaUrl,
           type: content.mediaType,
+          nsfw: false,
+          moderating: false,
           originalFileName:
             content.uploadFile?.name || content.uploadFile?.originFileObj?.name,
         }

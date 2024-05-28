@@ -28,6 +28,8 @@ public class CommentDto {
 
     private String date;
 
+    private boolean moderating;
+
     @Nullable
     private UserDto user;
 
@@ -44,6 +46,8 @@ public class CommentDto {
     private Long postId;
 
     private Long replyToId;
+
+    private boolean nsfw;
 
     public boolean getIsDownvoted() {
         return isDownvoted;

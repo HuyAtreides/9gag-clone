@@ -244,6 +244,8 @@ export const getNewComment = async (
     text: commentUploadData.text || null,
     mediaType: mediaLocation.type,
     mediaUrl: mediaLocation.url,
+    nsfw: mediaLocation.nsfw,
+    moderating: mediaLocation.moderating,
   };
 };
 
