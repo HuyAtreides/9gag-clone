@@ -144,6 +144,15 @@ public class User implements UserDetails, Followable, ChatParticipant {
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "user")
+    private Set<Report> reports;
+
+    @Column(name = "Suspended")
+    private boolean suspended;
+
+    @Column(name = "SuspendedAt")
+    private Instant suspendedAt;
+
+    @OneToMany(mappedBy = "user")
     private Set<Post> posts = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "sender")
@@ -228,7 +237,7 @@ public class User implements UserDetails, Followable, ChatParticipant {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !suspended;
     }
 
     @Override

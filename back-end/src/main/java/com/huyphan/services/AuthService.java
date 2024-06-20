@@ -51,6 +51,10 @@ public class AuthService {
                 return new UserSecret(token);
             }
 
+            if (!user.isAccountNonLocked()) {
+                throw new AuthException("Account is suspended");
+            }
+
             throw new AuthException("Username or password is incorrect");
         } catch (UsernameNotFoundException exception) {
             throw new AuthException("Username or password is incorrect");

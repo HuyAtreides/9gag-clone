@@ -2,6 +2,7 @@ package com.huyphan.controllers;
 
 import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
+import com.huyphan.dtos.ReportUserRequestDto;
 import com.huyphan.dtos.SliceDto;
 import com.huyphan.dtos.UpdatePasswordDataDto;
 import com.huyphan.dtos.UpdateProfileDataDto;
@@ -10,6 +11,7 @@ import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.dtos.UserStatsDto;
 import com.huyphan.mappers.PageMapper;
 import com.huyphan.mappers.PageOptionMapper;
+import com.huyphan.mappers.ReportUserRequestMapper;
 import com.huyphan.mappers.SliceMapper;
 import com.huyphan.mappers.UpdatePasswordDataMapper;
 import com.huyphan.mappers.UpdateProfileDataMapper;
@@ -17,6 +19,7 @@ import com.huyphan.mappers.UserMapper;
 import com.huyphan.mappers.UserSecretMapper;
 import com.huyphan.mappers.UserStatsMapper;
 import com.huyphan.models.PageOptions;
+import com.huyphan.models.ReportUserRequest;
 import com.huyphan.models.UpdatePasswordData;
 import com.huyphan.models.UpdateProfileData;
 import com.huyphan.models.User;
@@ -29,14 +32,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -70,6 +76,9 @@ public class UserController {
 
     @Autowired
     private PageMapper<UserDto, User> pageMapper;
+
+    @Autowired
+    private ReportUserRequestMapper reportUserRequestMapper;
 
     /**
      * Get current authenticated user profile.
@@ -179,6 +188,26 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void block(@PathVariable Long userId) throws UserException {
         userService.block(userId);
+    }
+
+    @PutMapping("suspend/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void suspend(@PathVariable Long userId) throws UserException {
+        userService.suspendUser(userId);
+    }
+
+    @PutMapping("unsuspend/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unSuspend(@PathVariable Long userId) throws UserException {
+        userService.unSuspendUser(userId);
+    }
+
+    @PostMapping("report")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void report(@RequestBody ReportUserRequestDto reportUserRequest) throws UserException {
+        userService.reportUser(
+                reportUserRequestMapper.fromDto(reportUserRequest)
+        );
     }
 
     @GetMapping("all")

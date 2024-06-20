@@ -18,6 +18,7 @@ import {
   getUserFavoriteSections,
   getUserStats,
   removeSectionFromUserFavoriteSections,
+  reportUser,
   restrictUser,
   unFollowUser,
   unRestrictUser,
@@ -268,6 +269,16 @@ export const restrict =
       dispatch(setConversationRestricted({ userId, value: true }));
     } catch (error: unknown) {
       message.error(`Failed to restrict ${otherUser?.displayName || ''}`);
+    }
+  };
+
+export const report =
+  (userId: number, reason: string): AppThunk =>
+  async (__, _) => {
+    try {
+      await reportUser(userId, reason);
+    } catch (error: unknown) {
+      message.error('Failed to report');
     }
   };
 

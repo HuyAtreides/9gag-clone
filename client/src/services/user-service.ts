@@ -192,3 +192,11 @@ export async function unRestrictUser(userId: number) {
   const axios = createAxiosInstance();
   await axios.put<void>(`${Constant.UserEndpoint}/un-restrict/${userId}`);
 }
+
+export async function reportUser(userId: number, reason: string) {
+  const axios = createAxiosInstance();
+  await axios.post<void>(`${Constant.UserEndpoint}/report`, {
+    userId,
+    reason,
+  });
+}

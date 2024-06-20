@@ -6,6 +6,8 @@ import com.huyphan.mediators.IMediator;
 import com.huyphan.mediators.MediatorComponent;
 import com.huyphan.models.PageOptions;
 import com.huyphan.models.RegisterData;
+import com.huyphan.models.Report;
+import com.huyphan.models.ReportUserRequest;
 import com.huyphan.models.UpdatePasswordData;
 import com.huyphan.models.UpdateProfileData;
 import com.huyphan.models.User;
@@ -16,11 +18,14 @@ import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.models.projections.UserWithDerivedFields;
+import com.huyphan.repositories.ReportRepository;
 import com.huyphan.repositories.UserRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.JwtUtil;
+import java.time.Instant;
 import java.util.Objects;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -65,7 +70,11 @@ public class UserService implements UserDetailsService, MediatorComponent {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Setter
     private IMediator mediator;
+
+    @Autowired
+    private ReportRepository reportRepository;
 
     /**
      * Get current authenticated user.
@@ -81,14 +90,36 @@ public class UserService implements UserDetailsService, MediatorComponent {
         return (User) principal;
     }
 
-    public void setMediator(IMediator mediator) {
-        this.mediator = mediator;
-    }
-
     public User getCurrentUser() {
         User user = getUser();
         assert user != null;
         return userRepo.save(user);
+    }
+
+    @Transactional
+    public void reportUser(ReportUserRequest request) throws UserException {
+        User user = findUserByIdWithoutBlockFilter(request.getUserId());
+
+        Report report = Report.builder()
+                .user(user)
+                .owner(getCurrentUser())
+                .createdAt(Instant.now())
+                .reason(request.getReason())
+                .build();
+        reportRepository.save(report);
+    }
+
+    @Transactional
+    public void suspendUser(long userId) throws UserException {
+        User user = findUserByIdWithoutBlockFilter(userId);
+        user.setSuspended(true);
+        user.setSuspendedAt(Instant.now());
+    }
+
+    @Transactional
+    public void unSuspendUser(long userId) throws UserException {
+        User user = findUserByIdWithoutBlockFilter(userId);
+        user.setSuspended(false);
     }
 
     @Override

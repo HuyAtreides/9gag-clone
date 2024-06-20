@@ -1,6 +1,7 @@
 package com.huyphan.dtos;
 
 import com.huyphan.models.enums.Country;
+import java.util.Set;
 import javax.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +43,8 @@ public class UserDto {
     private String restrictedAt;
 
     private boolean onlyReceiveMessageFromFollowers;
+
+    private Set<ReportDto> reports;
 
     public void setIsPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;
