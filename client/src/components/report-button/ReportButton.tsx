@@ -6,7 +6,6 @@ import { useAppDispatch } from '../../Store';
 import { report } from '../../Store/user/user-dipatchers';
 import { User } from '../../models/user';
 import AuthenticatedGuard from '../component-guard/AuthenticatedGuard';
-import styles from './ReportButton.module.css';
 
 const items: ItemType[] = [
   { label: 'Spam', key: 'Spam' },
