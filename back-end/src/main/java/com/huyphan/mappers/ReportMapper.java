@@ -5,7 +5,9 @@ import com.huyphan.models.Report;
 import java.time.Instant;
 import org.modelmapper.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ReportMapper extends BaseMapper implements ToDtoMapper<ReportDto, Report> {
 
 

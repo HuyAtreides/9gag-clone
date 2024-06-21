@@ -44,7 +44,7 @@ public class UserDto {
 
     private boolean onlyReceiveMessageFromFollowers;
 
-    private Set<ReportDto> reports;
+    private boolean reported;
 
     public void setIsPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;

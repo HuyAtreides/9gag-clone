@@ -18,12 +18,14 @@ import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.models.projections.UserWithDerivedFields;
+import com.huyphan.models.projections.UserWithReportedField;
 import com.huyphan.repositories.ReportRepository;
 import com.huyphan.repositories.UserRepository;
 import com.huyphan.services.followactioninvoker.IFollowActionInvoker;
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.JwtUtil;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,6 +114,12 @@ public class UserService implements UserDetailsService, MediatorComponent {
                 .reason(request.getReason())
                 .build();
         reportRepository.save(report);
+    }
+
+    public List<Report> getUserReports(long userId) throws UserException {
+        User user = findUserByIdWithoutBlockFilter(userId);
+
+        return user.getReports().stream().toList();
     }
 
     @Transactional
@@ -214,7 +222,9 @@ public class UserService implements UserDetailsService, MediatorComponent {
         String searchTerm = getSearchTerm(pageOptions.getSearch());
         Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
 
-        return userRepo.findAll(searchTerm, pageable);
+        return userRepo.findAll(searchTerm, pageable).map(
+                UserWithReportedField::toUser
+        );
     }
 
     private String getSearchTerm(String search) {

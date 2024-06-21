@@ -239,7 +239,13 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                           />
                         }
                       />
-                      {post.user ? <ReportButton user={post.user} /> : null}
+                      {post.user ? (
+                        <OwnerGuard
+                          component={<></>}
+                          replace={<ReportButton user={post.user} />}
+                          owner={post.user}
+                        />
+                      ) : null}
                       <div className={styles.shareButtonContainerSmallBreakpoint}>
                         <ShareButton post={post} />
                       </div>

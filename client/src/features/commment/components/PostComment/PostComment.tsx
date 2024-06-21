@@ -213,7 +213,11 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
                   }
                 />
                 {commentDeleteButton}
-                <ReportButton user={comment.user} />
+                <OwnerGuard
+                  component={<></>}
+                  replace={<ReportButton user={comment.user} />}
+                  owner={comment.user}
+                />
               </>
             }
           >

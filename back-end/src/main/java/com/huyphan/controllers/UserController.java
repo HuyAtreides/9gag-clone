@@ -2,6 +2,7 @@ package com.huyphan.controllers;
 
 import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
+import com.huyphan.dtos.ReportDto;
 import com.huyphan.dtos.ReportUserRequestDto;
 import com.huyphan.dtos.SliceDto;
 import com.huyphan.dtos.UpdatePasswordDataDto;
@@ -11,6 +12,7 @@ import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.dtos.UserStatsDto;
 import com.huyphan.mappers.PageMapper;
 import com.huyphan.mappers.PageOptionMapper;
+import com.huyphan.mappers.ReportMapper;
 import com.huyphan.mappers.ReportUserRequestMapper;
 import com.huyphan.mappers.SliceMapper;
 import com.huyphan.mappers.UpdatePasswordDataMapper;
@@ -19,6 +21,7 @@ import com.huyphan.mappers.UserMapper;
 import com.huyphan.mappers.UserSecretMapper;
 import com.huyphan.mappers.UserStatsMapper;
 import com.huyphan.models.PageOptions;
+import com.huyphan.models.Report;
 import com.huyphan.models.ReportUserRequest;
 import com.huyphan.models.UpdatePasswordData;
 import com.huyphan.models.UpdateProfileData;
@@ -28,6 +31,8 @@ import com.huyphan.models.UserStats;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.UserService;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
@@ -79,6 +84,9 @@ public class UserController {
 
     @Autowired
     private ReportUserRequestMapper reportUserRequestMapper;
+
+    @Autowired
+    private ReportMapper reportMapper;
 
     /**
      * Get current authenticated user profile.
@@ -208,6 +216,12 @@ public class UserController {
         userService.reportUser(
                 reportUserRequestMapper.fromDto(reportUserRequest)
         );
+    }
+
+    @GetMapping("{id}/reports")
+    public List<ReportDto> getUserReports(@PathVariable long id) throws UserException {
+        List<Report> reports = userService.getUserReports(id);
+        return reports.stream().map(report -> reportMapper.toDto(report)).collect(Collectors.toList());
     }
 
     @GetMapping("all")

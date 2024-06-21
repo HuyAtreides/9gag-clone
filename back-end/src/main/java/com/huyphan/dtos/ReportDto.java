@@ -10,7 +10,7 @@ public class ReportDto {
 
     private Long id;
 
-    private Instant createdAt;
+    private String createdAt;
 
     private String reason;
 }

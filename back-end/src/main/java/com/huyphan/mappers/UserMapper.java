@@ -34,19 +34,10 @@ public class UserMapper extends BaseMapper implements ToDtoMapper<UserDto, User>
 
     @Override
     public void createTypeMap() {
-        Converter<Set<Report>, Set<ReportDto>> reportConverter = (context) -> {
-            Set<Report> reports = context.getSource();
-
-            return reports.stream().map((element) -> modelMapper.map(element, ReportDto.class)).collect(
-                    Collectors.toSet()
-            );
-        };
-
         modelMapper.typeMap(User.class, UserDto.class).addMappings(
                 mapper -> {
                     mapper.using(converter).map(User::getCreated, UserDto::setCreated);
                     mapper.using(converter).map(User::getBlockedTime, UserDto::setBlockedTime);
-                    mapper.using(reportConverter).map(User::getReports, UserDto::setReports);
                     mapper.using(s3URLToCloudFrontURLConverter)
                             .map(User::getAvatarUrl, UserDto::setAvatarUrl);
                     mapper.using(s3URLToCloudFrontURLConverter)
