@@ -1,9 +1,13 @@
 package com.huyphan.mappers;
 
+import com.huyphan.dtos.ReportDto;
 import com.huyphan.dtos.UserDto;
 import com.huyphan.mappers.converters.S3URLToCloudFrontURLConverter;
+import com.huyphan.models.Report;
 import com.huyphan.models.User;
 import java.time.Instant;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.modelmapper.Converter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

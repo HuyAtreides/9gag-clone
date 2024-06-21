@@ -40,6 +40,7 @@ import { PostContext } from '../../../Home/Components/post-with-comment/PostWith
 import ChildComment from '../ChildComment/ChildComment';
 import styles from './PostComment.module.scss';
 import WYSIWYGView from '../../../../components/wysiwyg-view/WYSIWYGView';
+import ReportButton from '../../../../components/report-button/ReportButton';
 
 interface Props {
   readonly comment: AppComment;
@@ -212,6 +213,11 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
                   }
                 />
                 {commentDeleteButton}
+                <OwnerGuard
+                  component={<></>}
+                  replace={<ReportButton user={comment.user} />}
+                  owner={comment.user}
+                />
               </>
             }
           >

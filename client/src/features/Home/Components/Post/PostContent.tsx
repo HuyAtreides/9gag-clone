@@ -46,6 +46,7 @@ import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
+import ReportButton from '../../../../components/report-button/ReportButton';
 
 interface Props {
   post: Post;
@@ -238,6 +239,13 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                           />
                         }
                       />
+                      {post.user ? (
+                        <OwnerGuard
+                          component={<></>}
+                          replace={<ReportButton user={post.user} />}
+                          owner={post.user}
+                        />
+                      ) : null}
                       <div className={styles.shareButtonContainerSmallBreakpoint}>
                         <ShareButton post={post} />
                       </div>

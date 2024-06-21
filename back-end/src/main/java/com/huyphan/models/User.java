@@ -12,7 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -144,6 +143,18 @@ public class User implements UserDetails, Followable, ChatParticipant {
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "user")
+    private Set<Report> reports;
+
+    @Transient
+    private boolean reported;
+
+    @Column(name = "Suspended")
+    private boolean suspended;
+
+    @Column(name = "SuspendedAt")
+    private Instant suspendedAt;
+
+    @OneToMany(mappedBy = "user")
     private Set<Post> posts = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "sender")
@@ -228,7 +239,7 @@ public class User implements UserDetails, Followable, ChatParticipant {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !suspended;
     }
 
     @Override

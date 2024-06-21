@@ -4,6 +4,7 @@ import com.huyphan.models.User;
 import com.huyphan.models.UserStats;
 import com.huyphan.models.enums.SocialProvider;
 import com.huyphan.models.projections.UserWithDerivedFields;
+import com.huyphan.models.projections.UserWithReportedField;
 import java.util.Optional;
 import javax.swing.text.html.Option;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,12 @@ public interface UserRepository extends CrudRepository<User, Long> {
                     from User followedUser
                     where followedUser = user and :currentUser in elements(followedUser.followers)
                 ) as isFollowedByCurrentUser,
+                
+                (
+                    select case when (count(*) > 0) then true else false end
+                    from Report report
+                    where report.user = user
+                ) as reported,
                 
                 (
                     select case when (count(*) > 0) then true else false end
@@ -80,7 +87,21 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     @Query(value = """
-            select user
+            select
+                user as user,
+                (
+                    select case when (count(*) > 0) then true else false end
+                    from Report report
+                    where report.user = user
+                ) as reported
+            from User user
+            where :searchTerm = '""'
+                or
+                lower(user.username) like :searchTerm
+                or
+                lower(user.displayName) like :searchTerm
+            """, countQuery = """
+            select count(*)
             from User user
             where :searchTerm = '""'
                 or
@@ -88,7 +109,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
                 or
                 lower(user.displayName) like :searchTerm
             """)
-    Page<User> findAll(
+    Page<UserWithReportedField> findAll(
             @Param("searchTerm") String searchTerm,
             Pageable pageable
     );
