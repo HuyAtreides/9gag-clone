@@ -72,10 +72,8 @@ const ReportButton = ({ user, reportProfile = false }: Props) => {
             onCancel={() => setShowModal(false)}
             onOk={sendReport}
             bodyStyle={{ padding: 10 }}
-            className={styles.model}
           >
             <Menu
-              className={styles.menu}
               items={reportProfile ? reportProfileItems : items}
               onSelect={(selectedInfo) => setReason(selectedInfo.key)}
             />

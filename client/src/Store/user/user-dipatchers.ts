@@ -277,6 +277,7 @@ export const report =
   async (__, _) => {
     try {
       await reportUser(userId, reason);
+      message.success('Report sent!');
     } catch (error: unknown) {
       message.error('Failed to report');
     }
