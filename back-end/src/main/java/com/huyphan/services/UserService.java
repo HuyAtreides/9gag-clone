@@ -99,10 +99,15 @@ public class UserService implements UserDetailsService, MediatorComponent {
     @Transactional
     public void reportUser(ReportUserRequest request) throws UserException {
         User user = findUserByIdWithoutBlockFilter(request.getUserId());
+        User currentUser = getCurrentUser();
+
+        if (user.equals(currentUser)) {
+            throw new IllegalArgumentException("Can not report yourself");
+        }
 
         Report report = Report.builder()
                 .user(user)
-                .owner(getCurrentUser())
+                .owner(currentUser)
                 .createdAt(Instant.now())
                 .reason(request.getReason())
                 .build();
@@ -112,6 +117,11 @@ public class UserService implements UserDetailsService, MediatorComponent {
     @Transactional
     public void suspendUser(long userId) throws UserException {
         User user = findUserByIdWithoutBlockFilter(userId);
+
+        if (user.equals(getCurrentUser())) {
+            throw new IllegalArgumentException("Can not suspend yourself");
+        }
+
         user.setSuspended(true);
         user.setSuspendedAt(Instant.now());
     }

@@ -55,6 +55,7 @@ import UserSavedPosts from '../../components/user-saved-posts/UserSavedPosts';
 import UserUpvotedPosts from '../../components/user-upvoted-posts/UserUpvotedPosts';
 import { UserProfileContext } from '../../context/context';
 import styles from './UserProfile.module.scss';
+import ReportButton from '../../../../components/report-button/ReportButton';
 
 const tabListNoTitle = [
   {
@@ -270,7 +271,6 @@ const UserProfile: React.FC = () => {
                     />
 
                     <OwnerGuard
-                      component={<></>}
                       replace={
                         <Button
                           type='text'
@@ -280,6 +280,13 @@ const UserProfile: React.FC = () => {
                           Chat
                         </Button>
                       }
+                      component={<></>}
+                      owner={user}
+                    />
+
+                    <OwnerGuard
+                      component={<></>}
+                      replace={<ReportButton user={user} reportProfile />}
                       owner={user}
                     />
 

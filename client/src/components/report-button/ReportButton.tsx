@@ -1,11 +1,12 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Button, Menu, Modal, Typography } from 'antd';
-import AuthenticatedGuard from '../component-guard/AuthenticatedGuard';
-import { useState } from 'react';
 import { ItemType } from 'antd/lib/menu/hooks/useItems';
-import Post from '../../models/post';
+import { useState } from 'react';
 import { useAppDispatch } from '../../Store';
 import { report } from '../../Store/user/user-dipatchers';
+import { User } from '../../models/user';
+import AuthenticatedGuard from '../component-guard/AuthenticatedGuard';
+import styles from './ReportButton.module.css';
 
 const items: ItemType[] = [
   { label: 'Spam', key: 'Spam' },
@@ -23,23 +24,31 @@ const items: ItemType[] = [
   { label: 'Illegal activities', key: 'Illegal activities' },
 ];
 
+const reportProfileItems: ItemType[] = [
+  { label: 'Fake Account', key: 'Fake Account' },
+  { label: 'Fake Name', key: 'Fake Name' },
+  { label: 'Inappropriate Post', key: 'Inappropriate Post' },
+  { label: 'Harassment or Bullying', key: 'Harassment or Bullying' },
+];
+
 interface Props {
-  readonly post: Post;
+  readonly user: User;
+  readonly reportProfile?: boolean;
 }
 
-const ReportButton = ({ post }: Props) => {
+const ReportButton = ({ user, reportProfile = false }: Props) => {
   const dispatch = useAppDispatch();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [reason, setReason] = useState<null | string>(null);
 
   const sendReport = async () => {
-    if (!post.user?.id || !reason) {
+    if (!reason) {
       return;
     }
     setLoading(true);
 
-    await dispatch(report(post.user.id, reason));
+    await dispatch(report(user.id, reason));
     setShowModal(false);
     setLoading(false);
   };
@@ -60,10 +69,14 @@ const ReportButton = ({ post }: Props) => {
             visible={showModal}
             okText='Send'
             confirmLoading={loading}
+            onCancel={() => setShowModal(false)}
             onOk={sendReport}
+            bodyStyle={{ padding: 10 }}
+            className={styles.model}
           >
             <Menu
-              items={items}
+              className={styles.menu}
+              items={reportProfile ? reportProfileItems : items}
               onSelect={(selectedInfo) => setReason(selectedInfo.key)}
             />
           </Modal>

@@ -239,7 +239,7 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                           />
                         }
                       />
-                      <ReportButton post={post} />
+                      {post.user ? <ReportButton user={post.user} /> : null}
                       <div className={styles.shareButtonContainerSmallBreakpoint}>
                         <ShareButton post={post} />
                       </div>

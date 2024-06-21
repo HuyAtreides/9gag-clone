@@ -49,8 +49,8 @@ public class SecurityConfig {
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/user/all")
                 .permitAll()// TODO: Use appropriate role
-                /*.antMatchers(HttpMethod.GET, "/v3/api-docs")
-                .permitAll()*/
+                .antMatchers(HttpMethod.GET, "/v3/api-docs")
+                .permitAll()
                 .antMatchers(HttpMethod.GET, "/section")
                 .permitAll()
                 .anyRequest().authenticated();

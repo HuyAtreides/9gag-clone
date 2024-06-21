@@ -199,9 +199,9 @@ public class ChatController {
         chatService.removeMessage(messageId);
     }
 
-    @DeleteMapping("conversation/{conversationId}")
-    public void deleteConversation(@PathVariable Long conversationId) {
-        chatService.deleteConversation(conversationId);
+    @DeleteMapping("conversation/{id}")
+    public void deleteConversation(@PathVariable Long id) {
+        chatService.deleteConversation(id);
     }
 
     @GetMapping("messages/{conversationId}")
