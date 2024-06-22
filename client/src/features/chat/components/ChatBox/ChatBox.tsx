@@ -4,6 +4,7 @@ import {
   AudioMutedOutlined,
   CloseOutlined,
   DeleteOutlined,
+  FileSearchOutlined,
   FullscreenOutlined,
   MoreOutlined,
   PushpinOutlined,
@@ -36,6 +37,7 @@ import ChatBoxSkeleton from './ChatBoxSkeleton';
 import ChatBoxWithError from './ChatBoxWithError';
 import ChatMessageEditor from './ChatMessageEditor';
 import ChatMessageList from './ChatMessagesList';
+import SearchChatMessage from '../SearchChatMessage/SearchChatMessage';
 
 interface Props {
   readonly chatParticipantId: number;
@@ -131,6 +133,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
   )!;
   const chatBoxHeight = useContext(ChatBoxHeight);
   const [openPinnedChatMessages, setOpenPinnedChatMessages] = useState(false);
+  const [openSearchChatMessages, setOpenChatSearchMessage] = useState(false);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
   const [focusMessageId, setFocusMessageId] = useState<null | number>(null);
@@ -268,6 +271,14 @@ const ChatBox = ({ chatParticipantId }: Props) => {
               <Button
                 block
                 type='text'
+                icon={<FileSearchOutlined />}
+                onClick={() => setOpenChatSearchMessage(true)}
+              >
+                Search messages
+              </Button>
+              <Button
+                block
+                type='text'
                 icon={!conversation.muted ? <AlertFilled /> : <AlertOutlined />}
                 onClick={handleMute}
               >
@@ -329,6 +340,12 @@ const ChatBox = ({ chatParticipantId }: Props) => {
         visible={openPinnedChatMessages}
         close={() => setOpenPinnedChatMessages(false)}
         viewPinnedMessage={focusMessage}
+      />
+      <SearchChatMessage
+        conversationId={conversation.id}
+        visible={openSearchChatMessages}
+        close={() => setOpenChatSearchMessage(false)}
+        viewMessage={focusMessage}
       />
     </Card>
   );

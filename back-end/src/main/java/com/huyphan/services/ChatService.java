@@ -152,9 +152,27 @@ public class ChatService implements MediatorComponent {
     ) {
         User currentUser = UserService.getUser();
         Pageable pageable = createChatMessagePageable(pageOptions);
+        String searchTerm = pageOptions.getSearch();
         ChatConversation conversation = findConversationById(conversationId);
 
+        if (searchTerm != null)  {
+            return chatMessageRepo.searchConversationChatMessages(
+                    currentUser,
+                    formatSearchTerm(searchTerm),
+                    conversation,
+                    pageable
+            );
+        }
+
         return chatMessageRepo.getConversationChatMessages(currentUser, conversation, pageable);
+    }
+
+    private String formatSearchTerm(String search) {
+        if (search == null || search.isBlank()) {
+            return "\"\"";
+        }
+
+        return "%" + search.toLowerCase() + "%";
     }
 
     @Transactional(readOnly = true)

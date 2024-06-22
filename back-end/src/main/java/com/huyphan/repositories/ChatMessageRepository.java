@@ -38,6 +38,21 @@ public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long>
     @Query("""
             select chatMessage
             from ChatMessage chatMessage
+            where chatMessage.conversation = :conversation
+             and :user in elements(chatMessage.conversation.participants)
+             and lower(chatMessage.content.text) like :searchTerm
+             and chatMessage.sentDate > """ + CONVERSATION_DELETE_DATE)
+    Slice<ChatMessage> searchConversationChatMessages(
+            @Param("user") User user,
+            @Param("searchTerm") String searchTerm,
+            @Param("conversation") ChatConversation conversation,
+            Pageable pageable
+    );
+
+    @EntityGraph("ChatMessageWithConversationInfo")
+    @Query("""
+            select chatMessage
+            from ChatMessage chatMessage
             where :user in elements(chatMessage.conversation.participants)
             and chatMessage.id <= :latestMessageId and chatMessage.id >= :oldestMessageId
             and chatMessage.sentDate > """ + CONVERSATION_DELETE_DATE +

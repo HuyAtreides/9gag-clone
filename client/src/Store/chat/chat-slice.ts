@@ -20,10 +20,26 @@ interface MessageState {
   readonly messages: ChatMessage[];
 }
 
+interface ListOfMessageState {
+  readonly isGettingPage: boolean;
+  readonly isLoading: boolean;
+  readonly messages: readonly ChatMessage[];
+  readonly error: string | null;
+  readonly pagination: Pagination;
+}
+
 const initialPagination = {
   page: -1,
   size: Constant.PageSize as number,
   isLast: false,
+};
+
+const initialListOfMessageState = {
+  error: null,
+  isLoading: false,
+  isGettingPage: false,
+  messages: [],
+  pagination: initialPagination,
 };
 
 interface OpenChatConversationState {
@@ -48,13 +64,8 @@ interface PreviewChatConversationState {
   readonly pagination: Pagination;
 }
 
-interface PinnedMessagesState {
-  readonly isGettingPage: boolean;
-  readonly isLoading: boolean;
-  readonly messages: readonly ChatMessage[];
-  readonly error: string | null;
-  readonly pagination: Pagination;
-}
+type PinnedMessagesState = ListOfMessageState;
+type SearchChatMessageState = PinnedMessagesState;
 
 interface ConversationState {
   readonly isGettingConversations: boolean;
@@ -69,6 +80,7 @@ interface ConversationState {
 interface ChatState {
   readonly messageState: Readonly<Record<number, MessageState>>;
   readonly pinnedMessageState: PinnedMessagesState;
+  readonly searchChatMessageState: SearchChatMessageState;
   readonly conversationError: Readonly<Record<number, string | null>>;
   readonly conversationState: ConversationState;
   readonly syncError: string | null;
@@ -80,13 +92,8 @@ const initialState: ChatState = {
   messageState: {},
   conversationError: {},
   syncError: null,
-  pinnedMessageState: {
-    error: null,
-    isLoading: false,
-    isGettingPage: false,
-    messages: [],
-    pagination: initialPagination,
-  },
+  pinnedMessageState: initialListOfMessageState,
+  searchChatMessageState: initialListOfMessageState,
   conversationState: {
     error: null,
     isGettingConversations: false,
@@ -171,6 +178,40 @@ const slice = createSlice({
 
     resetPinnedMessagesState(state) {
       state.pinnedMessageState = {
+        error: null,
+        isLoading: false,
+        isGettingPage: false,
+        messages: [],
+        pagination: initialPagination,
+      };
+    },
+
+    setSearchMessagesIsLoading(state, action: PayloadAction<boolean>) {
+      state.searchChatMessageState.isLoading = action.payload;
+    },
+
+    setSearchMessagesIsGettingPage(state, action: PayloadAction<boolean>) {
+      state.searchChatMessageState.isGettingPage = action.payload;
+    },
+
+    setSearchMessagesPage(state, action: PayloadAction<Slice<ChatMessage>>) {
+      const { page, isLast, size, content } = action.payload;
+      state.searchChatMessageState.pagination = { page, isLast, size };
+      state.searchChatMessageState.messages = [...content];
+    },
+
+    addSearchMessagesPage(state, action: PayloadAction<Slice<ChatMessage>>) {
+      const { page, isLast, size, content } = action.payload;
+      state.searchChatMessageState.pagination = { page, isLast, size };
+      state.searchChatMessageState.messages.push(...content);
+    },
+
+    setSearchMessagesError(state, action: PayloadAction<string | null>) {
+      state.searchChatMessageState.error = action.payload;
+    },
+
+    resetSearchMessagesState(state) {
+      state.searchChatMessageState = {
         error: null,
         isLoading: false,
         isGettingPage: false,
@@ -771,7 +812,13 @@ export const {
   setConversationRestricted,
   toggleConversationMuted,
   setReplyingToMessage,
+  setSearchMessagesIsGettingPage,
+  setSearchMessagesError,
+  setSearchMessagesIsLoading,
+  setSearchMessagesPage,
+  addSearchMessagesPage,
   setPinnedMessageError,
+  resetSearchMessagesState,
   setPinnedMessageIsGettingPage,
   setPinnedMessageIsLoading,
   setMessagePinned,
