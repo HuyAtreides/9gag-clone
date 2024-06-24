@@ -113,6 +113,9 @@ public interface UserRepository extends CrudRepository<User, Long> {
             @Param("searchTerm") String searchTerm,
             Pageable pageable
     );
+    Page<User> findAllBySuspendedTrue(
+            Pageable pageable
+    );
 
     @Query(SELECT_STATEMENT + """
             from User user

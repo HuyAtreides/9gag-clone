@@ -204,6 +204,14 @@ public class UserController {
         userService.suspendUser(userId);
     }
 
+    @GetMapping("suspended/list")
+    public PageDto<UserDto> getSuspendedUsers(PageOptionsDto pageOptionsDto) {
+        PageOptions pageOptions = pageOptionsMapper.fromDto(pageOptionsDto);
+        Page<User> users = userService.findAllSuspendedUsers(pageOptions);
+
+        return pageMapper.toDto(users, userMapper);
+    }
+
     @PutMapping("unsuspend/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unSuspend(@PathVariable Long userId) throws UserException {
