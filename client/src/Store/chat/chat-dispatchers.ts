@@ -46,6 +46,7 @@ import {
   addMessagePage,
   addMessages,
   addPinnedMessagesPage,
+  addSearchMessagesPage,
   addUnreadCount,
   closeConversation,
   markOpenConversationAsRead,
@@ -70,6 +71,10 @@ import {
   setPinnedMessagesPage,
   setPreviewChatMessage,
   setPreviewConversationError,
+  setSearchMessagesError,
+  setSearchMessagesIsGettingPage,
+  setSearchMessagesIsLoading,
+  setSearchMessagesPage,
   setSendingMessageError,
   setSyncError,
   setUnreadCount,
@@ -227,12 +232,40 @@ export const appendPinnedMessages =
   async (dispatch, getState) => {
     try {
       dispatch(setPinnedMessageIsGettingPage(true));
-      const messagePage = await getPinnedMessages(pageFetchingRequest);
+      const messagePage = await getConversationMessages(pageFetchingRequest);
       dispatch(setPinnedMessageIsGettingPage(false));
-      dispatch(addPinnedMessagesPage(messagePage));
+      dispatch(addSearchMessagesPage(messagePage));
     } catch (error: unknown) {
       dispatch(setPinnedMessageIsGettingPage(false));
       handleError(dispatch, error, setPinnedMessageError);
+    }
+  };
+
+export const fetchSearchMessages =
+  (pageFetchingRequest: ConversationMessagesFetchingRequest): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setSearchMessagesIsLoading(true));
+      const messagePage = await getConversationMessages(pageFetchingRequest);
+      dispatch(setSearchMessagesIsLoading(false));
+      dispatch(setSearchMessagesPage(messagePage));
+    } catch (error: unknown) {
+      dispatch(setSearchMessagesIsLoading(false));
+      handleError(dispatch, error, setSearchMessagesError);
+    }
+  };
+
+export const appendSearchMessages =
+  (pageFetchingRequest: ConversationMessagesFetchingRequest): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setSearchMessagesIsGettingPage(true));
+      const messagePage = await getPinnedMessages(pageFetchingRequest);
+      dispatch(setSearchMessagesIsGettingPage(false));
+      dispatch(addPinnedMessagesPage(messagePage));
+    } catch (error: unknown) {
+      dispatch(setSearchMessagesIsGettingPage(false));
+      handleError(dispatch, error, setSearchMessagesError);
     }
   };
 
