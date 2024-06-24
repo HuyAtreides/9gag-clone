@@ -227,6 +227,12 @@ public class UserService implements UserDetailsService, MediatorComponent {
         );
     }
 
+    public Page<User> findAllSuspendedUsers(PageOptions pageOptions) {
+        Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
+
+        return userRepo.findAllBySuspendedTrue(pageable);
+    }
+
     private String getSearchTerm(String search) {
         if (search == null || search.isBlank()) {
             return "\"\"";

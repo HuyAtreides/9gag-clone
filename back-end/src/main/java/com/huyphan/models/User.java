@@ -15,6 +15,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -73,6 +75,11 @@ public class User implements UserDetails, Followable, ChatParticipant {
     @Column(name = "Provider", length = 20)
     @Convert(converter = SocialProviderConverter.class)
     private SocialProvider provider;
+
+    @Column(name = "Role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @ManyToMany
     @JoinTable(name = "SavedPost",
             joinColumns = @JoinColumn(name = "UserId"),
@@ -228,7 +235,8 @@ public class User implements UserDetails, Followable, ChatParticipant {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        GrantedAuthority grantedAuthority = Role.USER::getRoleName;
+        GrantedAuthority grantedAuthority = role::toString;
+
         return List.of(grantedAuthority);
     }
 
