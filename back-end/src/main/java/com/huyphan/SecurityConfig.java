@@ -1,6 +1,7 @@
 package com.huyphan;
 
 import com.huyphan.filters.JwtFilter;
+import com.huyphan.models.enums.Role;
 import com.huyphan.securityexceptionshandlers.AuthExceptionsHandler;
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +49,15 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.GET, "/user/{id:[0-9]+}")
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/user/all")
-                .permitAll()// TODO: Use appropriate role
+                .hasAuthority(Role.ADMIN.toString())
+                .antMatchers(HttpMethod.GET, "/user/suspended/list")
+                .hasAuthority(Role.ADMIN.toString())
+                .antMatchers("/user/suspend/{id:[0-9]+}")
+                .hasAuthority(Role.ADMIN.toString())
+                .antMatchers("/user/unsuspend/{id:[0-9]+}")
+                .hasAuthority(Role.ADMIN.toString())
+                .antMatchers("/user/{id:[0-9]+}/reports")
+                .hasAuthority(Role.ADMIN.toString())
                 .antMatchers(HttpMethod.GET, "/v3/api-docs")
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/section")
