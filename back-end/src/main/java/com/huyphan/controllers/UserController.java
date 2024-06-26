@@ -2,6 +2,7 @@ package com.huyphan.controllers;
 
 import com.huyphan.dtos.PageDto;
 import com.huyphan.dtos.PageOptionsDto;
+import com.huyphan.dtos.RegisterDataDto;
 import com.huyphan.dtos.ReportDto;
 import com.huyphan.dtos.ReportUserRequestDto;
 import com.huyphan.dtos.SliceDto;
@@ -12,6 +13,7 @@ import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.dtos.UserStatsDto;
 import com.huyphan.mappers.PageMapper;
 import com.huyphan.mappers.PageOptionMapper;
+import com.huyphan.mappers.RegisterDataMapper;
 import com.huyphan.mappers.ReportMapper;
 import com.huyphan.mappers.ReportUserRequestMapper;
 import com.huyphan.mappers.SliceMapper;
@@ -21,6 +23,7 @@ import com.huyphan.mappers.UserMapper;
 import com.huyphan.mappers.UserSecretMapper;
 import com.huyphan.mappers.UserStatsMapper;
 import com.huyphan.models.PageOptions;
+import com.huyphan.models.RegisterData;
 import com.huyphan.models.Report;
 import com.huyphan.models.ReportUserRequest;
 import com.huyphan.models.UpdatePasswordData;
@@ -29,6 +32,7 @@ import com.huyphan.models.User;
 import com.huyphan.models.UserSecret;
 import com.huyphan.models.UserStats;
 import com.huyphan.models.exceptions.AppException;
+import com.huyphan.models.exceptions.UserAlreadyExistsException;
 import com.huyphan.models.exceptions.UserException;
 import com.huyphan.services.UserService;
 import java.util.List;
@@ -87,6 +91,9 @@ public class UserController {
 
     @Autowired
     private ReportMapper reportMapper;
+
+    @Autowired
+    private RegisterDataMapper registerDataMapper;
 
     /**
      * Get current authenticated user profile.
@@ -183,6 +190,30 @@ public class UserController {
 
         return sliceMapper.toDto(slice, userMapper);
     }
+
+    @PostMapping("admin/add")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addAdmin(@RequestBody RegisterDataDto registerDataDto) throws UserAlreadyExistsException {
+        userService.addAdmin(
+                registerDataMapper.fromDto(registerDataDto)
+        );
+    }
+
+    @DeleteMapping("admin/delete/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAdmin(@PathVariable Long id) throws UserException {
+        userService.deleteAdmin(id);
+    }
+
+    @GetMapping("admins")
+    public PageDto<UserDto> getAdmins(PageOptionsDto pageOptionsDto) {
+        Page<User> page = userService.findAllAdmins(
+                pageOptionsMapper.fromDto(pageOptionsDto)
+        );
+
+        return pageMapper.toDto(page, userMapper);
+    }
+
 
     @GetMapping("restricting")
     public SliceDto<UserDto> getRestrictedUser(PageOptionsDto pageOptionsDto) {

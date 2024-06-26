@@ -13,6 +13,7 @@ import com.huyphan.models.UpdateProfileData;
 import com.huyphan.models.User;
 import com.huyphan.models.UserSecret;
 import com.huyphan.models.UserStats;
+import com.huyphan.models.enums.Role;
 import com.huyphan.models.enums.WebSocketEvent;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
@@ -231,6 +232,32 @@ public class UserService implements UserDetailsService, MediatorComponent {
         Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
 
         return userRepo.findAllBySuspendedTrue(pageable);
+    }
+
+    @Transactional
+    public void addAdmin(RegisterData data) throws UserAlreadyExistsException {
+        User admin = register(data);
+        admin.setRole(Role.ADMIN);
+    }
+
+    @Transactional
+    public void deleteAdmin(Long id) throws UserException {
+        User admin = findUserByIdWithoutBlockFilter(id);
+
+        if (!admin.isAdmin()) {
+            throw new IllegalArgumentException("Can not delete regular user");
+        }
+
+        userRepo.delete(admin);
+    }
+
+    public Page<User> findAllAdmins(PageOptions pageOptions) {
+        Pageable pageable = PageRequest.of(
+                pageOptions.getPage(),
+                pageOptions.getSize()
+        );
+
+        return userRepo.findByRole(Role.ADMIN, pageable);
     }
 
     private String getSearchTerm(String search) {

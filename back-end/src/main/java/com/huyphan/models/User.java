@@ -214,6 +214,10 @@ public class User implements UserDetails, Followable, ChatParticipant {
     @Transient
     private Instant restrictedAt;
 
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
+    }
+
     @Override
     public User getOwner() {
         return this;

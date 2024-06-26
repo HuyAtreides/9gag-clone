@@ -2,11 +2,11 @@ package com.huyphan.repositories;
 
 import com.huyphan.models.User;
 import com.huyphan.models.UserStats;
+import com.huyphan.models.enums.Role;
 import com.huyphan.models.enums.SocialProvider;
 import com.huyphan.models.projections.UserWithDerivedFields;
 import com.huyphan.models.projections.UserWithReportedField;
 import java.util.Optional;
-import javax.swing.text.html.Option;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -216,4 +216,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
             where current = :currentUser and
             """ + BLOCKED_USER_RESTRICTION)
     Slice<User> getRecentSearch(@Param("currentUser") User user, Pageable pageable);
+
+    Page<User> findByRole(Role role, Pageable pageable);
 }
