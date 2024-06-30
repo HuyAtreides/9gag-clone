@@ -53,7 +53,8 @@ public class AuthController {
     }
 
     @PostMapping("social-login")
-    public UserSecretDto login(@RequestBody SocialLoginDataDto socialLoginDataDto) {
+    public UserSecretDto login(@RequestBody SocialLoginDataDto socialLoginDataDto)
+            throws AuthException {
         SocialLoginData loginData = socialLoginDataMapper.fromDto(socialLoginDataDto);
         UserSecret userSecret = authService.login(loginData);
 
