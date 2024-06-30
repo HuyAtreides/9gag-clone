@@ -46,13 +46,11 @@ public class AuthService {
             String password = user.getPassword();
             String providedPassword = loginData.getPassword();
 
+            validateIfAccountIsSuspended(user);
+
             if (password != null && passwordEncoder.matches(providedPassword, password)) {
                 String token = jwtUtil.generateToken(user);
                 return new UserSecret(token);
-            }
-
-            if (!user.isAccountNonLocked()) {
-                throw new AuthException("Account is suspended");
             }
 
             throw new AuthException("Username or password is incorrect");
@@ -61,11 +59,18 @@ public class AuthService {
         }
     }
 
-    public UserSecret login(SocialLoginData socialLoginData) {
+    private void validateIfAccountIsSuspended(UserDetails user) throws AuthException {
+        if (!user.isAccountNonLocked()) {
+            throw new AuthException("Account is suspended");
+        }
+    }
+
+    public UserSecret login(SocialLoginData socialLoginData) throws AuthException {
         String socialId = socialLoginData.getSocialId();
         Optional<User> user = userRepo.findByProviderAndSocialId(socialLoginData.getProvider(), socialId);
 
         if (user.isPresent()) {
+            validateIfAccountIsSuspended(user.get());
             String token = jwtUtil.generateToken(user.get());
             return new UserSecret(token);
         }
