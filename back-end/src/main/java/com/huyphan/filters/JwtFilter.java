@@ -46,6 +46,10 @@ public class JwtFilter extends OncePerRequestFilter {
             String subject = jwtUtil.getTokenSubject(token);
             UserDetails user = userService.loadUserByUsername(subject);
 
+            if (!user.isAccountNonLocked()) {
+                throw new AuthException("Account is suspended");
+            }
+
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user,
                     user.getPassword(), user.getAuthorities());
