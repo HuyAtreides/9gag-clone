@@ -95,7 +95,9 @@ public interface UserRepository extends CrudRepository<User, Long> {
                     where report.user = user
                 ) as reported
             from User user
-            where :searchTerm = '""'
+            where user.suspended = false
+                and
+                :searchTerm = '""'
                 or
                 lower(user.username) like :searchTerm
                 or
@@ -103,13 +105,15 @@ public interface UserRepository extends CrudRepository<User, Long> {
             """, countQuery = """
             select count(*)
             from User user
-            where :searchTerm = '""'
+            where user.suspended = false
+                and
+                :searchTerm = '""'
                 or
                 lower(user.username) like :searchTerm
                 or
                 lower(user.displayName) like :searchTerm
             """)
-    Page<UserWithReportedField> findAll(
+    Page<UserWithReportedField> findAllUnsuspendedUsers(
             @Param("searchTerm") String searchTerm,
             Pageable pageable
     );

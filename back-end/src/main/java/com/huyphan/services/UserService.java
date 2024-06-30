@@ -223,7 +223,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         String searchTerm = getSearchTerm(pageOptions.getSearch());
         Pageable pageable = PageRequest.of(pageOptions.getPage(), pageOptions.getSize());
 
-        return userRepo.findAll(searchTerm, pageable).map(
+        return userRepo.findAllUnsuspendedUsers(searchTerm, pageable).map(
                 UserWithReportedField::toUser
         );
     }
