@@ -106,9 +106,12 @@ public class AuthService {
      *
      * @param userSecret The expired user secret
      */
-    public UserSecret refreshToken(UserSecret userSecret) {
+    public UserSecret refreshToken(UserSecret userSecret) throws AuthException {
         Claims claims = jwtUtil.parseExpiredToken(userSecret.getToken());
         String username = claims.getSubject();
+        UserDetails userDetails =userService.loadUserByUsername(username);
+        validateIfAccountIsSuspended(userDetails);
+
         String token = jwtUtil.generateToken(userService.loadUserByUsername(username));
         return new UserSecret(token);
     }

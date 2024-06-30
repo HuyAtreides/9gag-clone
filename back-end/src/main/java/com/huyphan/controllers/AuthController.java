@@ -70,7 +70,8 @@ public class AuthController {
     }
 
     @PostMapping("refresh-token")
-    public UserSecretDto refreshToken(@RequestBody UserSecretDto userSecretDto) {
+    public UserSecretDto refreshToken(@RequestBody UserSecretDto userSecretDto)
+            throws AuthException {
         UserSecret userSecret = userSecretMapper.fromDto(userSecretDto);
         UserSecret newUserSecret = authService.refreshToken(userSecret);
         return userSecretMapper.toDto(newUserSecret);
