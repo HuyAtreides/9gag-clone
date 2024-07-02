@@ -5,6 +5,7 @@ import com.huyphan.models.RegisterData;
 import com.huyphan.models.SocialLoginData;
 import com.huyphan.models.User;
 import com.huyphan.models.UserSecret;
+import com.huyphan.models.enums.Role;
 import com.huyphan.models.exceptions.AppException;
 import com.huyphan.models.exceptions.AuthException;
 import com.huyphan.models.exceptions.UserAlreadyExistsException;
@@ -13,6 +14,7 @@ import com.huyphan.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,12 +41,17 @@ public class AuthService {
      * @throws UsernameNotFoundException if user is not found or the provided password isn't
      *                                   correct.
      */
-    public UserSecret login(LoginData loginData) throws AuthException {
+    public UserSecret login(LoginData loginData, boolean loginAsAdmin) throws AuthException {
         try {
             String username = loginData.getUsername();
             UserDetails user = userService.loadUserByUsername(username);
             String password = user.getPassword();
             String providedPassword = loginData.getPassword();
+            GrantedAuthority adminAuthority = Role.ADMIN::toString;
+
+            if (loginAsAdmin && !user.getAuthorities().contains(adminAuthority)) {
+                throw new IllegalArgumentException("This user is not an admin");
+            }
 
             validateIfAccountIsSuspended(user);
 
