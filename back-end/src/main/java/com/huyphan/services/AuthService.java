@@ -47,10 +47,9 @@ public class AuthService {
             UserDetails user = userService.loadUserByUsername(username);
             String password = user.getPassword();
             String providedPassword = loginData.getPassword();
-            GrantedAuthority adminAuthority = Role.ADMIN::toString;
 
-            if (loginAsAdmin && !user.getAuthorities().contains(adminAuthority)) {
-                throw new IllegalArgumentException("This user is not an admin");
+            if (loginAsAdmin && !((User) user).isAdmin()) {
+                throw new AuthException("This user is not an admin");
             }
 
             validateIfAccountIsSuspended(user);
@@ -74,7 +73,8 @@ public class AuthService {
 
     public UserSecret login(SocialLoginData socialLoginData) throws AuthException {
         String socialId = socialLoginData.getSocialId();
-        Optional<User> user = userRepo.findByProviderAndSocialId(socialLoginData.getProvider(), socialId);
+        Optional<User> user = userRepo.findByProviderAndSocialId(socialLoginData.getProvider(),
+                socialId);
 
         if (user.isPresent()) {
             validateIfAccountIsSuspended(user.get());
@@ -116,7 +116,7 @@ public class AuthService {
     public UserSecret refreshToken(UserSecret userSecret) throws AuthException {
         Claims claims = jwtUtil.parseExpiredToken(userSecret.getToken());
         String username = claims.getSubject();
-        UserDetails userDetails =userService.loadUserByUsername(username);
+        UserDetails userDetails = userService.loadUserByUsername(username);
         validateIfAccountIsSuspended(userDetails);
 
         String token = jwtUtil.generateToken(userService.loadUserByUsername(username));
