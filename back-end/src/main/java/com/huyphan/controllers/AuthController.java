@@ -48,7 +48,14 @@ public class AuthController {
     @PostMapping("login")
     public UserSecretDto login(@RequestBody LoginDataDto loginDataDto) throws AuthException {
         LoginData loginData = loginDataMapper.fromDto(loginDataDto);
-        UserSecret userSecret = authService.login(loginData);
+        UserSecret userSecret = authService.login(loginData, false);
+        return userSecretMapper.toDto(userSecret);
+    }
+
+    @PostMapping("admin/login")
+    public UserSecretDto loginAsAdmin(@RequestBody LoginDataDto loginDataDto) throws AuthException {
+        LoginData loginData = loginDataMapper.fromDto(loginDataDto);
+        UserSecret userSecret = authService.login(loginData, true);
         return userSecretMapper.toDto(userSecret);
     }
 
