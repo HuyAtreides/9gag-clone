@@ -10,7 +10,7 @@ import {
   PushpinOutlined,
   VideoCameraOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Empty, List, Modal, Typography, notification } from 'antd';
+import { Avatar, Button, Card, Empty, List, Modal, Typography } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
