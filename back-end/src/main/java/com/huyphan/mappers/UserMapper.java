@@ -29,6 +29,10 @@ public class UserMapper extends BaseMapper implements ToDtoMapper<UserDto, User>
 
     @Override
     public UserDto toDto(User data) {
+        if (data == null) {
+            return null;
+        }
+
         return modelMapper.map(data, UserDto.class);
     }
 

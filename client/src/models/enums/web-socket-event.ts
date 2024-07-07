@@ -6,4 +6,8 @@ export enum WebSocketEvent {
   MARK_AS_READ = 'MARK_AS_READ',
   RECEIVE_NEW_MESSAGE = 'RECEIVE_NEW_MESSAGE',
   BLOCK_USER = 'BLOCK_USER',
+  VIDEO_OFFER = 'video-offer',
+  VIDEO_ANSWER = 'video-answer',
+  NEW_ICE_CANDIDATE = 'new-ice-candidate',
+  END_CALL = 'end-call',
 }

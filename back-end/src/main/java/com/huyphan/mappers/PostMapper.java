@@ -33,6 +33,14 @@ public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>
         modelMapper.typeMap(Post.class, PostDto.class).addMappings(
                 (mapper) -> mapper.using(instantToStringConverter)
                         .map(Post::getUploadTime, PostDto::setUploadTime)
+        ).addMappings(mapper -> mapper.using(s3URLToCloudFrontURLConverter).map(
+                Post::getMediaUrl,
+                PostDto::setMediaUrl
+        )).addMappings(mapper ->
+                mapper.map(
+                        Post::getDisplayUser,
+                        PostDto::setUser
+                )
         );
 
         modelMapper.typeMap(PostDto.class, Post.class).addMappings(
@@ -43,23 +51,6 @@ public class PostMapper extends BaseMapper implements ToDtoMapper<PostDto, Post>
 
     @Override
     public PostDto toDto(Post data) {
-        Converter<User, UserDto> converter = context -> {
-            if (data.isAnonymous() && !data.getOwner().equals(UserService.getUser())) {
-                return null;
-            }
-
-            return modelMapper.map(context.getSource(), UserDto.class);
-        };
-
-        modelMapper.typeMap(Post.class, PostDto.class).addMappings(mapper ->
-                mapper.using(converter).map(
-                        Post::getUser,
-                        PostDto::setUser)
-        ).addMappings(mapper -> mapper.using(s3URLToCloudFrontURLConverter).map(
-                Post::getMediaUrl,
-                PostDto::setMediaUrl
-        ));
-
         return modelMapper.map(data, PostDto.class);
     }
 
