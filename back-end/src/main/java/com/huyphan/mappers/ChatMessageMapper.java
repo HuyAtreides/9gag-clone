@@ -43,11 +43,19 @@ public class ChatMessageMapper extends BaseMapper implements
             return modelMapper.map(participant, UserDto.class);
         };
 
-/*        Converter<ChatMessage, ReplyToMessageDto> replyToConverter = (context) -> {
+        Converter<ChatMessage, ReplyToMessageDto> replyToConverter = (context) -> {
           ChatMessage message = context.getSource();
 
-          return modelMapper.map(message, ReplyToMessageDto.class);
-        };*/
+          if (message == null) {
+              return null;
+          }
+
+          return ReplyToMessageDto.builder()
+                  .deleted(message.isDeleted())
+                  .id(message.getId())
+                  .content(modelMapper.map(message.getContent(), MessageContentDto.class))
+                  .build();
+        };
 
         Converter<MessageContent, MessageContentDto> messageContentConverter = (context) ->
                 modelMapper.map(context.getSource(), MessageContentDto.class);
@@ -75,6 +83,10 @@ public class ChatMessageMapper extends BaseMapper implements
                 .addMappings(
                         mapper -> mapper.using(instantToStringConverter)
                                 .map(ChatMessage::getLastEditDate, ChatMessageDto::setLastEditDate)
+                )
+                .addMappings(
+                        mapper -> mapper.using(replyToConverter)
+                                .map(ChatMessage::getReplyToMessage, ChatMessageDto::setReplyToMessage)
                 );
 
     }
