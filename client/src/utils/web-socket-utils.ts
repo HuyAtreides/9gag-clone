@@ -35,13 +35,14 @@ export namespace WebSocketUtils {
     [WebSocketEvent.NEW_ICE_CANDIDATE]: function (): void {
       throw new Error('Function not implemented.');
     },
+    [WebSocketEvent.END_CALL]: function (): void {
+      throw new Error('Function not implemented.');
+    },
   };
 
   const messageHandler = (event: MessageEvent<WebSocketEvent | string>) => {
     const data = event.data;
     let key = data;
-
-    console.log('event = ', event.data);
 
     if (!SOCKET_EVENT_TO_HANDLER_MAP[key as WebSocketEvent]) {
       key = JSON.parse(data).type;
@@ -80,7 +81,6 @@ export namespace WebSocketUtils {
 
   export function registerEventHandler(event: WebSocketEvent, handler: EventHandler) {
     SOCKET_EVENT_TO_HANDLER_MAP[event] = handler;
-    console.log(SOCKET_EVENT_TO_HANDLER_MAP);
 
     if (!socket) {
       return;

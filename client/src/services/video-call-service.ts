@@ -2,7 +2,7 @@ import { WebSocketEvent } from '../models/enums/web-socket-event';
 import { WebSocketUtils } from '../utils/web-socket-utils';
 import { createRTCConnection } from './web-rtc-service';
 
-let rtcConnection: RTCPeerConnection;
+let rtcConnection: RTCPeerConnection | null = null;
 
 export async function requestMediaDevicesPermission() {
   const mediaDevices = navigator.mediaDevices;
@@ -14,7 +14,11 @@ export async function requestMediaDevicesPermission() {
   return mediaStream;
 }
 
-async function exchangeCallSessionDescription(caller: number, callee: number) {
+async function exchangeCallSessionDescription(
+  rtcConnection: RTCPeerConnection,
+  caller: number,
+  callee: number,
+) {
   rtcConnection.onnegotiationneeded = async () => {
     const videoOffer = await rtcConnection.createOffer();
     await rtcConnection.setLocalDescription(videoOffer);
@@ -38,7 +42,11 @@ async function exchangeCallSessionDescription(caller: number, callee: number) {
   );
 }
 
-async function negotiateICECandidate(caller: number, callee: number) {
+async function negotiateICECandidate(
+  rtcConnection: RTCPeerConnection,
+  caller: number,
+  callee: number,
+) {
   rtcConnection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
     if (event.candidate) {
       WebSocketUtils.send({
@@ -57,19 +65,21 @@ async function negotiateICECandidate(caller: number, callee: number) {
       await rtcConnection.addIceCandidate(
         new RTCIceCandidate(newICECandidateEvent.candidate),
       );
-      console.log('add ICE candidate', newICECandidateEvent);
     },
   );
 }
 
-function handleOnTrackEvent(assignVideoStreamCallback: (stream: MediaStream) => void) {
+function handleOnTrackEvent(
+  rtcConnection: RTCPeerConnection,
+  assignVideoStreamCallback: (stream: MediaStream) => void,
+) {
   rtcConnection.ontrack = (trackEvent) => {
     assignVideoStreamCallback(trackEvent.streams[0]);
   };
 }
 
-export function endCall() {
-  if (rtcConnection === undefined) {
+function closeConnection() {
+  if (rtcConnection === null) {
     return;
   }
 
@@ -77,6 +87,23 @@ export function endCall() {
   rtcConnection.onicecandidate = null;
   rtcConnection.ontrack = null;
   rtcConnection.onnegotiationneeded = null;
+  rtcConnection = null;
+}
+
+function handleCallEnd(hangUpCallback: () => void) {
+  WebSocketUtils.registerEventHandler(WebSocketEvent.END_CALL, () => {
+    hangUpCallback();
+    closeConnection();
+  });
+}
+
+export function hangUp(calleeId: number, hangUpCallback: () => void) {
+  WebSocketUtils.send({
+    targetUserId: calleeId,
+    type: WebSocketEvent.END_CALL,
+  });
+  hangUpCallback();
+  closeConnection();
 }
 
 export async function startVideoCallSession(
@@ -84,19 +111,21 @@ export async function startVideoCallSession(
   callee: number,
   mediaStream: MediaStream,
   assignStream: (stream: MediaStream) => void,
+  hangUpCallback: () => void,
 ) {
-  if (rtcConnection !== undefined) {
+  if (rtcConnection) {
     throw new Error('Already in a call');
   }
 
   rtcConnection = createRTCConnection();
 
-  handleOnTrackEvent(assignStream);
-  negotiateICECandidate(caller, callee);
-  exchangeCallSessionDescription(caller, callee);
+  handleOnTrackEvent(rtcConnection, assignStream);
+  negotiateICECandidate(rtcConnection, caller, callee);
+  exchangeCallSessionDescription(rtcConnection, caller, callee);
+  handleCallEnd(hangUpCallback);
 
   mediaStream.getTracks().forEach((track) => {
-    rtcConnection.addTrack(track, mediaStream);
+    rtcConnection?.addTrack(track, mediaStream);
   });
 
   return rtcConnection;
@@ -106,15 +135,23 @@ export async function joinVideoCallSession(
   videoOfferEventAsString: string,
   mediaStream: MediaStream,
   assignStream: (stream: MediaStream) => void,
+  hangUpCallback: () => void,
 ) {
   const videoOfferEvent = JSON.parse(videoOfferEventAsString);
   const { userId, targetUserId } = videoOfferEvent;
-  startVideoCallSession(targetUserId, userId, mediaStream, assignStream);
+  const rtcConnection = await startVideoCallSession(
+    targetUserId,
+    userId,
+    mediaStream,
+    assignStream,
+    hangUpCallback,
+  );
 
   const sessionDescription = new RTCSessionDescription(videoOfferEvent.sdp);
   await rtcConnection.setRemoteDescription(sessionDescription);
   const answer = await rtcConnection.createAnswer();
   await rtcConnection.setLocalDescription(answer);
+
   WebSocketUtils.send({
     userId: targetUserId,
     targetUserId: userId,

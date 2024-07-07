@@ -9,4 +9,5 @@ export enum WebSocketEvent {
   VIDEO_OFFER = 'video-offer',
   VIDEO_ANSWER = 'video-answer',
   NEW_ICE_CANDIDATE = 'new-ice-candidate',
+  END_CALL = 'end-call',
 }

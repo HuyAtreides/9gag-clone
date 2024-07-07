@@ -10,7 +10,7 @@ import {
   PushpinOutlined,
   VideoCameraOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Empty, List, Modal, Typography } from 'antd';
+import { Avatar, Button, Card, Empty, List, Modal, Typography, notification } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../../Store';
@@ -34,6 +34,7 @@ import { Constant } from '../../../../models/enums/constant';
 import { WebSocketEvent } from '../../../../models/enums/web-socket-event';
 import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
 import {
+  hangUp,
   joinVideoCallSession,
   requestMediaDevicesPermission,
   startVideoCallSession,
@@ -148,6 +149,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
   const [openVideoCall, setOpenVideoCall] = useState(false);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
+  const [callEnded, setCallEnded] = useState(false);
   const [focusMessageId, setFocusMessageId] = useState<null | number>(null);
 
   useEffect(() => {
@@ -168,6 +170,18 @@ const ChatBox = ({ chatParticipantId }: Props) => {
     setCalleeVideoStream(videoStream);
   };
 
+  const cleanUpAfterEndCall = () => {
+    window.location.reload();
+  };
+
+  const notifyBeforeCleanUp = () => {
+    setCallEnded(true);
+
+    setTimeout(() => {
+      cleanUpAfterEndCall();
+    }, 2000);
+  };
+
   useEffect(() => {
     WebSocketUtils.registerEventHandler(
       WebSocketEvent.VIDEO_OFFER,
@@ -175,9 +189,15 @@ const ChatBox = ({ chatParticipantId }: Props) => {
         setOpenVideoCall(true);
         const videoStream = await requestMediaDevicesPermission();
         assignVideoStream(videoStream);
-        joinVideoCallSession(videoOfferAsString, videoStream, assignCalleeVideoStream);
+        joinVideoCallSession(
+          videoOfferAsString,
+          videoStream,
+          assignCalleeVideoStream,
+          notifyBeforeCleanUp,
+        );
       },
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (openConversation.isLoading) {
@@ -258,7 +278,12 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       chatParticipant.id,
       mediaStream,
       assignCalleeVideoStream,
+      cleanUpAfterEndCall,
     );
+  };
+
+  const endCall = () => {
+    hangUp(chatParticipant.id, cleanUpAfterEndCall);
   };
 
   const handleMute = () => {
@@ -391,7 +416,8 @@ const ChatBox = ({ chatParticipantId }: Props) => {
 
       {openVideoCall ? (
         <VideoCall
-          close={() => setOpenVideoCall(false)}
+          callEnded={callEnded}
+          close={endCall}
           callerVideoStream={callerVideoStream}
           calleeVideoStream={calleeVideoStream}
         />
