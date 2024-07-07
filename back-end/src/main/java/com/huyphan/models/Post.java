@@ -174,6 +174,10 @@ public class Post implements Followable, Notifiable, SharedPost {
         return Objects.equals(id, post.id);
     }
 
+    public User getDisplayUser() {
+        return isAnonymous() && !Objects.equals(UserService.getUser(), getOwner()) ? null : getUser();
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

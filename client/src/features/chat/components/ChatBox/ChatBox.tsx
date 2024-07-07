@@ -8,6 +8,7 @@ import {
   FullscreenOutlined,
   MoreOutlined,
   PushpinOutlined,
+  VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Card, Empty, List, Modal, Typography } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
@@ -30,14 +31,22 @@ import AutoClosePopover from '../../../../components/auto-close-popover/AutoClos
 import { ChatBoxHeight } from '../../../../context/chat-box-height';
 import ChatConversation from '../../../../models/chat-conversation';
 import { Constant } from '../../../../models/enums/constant';
+import { WebSocketEvent } from '../../../../models/enums/web-socket-event';
 import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
+import {
+  joinVideoCallSession,
+  requestMediaDevicesPermission,
+  startVideoCallSession,
+} from '../../../../services/video-call-service';
+import { WebSocketUtils } from '../../../../utils/web-socket-utils';
+import VideoCall from '../../video-call/VideoCall';
 import PinnedChatMessageDialog from '../PinnedChatMessage/PinnedChatMessageDialog';
+import SearchChatMessage from '../SearchChatMessage/SearchChatMessage';
 import styles from './ChatBox.module.css';
 import ChatBoxSkeleton from './ChatBoxSkeleton';
 import ChatBoxWithError from './ChatBoxWithError';
 import ChatMessageEditor from './ChatMessageEditor';
 import ChatMessageList from './ChatMessagesList';
-import SearchChatMessage from '../SearchChatMessage/SearchChatMessage';
 
 interface Props {
   readonly chatParticipantId: number;
@@ -131,9 +140,12 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       (conversation) => conversation.userId === chatParticipantId,
     ),
   )!;
+  const [callerVideoStream, setCallerVideoStream] = useState<MediaStream | null>(null);
+  const [calleeVideoStream, setCalleeVideoStream] = useState<MediaStream | null>(null);
   const chatBoxHeight = useContext(ChatBoxHeight);
   const [openPinnedChatMessages, setOpenPinnedChatMessages] = useState(false);
   const [openSearchChatMessages, setOpenChatSearchMessage] = useState(false);
+  const [openVideoCall, setOpenVideoCall] = useState(false);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
   const [focusMessageId, setFocusMessageId] = useState<null | number>(null);
@@ -147,6 +159,26 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       setFocusMessageId(null);
     }
   }, [focusMessageId, openPinnedChatMessages]);
+
+  const assignVideoStream = (videoStream: MediaStream) => {
+    setCallerVideoStream(videoStream);
+  };
+
+  const assignCalleeVideoStream = (videoStream: MediaStream) => {
+    setCalleeVideoStream(videoStream);
+  };
+
+  useEffect(() => {
+    WebSocketUtils.registerEventHandler(
+      WebSocketEvent.VIDEO_OFFER,
+      async (videoOfferAsString) => {
+        setOpenVideoCall(true);
+        const videoStream = await requestMediaDevicesPermission();
+        assignVideoStream(videoStream);
+        joinVideoCallSession(videoOfferAsString, videoStream, assignCalleeVideoStream);
+      },
+    );
+  }, []);
 
   if (openConversation.isLoading) {
     return <ChatBoxSkeleton />;
@@ -217,6 +249,18 @@ const ChatBox = ({ chatParticipantId }: Props) => {
 
   const chatParticipant = conversation.getOtherParticipant(currentUser);
 
+  const startVideoCall = async () => {
+    setOpenVideoCall(true);
+    const mediaStream = await requestMediaDevicesPermission();
+    assignVideoStream(mediaStream);
+    await startVideoCallSession(
+      currentUser.id,
+      chatParticipant.id,
+      mediaStream,
+      assignCalleeVideoStream,
+    );
+  };
+
   const handleMute = () => {
     if (!conversation.muted) {
       dispatch(mute(conversation.id));
@@ -268,6 +312,16 @@ const ChatBox = ({ chatParticipantId }: Props) => {
               >
                 View pinned messages
               </Button>
+
+              <Button
+                block
+                type='text'
+                icon={<VideoCameraOutlined />}
+                onClick={startVideoCall}
+              >
+                Video call
+              </Button>
+
               <Button
                 block
                 type='text'
@@ -334,6 +388,14 @@ const ChatBox = ({ chatParticipantId }: Props) => {
           <ChatMessageList openConversationId={conversation.id} />
         </ChatBoxHeight.Provider>
       </ChatMessageFocusFunction.Provider>
+
+      {openVideoCall ? (
+        <VideoCall
+          close={() => setOpenVideoCall(false)}
+          callerVideoStream={callerVideoStream}
+          calleeVideoStream={calleeVideoStream}
+        />
+      ) : null}
 
       <PinnedChatMessageDialog
         conversationId={conversation.id}
