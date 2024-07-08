@@ -2,7 +2,7 @@ import { WebSocketEvent } from '../models/enums/web-socket-event';
 import { WebSocketUtils } from '../utils/web-socket-utils';
 import { createRTCConnection } from './web-rtc-service';
 
-let rtcConnection: RTCPeerConnection | null = null;
+export let rtcConnection: RTCPeerConnection | null = null;
 
 export async function requestMediaDevicesPermission() {
   const mediaDevices = navigator.mediaDevices;
@@ -62,9 +62,7 @@ async function negotiateICECandidate(
     WebSocketEvent.NEW_ICE_CANDIDATE,
     async (newICECandidateEventAsString) => {
       const newICECandidateEvent = JSON.parse(newICECandidateEventAsString);
-      await rtcConnection.addIceCandidate(
-        new RTCIceCandidate(newICECandidateEvent.candidate),
-      );
+      await rtcConnection.addIceCandidate(newICECandidateEvent.candidate);
     },
   );
 }
@@ -109,7 +107,7 @@ export function hangUp(calleeId: number, hangUpCallback: () => void) {
 export async function startVideoCallSession(
   caller: number,
   callee: number,
-  mediaStream: MediaStream,
+  assignCallerStream: (stream: MediaStream) => void,
   assignStream: (stream: MediaStream) => void,
   hangUpCallback: () => void,
 ) {
@@ -117,12 +115,16 @@ export async function startVideoCallSession(
     throw new Error('Already in a call');
   }
 
-  rtcConnection = createRTCConnection();
+  rtcConnection = await createRTCConnection();
 
   handleOnTrackEvent(rtcConnection, assignStream);
   negotiateICECandidate(rtcConnection, caller, callee);
   exchangeCallSessionDescription(rtcConnection, caller, callee);
   handleCallEnd(hangUpCallback);
+
+  const mediaStream = await requestMediaDevicesPermission();
+
+  assignCallerStream(mediaStream);
 
   mediaStream.getTracks().forEach((track) => {
     rtcConnection?.addTrack(track, mediaStream);
@@ -133,7 +135,7 @@ export async function startVideoCallSession(
 
 export async function joinVideoCallSession(
   videoOfferEventAsString: string,
-  mediaStream: MediaStream,
+  assignCallerStream: (stream: MediaStream) => void,
   assignStream: (stream: MediaStream) => void,
   hangUpCallback: () => void,
 ) {
@@ -142,7 +144,7 @@ export async function joinVideoCallSession(
   const rtcConnection = await startVideoCallSession(
     targetUserId,
     userId,
-    mediaStream,
+    assignCallerStream,
     assignStream,
     hangUpCallback,
   );
