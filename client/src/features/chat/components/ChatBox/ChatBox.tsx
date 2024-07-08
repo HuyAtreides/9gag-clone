@@ -36,7 +36,6 @@ import { NewChatMessageFormData } from '../../../../models/new-chat-message-form
 import {
   hangUp,
   joinVideoCallSession,
-  requestMediaDevicesPermission,
   startVideoCallSession,
 } from '../../../../services/video-call-service';
 import { WebSocketUtils } from '../../../../utils/web-socket-utils';
@@ -187,11 +186,10 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       WebSocketEvent.VIDEO_OFFER,
       async (videoOfferAsString) => {
         setOpenVideoCall(true);
-        const videoStream = await requestMediaDevicesPermission();
-        assignVideoStream(videoStream);
+        // const videoStream = await requestMediaDevicesPermission();
         joinVideoCallSession(
           videoOfferAsString,
-          videoStream,
+          assignVideoStream,
           assignCalleeVideoStream,
           notifyBeforeCleanUp,
         );
@@ -271,12 +269,12 @@ const ChatBox = ({ chatParticipantId }: Props) => {
 
   const startVideoCall = async () => {
     setOpenVideoCall(true);
-    const mediaStream = await requestMediaDevicesPermission();
-    assignVideoStream(mediaStream);
+    // const mediaStream = await requestMediaDevicesPermission();
+    // assignVideoStream(mediaStream);
     await startVideoCallSession(
       currentUser.id,
       chatParticipant.id,
-      mediaStream,
+      assignVideoStream,
       assignCalleeVideoStream,
       cleanUpAfterEndCall,
     );

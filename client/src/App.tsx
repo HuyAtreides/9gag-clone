@@ -7,6 +7,8 @@ import { initUserProfile } from './Store/user/user-dipatchers';
 import AuthContainer from './features/auth/AuthContainer';
 import RootRoutes from './routes/RootRouter';
 import { WebSocketUtils } from './utils/web-socket-utils';
+import { WebSocketEvent } from './models/enums/web-socket-event';
+import { rtcConnection } from './services/video-call-service';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -16,6 +18,20 @@ function App() {
   useEffect(() => {
     dispatch(getAllSection());
     dispatch(initUserProfile());
+
+    WebSocketUtils.registerEventHandler(
+      WebSocketEvent.NEW_ICE_CANDIDATE,
+      async (newICECandidateEventAsString) => {
+        if (rtcConnection == null) {
+          return;
+        }
+
+        const newICECandidateEvent = JSON.parse(newICECandidateEventAsString);
+        await rtcConnection.addIceCandidate(
+          new RTCIceCandidate(newICECandidateEvent.candidate),
+        );
+      },
+    );
   }, [dispatch]);
 
   useEffect(() => {
