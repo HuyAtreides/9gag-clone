@@ -44,7 +44,7 @@ const VideoCall = ({ calleeVideoStream, callerVideoStream, close, callEnded }: P
   return (
     <Modal
       visible
-      width='50%'
+      className={styles.videoCallModal}
       destroyOnClose={false}
       cancelText
       closable={false}
