@@ -2,3 +2,14 @@
   height: 45vh;
   width: 100%;
 }
+
+.videoCallModal {
+  width: 70vw !important;
+}
+
+@media screen and (max-width: 992px) {
+  .videoCallModal {
+    margin: auto;
+    width: 90vw !important;
+  }
+}

@@ -30,16 +30,6 @@ async function exchangeCallSessionDescription(
       sdp: rtcConnection.localDescription,
     });
   };
-
-  WebSocketUtils.registerEventHandler(
-    WebSocketEvent.VIDEO_ANSWER,
-    async (videoAnswerAsString) => {
-      const videoAnswer = JSON.parse(videoAnswerAsString);
-      const sessionDescription = new RTCSessionDescription(videoAnswer.sdp);
-
-      await rtcConnection.setRemoteDescription(sessionDescription);
-    },
-  );
 }
 
 async function negotiateICECandidate(
@@ -57,14 +47,6 @@ async function negotiateICECandidate(
       });
     }
   };
-
-  WebSocketUtils.registerEventHandler(
-    WebSocketEvent.NEW_ICE_CANDIDATE,
-    async (newICECandidateEventAsString) => {
-      const newICECandidateEvent = JSON.parse(newICECandidateEventAsString);
-      await rtcConnection.addIceCandidate(newICECandidateEvent.candidate);
-    },
-  );
 }
 
 function handleOnTrackEvent(
@@ -100,7 +82,7 @@ export function hangUp(calleeId: number, hangUpCallback: () => void) {
     targetUserId: calleeId,
     type: WebSocketEvent.END_CALL,
   });
-  hangUpCallback();
+  window.location.reload();
   closeConnection();
 }
 
@@ -115,7 +97,7 @@ export async function startVideoCallSession(
     throw new Error('Already in a call');
   }
 
-  rtcConnection = await createRTCConnection();
+  rtcConnection = createRTCConnection();
 
   handleOnTrackEvent(rtcConnection, assignStream);
   negotiateICECandidate(rtcConnection, caller, callee);
@@ -133,6 +115,34 @@ export async function startVideoCallSession(
   return rtcConnection;
 }
 
+export function registerWebRTCEventHandler() {
+  WebSocketUtils.registerEventHandler(
+    WebSocketEvent.NEW_ICE_CANDIDATE,
+    async (newICECandidateEventAsString) => {
+      if (!rtcConnection) {
+        return;
+      }
+
+      const newICECandidateEvent = JSON.parse(newICECandidateEventAsString);
+      await rtcConnection.addIceCandidate(newICECandidateEvent.candidate);
+    },
+  );
+
+  WebSocketUtils.registerEventHandler(
+    WebSocketEvent.VIDEO_ANSWER,
+    async (videoAnswerAsString) => {
+      if (!rtcConnection) {
+        return;
+      }
+
+      const videoAnswer = JSON.parse(videoAnswerAsString);
+      const sessionDescription = new RTCSessionDescription(videoAnswer.sdp);
+
+      await rtcConnection.setRemoteDescription(sessionDescription);
+    },
+  );
+}
+
 export async function joinVideoCallSession(
   videoOfferEventAsString: string,
   assignCallerStream: (stream: MediaStream) => void,
@@ -141,16 +151,25 @@ export async function joinVideoCallSession(
 ) {
   const videoOfferEvent = JSON.parse(videoOfferEventAsString);
   const { userId, targetUserId } = videoOfferEvent;
-  const rtcConnection = await startVideoCallSession(
-    targetUserId,
-    userId,
-    assignCallerStream,
-    assignStream,
-    hangUpCallback,
-  );
+
+  rtcConnection = createRTCConnection();
+
+  handleOnTrackEvent(rtcConnection, assignStream);
+  negotiateICECandidate(rtcConnection, targetUserId, userId);
+  exchangeCallSessionDescription(rtcConnection, targetUserId, userId);
+  handleCallEnd(hangUpCallback);
 
   const sessionDescription = new RTCSessionDescription(videoOfferEvent.sdp);
   await rtcConnection.setRemoteDescription(sessionDescription);
+
+  const mediaStream = await requestMediaDevicesPermission();
+
+  assignCallerStream(mediaStream);
+
+  mediaStream.getTracks().forEach((track) => {
+    rtcConnection?.addTrack(track, mediaStream);
+  });
+
   const answer = await rtcConnection.createAnswer();
   await rtcConnection.setLocalDescription(answer);
 
