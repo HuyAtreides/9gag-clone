@@ -10,4 +10,8 @@ export enum WebSocketEvent {
   VIDEO_ANSWER = 'video-answer',
   NEW_ICE_CANDIDATE = 'new-ice-candidate',
   END_CALL = 'end-call',
+  RECEIVE_CALL = 'RECEIVE_CALL',
+  ACCEPT_CALL = 'ACCEPT_CALL',
+  DENY_CALL = 'DENY_CALL',
+  CANCEL_CALL = 'CANCEL_CALL',
 }

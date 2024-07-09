@@ -7,6 +7,23 @@
   width: 70vw !important;
 }
 
+.ringing {
+  text-align: center;
+}
+
+.ringingText {
+  margin-top: 10px;
+  font-size: 2rem;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: auto;
+  width: 50%;
+}
+
 @media screen and (max-width: 992px) {
   .videoCallModal {
     margin: auto;

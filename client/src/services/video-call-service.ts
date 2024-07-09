@@ -118,19 +118,19 @@ export async function startVideoCallSession(
 export function registerWebRTCEventHandler() {
   WebSocketUtils.registerEventHandler(
     WebSocketEvent.NEW_ICE_CANDIDATE,
-    async (newICECandidateEventAsString) => {
+    (newICECandidateEventAsString) => {
       if (!rtcConnection) {
         return;
       }
 
       const newICECandidateEvent = JSON.parse(newICECandidateEventAsString);
-      await rtcConnection.addIceCandidate(newICECandidateEvent.candidate);
+      rtcConnection.addIceCandidate(newICECandidateEvent.candidate);
     },
   );
 
   WebSocketUtils.registerEventHandler(
     WebSocketEvent.VIDEO_ANSWER,
-    async (videoAnswerAsString) => {
+    (videoAnswerAsString) => {
       if (!rtcConnection) {
         return;
       }
@@ -138,7 +138,7 @@ export function registerWebRTCEventHandler() {
       const videoAnswer = JSON.parse(videoAnswerAsString);
       const sessionDescription = new RTCSessionDescription(videoAnswer.sdp);
 
-      await rtcConnection.setRemoteDescription(sessionDescription);
+      rtcConnection.setRemoteDescription(sessionDescription);
     },
   );
 }
@@ -151,6 +151,10 @@ export async function joinVideoCallSession(
 ) {
   const videoOfferEvent = JSON.parse(videoOfferEventAsString);
   const { userId, targetUserId } = videoOfferEvent;
+
+  if (rtcConnection) {
+    throw new Error('Already in a call');
+  }
 
   rtcConnection = createRTCConnection();
 
