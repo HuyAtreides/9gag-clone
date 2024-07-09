@@ -27,19 +27,19 @@ import {
 import { closeConversation } from '../../../../Store/chat/chat-slice';
 import { unblock } from '../../../../Store/user-summary/user-summary-dispatcher';
 import { restrict, unRestrict } from '../../../../Store/user/user-dipatchers';
+import {
+  setCalleeId,
+  setCalleeImgUrl,
+  setCalleeName,
+  setCalling,
+} from '../../../../Store/video-call/video-call-slice';
 import AutoClosePopover from '../../../../components/auto-close-popover/AutoClosePopover';
 import { ChatBoxHeight } from '../../../../context/chat-box-height';
 import ChatConversation from '../../../../models/chat-conversation';
 import { Constant } from '../../../../models/enums/constant';
 import { WebSocketEvent } from '../../../../models/enums/web-socket-event';
 import { NewChatMessageFormData } from '../../../../models/new-chat-message-form-data';
-import {
-  hangUp,
-  joinVideoCallSession,
-  startVideoCallSession,
-} from '../../../../services/video-call-service';
 import { WebSocketUtils } from '../../../../utils/web-socket-utils';
-import VideoCall from '../../video-call/VideoCall';
 import PinnedChatMessageDialog from '../PinnedChatMessage/PinnedChatMessageDialog';
 import SearchChatMessage from '../SearchChatMessage/SearchChatMessage';
 import styles from './ChatBox.module.css';
@@ -140,15 +140,11 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       (conversation) => conversation.userId === chatParticipantId,
     ),
   )!;
-  const [callerVideoStream, setCallerVideoStream] = useState<MediaStream | null>(null);
-  const [calleeVideoStream, setCalleeVideoStream] = useState<MediaStream | null>(null);
   const chatBoxHeight = useContext(ChatBoxHeight);
   const [openPinnedChatMessages, setOpenPinnedChatMessages] = useState(false);
   const [openSearchChatMessages, setOpenChatSearchMessage] = useState(false);
-  const [openVideoCall, setOpenVideoCall] = useState(false);
   const messageState = useAppSelector((state) => state.chat.messageState);
   const currentUser = useAppSelector((state) => state.user.profile!);
-  const [callEnded, setCallEnded] = useState(false);
   const [focusMessageId, setFocusMessageId] = useState<null | number>(null);
 
   useEffect(() => {
@@ -160,43 +156,6 @@ const ChatBox = ({ chatParticipantId }: Props) => {
       setFocusMessageId(null);
     }
   }, [focusMessageId, openPinnedChatMessages]);
-
-  const assignVideoStream = (videoStream: MediaStream) => {
-    setCallerVideoStream(videoStream);
-  };
-
-  const assignCalleeVideoStream = (videoStream: MediaStream) => {
-    setCalleeVideoStream(videoStream);
-  };
-
-  const cleanUpAfterEndCall = () => {
-    window.location.reload();
-  };
-
-  const notifyBeforeCleanUp = () => {
-    setCallEnded(true);
-
-    setTimeout(() => {
-      cleanUpAfterEndCall();
-    }, 2000);
-  };
-
-  useEffect(() => {
-    WebSocketUtils.registerEventHandler(
-      WebSocketEvent.VIDEO_OFFER,
-      async (videoOfferAsString) => {
-        setOpenVideoCall(true);
-        // const videoStream = await requestMediaDevicesPermission();
-        joinVideoCallSession(
-          videoOfferAsString,
-          assignVideoStream,
-          assignCalleeVideoStream,
-          notifyBeforeCleanUp,
-        );
-      },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   if (openConversation.isLoading) {
     return <ChatBoxSkeleton />;
@@ -267,21 +226,19 @@ const ChatBox = ({ chatParticipantId }: Props) => {
 
   const chatParticipant = conversation.getOtherParticipant(currentUser);
 
-  const startVideoCall = async () => {
-    setOpenVideoCall(true);
-    // const mediaStream = await requestMediaDevicesPermission();
-    // assignVideoStream(mediaStream);
-    await startVideoCallSession(
-      currentUser.id,
-      chatParticipant.id,
-      assignVideoStream,
-      assignCalleeVideoStream,
-      cleanUpAfterEndCall,
-    );
-  };
+  const call = () => {
+    dispatch(setCalling(true));
+    dispatch(setCalleeId(chatParticipant.id));
+    dispatch(setCalleeImgUrl(chatParticipant.avatarUrl));
+    dispatch(setCalleeName(chatParticipant.displayName));
 
-  const endCall = () => {
-    hangUp(chatParticipant.id, cleanUpAfterEndCall);
+    WebSocketUtils.send({
+      id: currentUser.id,
+      targetUserId: chatParticipant.id,
+      imgUrl: currentUser.avatarUrl,
+      name: currentUser.displayName,
+      type: WebSocketEvent.RECEIVE_CALL,
+    });
   };
 
   const handleMute = () => {
@@ -336,12 +293,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
                 View pinned messages
               </Button>
 
-              <Button
-                block
-                type='text'
-                icon={<VideoCameraOutlined />}
-                onClick={startVideoCall}
-              >
+              <Button block type='text' icon={<VideoCameraOutlined />} onClick={call}>
                 Video call
               </Button>
 
@@ -411,7 +363,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
           <ChatMessageList openConversationId={conversation.id} />
         </ChatBoxHeight.Provider>
       </ChatMessageFocusFunction.Provider>
-
+      {/* 
       {openVideoCall ? (
         <VideoCall
           callEnded={callEnded}
@@ -419,7 +371,7 @@ const ChatBox = ({ chatParticipantId }: Props) => {
           callerVideoStream={callerVideoStream}
           calleeVideoStream={calleeVideoStream}
         />
-      ) : null}
+      ) : null} */}
 
       <PinnedChatMessageDialog
         conversationId={conversation.id}

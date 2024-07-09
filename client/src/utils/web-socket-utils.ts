@@ -38,6 +38,18 @@ export namespace WebSocketUtils {
     [WebSocketEvent.END_CALL]: function (): void {
       throw new Error('Function not implemented.');
     },
+    [WebSocketEvent.ACCEPT_CALL]: function (): void {
+      throw new Error('Function not implemented.');
+    },
+    [WebSocketEvent.DENY_CALL]: function (): void {
+      throw new Error('Function not implemented.');
+    },
+    [WebSocketEvent.RECEIVE_CALL]: function (): void {
+      throw new Error('Function not implemented.');
+    },
+    [WebSocketEvent.CANCEL_CALL]: function (): void {
+      throw new Error('Function not implemented.');
+    },
   };
 
   const messageHandler = (event: MessageEvent<WebSocketEvent | string>) => {

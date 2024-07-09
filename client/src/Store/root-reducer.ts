@@ -9,6 +9,7 @@ import { abbreviateCommentReducer } from './abbreviate-comment/abbreviate-commen
 import { userSummaryReducers } from './user-summary/user-summary-slice';
 import { followRequestReducer } from './follow-request/follow-request-slice';
 import { chatReducer } from './chat/chat-slice';
+import { videoCallReducer } from './video-call/video-call-slice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   userSummary: userSummaryReducers,
   followRequest: followRequestReducer,
   chat: chatReducer,
+  videoCall: videoCallReducer,
 });
 
 export default rootReducer;

@@ -1,8 +1,10 @@
 import { PhoneOutlined } from '@ant-design/icons';
 import { Button, Empty, Modal } from 'antd';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import styles from './VideoCall.module.css';
 import CenterSpinner from '../../../components/center-spinner/CenterSpinner';
+import { useAppSelector } from '../../../Store';
+import { hangUp } from '../../../services/video-call-service';
 
 interface Props {
   readonly close: () => void;
@@ -11,7 +13,12 @@ interface Props {
   readonly calleeVideoStream: MediaStream | null;
 }
 
-const VideoCall = ({ calleeVideoStream, callerVideoStream, close, callEnded }: Props) => {
+const VideoCall = () => {
+  const calleeVideoStream = useAppSelector((state) => state.videoCall.calleeVideoStream);
+  const openVideoCall = useAppSelector((state) => state.videoCall.openCallVideo);
+  const callerVideoStream = useAppSelector((state) => state.videoCall.callerVideoStream);
+  const callEnded = useAppSelector((state) => state.videoCall.callEnded);
+  const calleeId = useAppSelector((state) => state.videoCall.calleeId);
   const callerVideoRef = useRef<HTMLVideoElement | null>(null);
   const calleeVideoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -23,15 +30,23 @@ const VideoCall = ({ calleeVideoStream, callerVideoStream, close, callEnded }: P
     }
   }, [callerVideoStream]);
 
+  const endCall = useCallback(() => {
+    hangUp(calleeId, () => window.location.reload());
+  }, [calleeId]);
+
   const handleEndCall = () => {
     Modal.confirm({
       onOk: () => {
-        close();
+        endCall();
         return false;
       },
       title: 'Do you want to end this call?',
     });
   };
+
+  // useEffect(() => {
+  //   return () => endCall();
+  // }, [endCall]);
 
   useEffect(() => {
     const calleeVideo = calleeVideoRef.current;
@@ -43,7 +58,7 @@ const VideoCall = ({ calleeVideoStream, callerVideoStream, close, callEnded }: P
 
   return (
     <Modal
-      visible
+      visible={openVideoCall}
       className={styles.videoCallModal}
       destroyOnClose={false}
       cancelText
