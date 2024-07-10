@@ -273,10 +273,10 @@ export const restrict =
   };
 
 export const report =
-  (userId: number, reason: string): AppThunk =>
+  (userId: number, reason: string, contentURL: string): AppThunk =>
   async (__, _) => {
     try {
-      await reportUser(userId, reason);
+      await reportUser(userId, reason, contentURL);
       message.success('Report sent!');
     } catch (error: unknown) {
       message.error('Failed to report');

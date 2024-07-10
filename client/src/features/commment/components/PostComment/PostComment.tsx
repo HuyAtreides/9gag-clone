@@ -41,6 +41,7 @@ import ChildComment from '../ChildComment/ChildComment';
 import styles from './PostComment.module.scss';
 import WYSIWYGView from '../../../../components/wysiwyg-view/WYSIWYGView';
 import ReportButton from '../../../../components/report-button/ReportButton';
+import { buildCommentURL } from '../../../../utils/build-comment-url';
 
 interface Props {
   readonly comment: AppComment;
@@ -215,7 +216,12 @@ const PostComment: React.FC<Props> = ({ comment }: Props) => {
                 {commentDeleteButton}
                 <OwnerGuard
                   component={<></>}
-                  replace={<ReportButton user={comment.user} />}
+                  replace={
+                    <ReportButton
+                      user={comment.user}
+                      contentURL={buildCommentURL(postId, comment)}
+                    />
+                  }
                   owner={comment.user}
                 />
               </>

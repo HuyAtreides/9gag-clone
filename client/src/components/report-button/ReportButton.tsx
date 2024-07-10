@@ -33,9 +33,10 @@ const reportProfileItems: ItemType[] = [
 interface Props {
   readonly user: User;
   readonly reportProfile?: boolean;
+  readonly contentURL: string;
 }
 
-const ReportButton = ({ user, reportProfile = false }: Props) => {
+const ReportButton = ({ user, reportProfile = false, contentURL }: Props) => {
   const dispatch = useAppDispatch();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,7 +48,7 @@ const ReportButton = ({ user, reportProfile = false }: Props) => {
     }
     setLoading(true);
 
-    await dispatch(report(user.id, reason));
+    await dispatch(report(user.id, reason, contentURL));
     setShowModal(false);
     setLoading(false);
   };
