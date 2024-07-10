@@ -113,6 +113,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
                 .owner(currentUser)
                 .createdAt(Instant.now())
                 .reason(request.getReason())
+                .contentURL(request.getContentURL())
                 .build();
         reportRepository.save(report);
     }

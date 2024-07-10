@@ -13,4 +13,6 @@ public class ReportDto {
     private String createdAt;
 
     private String reason;
+
+    private String contentURL;
 }
