@@ -242,7 +242,12 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                       {post.user ? (
                         <OwnerGuard
                           component={<></>}
-                          replace={<ReportButton user={post.user} />}
+                          replace={
+                            <ReportButton
+                              user={post.user}
+                              contentURL={`${process.env.REACT_APP_APP_URL}/post/${post.id}`}
+                            />
+                          }
                           owner={post.user}
                         />
                       ) : null}

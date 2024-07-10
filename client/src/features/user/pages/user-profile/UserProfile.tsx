@@ -286,7 +286,13 @@ const UserProfile: React.FC = () => {
 
                     <OwnerGuard
                       component={<></>}
-                      replace={<ReportButton user={user} reportProfile />}
+                      replace={
+                        <ReportButton
+                          user={user}
+                          reportProfile
+                          contentURL={`${process.env.REACT_APP_APP_URL}/user/${userId}`}
+                        />
+                      }
                       owner={user}
                     />
 
