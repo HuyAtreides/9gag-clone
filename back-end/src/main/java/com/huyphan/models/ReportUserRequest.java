@@ -7,4 +7,6 @@ public class ReportUserRequest {
     private long userId;
 
     private String reason;
+
+    private String contentURL;
 }

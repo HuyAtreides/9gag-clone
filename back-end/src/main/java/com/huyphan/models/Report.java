@@ -46,4 +46,7 @@ public class Report {
     @JoinColumn(name = "OwnerId")
     private User owner;
 
+    @Column(name = "contentURL")
+    private String contentURL;
+
 }
