@@ -9,12 +9,14 @@ interface VideoCallState {
   readonly callEnded: boolean;
   readonly openCallVideo: boolean;
   readonly calleeImgUrl: string;
+  readonly connecting: boolean;
   readonly calleeName: string;
 }
 
 const initialState: VideoCallState = {
   openCallVideo: false,
   calleeId: 0,
+  connecting: false,
   receiveCall: false,
   calleeImgUrl: '',
   calleeName: '',
@@ -30,6 +32,10 @@ const slice = createSlice({
   reducers: {
     setCalling(state, action: PayloadAction<boolean>) {
       state.calling = action.payload;
+    },
+
+    setConnecting(state, action: PayloadAction<boolean>) {
+      state.connecting = action.payload;
     },
 
     setCallerVideoStream(state, action: PayloadAction<MediaStream>) {
@@ -77,4 +83,5 @@ export const {
   setCalleeName,
   setReceiveCall,
   setOpenCallVideo,
+  setConnecting,
 } = slice.actions;
