@@ -1,8 +1,11 @@
 import { Avatar, Button, Modal, Typography } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../../Store';
-import { setReceiveCall } from '../../../Store/video-call/video-call-slice';
-import { WebSocketUtils } from '../../../utils/web-socket-utils';
+import {
+  setConnecting,
+  setReceiveCall,
+} from '../../../Store/video-call/video-call-slice';
 import { WebSocketEvent } from '../../../models/enums/web-socket-event';
+import { WebSocketUtils } from '../../../utils/web-socket-utils';
 import styles from './VideoCall.module.css';
 
 const CalleeRinging = () => {
@@ -12,6 +15,7 @@ const CalleeRinging = () => {
   const calleeImgUrl = useAppSelector((state) => state.videoCall.calleeImgUrl);
   const calleeName = useAppSelector((state) => state.videoCall.calleeName);
   const calleeId = useAppSelector((state) => state.videoCall.calleeId);
+  const connecting = useAppSelector((state) => state.videoCall.connecting);
 
   const accept = () => {
     WebSocketUtils.send({
@@ -20,6 +24,8 @@ const CalleeRinging = () => {
       callerId: calleeId,
       targetUserId: calleeId,
     });
+
+    dispatch(setConnecting(true));
   };
 
   const deny = () => {
@@ -36,19 +42,27 @@ const CalleeRinging = () => {
       <div className={styles.ringing}>
         <Avatar src={calleeImgUrl} size={190} shape='circle' />
 
-        <Typography.Paragraph strong className={styles.ringingText}>
-          {calleeName} is calling...
-        </Typography.Paragraph>
+        {connecting ? (
+          <Typography.Paragraph strong className={styles.ringingText}>
+            Connecting...
+          </Typography.Paragraph>
+        ) : (
+          <>
+            <Typography.Paragraph strong className={styles.ringingText}>
+              {calleeName} is calling...
+            </Typography.Paragraph>
 
-        <div className={styles.buttonContainer}>
-          <Button type='primary' onClick={accept}>
-            Accept
-          </Button>
+            <div className={styles.buttonContainer}>
+              <Button type='primary' onClick={accept}>
+                Accept
+              </Button>
 
-          <Button type='primary' danger onClick={deny}>
-            Deny
-          </Button>
-        </div>
+              <Button type='primary' danger onClick={deny}>
+                Deny
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   );
