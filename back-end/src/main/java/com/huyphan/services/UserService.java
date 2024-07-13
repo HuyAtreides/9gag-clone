@@ -331,6 +331,8 @@ public class UserService implements UserDetailsService, MediatorComponent {
         User newUser = new User();
         String username = registerData.getUsername();
         String encodedPassword = passwordEncoder.encode(registerData.getPassword());
+
+        newUser.setEmail(registerData.getEmail());
         newUser.setUsername(username);
         newUser.setDisplayName(registerData.getDisplayName());
         newUser.setCountry(registerData.getCountry());

@@ -13,6 +13,7 @@ import { UserMapper } from './mappers/user-mapper';
 import { UserSecretMapper } from './mappers/user-secret-mapper';
 import SocialLoginData from '../models/social-login-data';
 import { SocialLoginDataMapper } from './mappers/social-login-data-mapper';
+import { ResetPasswordData } from '../models/reset-password-data';
 
 const REGISTER_END_POINT = `${Constant.AuthEndpoint}/register`;
 const LOGIN_END_POINT = `${Constant.AuthEndpoint}/login`;
@@ -65,4 +66,16 @@ export async function refreshToken(): Promise<void> {
 
   const newUserSecret = UserSecretMapper.fromDto(response.data);
   LocalStorage.save(Constant.TokenKey, newUserSecret.token);
+}
+
+export async function sendResetPasswordRequest(resetPasswordData: ResetPasswordData) {
+  const axios = createAxiosInstance();
+
+  await axios.post(`${Constant.AuthEndpoint}/reset-password`, resetPasswordData);
+}
+
+export async function generateCode(email: string) {
+  const axios = createAxiosInstance();
+
+  await axios.post(`${Constant.AuthEndpoint}/reset-password-code/${email}`);
 }

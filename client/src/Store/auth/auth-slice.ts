@@ -5,12 +5,14 @@ export interface AuthState {
   readonly isProtectedActionInvoked: boolean;
   readonly errorMessage: string | null;
   readonly isSocialSignIn: boolean;
+  readonly resetPasswordEmail: string | null;
 }
 
 const initialState: AuthState = {
   isLoading: false,
   isProtectedActionInvoked: false,
   errorMessage: null,
+  resetPasswordEmail: null,
   isSocialSignIn: false,
 };
 
@@ -18,6 +20,10 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    setResetPasswordEmail(state, action: PayloadAction<string | null>) {
+      state.resetPasswordEmail = action.payload;
+    },
+
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
@@ -39,4 +45,5 @@ export const {
   setIsLoading,
   setIsProtectedActionInvoked,
   setIsSocialSignIn,
+  setResetPasswordEmail,
 } = authSlice.actions;

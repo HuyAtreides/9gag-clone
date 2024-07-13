@@ -7,6 +7,7 @@ import com.huyphan.models.enums.SocialProvider;
 import com.huyphan.models.projections.UserWithDerivedFields;
 import com.huyphan.models.projections.UserWithReportedField;
 import java.util.Optional;
+import javax.swing.text.html.Option;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -85,6 +86,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
             """;
 
     Optional<User> findByUsername(String username);
+
+    Optional<User> findByEmail(String email);
 
     @Query(value = """
             select

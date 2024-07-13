@@ -32,4 +32,6 @@ public class RegisterData {
      * User password.
      */
     private String password;
+
+    private String email;
 }

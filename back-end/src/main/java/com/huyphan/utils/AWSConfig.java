@@ -9,6 +9,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.AwsRegionProvider;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
+import software.amazon.awssdk.services.ses.SesClient;
 
 @Configuration
 public class AWSConfig {
@@ -19,6 +20,14 @@ public class AWSConfig {
     @Bean
     public RekognitionClient amazonRekognition() {
         return RekognitionClient.builder()
+                .region(Region.of(awsRegion))
+                .credentialsProvider(awsCredentialsProvider())
+                .build();
+    }
+
+    @Bean
+    public SesClient sesClient(){
+        return SesClient.builder()
                 .region(Region.of(awsRegion))
                 .credentialsProvider(awsCredentialsProvider())
                 .build();

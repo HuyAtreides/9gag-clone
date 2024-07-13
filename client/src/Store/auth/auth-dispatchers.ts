@@ -7,6 +7,8 @@ import {
   registerUser,
   loginUser,
   loginUserWithSocialSignIn,
+  generateCode,
+  sendResetPasswordRequest,
 } from '../../services/auth-service';
 import { LocalStorage } from '../../services/local-storage';
 import { handleError } from '../../utils/error-handler';
@@ -16,6 +18,8 @@ import { setFavoriteSections, setProfile } from '../user/user-slice';
 import SocialLoginData from '../../models/social-login-data';
 import { getGoogleUserProfile } from '../../services/google-user-profile-service';
 import { getFacebookUserProfile } from '../../services/facebook-user-profile-service';
+import { message } from 'antd';
+import { ResetPasswordData } from '../../models/reset-password-data';
 
 type FetchSocialProfileFunc = (accessCode: string) => Promise<SocialLoginData>;
 
@@ -41,6 +45,29 @@ export const signInWithGoogle = (accessCode: string) => {
 export const signInWithFacebook = (accessCode: string) => {
   return socialSignIn(accessCode, getFacebookUserProfile);
 };
+
+export const resetPassword =
+  (resetPasswordData: ResetPasswordData): AppThunk =>
+  async (dispatch, _) => {
+    try {
+      await sendResetPasswordRequest(resetPasswordData);
+    } catch (error: unknown) {
+      handleError(dispatch, error, setAuthErrorMessage);
+
+      throw new Error();
+    }
+  };
+
+export const generateResetPasswordCode =
+  (email: string): AppThunk =>
+  async () => {
+    try {
+      await generateCode(email);
+    } catch (_) {
+      message.error('Failed to send email, please try again');
+      throw new Error();
+    }
+  };
 
 export const register =
   (registerData: RegisterData): AppThunk =>

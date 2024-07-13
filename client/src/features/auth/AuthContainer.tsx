@@ -10,9 +10,11 @@ import CenterSpinner from '../../components/center-spinner/CenterSpinner';
 import useRemoveErrorWhenUnmount from '../../custom-hooks/remove-error';
 import useRenderErrorMessage from '../../custom-hooks/render-error-message';
 import LoginWithGoogleButton from './components/LoginInWithGoogleButton/LoginWithGoogleButton';
+import LoginWithFacebookButton from './components/LoginWithFacebookButton/LoginWithFacebookButton';
 import Login from './pages/login/Login';
 import Register from './pages/register/Register';
-import LoginWithFacebookButton from './components/LoginWithFacebookButton/LoginWithFacebookButton';
+import ResetPassword from './pages/reset-password/ResetPassword';
+import SetNewPassword from './pages/set-new-password/SetNewPassword';
 
 /** Used by other features to display login or sign up form when an action
  * which requires authentication performed by unauthenticated user.
@@ -43,10 +45,16 @@ const AuthContainer: React.FC = () => {
       <Spin indicator={<CenterSpinner />} spinning={isSocialSignIn}>
         {state === 'register' ? (
           <Register onNavigate={setState} />
+        ) : state === 'forget-password' ? (
+          <ResetPassword onNavigate={setState} />
+        ) : state === 'set-new-password' ? (
+          <SetNewPassword onNavigate={setState} />
         ) : (
           <Login onNavigate={setState} />
         )}
+
         <Divider plain>Or Login With</Divider>
+
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_API_ID as string}>
           <LoginWithGoogleButton />
         </GoogleOAuthProvider>

@@ -49,6 +49,19 @@ const Register: React.FC<IRegister> = ({ onNavigate }) => {
         <Input size='large' placeholder='Enter your display name' />
       </Form.Item>
 
+      <Form.Item
+        name='email'
+        rules={[
+          { required: true, message: 'Please input your email!' },
+          {
+            type: 'email',
+            message: 'Not a valid email',
+          },
+        ]}
+      >
+        <Input size='large' placeholder='Enter your email' type='email' />
+      </Form.Item>
+
       <Form.Item name='country'>
         <Select placeholder='Select your country' size='large'>
           {getCountryListOptions().map((option) => (
