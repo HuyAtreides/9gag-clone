@@ -32,5 +32,7 @@ public class RegisterDataDto {
      * User password.
      */
     private String password;
+
+    private String email;
 }
 

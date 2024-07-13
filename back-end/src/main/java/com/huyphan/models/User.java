@@ -149,6 +149,12 @@ public class User implements UserDetails, Followable, ChatParticipant {
     @OneToMany(mappedBy = "user")
     private Set<Comment> comments = new LinkedHashSet<>();
 
+    @Column(name = "ResetPasswordCode")
+    private String resetPasswordCode;
+
+    @Column(name = "Email")
+    private String email;
+
     @OneToMany(mappedBy = "user")
     private Set<Report> reports;
 

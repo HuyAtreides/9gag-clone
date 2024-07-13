@@ -6,10 +6,12 @@ import com.huyphan.dtos.SocialLoginDataDto;
 import com.huyphan.dtos.UserSecretDto;
 import com.huyphan.mappers.LoginDataMapper;
 import com.huyphan.mappers.RegisterDataMapper;
+import com.huyphan.mappers.ResetPasswordRequestMapper;
 import com.huyphan.mappers.SocialLoginDataMapper;
 import com.huyphan.mappers.UserSecretMapper;
 import com.huyphan.models.LoginData;
 import com.huyphan.models.RegisterData;
+import com.huyphan.dtos.ResetPasswordRequestDto;
 import com.huyphan.models.SocialLoginData;
 import com.huyphan.models.UserSecret;
 import com.huyphan.models.exceptions.AppException;
@@ -20,6 +22,7 @@ import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +48,9 @@ public class AuthController {
     @Autowired
     private UserSecretMapper userSecretMapper;
 
+    @Autowired
+    private ResetPasswordRequestMapper resetPasswordRequestMapper;
+
     @PostMapping("login")
     public UserSecretDto login(@RequestBody LoginDataDto loginDataDto) throws AuthException {
         LoginData loginData = loginDataMapper.fromDto(loginDataDto);
@@ -66,6 +72,20 @@ public class AuthController {
         UserSecret userSecret = authService.login(loginData);
 
         return userSecretMapper.toDto(userSecret);
+    }
+
+    @PostMapping("reset-password")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void resetPassword(@RequestBody ResetPasswordRequestDto resetPasswordRequestDto)
+            throws AuthException {
+        authService.resetPassword(
+                resetPasswordRequestMapper.fromDto(resetPasswordRequestDto)
+        );
+    }
+
+    @PostMapping("reset-password-code/{email}")
+    public void generateResetPasswordCode(@PathVariable String email) {
+        authService.generateResetPasswordCode(email);
     }
 
     @PostMapping("register")
