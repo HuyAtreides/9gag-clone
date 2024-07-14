@@ -23,5 +23,7 @@ export default interface NewPostDto {
 
   readonly nsfw: boolean;
 
+  readonly followersOnly: boolean;
+
   readonly moderating: boolean;
 }

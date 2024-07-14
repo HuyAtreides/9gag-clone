@@ -5,11 +5,13 @@ import {
   CommentOutlined,
   CopyOutlined,
   DeleteOutlined,
+  GlobalOutlined,
   MoreOutlined,
+  TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, List, Modal, Tag, Typography, message } from 'antd';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../../../Store';
 import {
@@ -28,6 +30,7 @@ import OwnerGuard from '../../../../components/component-guard/OwnerGuard';
 import FollowButton from '../../../../components/follow-button/FollowButton';
 import Media from '../../../../components/media/Media';
 import PostTitle from '../../../../components/post-title/PostTitle';
+import ReportButton from '../../../../components/report-button/ReportButton';
 import ShareButton from '../../../../components/share-button/ShareButton';
 import SharedPostContainer from '../../../../components/shared-post/SharedPostContainer';
 import ToggleNotificationButton from '../../../../components/toggle-notification-button/ToggleNotificationButton';
@@ -46,7 +49,8 @@ import { SortType } from '../../../../models/enums/sort-type';
 import Post from '../../../../models/post';
 import { formatNumber } from '../../../../utils/format-number';
 import styles from './PostContent.module.css';
-import ReportButton from '../../../../components/report-button/ReportButton';
+import UpdatePostPrivacy from './UpdatePostPrivacy';
+import useOwnerProtectedAction from '../../../../custom-hooks/owner-protected-action';
 
 interface Props {
   post: Post;
@@ -75,12 +79,14 @@ const POST_CONTENT_TYPE_TO_CONTENT_MAP: Readonly<
 };
 
 const PostContent: React.FC<Props> = ({ post }: Props) => {
-  const [upvoted, downvoted] = [post.isUpvoted, post.isDownvoted];
   const dispatch = useAppDispatch();
+  const [openUpdatePrivacy, setOpenUpdatePrivacy] = useState(false);
+  const [upvoted, downvoted] = [post.isUpvoted, post.isDownvoted];
   const votePostExecutorRef = useRef(new VotePostActionExecutor(dispatch, post));
   const handleUpvote = useUpvote(post, votePostExecutorRef.current);
   const handleDownvote = useDownvote(post, votePostExecutorRef.current);
   const protectAction = useProtectedAction();
+  const ownerProtectAction = useOwnerProtectedAction(post.user);
   const followPost = useFollow({
     isFollowed: post.followed,
     followThunkAction: follow(post),
@@ -127,6 +133,14 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
       },
       title: 'Do you want to delete this post?',
     });
+  };
+
+  const updatePrivacy = () => {
+    setOpenUpdatePrivacy(true);
+  };
+
+  const closeUpdatePrivacy = () => {
+    setOpenUpdatePrivacy(false);
   };
 
   const postCreatorAction = post.sharedPostId !== null ? 'Shared By' : 'Uploaded By';
@@ -270,7 +284,23 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
                   'an anonymous user'
                 )}{' '}
                 &#8226;{' '}
-                {post.moderating ? 'Moderating Content...' : uploadTimeDiffFromToday}
+                {post.moderating ? 'Moderating Content...' : uploadTimeDiffFromToday}{' '}
+                &#8226;
+                {post.followersOnly ? (
+                  <Button
+                    title='Followers'
+                    icon={<TeamOutlined />}
+                    type='text'
+                    onClick={ownerProtectAction(updatePrivacy)}
+                  />
+                ) : (
+                  <Button
+                    title='Everyone'
+                    icon={<GlobalOutlined />}
+                    type='text'
+                    onClick={ownerProtectAction(updatePrivacy)}
+                  />
+                )}
               </>
             }
           />
@@ -283,6 +313,11 @@ const PostContent: React.FC<Props> = ({ post }: Props) => {
               <Tag className={styles.tag}>{tag}</Tag>
             ))}
           </div>
+          <UpdatePostPrivacy
+            post={post}
+            open={openUpdatePrivacy}
+            close={closeUpdatePrivacy}
+          />
         </List.Item>
       </div>
     </VirtualComponent>

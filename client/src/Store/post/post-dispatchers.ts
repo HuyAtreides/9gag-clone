@@ -21,12 +21,14 @@ import {
   getUserPostList,
   PostFetchingFunc,
   savePost,
+  setPostFollowersOnly,
   sharePost,
   turnOffPostNotifications,
   turnOnPostNotifications,
   unDownvote,
   unFollowPost,
   unSavePost,
+  unsetPostFollowersOnly,
   unUpvote,
   upvote,
 } from '../../services/post-service';
@@ -51,6 +53,7 @@ import {
   setSharedPostContent,
   setSharedPostError,
   setSharedPostIsLoading,
+  togglePostFollowersOnly,
 } from './post-slice';
 import { SharePostRequest } from '../../models/share-post-request';
 
@@ -171,6 +174,30 @@ export const getUserPosts = (
 ): AppThunk => {
   return getPostsDispatcher(postsFetchingRequest, getUserPostList);
 };
+
+export const setFollowersOnly =
+  (post: Post): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(togglePostFollowersOnly({ id: post.id, value: true }));
+      await setPostFollowersOnly(post.id);
+    } catch (_: unknown) {
+      dispatch(togglePostFollowersOnly({ id: post.id, value: false }));
+      message.error('Failed to update post privacy. Please try again later');
+    }
+  };
+
+export const unsetFollowersOnly =
+  (post: Post): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(togglePostFollowersOnly({ id: post.id, value: false }));
+      await unsetPostFollowersOnly(post.id);
+    } catch (_: unknown) {
+      dispatch(togglePostFollowersOnly({ id: post.id, value: true }));
+      message.error('Failed to update post privacy. Please try again later');
+    }
+  };
 
 export const addNewPosts = (postsFetchingRequest: PostsFetchingRequest) => {
   return addNewPostsDispatcher(postsFetchingRequest, getPostList);
@@ -298,6 +325,7 @@ export const uploadNewPost =
         anonymous: newPostFormData.anonymous,
         nsfw: mediaLocation.nsfw,
         moderating: mediaLocation.moderating,
+        followersOnly: newPostFormData.followersOnly,
         notificationEnabled: newPostFormData.notificationEnabled,
       });
       dispatch(setIsLoading(false));

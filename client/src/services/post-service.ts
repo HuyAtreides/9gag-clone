@@ -193,6 +193,16 @@ export const disablePostAnonymous = async (id: number) => {
   await axios.put<void>(`${Constant.PostEndPoint}/disable-anonymous/${id}`);
 };
 
+export const setPostFollowersOnly = async (id: number) => {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.PostEndPoint}/set-followers-only/${id}`);
+};
+
+export const unsetPostFollowersOnly = async (id: number) => {
+  const axios = createAxiosInstance();
+  await axios.put<void>(`${Constant.PostEndPoint}/unset-followers-only/${id}`);
+};
+
 export const sharePost = async (request: SharePostRequest) => {
   const axios = createAxiosInstance();
   const requestDto = SharePostRequestMapper.toDto(request);

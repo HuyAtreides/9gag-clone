@@ -57,4 +57,6 @@ public class PostDto {
     private boolean nsfw;
 
     private boolean moderating;
+
+    private boolean followersOnly;
 }

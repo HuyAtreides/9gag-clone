@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -106,6 +107,17 @@ public class PostController {
     @PutMapping("enable-anonymous/{id}")
     public void enableAnonymous(@PathVariable Long id) throws PostException {
         postService.setAnonymous(id , true);
+    }
+
+    @PutMapping("set-followers-only/{id}")
+    public void setFollowersOnly(@PathVariable Long id) {
+        postService.setFollowersOnly(id);
+    }
+
+
+    @PutMapping("unset-followers-only/{id}")
+    public void unsetFollowersOnly(@PathVariable Long id) {
+        postService.unsetFollowersOnly(id);
     }
 
     @PutMapping("disable-anonymous/{id}")

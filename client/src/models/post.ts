@@ -46,4 +46,6 @@ export default interface Post {
   readonly nsfw: boolean;
 
   readonly moderating: boolean;
+
+  readonly followersOnly: boolean;
 }

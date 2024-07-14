@@ -83,8 +83,11 @@ public class Post implements Followable, Notifiable, SharedPost {
     private boolean notificationEnabled;
     @Column(name = "Anonymous")
     private boolean anonymous;
-    @Column(name="NSFW")
+    @Column(name = "NSFW")
     private boolean nsfw;
+
+    @Column(name = "FollowersOnly")
+    private boolean followersOnly;
 
     @Column(name = "Moderating")
     private boolean moderating;

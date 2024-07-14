@@ -32,4 +32,6 @@ public class NewPost {
     private boolean anonymous;
 
     private boolean notificationEnabled;
+
+    private boolean followersOnly;
 }
