@@ -14,6 +14,7 @@ export namespace GoogleUserProfileMapper {
         ? undefined
         : toEnum(profile.address[0].countryCode, Country),
       provider: SocialProvider.GOOGLE,
+      email: profile.emailAddresses.find((userEmail) => userEmail.value != null)?.value,
       socialId: profile.metadata.sources[0].id,
     };
   }

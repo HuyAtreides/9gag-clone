@@ -278,7 +278,7 @@ public class UserController {
 
     @PutMapping("profile")
     public UserSecretDto updateProfile(@RequestBody UpdateProfileDataDto updateProfileDataDto)
-            throws UserException {
+            throws UserException, UserAlreadyExistsException {
         UpdateProfileData updateProfileData = updateProfileDataMapper.fromDto(updateProfileDataDto);
         UserSecret userSecret = userService.updateProfile(updateProfileData);
 

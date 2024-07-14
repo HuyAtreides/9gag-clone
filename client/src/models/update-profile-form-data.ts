@@ -9,5 +9,6 @@ export interface UpdateProfileFormData {
   readonly country: Country | null;
   readonly isPrivate: boolean;
   readonly about: string;
+  readonly email?: string;
   readonly onlyReceiveMessageFromFollowers: boolean;
 }

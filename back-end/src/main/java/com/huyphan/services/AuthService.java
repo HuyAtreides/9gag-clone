@@ -96,6 +96,12 @@ public class AuthService {
         newUser.setUsername(socialLoginData.getUsername());
         newUser.setProvider(socialLoginData.getProvider());
         newUser.setSocialId(socialId);
+        newUser.setEmail(socialLoginData.getEmail());
+
+        if (userRepo.existsByEmail(socialLoginData.getEmail())) {
+            throw new AuthException("Email is used");
+        }
+
         User savedUser = userRepo.save(newUser);
         String token = jwtUtil.generateToken(savedUser);
 

@@ -18,6 +18,7 @@ public class UpdateProfileDataDto extends RegisterDataDto {
 
     private boolean onlyReceiveMessageFromFollowers;
 
+    private String email;
     public void setIsPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }

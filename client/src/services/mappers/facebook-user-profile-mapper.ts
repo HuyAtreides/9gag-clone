@@ -10,6 +10,7 @@ export namespace FacebookUserProfileMapper {
       avatarUrl: data.picture.data.url,
       provider: SocialProvider.FACEBOOK,
       socialId: data.id,
+      email: data.email,
     };
   }
 }

@@ -46,6 +46,8 @@ public class UserDto {
 
     private boolean reported;
 
+    private String email;
+
     public void setIsPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }

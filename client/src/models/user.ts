@@ -33,6 +33,8 @@ export interface UserConstructorArguments {
 
   readonly about: string;
 
+  readonly email?: string;
+
   readonly onlyReceiveMessageFromFollowers: boolean;
 }
 
@@ -52,6 +54,8 @@ export class User {
   readonly created: Date;
 
   readonly followed: boolean;
+
+  readonly email?: string;
 
   readonly isPrivate: boolean;
 
@@ -87,6 +91,7 @@ export class User {
     this.restrictedAt = constructorArguments.restrictedAt;
     this.onlyReceiveMessageFromFollowers =
       constructorArguments.onlyReceiveMessageFromFollowers;
+    this.email = constructorArguments.email;
   }
 
   public getAvatarLocation(): MediaLocation {
