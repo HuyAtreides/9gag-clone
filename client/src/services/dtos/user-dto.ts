@@ -29,5 +29,7 @@ export interface UserDto {
 
   readonly restrictedAt: string | null;
 
+  readonly email?: string;
+
   readonly onlyReceiveMessageFromFollowers: boolean;
 }

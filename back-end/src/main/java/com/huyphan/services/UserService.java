@@ -155,16 +155,21 @@ public class UserService implements UserDetailsService, MediatorComponent {
 
     @Transactional(rollbackFor = {UserException.class})
     public UserSecret updateProfile(UpdateProfileData updateProfileData)
-            throws UserException {
+            throws UserException, UserAlreadyExistsException {
         User user = getCurrentUser();
         String updatedUsername = updateProfileData.getUsername();
         String updatedAvatarUrl = updateProfileData.getAvatarUrl();
         String updatedCoverImgUrl = updateProfileData.getCoverImgUrl();
         String updatedAbout = updateProfileData.getAbout();
+        String updatedEmail = updateProfileData.getEmail();
 
         if (!Objects.equals(user.getUsername(), updatedUsername) && userRepo.existsByUsername(
                 updatedUsername)) {
             throw new UserException("Username is taken");
+        }
+
+        if (!Objects.equals(user.getEmail(), updatedEmail)) {
+            validateEmail(updatedEmail);
         }
 
         String oldAvatarUrl = user.getAvatarUrl();
@@ -176,6 +181,7 @@ public class UserService implements UserDetailsService, MediatorComponent {
         user.setCoverImageUrl(updatedCoverImgUrl);
         user.setAbout(updatedAbout == null ? "" : updatedAbout);
         user.setPrivate(updateProfileData.isPrivate());
+        user.setEmail(updatedEmail);
         user.setOnlyReceiveMessageFromFollowers(
                 updateProfileData.isOnlyReceiveMessageFromFollowers()
         );
@@ -327,12 +333,25 @@ public class UserService implements UserDetailsService, MediatorComponent {
         return slice.map(UserWithDerivedFields::toUser);
     }
 
+    private void validateEmail(String email) throws UserAlreadyExistsException {
+        if (email == null) {
+            throw new IllegalArgumentException("Email can not be null");
+        }
+
+        if (userRepo.existsByEmail(email)) {
+            throw new UserAlreadyExistsException("Email is used");
+        }
+    }
+
     public User register(RegisterData registerData) throws UserAlreadyExistsException {
         User newUser = new User();
         String username = registerData.getUsername();
+        String email = registerData.getEmail();
         String encodedPassword = passwordEncoder.encode(registerData.getPassword());
 
-        newUser.setEmail(registerData.getEmail());
+        validateEmail(email);
+
+        newUser.setEmail(email);
         newUser.setUsername(username);
         newUser.setDisplayName(registerData.getDisplayName());
         newUser.setCountry(registerData.getCountry());

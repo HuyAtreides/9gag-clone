@@ -55,6 +55,7 @@ const UserAccountSettings: React.FC = () => {
         country: user.country,
         isPrivate: user.isPrivate,
         about: user.about,
+        email: user.email,
         onlyReceiveMessageFromFollowers: user.onlyReceiveMessageFromFollowers,
       });
       setUploadAvatar([
@@ -152,6 +153,21 @@ const UserAccountSettings: React.FC = () => {
       >
         <Input />
       </Form.Item>
+
+      <Form.Item
+        name='email'
+        rules={[
+          {
+            type: 'email',
+            message: 'Please enter a valid email',
+          },
+        ]}
+        label={<strong>Email</strong>}
+        extra='This is your profile email'
+      >
+        <Input />
+      </Form.Item>
+
       <Form.Item
         rules={[
           {

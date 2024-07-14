@@ -154,6 +154,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     boolean existsByUsername(String username);
 
+    boolean existsByEmail(String email);
+
     Optional<User> findByProviderAndSocialId(SocialProvider provider, String socialId);
 
     @Query("""
