@@ -76,6 +76,7 @@ const Posts: React.FC = () => {
         contentType: contentType,
         anonymous: value.anonymous,
         notificationEnabled: value.notificationEnabled,
+        followersOnly: value.followersOnly,
       }),
     );
   };
@@ -191,6 +192,13 @@ const Posts: React.FC = () => {
               extra='When you enable anonymous posting, people will not see who is the owner of this post.'
             >
               <Checkbox>Enable anonymous posting</Checkbox>
+            </Form.Item>
+            <Form.Item
+              name='followersOnly'
+              valuePropName='checked'
+              extra='Only followers can view your post.'
+            >
+              <Checkbox>Followers only</Checkbox>
             </Form.Item>
             <Form.Item
               name='notificationEnabled'

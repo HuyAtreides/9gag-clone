@@ -10,4 +10,5 @@ export interface UploadPostFormData {
   readonly text?: string;
   readonly anonymous: boolean;
   readonly notificationEnabled: boolean;
+  readonly followersOnly: boolean;
 }

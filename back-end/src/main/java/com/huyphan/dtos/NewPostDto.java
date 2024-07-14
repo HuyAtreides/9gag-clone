@@ -29,4 +29,6 @@ public class NewPostDto {
     private boolean nsfw;
 
     private boolean moderating;
+
+    private boolean followersOnly;
 }

@@ -17,7 +17,7 @@ import org.springframework.data.repository.query.Param;
 public interface PostRepository extends CrudRepository<Post, Long> {
 
     String PRIVATE_USER_POST_FILTER = """
-            (post.user = :user or post.user.isPrivate = false or (
+            (post.user = :user or (post.followersOnly = false and post.user.isPrivate = false) or (
                 :user in elements(post.user.followers))
             )
             """;
@@ -170,7 +170,9 @@ public interface PostRepository extends CrudRepository<Post, Long> {
                 or contains(post.tags, :searchTerm) = true
                 or contains(post.title, :searchTerm) = true
             ) and
-            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION + " and " + MODERATING_RESTRICTION)
+            """ + BLOCKED_USER_RESTRICTION + "and " + BLOCKED_POST_OWNER_RESTRICTION + " and " + MODERATING_RESTRICTION
+            + " and " + PRIVATE_USER_POST_FILTER
+    )
     Slice<PostWithDerivedFields> findUserPost(
             @Param("requestUser") User requestUser,
             @Param("user") User user,

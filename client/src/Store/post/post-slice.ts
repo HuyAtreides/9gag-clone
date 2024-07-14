@@ -38,6 +38,14 @@ const postSlice = createSlice({
       state.isLoading = action.payload;
     },
 
+    togglePostFollowersOnly(
+      state,
+      action: PayloadAction<{ id: number; value: boolean }>,
+    ) {
+      const index = state.posts.findIndex((post) => post.id === action.payload.id);
+      state.posts[index].followersOnly = action.payload.value;
+    },
+
     setIsGettingPage(state, action: PayloadAction<boolean>) {
       state.isGettingPage = action.payload;
     },
@@ -166,5 +174,6 @@ export const {
   setPostFollowed,
   setSendNotifications,
   setPostAnonymous,
+  togglePostFollowersOnly,
 } = postSlice.actions;
 export const postReducer = postSlice.reducer;

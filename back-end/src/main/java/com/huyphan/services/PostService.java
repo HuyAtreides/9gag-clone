@@ -26,6 +26,7 @@ import com.huyphan.services.togglenotificationinvoker.IToggleNotificationInvoker
 import com.huyphan.utils.AWSS3Util;
 import com.huyphan.utils.sortoptionsconstructor.SortTypeToSortOptionBuilder;
 import java.util.Arrays;
+import java.util.Objects;
 import javax.swing.text.AbstractDocument.Content;
 import lombok.Getter;
 import lombok.Setter;
@@ -89,8 +90,31 @@ public class PostService implements MediatorComponent, ContentModerationService 
         post.setText(newPost.getText());
         post.setNotificationEnabled(newPost.isNotificationEnabled());
         post.setAnonymous(newPost.isAnonymous());
+        post.setFollowersOnly(newPost.isFollowersOnly());
         Post savedPost = postRepository.save(post);
         mediator.notify(new AddPostEvent(savedPost));
+    }
+
+    @Transactional
+    public void setFollowersOnly(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        validateIfOwnedByCurrentUser(post);
+
+        post.setFollowersOnly(true);
+    }
+
+    @Transactional
+    public void unsetFollowersOnly(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        validateIfOwnedByCurrentUser(post);
+
+        post.setFollowersOnly(false);
+    }
+
+    private void validateIfOwnedByCurrentUser(Post post) {
+        if (!Objects.equals(post.getOwner(), UserService.getUser())) {
+            throw new IllegalArgumentException("Post not owned by current user");
+        }
     }
 
     @Transactional(rollbackFor = {AppException.class})

@@ -49,4 +49,6 @@ export default interface PostDto {
   readonly sharedPostId: number | null;
 
   readonly moderating: boolean;
+
+  readonly followersOnly: boolean;
 }
